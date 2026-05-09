@@ -70,7 +70,17 @@ git commit -m "what changed and why"
 git push                               # deploy fires automatically
 ```
 
-You can still run a deploy manually any time: `pnpm deploy` from the repo root. Same script, same result — useful when offline or testing changes pre-commit.
+You can still run a deploy manually any time:
+
+```powershell
+pnpm ship                # standard manual deploy (use this — `pnpm deploy` collides with pnpm's built-in)
+pnpm ship:check          # ssh + dirs + PM2 reachability check only
+pnpm ship:dry            # print every step without executing
+pnpm ship:seed           # also re-run db:seed
+pnpm ship -- --logs      # tail PM2 logs after smoke test
+```
+
+Same script as the GitHub Actions runs. Useful when offline, when testing changes pre-commit, or for a manual recovery deploy.
 
 ---
 
