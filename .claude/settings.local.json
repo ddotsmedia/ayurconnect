@@ -186,7 +186,11 @@
       "Bash(bash scripts/deploy.sh)",
       "Bash(git init *)",
       "Bash(git config *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(rm -f scripts/.deploy-key scripts/.deploy-key.pub)",
+      "Bash(ssh-keygen -t ed25519 -C \"github-actions-deploy@ayurconnect.com\" -f scripts/.deploy-key -N \"\" -q)",
+      "Bash(ssh -i 'c:/Users/home/.claude/ayurvedakerala/scripts/.deploy-key' -o StrictHostKeyChecking=accept-new -o IdentitiesOnly=yes root@194.164.151.202 \"echo deploy-key-works; whoami; pwd; cat /opt/ayurconnect/.last-deploy 2>/dev/null\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\home\\.claude\\ayurvedakerala\\apps\\web",
