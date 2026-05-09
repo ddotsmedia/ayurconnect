@@ -1,0 +1,43 @@
+{
+  "type": "module",
+  "name": "api",
+  "version": "1.0.0",
+  "description": "AyurConnect API server",
+  "main": "dist/server.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "npm run build:ts && tsc -p test/tsconfig.json && FASTIFY_AUTOLOAD_TYPESCRIPT=1 node --test --experimental-test-coverage --loader ts-node/esm test/**/*.ts",
+    "start": "node dist/server.js",
+    "build": "tsc",
+    "build:ts": "tsc",
+    "watch:ts": "tsc -w",
+    "dev": "tsx watch src/server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fastify": "^5.2.0",
+    "fastify-plugin": "^5.0.1",
+    "@fastify/autoload": "^6.0.3",
+    "@fastify/sensible": "^6.0.2",
+    "@fastify/cookie": "^11.0.1",
+    "@fastify/cors": "^10.0.1",
+    "@anthropic-ai/sdk": "^0.32.1",
+    "@ayurconnect/db": "workspace:*",
+    "@prisma/client": "^6.2.1",
+    "better-auth": "^1.1.10",
+    "dotenv": "^16.4.7",
+    "ioredis": "^5.4.1",
+    "meilisearch": "^0.45.0",
+    "minio": "^8.0.2",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.40",
+    "tsx": "^4.19.2",
+    "typescript": "~5.9.2"
+  }
+}

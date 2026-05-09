@@ -1,0 +1,19 @@
+# Default to LF on commit; check out as-is.
+* text=auto eol=lf
+
+# Shell scripts must always be LF (shebangs break on CRLF).
+*.sh text eol=lf
+*.bash text eol=lf
+
+# PowerShell can be either; keep CRLF on Windows checkouts.
+*.ps1 text eol=crlf
+
+# Treat these as binary so Git doesn't try to diff them.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.ttf binary

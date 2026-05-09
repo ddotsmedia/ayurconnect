@@ -1,0 +1,40 @@
+node_modules
+.pnpm-store
+.turbo
+dist
+.next
+out
+
+# env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# logs
+*.log
+logs
+
+# os
+.DS_Store
+Thumbs.db
+
+# editors
+.idea
+.vscode
+
+# build artifacts
+coverage
+*.tsbuildinfo
+
+# legacy sqlite dev DB (replaced by Postgres+pgvector)
+packages/db/dev.db
+packages/db/dev.db-journal
+
+# generated Prisma migrations metadata kept; secrets never
+secrets/
+*.pem
+*.ppk
+scripts/.deploy-key
+scripts/.deploy-key.pub
+cookies.txt

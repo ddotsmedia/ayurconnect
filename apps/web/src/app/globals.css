@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --kerala-50:   #f0fdf4;
+  --kerala-100:  #e8f5e9;
+  --kerala-600:  #1b5e20;
+  --kerala-700:  #155724;
+  --kerala-800:  #0a2e0f;
+  --gold-500:    #d97706;
+  --gold-600:    #b45309;
+  --cream:       #fafaf7;
+  --ink:         #1a1a1a;
+  --muted:       #6b7280;
+  --border:      #f0f0f0;
+  --shadow-sm:   0 2px 20px rgba(0,0,0,.07);
+  --shadow-md:   0 8px 32px rgba(0,0,0,.12);
+  --shadow-lg:   0 20px 60px rgba(0,0,0,.2);
+}
+
+html, body {
+  background-color: var(--cream);
+  color: var(--ink);
+}
+
+body {
+  font-family: var(--font-inter), Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* hide scrollbar utilities for hero overlays */
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* nicer focus ring */
+:focus-visible { outline: 2px solid var(--kerala-600); outline-offset: 2px; }
