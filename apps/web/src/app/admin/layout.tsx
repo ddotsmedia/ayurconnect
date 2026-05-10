@@ -17,6 +17,7 @@ const NAV: Array<{ href: string; label: string; group?: string }> = [
   { href: '/admin/health-tips', label: 'Health tips',  group: 'content' },
   { href: '/admin/forum',     label: 'Forum',     group: 'moderation' },
   { href: '/admin/reviews',   label: 'Reviews',   group: 'moderation' },
+  { href: '/admin/settings',  label: 'Site settings', group: 'config' },
 ]
 
 const GROUP_LABEL: Record<string, string> = {
@@ -24,6 +25,7 @@ const GROUP_LABEL: Record<string, string> = {
   directory: 'DIRECTORY',
   content: 'CONTENT',
   moderation: 'MODERATION',
+  config: 'CONFIGURATION',
 }
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

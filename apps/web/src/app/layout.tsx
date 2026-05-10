@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from 'next'
 import { Cormorant_Garamond, Inter } from 'next/font/google'
-import { Navbar, Footer, AyurBotWidget, MobileBottomNav, ServiceWorkerRegister, type NavbarSession } from '@ayurconnect/ui'
+import { Navbar, Footer, AyurBotWidget, MobileBottomNav, ServiceWorkerRegister, type NavbarSession, type FooterSettings } from '@ayurconnect/ui'
 import { getServerSession } from '../lib/auth'
 import { organizationLd, websiteLd, ldGraph, SITE_URL } from '../lib/seo'
+import { API_INTERNAL as API } from '../lib/server-fetch'
 import './globals.css'
 
 const cormorant = Cormorant_Garamond({
@@ -79,12 +80,20 @@ export const viewport: Viewport = {
 
 const ROOT_JSON_LD = ldGraph(organizationLd(), websiteLd())
 
+async function fetchFooterSettings(): Promise<FooterSettings> {
+  try {
+    const res = await fetch(`${API}/site-settings`, { next: { revalidate: 60 } })
+    if (!res.ok) return {}
+    return (await res.json()) as FooterSettings
+  } catch { return {} }
+}
+
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const sess = await getServerSession()
+  const [sess, footerSettings] = await Promise.all([getServerSession(), fetchFooterSettings()])
   const navSession: NavbarSession = sess
     ? { user: { id: sess.user.id, email: sess.user.email, name: sess.user.name, role: sess.user.role, image: sess.user.image ?? null } }
     : null
@@ -95,7 +104,7 @@ export default async function RootLayout({
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ROOT_JSON_LD) }} />
         <Navbar session={navSession} />
         <main className="pb-16 md:pb-0">{children}</main>
-        <Footer />
+        <Footer settings={footerSettings} />
         <AyurBotWidget />
         <MobileBottomNav />
         <ServiceWorkerRegister />

@@ -393,6 +393,15 @@ model MedicalTourismPackage {
   updatedAt   DateTime @updatedAt
 }
 
+// ─── Site-wide admin-editable settings (key/value store) ─────────────────
+// Used for social media URLs, contact info, taglines, etc.
+// Reading is public; writing is admin-gated.
+model SiteSetting {
+  key       String   @id  // e.g. 'social.facebook', 'contact.email', 'brand.tagline'
+  value     String   @default("")
+  updatedAt DateTime @updatedAt
+}
+
 model HealthTip {
   id        String   @id @default(cuid())
   title     String

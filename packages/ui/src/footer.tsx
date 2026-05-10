@@ -1,6 +1,30 @@
 import Link from 'next/link'
-import { Facebook, Instagram, Youtube, Linkedin, ShieldCheck } from 'lucide-react'
+import { Facebook, Instagram, Youtube, Linkedin, ShieldCheck, MessageCircle, Send, Mail, Phone, MapPin } from 'lucide-react'
 import { LogoCircular } from './logo'
+
+export type FooterSettings = {
+  'social.facebook'?: string
+  'social.instagram'?: string
+  'social.youtube'?: string
+  'social.linkedin'?: string
+  'social.twitter'?: string
+  'social.whatsapp'?: string
+  'social.telegram'?: string
+  'contact.email'?: string
+  'contact.phone'?: string
+  'contact.address'?: string
+  'brand.tagline'?: string
+  'brand.copyright'?: string
+}
+
+const SOCIAL_DEFS: Array<{ key: keyof FooterSettings; icon: typeof Facebook; label: string }> = [
+  { key: 'social.facebook',  icon: Facebook,       label: 'Facebook' },
+  { key: 'social.instagram', icon: Instagram,      label: 'Instagram' },
+  { key: 'social.youtube',   icon: Youtube,        label: 'YouTube' },
+  { key: 'social.linkedin',  icon: Linkedin,       label: 'LinkedIn' },
+  { key: 'social.whatsapp',  icon: MessageCircle,  label: 'WhatsApp' },
+  { key: 'social.telegram',  icon: Send,           label: 'Telegram' },
+]
 
 const COLS: Array<{ heading: string; links: Array<{ href: string; label: string }> }> = [
   {
@@ -31,7 +55,13 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
   },
 ]
 
-export function Footer() {
+export function Footer({ settings = {} }: { settings?: FooterSettings } = {}) {
+  const tagline   = settings['brand.tagline']   || "Kerala's #1 Ayurveda Platform"
+  const copyright = settings['brand.copyright'] || `© ${new Date().getFullYear()} AyurConnect.com — Kerala's Premier Ayurveda Platform.`
+  const socials = SOCIAL_DEFS.filter((d) => (settings[d.key] ?? '').trim().length > 0)
+  // Twitter/X is special-cased: lucide doesn't ship a Twitter icon in v0.x, use a styled X glyph instead
+  const showTwitter = (settings['social.twitter'] ?? '').trim().length > 0
+
   return (
     <footer className="bg-kerala-800 text-white mt-20">
       <div className="container mx-auto px-4 py-14">
@@ -42,16 +72,42 @@ export function Footer() {
               <LogoCircular size={120} className="block group-hover:opacity-95 transition-opacity" />
             </Link>
             <p className="mt-5 text-sm text-white/70 leading-relaxed">
-              Kerala&apos;s #1 Ayurveda platform. Verified CCIM doctors, classical
-              Panchakarma centres, 150+ medicinal herbs, AI-assisted health insights —
-              rooted in God&apos;s Own Country.
+              {tagline}. Verified CCIM doctors, classical Panchakarma centres, 150+ medicinal herbs,
+              AI-assisted health insights — rooted in God&apos;s Own Country.
             </p>
-            <div className="flex items-center gap-3 mt-5">
-              <a href="#" aria-label="Facebook"  className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"><Facebook className="w-4 h-4" /></a>
-              <a href="#" aria-label="Instagram" className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"><Instagram className="w-4 h-4" /></a>
-              <a href="#" aria-label="YouTube"   className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"><Youtube className="w-4 h-4" /></a>
-              <a href="#" aria-label="LinkedIn"  className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"><Linkedin className="w-4 h-4" /></a>
-            </div>
+            {/* Contact bits — only render keys that admin has filled */}
+            {(settings['contact.email'] || settings['contact.phone'] || settings['contact.address']) && (
+              <ul className="mt-5 space-y-2 text-sm text-white/80">
+                {settings['contact.email'] && (
+                  <li className="flex items-center gap-2"><Mail className="w-4 h-4 text-gold-400" /><a href={`mailto:${settings['contact.email']}`} className="hover:text-white">{settings['contact.email']}</a></li>
+                )}
+                {settings['contact.phone'] && (
+                  <li className="flex items-center gap-2"><Phone className="w-4 h-4 text-gold-400" /><a href={`tel:${settings['contact.phone'].replace(/\s+/g, '')}`} className="hover:text-white">{settings['contact.phone']}</a></li>
+                )}
+                {settings['contact.address'] && (
+                  <li className="flex items-start gap-2"><MapPin className="w-4 h-4 text-gold-400 mt-0.5 flex-shrink-0" /><span>{settings['contact.address']}</span></li>
+                )}
+              </ul>
+            )}
+            {(socials.length > 0 || showTwitter) && (
+              <div className="flex items-center gap-3 mt-5">
+                {socials.map(({ key, icon: Icon, label }) => (
+                  <a
+                    key={key}
+                    href={settings[key]!}
+                    aria-label={label}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+                  >
+                    <Icon className="w-4 h-4" />
+                  </a>
+                ))}
+                {showTwitter && (
+                  <a href={settings['social.twitter']!} aria-label="Twitter / X" target="_blank" rel="noreferrer noopener" className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors text-sm font-bold">𝕏</a>
+                )}
+              </div>
+            )}
           </div>
 
           {COLS.map((col) => (
@@ -88,7 +144,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 text-xs text-white/50 text-center">
-          © {new Date().getFullYear()} AyurConnect.com — Kerala&apos;s Premier Ayurveda Platform.
+          {copyright}
         </div>
       </div>
     </footer>
