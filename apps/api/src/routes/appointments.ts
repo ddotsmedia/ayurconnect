@@ -2,6 +2,7 @@ import type { FastifyPluginAsync } from 'fastify'
 import { createNotification } from '../lib/notify.js'
 import { sendWhatsApp } from '../lib/whatsapp.js'
 import { sendEmail, emailEnabled } from '../lib/email.js'
+import { createVideoRoom, videoEnabled } from '../lib/video.js'
 
 export const autoPrefix = '/appointments'
 
@@ -62,6 +63,14 @@ const route: FastifyPluginAsync = async (fastify) => {
     const doctor = await fastify.prisma.doctor.findUnique({ where: { id: String(body.doctorId) } })
     if (!doctor) return reply.code(404).send({ error: 'doctor not found' })
 
+    // If a slotId is provided, validate it and flip it to booked atomically.
+    const slotId = body.slotId ? String(body.slotId) : null
+    if (slotId) {
+      const slot = await fastify.prisma.doctorSlot.findUnique({ where: { id: slotId } })
+      if (!slot || slot.doctorId !== doctor.id) return reply.code(404).send({ error: 'slot not found for this doctor' })
+      if (slot.status !== 'open')               return reply.code(409).send({ error: `slot is ${slot.status}` })
+    }
+
     const appt = await fastify.prisma.appointment.create({
       data: {
         userId: sess.user.id,
@@ -76,6 +85,28 @@ const route: FastifyPluginAsync = async (fastify) => {
         status: 'scheduled',
       },
     })
+
+    // Mark the slot as booked (if used)
+    if (slotId) {
+      try { await fastify.prisma.doctorSlot.update({ where: { id: slotId }, data: { status: 'booked' } }) }
+      catch (err) { fastify.log.warn({ err, slotId }, 'failed to flip slot to booked (appointment still created)') }
+    }
+
+    // ─── Create video room if this is a video consultation ──────────────
+    let videoUrl: string | null = null
+    if (appt.type === 'consultation-video' && videoEnabled()) {
+      try {
+        const room = await createVideoRoom({
+          name: `${doctor.name}-${appt.id.slice(-6)}`,
+          validFrom:  Math.floor(new Date(appt.dateTime).getTime() / 1000) - 600, // 10min early
+          validUntil: Math.floor(new Date(appt.dateTime).getTime() / 1000) + 90 * 60, // 90min window
+        })
+        if (room.ok) {
+          videoUrl = room.url
+          await fastify.prisma.appointment.update({ where: { id: appt.id }, data: { notes: `${appt.notes ? appt.notes + '\n\n' : ''}Video room: ${room.url}` } })
+        }
+      } catch (err) { fastify.log.warn({ err }, 'video room creation failed (non-fatal)') }
+    }
 
     // ─── Fan-out: notification, email, WhatsApp ──────────────────────────
     void (async () => {
@@ -105,13 +136,15 @@ const route: FastifyPluginAsync = async (fastify) => {
 
         // 3. Email confirmation to patient (if Resend configured)
         if (emailEnabled() && sess.user.email) {
+          const videoLine = videoUrl ? `<p><strong>Video link:</strong> <a href="${videoUrl}">${videoUrl}</a></p>` : ''
           await sendEmail({
             to: sess.user.email,
             subject: `Appointment confirmed — ${doctor.name}`,
             html: `<p>Your appointment with <strong>${doctor.name}</strong> is scheduled for <strong>${when}</strong>.</p>
                    <p>Type: ${appt.type}<br>Fee: ${appt.fee ? `₹${appt.fee}` : 'TBD'}</p>
+                   ${videoLine}
                    <p>You can cancel or reschedule from your dashboard at https://ayurconnect.com/dashboard/appointments.</p>`,
-            text: `Appointment with ${doctor.name} on ${when}. Manage at https://ayurconnect.com/dashboard/appointments`,
+            text: `Appointment with ${doctor.name} on ${when}. ${videoUrl ? 'Video: ' + videoUrl : ''} Manage at https://ayurconnect.com/dashboard/appointments`,
           })
         }
 

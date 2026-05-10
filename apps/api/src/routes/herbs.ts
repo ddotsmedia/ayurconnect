@@ -1,6 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify'
 import { cached, bust } from '../lib/cache.js'
 import { upsertDoc, deleteDoc } from '../lib/search-sync.js'
+import { embedText, toVectorLiteral, embeddingsEnabled } from '../lib/embeddings.js'
 
 export const autoPrefix = '/herbs'
 
@@ -87,6 +88,47 @@ const herbs: FastifyPluginAsync = async (fastify) => {
     void bust(fastify, 'herbs:list:*')
     void deleteDoc(fastify, 'herbs', id)
     return reply.code(204).send()
+  })
+
+  // ─── Semantic / vector search ────────────────────────────────────────
+  // Embed the query via Gemini, then rank herbs by cosine similarity. Returns
+  // the closest 12 by default with a similarity score in [0..1].
+  // Example: /herbs/semantic?q=chronic+fatigue+and+stress
+  fastify.get('/semantic', async (request, reply) => {
+    const { q = '', limit = '12' } = request.query as { q?: string; limit?: string }
+    const term = q.trim()
+    if (!term) return { query: '', herbs: [] }
+    if (!embeddingsEnabled()) {
+      return reply.code(503).send({ error: 'GOOGLE_API_KEY not set — semantic search disabled' })
+    }
+
+    const vec = await embedText(term)
+    if (!vec) return reply.code(502).send({ error: 'embedding service unavailable' })
+
+    const lim = Math.min(Number(limit) || 12, 30)
+    const lit = toVectorLiteral(vec)
+
+    // pgvector cosine distance: <=> operator. Score = 1 - distance.
+    type Row = { id: string; name: string; sanskrit: string | null; english: string | null; malayalam: string | null; rasa: string | null; uses: string | null; description: string | null; distance: number }
+    const rows = await fastify.prisma.$queryRawUnsafe<Row[]>(
+      `SELECT id, name, sanskrit, english, malayalam, rasa, uses, description,
+              (embedding <=> $1::vector) AS distance
+       FROM "Herb"
+       WHERE embedding IS NOT NULL
+       ORDER BY embedding <=> $1::vector
+       LIMIT $2`,
+      lit,
+      lim,
+    )
+
+    return {
+      query: term,
+      herbs: rows.map((r) => ({
+        id: r.id, name: r.name, sanskrit: r.sanskrit, english: r.english, malayalam: r.malayalam,
+        rasa: r.rasa, uses: r.uses, description: r.description,
+        score: Number((1 - Number(r.distance)).toFixed(4)),
+      })),
+    }
   })
 
   fastify.get('/properties', async () => ({

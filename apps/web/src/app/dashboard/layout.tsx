@@ -43,6 +43,7 @@ const PATIENT_NAV = [
 const DOCTOR_NAV = [
   { href: '/dashboard',              label: 'Overview' },
   { href: '/dashboard/appointments', label: 'My appointments' },
+  { href: '/dashboard/slots',        label: 'My availability' },
   { href: '/dashboard/profile',      label: 'My profile' },
 ]
 const HOSPITAL_NAV = [

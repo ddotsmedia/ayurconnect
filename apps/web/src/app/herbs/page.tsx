@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { GradientHero } from '@ayurconnect/ui'
 import { Leaf, BookOpen } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
+import { SemanticHerbSearch } from '../../components/semantic-herb-search'
 
 type Herb = {
   id: string
@@ -56,6 +57,8 @@ export default async function HerbsPage() {
       </GradientHero>
 
       <div className="container mx-auto px-4 py-12">
+        <SemanticHerbSearch />
+
         <p className="text-sm text-muted mb-6">
           <strong className="text-ink">{herbs.length}</strong> herbs catalogued
           <span className="text-subtle"> · sourced from Charaka Samhita, Ashtanga Hridayam and Kerala practice traditions</span>

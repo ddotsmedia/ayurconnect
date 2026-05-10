@@ -45,15 +45,21 @@ export default function BookPage({ params }: { params: Promise<{ doctorId: strin
     time: '10:00',
     chiefComplaint: '',
     duration: '1-4 weeks',
+    slotId: null as string | null,
   })
+
+  type SlotItem = { id: string; startsAt: string; endsAt: string; type: string }
+  const [slots, setSlots] = useState<SlotItem[]>([])
 
   useEffect(() => {
     Promise.all([
       fetch(`/api/doctors/${doctorId}`).then((r) => r.json()),
       fetch('/api/payments/config').then((r) => r.json()),
-    ]).then(([d, c]) => {
+      fetch(`/api/doctors/${doctorId}/slots`).then((r) => r.ok ? r.json() : { slots: [] }),
+    ]).then(([d, c, s]) => {
       setDoctor(d as Doctor)
       setRzConfig(c as RazorpayConfig)
+      setSlots((s as { slots: SlotItem[] }).slots ?? [])
     }).catch((e) => setError(String(e))).finally(() => setLoading(false))
   }, [doctorId])
 
@@ -71,6 +77,7 @@ export default function BookPage({ params }: { params: Promise<{ doctorId: strin
           type: form.type,
           chiefComplaint: form.chiefComplaint,
           duration: form.duration,
+          slotId: form.slotId,
         }),
       })
       if (res.status === 401) { router.push(`/sign-in?next=/book/${doctorId}`); return null }
@@ -192,15 +199,57 @@ export default function BookPage({ params }: { params: Promise<{ doctorId: strin
           {step === 2 && (
             <div className="space-y-4">
               <h2 className="text-xl text-kerala-700 mb-2">Pick date and time</h2>
-              <p className="text-xs text-muted">Doctor available: {doctor.availableDays.join(', ') || 'on request'}.</p>
-              <label className="block">
-                <span className="block text-xs font-medium text-gray-700 mb-1.5">Date</span>
-                <input type="date" required value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} min={new Date().toISOString().split('T')[0]} className="w-full border rounded-md px-3 py-2 text-sm" />
-              </label>
-              <label className="block">
-                <span className="block text-xs font-medium text-gray-700 mb-1.5">Time</span>
-                <input type="time" required value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm" />
-              </label>
+
+              {slots.length > 0 ? (
+                <div className="space-y-3">
+                  <p className="text-xs text-muted">Choose from {slots.length} bookable slot{slots.length === 1 ? '' : 's'} the doctor has opened:</p>
+                  <div className="max-h-72 overflow-y-auto bg-gray-50 rounded-md p-2 space-y-1">
+                    {slots.map((s) => {
+                      const dt = new Date(s.startsAt)
+                      const label = dt.toLocaleString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata' })
+                      const selected = form.slotId === s.id
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => setForm({
+                            ...form,
+                            slotId: s.id,
+                            date: dt.toISOString().slice(0, 10),
+                            time: dt.toTimeString().slice(0, 5),
+                          })}
+                          className={`w-full text-left px-3 py-2 rounded text-sm ${selected ? 'bg-kerala-700 text-white' : 'bg-white hover:bg-kerala-50 text-gray-800 border border-gray-200'}`}
+                        >
+                          <div className="flex justify-between items-center">
+                            <span>{label}</span>
+                            <span className="text-xs opacity-75">{s.type}</span>
+                          </div>
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <details className="text-xs text-muted">
+                    <summary className="cursor-pointer hover:text-gray-700">Or pick a custom date/time</summary>
+                    <div className="mt-3 space-y-2">
+                      <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value, slotId: null })} min={new Date().toISOString().split('T')[0]} className="w-full border rounded-md px-3 py-2 text-sm" />
+                      <input type="time" value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value, slotId: null })} className="w-full border rounded-md px-3 py-2 text-sm" />
+                    </div>
+                  </details>
+                </div>
+              ) : (
+                <>
+                  <p className="text-xs text-muted">Doctor available: {doctor.availableDays.join(', ') || 'on request'}.</p>
+                  <label className="block">
+                    <span className="block text-xs font-medium text-gray-700 mb-1.5">Date</span>
+                    <input type="date" required value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} min={new Date().toISOString().split('T')[0]} className="w-full border rounded-md px-3 py-2 text-sm" />
+                  </label>
+                  <label className="block">
+                    <span className="block text-xs font-medium text-gray-700 mb-1.5">Time</span>
+                    <input type="time" required value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm" />
+                  </label>
+                </>
+              )}
+
               <div className="flex gap-2 pt-2">
                 <button onClick={() => setStep(1)} className="flex-1 px-4 py-2 border border-gray-200 rounded-md text-sm hover:bg-gray-50">Back</button>
                 <button onClick={() => setStep(3)} disabled={!form.date} className="flex-1 px-4 py-2 bg-kerala-600 text-white rounded-md text-sm font-semibold hover:bg-kerala-700 disabled:opacity-50">Next</button>

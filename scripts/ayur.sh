@@ -92,6 +92,8 @@ cmd_env() {
       check TWILIO_FROM        'Twilio SMS (from)'      ''
       check TWILIO_WHATSAPP_FROM 'Twilio WhatsApp (from)' ''
       check VOYAGE_API_KEY     'Voyage AI'              ''
+      check DAILY_API_KEY      'Daily.co video'         ''
+      check DAILY_DOMAIN       'Daily.co domain'        ''
     "
     return
   fi
