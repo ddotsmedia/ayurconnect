@@ -99,9 +99,11 @@ export default function AyurBotPage() {
             ? '⚙️ AyurBot is not configured on this site yet. Site owner: paste a valid ANTHROPIC_API_KEY.'
             : body.code === 'auth-failed'
               ? '🔑 The site\'s Claude API key was rejected.'
-              : body.code === 'rate-limited'
-                ? '⏳ AyurBot is rate-limited right now. Try again in a minute.'
-                : `⚠️ ${body.error ?? 'AyurBot is offline.'}`
+              : body.code === 'no-credits'
+                ? '💳 AyurBot has run out of API credits. Site owner: top up at https://console.anthropic.com/settings/billing'
+                : body.code === 'rate-limited'
+                  ? '⏳ AyurBot is rate-limited right now. Try again in a minute.'
+                  : `⚠️ ${body.error ?? 'AyurBot is offline.'}`
         append({ role: 'error', content: `${friendly}\n\n(${body.reason ?? `HTTP ${res.status}`})` })
       } else {
         append({ role: 'bot', content: body.response ?? 'No response.' })

@@ -80,7 +80,19 @@ const ayurbot: FastifyPluginAsync = async (fastify) => {
           code: 'rate-limited',
         })
       }
-      return reply.code(502).send({
+      // Anthropic returns 400 invalid_request_error for "credit balance is too
+      // low" — common during free-tier exhaustion. Surface it specifically so
+      // we (and the widget) can prompt a top-up rather than show a generic 502.
+      if (status === 400 && /credit balance|insufficient.*credit|billing/i.test(upstream)) {
+        return reply.code(503).send({
+          error: 'AyurBot is out of credits.',
+          reason: 'The Anthropic account has zero/insufficient credits. Top up at https://console.anthropic.com/settings/billing',
+          code: 'no-credits',
+        })
+      }
+      // Use 503 instead of 502 so Cloudflare doesn't replace our JSON body
+      // with its own plain-text "error code: 502" page.
+      return reply.code(503).send({
         error: 'AyurBot upstream error.',
         reason: upstream,
         code: 'upstream-error',
