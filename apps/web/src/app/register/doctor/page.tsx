@@ -1,31 +1,40 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Stethoscope, ShieldCheck } from 'lucide-react'
-import { signUpUser, postJson, KERALA_DISTRICTS, SPECIALIZATIONS } from '../_lib'
+import { signUpUser, postJson, SPECIALIZATIONS } from '../_lib'
+import { CountrySelect } from '../../../components/country-select'
+import { StateSelect } from '../../../components/state-select'
+import { PhoneInput } from '../../../components/phone-input'
+import { detectCountry, rememberCountry } from '../../../lib/detect-country'
 
 export default function DoctorRegisterPage() {
   const router = useRouter()
   const [form, setForm] = useState({
     name: '', email: '', password: '',
-    qualification: '', specialization: '', district: '',
+    qualification: '', specialization: '',
+    country: 'IN', state: '', district: '',
     experienceYears: '', consultationFee: '', contact: '', languages: 'Malayalam, English',
   })
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
 
+  useEffect(() => {
+    setForm((f) => ({ ...f, country: detectCountry() }))
+  }, [])
+
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setBusy(true); setErr(null)
     try {
-      // Step 1: create the User account (Better Auth, autoSignIn=true)
       await signUpUser({ name: form.name, email: form.email, password: form.password })
-      // Step 2: create + link Doctor profile
       await postJson('/me/promote-to-doctor', {
         name: form.name,
         specialization: form.specialization,
+        country: form.country,
+        state: form.state || null,
         district: form.district,
         qualification: form.qualification || null,
         experienceYears: form.experienceYears ? Number(form.experienceYears) : null,
@@ -33,6 +42,7 @@ export default function DoctorRegisterPage() {
         contact: form.contact || null,
         languages: form.languages.split(',').map((s) => s.trim()).filter(Boolean),
       })
+      rememberCountry(form.country)
       router.push('/dashboard?welcome=doctor')
       router.refresh()
     } catch (e) {
@@ -65,7 +75,9 @@ export default function DoctorRegisterPage() {
             <Field label="Full name (Dr. ...)"><input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="input" placeholder="Dr. Anjali Menon" /></Field>
             <Field label="Email"><input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required autoComplete="email" className="input" /></Field>
             <Field label="Password (min 8)"><input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required minLength={8} autoComplete="new-password" className="input" /></Field>
-            <Field label="Phone / WhatsApp"><input value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} className="input" placeholder="+91-..." /></Field>
+            <Field label="Phone / WhatsApp">
+              <PhoneInput value={form.contact} onChange={(e164) => setForm({ ...form, contact: e164 })} defaultCountry={form.country} />
+            </Field>
           </div>
 
           <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider pt-3 border-t">Practice</h2>
@@ -79,11 +91,14 @@ export default function DoctorRegisterPage() {
                 {SPECIALIZATIONS.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
             </Field>
-            <Field label="District">
-              <select value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} required className="input">
-                <option value="">Select…</option>
-                {KERALA_DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
-              </select>
+            <Field label="Country">
+              <CountrySelect value={form.country} onChange={(c) => setForm({ ...form, country: c, state: '' })} />
+            </Field>
+            <Field label="State / region">
+              <StateSelect country={form.country} value={form.state} onChange={(s) => setForm({ ...form, state: s })} />
+            </Field>
+            <Field label="City / district *">
+              <input value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} required placeholder="e.g. Ernakulam, Mumbai, Dubai" className="input" />
             </Field>
             <Field label="Experience (years)">
               <input type="number" min={0} value={form.experienceYears} onChange={(e) => setForm({ ...form, experienceYears: e.target.value })} className="input" />

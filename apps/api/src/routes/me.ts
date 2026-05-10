@@ -61,11 +61,13 @@ const me: FastifyPluginAsync = async (fastify) => {
     if (typeof body.phone === 'string')    data.phone = body.phone || null
     if (typeof body.prakriti === 'string') data.prakriti = body.prakriti || null
     if (typeof body.image === 'string')    data.image = body.image || null
+    if (typeof body.country === 'string')  data.country = /^[A-Z]{2}$/.test(body.country) ? body.country : null
+    if (typeof body.state === 'string')    data.state = body.state.trim().slice(0, 100) || null
     if (Object.keys(data).length === 0) return reply.code(400).send({ error: 'no editable fields' })
     return fastify.prisma.user.update({
       where: { id },
       data,
-      select: { id: true, email: true, name: true, prakriti: true, phone: true, image: true },
+      select: { id: true, email: true, name: true, prakriti: true, phone: true, image: true, country: true, state: true },
     })
   })
 
@@ -86,11 +88,15 @@ const me: FastifyPluginAsync = async (fastify) => {
     if (!name || !specialization || !district) {
       return reply.code(400).send({ error: 'name, specialization, district required' })
     }
+    const country = typeof body.country === 'string' && /^[A-Z]{2}$/.test(body.country) ? body.country : 'IN'
+    const state   = typeof body.state === 'string' && body.state.trim() ? body.state.trim().slice(0, 100) : null
 
     const doctor = await fastify.prisma.doctor.create({
       data: {
         name,
         specialization,
+        country,
+        state,
         district,
         ccimVerified: false, // admin-approved later
         qualification:   typeof body.qualification === 'string'   ? body.qualification   : null,
@@ -125,11 +131,15 @@ const me: FastifyPluginAsync = async (fastify) => {
     if (!name || !type || !district) {
       return reply.code(400).send({ error: 'name, type, district required' })
     }
+    const country = typeof body.country === 'string' && /^[A-Z]{2}$/.test(body.country) ? body.country : 'IN'
+    const state   = typeof body.state === 'string' && body.state.trim() ? body.state.trim().slice(0, 100) : null
 
     const hospital = await fastify.prisma.hospital.create({
       data: {
         name,
         type,
+        country,
+        state,
         district,
         ccimVerified:    false,
         ayushCertified:  Boolean(body.ayushCertified),
@@ -167,6 +177,8 @@ const me: FastifyPluginAsync = async (fastify) => {
     setStr('name')
     setStr('type')
     setStr('district')
+    setStr('country')
+    setStrOrNull('state')
     setStrOrNull('profile')
     setStrOrNull('contact')
     setStrOrNull('address')
@@ -200,6 +212,8 @@ const me: FastifyPluginAsync = async (fastify) => {
     setStr('name')
     setStr('specialization')
     setStr('district')
+    setStr('country')
+    setStrOrNull('state')
     setStrOrNull('qualification')
     setStrOrNull('profile')
     setStrOrNull('bio')

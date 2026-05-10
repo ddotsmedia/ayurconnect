@@ -1,22 +1,52 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { User } from 'lucide-react'
-import { signUpUser } from '../_lib'
+import { signUpUser, postJson } from '../_lib'
+import { CountrySelect } from '../../../components/country-select'
+import { StateSelect } from '../../../components/state-select'
+import { PhoneInput } from '../../../components/phone-input'
+import { detectCountry, rememberCountry } from '../../../lib/detect-country'
 
 export default function PatientRegisterPage() {
   const router = useRouter()
-  const [form, setForm] = useState({ name: '', email: '', password: '' })
+  const [form, setForm] = useState({
+    name: '', email: '', password: '',
+    country: 'IN', state: '', phone: '',
+  })
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+
+  // Auto-detect country once on mount
+  useEffect(() => {
+    setForm((f) => ({ ...f, country: detectCountry() }))
+  }, [])
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setBusy(true); setErr(null)
     try {
-      await signUpUser(form)
+      await signUpUser({ name: form.name, email: form.email, password: form.password })
+      // Save country/state/phone via PATCH /me — sign-up auto-signs-in so the cookie is set
+      try {
+        await postJson('/me', {})
+      } catch { /* ignore — try/catch only because PATCH fails on empty body */ }
+      try {
+        await fetch('/api/me', {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            name:    form.name,
+            country: form.country,
+            state:   form.state || null,
+            phone:   form.phone || null,
+          }),
+        })
+      } catch { /* non-fatal */ }
+      rememberCountry(form.country)
       router.push('/dashboard')
       router.refresh()
     } catch (e) {
@@ -45,6 +75,19 @@ export default function PatientRegisterPage() {
           </Field>
           <Field label="Password (min 8 characters)">
             <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required minLength={8} autoComplete="new-password" className="input" />
+          </Field>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Country">
+              <CountrySelect value={form.country} onChange={(c) => setForm({ ...form, country: c, state: '' })} />
+            </Field>
+            <Field label="State / region">
+              <StateSelect country={form.country} value={form.state} onChange={(s) => setForm({ ...form, state: s })} />
+            </Field>
+          </div>
+
+          <Field label="Phone (optional, for appointment reminders)">
+            <PhoneInput value={form.phone} onChange={(e164) => setForm({ ...form, phone: e164 })} defaultCountry={form.country} />
           </Field>
 
           {err && <p className="text-sm text-red-600">{err}</p>}

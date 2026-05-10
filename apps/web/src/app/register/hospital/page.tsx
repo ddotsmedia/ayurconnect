@@ -1,21 +1,30 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Building2, ShieldCheck } from 'lucide-react'
-import { signUpUser, postJson, KERALA_DISTRICTS, HOSPITAL_TYPES } from '../_lib'
+import { signUpUser, postJson, HOSPITAL_TYPES } from '../_lib'
+import { CountrySelect } from '../../../components/country-select'
+import { StateSelect } from '../../../components/state-select'
+import { PhoneInput } from '../../../components/phone-input'
+import { detectCountry, rememberCountry } from '../../../lib/detect-country'
 
 export default function HospitalRegisterPage() {
   const router = useRouter()
   const [form, setForm] = useState({
     contactName: '', email: '', password: '',
-    hospitalName: '', type: 'hospital', district: '',
+    hospitalName: '', type: 'hospital',
+    country: 'IN', state: '', district: '',
     establishedYear: '', services: '', contact: '', address: '',
     ayushCertified: false, panchakarma: false, nabh: false,
   })
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+
+  useEffect(() => {
+    setForm((f) => ({ ...f, country: detectCountry() }))
+  }, [])
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -25,6 +34,8 @@ export default function HospitalRegisterPage() {
       await postJson('/me/promote-to-hospital', {
         name: form.hospitalName,
         type: form.type,
+        country: form.country,
+        state: form.state || null,
         district: form.district,
         establishedYear: form.establishedYear ? Number(form.establishedYear) : null,
         services: form.services.split(',').map((s) => s.trim()).filter(Boolean),
@@ -34,6 +45,7 @@ export default function HospitalRegisterPage() {
         panchakarma:    form.panchakarma,
         nabh:           form.nabh,
       })
+      rememberCountry(form.country)
       router.push('/dashboard?welcome=hospital')
       router.refresh()
     } catch (e) {
@@ -66,7 +78,9 @@ export default function HospitalRegisterPage() {
             <Field label="Your full name"><input value={form.contactName} onChange={(e) => setForm({ ...form, contactName: e.target.value })} required className="input" /></Field>
             <Field label="Email"><input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required autoComplete="email" className="input" /></Field>
             <Field label="Password (min 8)"><input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required minLength={8} autoComplete="new-password" className="input" /></Field>
-            <Field label="Phone / WhatsApp"><input value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} className="input" placeholder="+91-..." /></Field>
+            <Field label="Phone / WhatsApp">
+              <PhoneInput value={form.contact} onChange={(e164) => setForm({ ...form, contact: e164 })} defaultCountry={form.country} />
+            </Field>
           </div>
 
           <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider pt-3 border-t">Hospital details</h2>
@@ -79,11 +93,14 @@ export default function HospitalRegisterPage() {
                 {HOSPITAL_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </Field>
-            <Field label="District">
-              <select value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} required className="input">
-                <option value="">Select…</option>
-                {KERALA_DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
-              </select>
+            <Field label="Country">
+              <CountrySelect value={form.country} onChange={(c) => setForm({ ...form, country: c, state: '' })} />
+            </Field>
+            <Field label="State / region">
+              <StateSelect country={form.country} value={form.state} onChange={(s) => setForm({ ...form, state: s })} />
+            </Field>
+            <Field label="City / district *">
+              <input value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} required placeholder="e.g. Ernakulam, Mumbai, Dubai" className="input" />
             </Field>
             <Field label="Established year">
               <input type="number" min={1800} max={2030} value={form.establishedYear} onChange={(e) => setForm({ ...form, establishedYear: e.target.value })} className="input" />

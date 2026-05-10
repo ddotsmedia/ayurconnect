@@ -21,7 +21,9 @@ model User {
   doctorId      String?   @unique // optional 1:1 link to Doctor row this user manages
   hospitalId    String?   @unique // optional 1:1 link to Hospital row this user manages
   prakriti      String?   // vata | pitta | kapha | (combinations like 'pitta-vata')
-  phone         String?
+  phone         String?   // E.164: +91XXXXXXXXXX
+  country       String?   // ISO 3166-1 alpha-2 (IN, US, AE, GB...). null = unknown / pre-internationalisation row.
+  state         String?   // first-level admin division (Kerala, California, Dubai, England...)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -137,7 +139,13 @@ model Doctor {
   id                 String   @id @default(cuid())
   name               String
   specialization     String
-  district           String
+  // Geography (added 2026-05-11). country defaults to 'IN' so existing Kerala
+  // rows remain valid. `state` is the first-level admin division (Kerala for
+  // legacy rows; backfilled in migration). `district` is kept for back-compat
+  // and now means city/region within state.
+  country            String   @default("IN")
+  state              String?
+  district           String   // legacy: was Kerala-only; now a generic city/region within state
   ccimVerified       Boolean  @default(false)
   profile            String?  // short tagline / one-liner
   bio                String?  // long-form biography
@@ -190,7 +198,10 @@ model Hospital {
   id              String   @id @default(cuid())
   name            String
   type            String
-  district        String
+  // Geography (added 2026-05-11). See Doctor model for migration semantics.
+  country         String   @default("IN")
+  state           String?
+  district        String   // legacy: city/region within state
   ccimVerified    Boolean  @default(false)
   ayushCertified  Boolean  @default(false)
   panchakarma     Boolean  @default(false)
