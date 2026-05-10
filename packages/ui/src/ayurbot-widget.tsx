@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { MessageCircle, X, Send, Leaf } from 'lucide-react'
 
 type Message = { role: 'user' | 'bot' | 'error'; content: string }
-type Status = { enabled: boolean; reason: string | null }
+type Status = { enabled: boolean; reason: string | null; provider?: string | null; model?: string | null }
 
 const HIDDEN_PREFIXES = ['/admin', '/sign-in']
 
@@ -84,7 +84,7 @@ export function AyurBotWidget() {
   const stateLabel = status === null
     ? 'connecting…'
     : status.enabled
-      ? 'online · Kerala Ayurveda'
+      ? `online · ${status.provider ?? 'Ayurveda'}`
       : 'offline · not configured'
 
   return (

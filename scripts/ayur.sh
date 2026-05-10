@@ -73,14 +73,16 @@ cmd_env() {
         if [ -n \"\$prefix\" ] && ! [[ \"\$val\" == \"\$prefix\"* ]]; then printf '  %-22s ⚠ wrong prefix\n' \"\$name\"; return; fi
         printf '  %-22s ✓ set (%d chars)\n' \"\$name\" \"\${#val}\"
       }
-      check ANTHROPIC_API_KEY  'AyurBot (Claude)'   'sk-ant-'
-      check RAZORPAY_KEY_ID    'Razorpay (id)'      'rzp_'
-      check RAZORPAY_KEY_SECRET 'Razorpay (secret)' ''
-      check RESEND_API_KEY     'Resend email'       're_'
-      check TWILIO_ACCOUNT_SID 'Twilio SMS (sid)'   'AC'
-      check TWILIO_AUTH_TOKEN  'Twilio SMS (token)' ''
-      check TWILIO_FROM        'Twilio SMS (from)'  ''
-      check VOYAGE_API_KEY     'Voyage AI'          ''
+      check GOOGLE_API_KEY     'AyurBot (Gemini, free)' 'AIza'
+      check GROQ_API_KEY       'AyurBot (Groq, free)'   'gsk_'
+      check ANTHROPIC_API_KEY  'AyurBot (Claude, paid)' 'sk-ant-'
+      check RAZORPAY_KEY_ID    'Razorpay (id)'          'rzp_'
+      check RAZORPAY_KEY_SECRET 'Razorpay (secret)'     ''
+      check RESEND_API_KEY     'Resend email'           're_'
+      check TWILIO_ACCOUNT_SID 'Twilio SMS (sid)'       'AC'
+      check TWILIO_AUTH_TOKEN  'Twilio SMS (token)'     ''
+      check TWILIO_FROM        'Twilio SMS (from)'      ''
+      check VOYAGE_API_KEY     'Voyage AI'              ''
     "
     return
   fi

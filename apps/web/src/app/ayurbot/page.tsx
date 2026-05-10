@@ -5,7 +5,7 @@ import { Bot, Leaf, Stethoscope, Activity, Send, Loader2 } from 'lucide-react'
 
 type Mode = 'default' | 'prakriti' | 'herb' | 'symptom'
 type Message = { role: 'user' | 'bot' | 'error'; content: string }
-type Status = { enabled: boolean; reason: string | null }
+type Status = { enabled: boolean; reason: string | null; provider?: string | null; model?: string | null }
 
 const MODES: Array<{ id: Mode; label: string; icon: typeof Bot; tint: string; placeholder: string; starter: string; examples: string[] }> = [
   {
@@ -127,7 +127,7 @@ export default function AyurBotPage() {
           {status && (
             <p className="text-[11px] mt-2">
               <span className={`inline-block w-2 h-2 rounded-full mr-1.5 ${status.enabled ? 'bg-green-500' : 'bg-amber-500'}`} />
-              {status.enabled ? 'online · Claude Haiku 4.5' : `offline — ${status.reason ?? 'not configured'}`}
+              {status.enabled ? `online · ${status.provider ?? '?'} (${status.model ?? '?'})` : `offline — ${status.reason ?? 'not configured'}`}
             </p>
           )}
         </header>

@@ -23,21 +23,42 @@ set-prod-env RAZORPAY_KEY_ID=rzp_test_... RAZORPAY_KEY_SECRET=... RESEND_API_KEY
 
 The detailed manual route below is the same thing in slow motion — useful if you ever lose this script.
 
-## 1. Anthropic Claude (AyurBot chat)
+## 1. AyurBot LLM provider — pick one (Gemini / Groq / Anthropic)
 
-**Without it:** AyurBot widget says "I'm offline right now."
-**With it:** Real Claude responses with the Kerala-Ayurveda system prompt.
+You only need **one** of these. AyurBot auto-picks the first available in this order: Gemini → Groq → Anthropic. Force a specific one with `AYURBOT_PROVIDER=gemini|groq|anthropic`.
 
-Where to get: https://console.anthropic.com/settings/keys (you said you have one).
+### Option A: Google Gemini 2.5 Flash — **FREE, recommended**
 
-```bash
-ssh root@194.164.151.202
-nano /opt/ayurconnect/apps/api/.env
-# replace ANTHROPIC_API_KEY=REPLACE_ME_BEFORE_USING_AYURBOT with the real sk-ant-... value
-pm2 restart ayurconnect-api
+Free tier: 15 req/min, 1M tokens/day. Quality close to Claude Haiku.
+Get key at https://aistudio.google.com/apikey (starts with `AIza`, ~39 chars).
+
+```cmd
+ayur env GOOGLE_API_KEY=AIza...
 ```
 
-Verify: `curl -X POST https://ayurconnect.com/api/ayurbot/chat -H 'content-type: application/json' -d '{"message":"What is Panchakarma?"}'` should return a real answer, not 502.
+### Option B: Groq Llama 3.3 70B — **FREE, very fast**
+
+Free tier: 30 req/min, 6000 tokens/min. Fastest inference of the three.
+Get key at https://console.groq.com/keys (starts with `gsk_`, ~56 chars).
+
+```cmd
+ayur env GROQ_API_KEY=gsk_...
+```
+
+### Option C: Anthropic Claude Haiku 4.5 — paid
+
+~$0.001 per AyurBot reply. Best quality for medical/clinical nuance.
+Get key at https://console.anthropic.com/settings/keys (starts with `sk-ant-`).
+
+```cmd
+ayur env ANTHROPIC_API_KEY=sk-ant-api03-...
+```
+
+Verify any of the above:
+```cmd
+ayur status
+```
+You should see `enabled:true,"provider":"gemini"` (or whichever you set).
 
 ## 2. Resend (email verification + appointment confirmations)
 

@@ -67,6 +67,20 @@ for kv in "$@"; do
         *) echo "✗ refusing to set $KEY — must start with 'sk-ant-' (yours starts with: ${VALUE:0:8}…)"; exit 2;;
       esac
       ;;
+    GOOGLE_API_KEY)
+      case "$VALUE" in
+        AIza*) ;;
+        *) echo "✗ refusing to set $KEY — must start with 'AIza' (yours starts with: ${VALUE:0:8}…)"; exit 2;;
+      esac
+      if [ "${#VALUE}" -lt 30 ]; then echo "✗ $KEY only ${#VALUE} chars; real Google API keys are ~39"; exit 2; fi
+      ;;
+    GROQ_API_KEY)
+      case "$VALUE" in
+        gsk_*) ;;
+        *) echo "✗ refusing to set $KEY — must start with 'gsk_' (yours starts with: ${VALUE:0:8}…)"; exit 2;;
+      esac
+      if [ "${#VALUE}" -lt 40 ]; then echo "✗ $KEY only ${#VALUE} chars; real Groq keys are ~56"; exit 2; fi
+      ;;
     RAZORPAY_KEY_ID)
       case "$VALUE" in rzp_*) ;; *) echo "✗ $KEY must start with rzp_test_ or rzp_live_"; exit 2;; esac
       ;;
@@ -103,10 +117,10 @@ echo
 echo "▶ verifying"
 for KEY in "${KNOWN_KEYS[@]}"; do
   case "$KEY" in
-    ANTHROPIC_API_KEY)
+    ANTHROPIC_API_KEY|GOOGLE_API_KEY|GROQ_API_KEY|AYURBOT_PROVIDER)
       sleep 2 # pm2 restart settle
       RES=$(curl -fsS "https://$DOMAIN/api/ayurbot/status" || echo '{}')
-      echo "  ANTHROPIC_API_KEY → /api/ayurbot/status = $RES"
+      echo "  $KEY → /api/ayurbot/status = $RES"
       ;;
     RAZORPAY_KEY_ID|RAZORPAY_KEY_SECRET)
       RES=$(curl -fsS "https://$DOMAIN/api/payments/config" || echo '{}')
