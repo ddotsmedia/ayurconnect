@@ -4,8 +4,9 @@ import crypto from 'node:crypto'
 
 export const autoPrefix = '/payments'
 
-const KEY_ID     = process.env.RAZORPAY_KEY_ID
-const KEY_SECRET = process.env.RAZORPAY_KEY_SECRET
+const KEY_ID         = process.env.RAZORPAY_KEY_ID
+const KEY_SECRET     = process.env.RAZORPAY_KEY_SECRET
+const WEBHOOK_SECRET = process.env.RAZORPAY_WEBHOOK_SECRET
 
 let rz: Razorpay | null = null
 function getRz(): Razorpay | null {
@@ -17,8 +18,9 @@ function getRz(): Razorpay | null {
 const route: FastifyPluginAsync = async (fastify) => {
   // Tells the frontend whether Razorpay is configured (so it can hide/show payment UI).
   fastify.get('/config', async () => ({
-    enabled: !!(KEY_ID && KEY_SECRET),
-    keyId: KEY_ID ?? null,
+    enabled:  !!(KEY_ID && KEY_SECRET),
+    currency: 'INR',
+    keyId:    KEY_ID ?? null,
   }))
 
   // Create a Razorpay order tied to an appointment. The frontend then opens
@@ -77,6 +79,84 @@ const route: FastifyPluginAsync = async (fastify) => {
       data: { paymentStatus: 'paid', paymentRef: razorpay_payment_id, status: 'confirmed' },
     })
     return { ok: true, appointment: appt }
+  })
+
+  // ─── Razorpay webhook ──────────────────────────────────────────────
+  // Razorpay → POST /payments/webhook with X-Razorpay-Signature header.
+  // We verify HMAC-SHA256 of the *raw* request body against the header,
+  // then handle payment.captured / payment.failed and ack everything else.
+  // Razorpay retries on non-2xx, so we always 200 after acknowledging an
+  // event we've recorded. /order initially sets paymentRef = order.id;
+  // we look up the appointment by that.
+  fastify.post('/webhook', async (request, reply) => {
+    if (!WEBHOOK_SECRET) {
+      fastify.log.warn('razorpay webhook hit but RAZORPAY_WEBHOOK_SECRET not set')
+      return reply.code(503).send({ error: 'webhook not configured' })
+    }
+
+    const sig = request.headers['x-razorpay-signature']
+    const signature = Array.isArray(sig) ? sig[0] : sig
+    if (!signature) return reply.code(400).send({ error: 'missing X-Razorpay-Signature' })
+
+    const raw = request.rawBody ?? ''
+    if (!raw) return reply.code(400).send({ error: 'empty body' })
+
+    const expected = crypto.createHmac('sha256', WEBHOOK_SECRET).update(raw).digest('hex')
+
+    // Constant-time compare to avoid timing side-channels
+    let match = false
+    try {
+      const a = Buffer.from(expected, 'hex')
+      const b = Buffer.from(signature, 'hex')
+      match = a.length === b.length && crypto.timingSafeEqual(a, b)
+    } catch { match = false }
+    if (!match) {
+      fastify.log.warn({ signature }, 'razorpay webhook signature mismatch')
+      return reply.code(400).send({ error: 'invalid signature' })
+    }
+
+    let event: { event?: string; payload?: { payment?: { entity?: { order_id?: string; id?: string; status?: string } } } } = {}
+    try { event = request.body as typeof event ?? JSON.parse(raw) }
+    catch { return reply.code(400).send({ error: 'invalid JSON' }) }
+
+    const paymentEntity = event.payload?.payment?.entity
+    const orderId   = paymentEntity?.order_id
+    const paymentId = paymentEntity?.id
+
+    try {
+      if (event.event === 'payment.captured' && orderId) {
+        // We stamped paymentRef = order.id during /order; that's our lookup.
+        const appt = await fastify.prisma.appointment.findFirst({ where: { paymentRef: orderId } })
+        if (appt) {
+          await fastify.prisma.appointment.update({
+            where: { id: appt.id },
+            data: { paymentStatus: 'paid', status: 'confirmed', paymentRef: paymentId ?? orderId },
+          })
+          fastify.log.info({ appointmentId: appt.id, paymentId }, 'razorpay webhook: payment captured')
+        } else {
+          fastify.log.warn({ orderId }, 'razorpay webhook: no matching appointment for order_id')
+        }
+      } else if (event.event === 'payment.failed' && orderId) {
+        const appt = await fastify.prisma.appointment.findFirst({ where: { paymentRef: orderId } })
+        if (appt) {
+          await fastify.prisma.appointment.update({
+            where: { id: appt.id },
+            data: { paymentStatus: 'failed', status: 'payment_failed' },
+          })
+          fastify.log.info({ appointmentId: appt.id }, 'razorpay webhook: payment failed')
+        }
+      } else {
+        // Other events (refund.created, order.paid, subscription.*, etc.)
+        // — record receipt, return 200 so Razorpay doesn't retry.
+        fastify.log.info({ event: event.event }, 'razorpay webhook: ack-only event')
+      }
+    } catch (err) {
+      // Even if our DB op fails, return 200 to prevent Razorpay's retry storm —
+      // we already verified the event is genuine; we'll reconcile via /order/sync.
+      fastify.log.error({ err, event: event.event }, 'razorpay webhook handler error (acknowledging anyway)')
+    }
+
+    return reply.code(200).send({ ok: true })
   })
 }
 

@@ -255,8 +255,16 @@ async function scrapeNaukri(): Promise<ScrapedJob[]> {
 // ─── Persist scraped jobs via Prisma upsert ──────────────────────────────
 // Uses the unique sourceId index so re-imports are idempotent. We bump
 // `importedAt` on every upsert so admins can sort by freshness.
-async function persist(fastify: FastifyInstance, jobs: ScrapedJob[]): Promise<{ created: number; updated: number }> {
+//
+// Returns counts plus the list of newly-created rows so the caller can fan
+// out WhatsApp alerts only for fresh listings (not for updates).
+type CreatedJob = {
+  id: string; title: string; organization: string | null; location: string | null;
+  salary: string | null; applyUrl: string; source: string; category: string | null;
+}
+async function persist(fastify: FastifyInstance, jobs: ScrapedJob[]): Promise<{ created: number; updated: number; newJobs: CreatedJob[] }> {
   let created = 0, updated = 0
+  const newJobs: CreatedJob[] = []
   for (const j of jobs) {
     const sourceId = fingerprint(j.source, j.applyUrl, j.title)
     const data = {
@@ -282,14 +290,18 @@ async function persist(fastify: FastifyInstance, jobs: ScrapedJob[]): Promise<{ 
         })
         updated++
       } else {
-        await fastify.prisma.importedJob.create({ data })
+        const row = await fastify.prisma.importedJob.create({ data })
         created++
+        newJobs.push({
+          id: row.id, title: row.title, organization: row.organization, location: row.location,
+          salary: row.salary, applyUrl: row.applyUrl, source: row.source, category: row.category,
+        })
       }
     } catch (err) {
       fastify.log.warn({ err, sourceId, title: j.title }, 'jobImporter: persist failed for one row')
     }
   }
-  return { created, updated }
+  return { created, updated, newJobs }
 }
 
 // ─── Public entry point ──────────────────────────────────────────────────
@@ -309,11 +321,13 @@ export async function runJobImport(fastify: FastifyInstance): Promise<ImportSumm
   ]
 
   const perSource: ImportSummary['perSource'] = []
+  const allNewJobs: CreatedJob[] = []
   for (const s of sources) {
     try {
       fastify.log.info({ source: s.name }, 'jobImporter: starting source')
       const jobs = await s.fn()
-      const { created, updated } = await persist(fastify, jobs)
+      const { created, updated, newJobs } = await persist(fastify, jobs)
+      allNewJobs.push(...newJobs)
       perSource.push({ source: s.name, scraped: jobs.length, created, updated })
       fastify.log.info({ source: s.name, scraped: jobs.length, created, updated }, 'jobImporter: source done')
     } catch (err) {
@@ -332,6 +346,18 @@ export async function runJobImport(fastify: FastifyInstance): Promise<ImportSumm
     }),
     { scraped: 0, created: 0, updated: 0 },
   )
+
+  // ─── Fan out WhatsApp alerts for newly-created jobs ────────────────────
+  // No-op when WhatsApp isn't configured. Failures here never bubble up —
+  // the importer's job is to import; alerts are best-effort.
+  if (allNewJobs.length > 0) {
+    try {
+      const { sendAlertsForNewJobs } = await import('./whatsappAlerts.js')
+      await sendAlertsForNewJobs(fastify, allNewJobs)
+    } catch (err) {
+      fastify.log.warn({ err }, 'jobImporter: WhatsApp alert fan-out failed (non-fatal)')
+    }
+  }
 
   return { perSource, total, durationMs: Date.now() - t0 }
 }

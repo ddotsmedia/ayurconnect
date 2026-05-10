@@ -310,6 +310,29 @@ model Job {
   @@index([type])
 }
 
+// ─── WhatsApp job alert subscriptions (added 2026-05-11) ─────────────────
+// Public-facing opt-in form (phone + filters); fires on new ImportedJob
+// matching the subscriber's preferences. Sends via the existing Twilio
+// WhatsApp wrapper (lib/whatsapp.ts). Reply STOP unsubscribes via webhook
+// (not yet implemented; admins can flip isActive=false).
+model WhatsAppAlertSubscription {
+  id              String   @id @default(cuid())
+  phone           String   // E.164: +91XXXXXXXXXX
+  // Optional filters — all null means "all Kerala Ayurveda jobs"
+  specialization  String?
+  district        String?
+  source          String?  // restrict to one source if user prefers
+  isActive        Boolean  @default(true)
+  lastSentAt      DateTime?
+  consentAt       DateTime @default(now())
+  unsubscribedAt  DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([phone])
+  @@index([isActive, lastSentAt])
+}
+
 // ─── Auto-imported Ayurveda jobs (added 2026-05-10 — separate table from Job
 // because user-posted jobs require a userId FK; importer rows have no owner) ──
 model ImportedJob {
