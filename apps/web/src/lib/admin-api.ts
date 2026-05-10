@@ -3,15 +3,30 @@
 
 export class AdminApiError extends Error {
   constructor(public status: number, public payload: unknown) {
-    super(`Admin API ${status}`)
+    const reason = (() => {
+      if (payload && typeof payload === 'object') {
+        const p = payload as { error?: string; message?: string; reason?: string }
+        return p.error ?? p.message ?? p.reason ?? null
+      }
+      return null
+    })()
+    super(reason ? `Admin API ${status} — ${reason}` : `Admin API ${status}`)
   }
 }
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  // Only attach content-type when we're actually sending a body. Fastify
+  // rejects requests with content-type=application/json + empty body
+  // (FST_ERR_CTP_EMPTY_JSON_BODY → 400), so DELETE/GET shouldn't claim JSON.
+  const headers: Record<string, string> = { ...(init.headers as Record<string, string> ?? {}) }
+  if (init.body !== undefined && init.body !== null && headers['content-type'] === undefined) {
+    headers['content-type'] = 'application/json'
+  }
+
   const res = await fetch(`/api${path}`, {
     credentials: 'include',
-    headers: { 'content-type': 'application/json', ...(init.headers ?? {}) },
     ...init,
+    headers,
   })
   if (res.status === 204) return undefined as T
   const text = await res.text()
