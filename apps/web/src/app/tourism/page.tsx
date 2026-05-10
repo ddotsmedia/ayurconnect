@@ -1,292 +1,150 @@
-'use client';
+import Link from 'next/link'
+import { GradientHero } from '@ayurconnect/ui'
+import { Plane, MapPin, Clock, IndianRupee, ShieldCheck } from 'lucide-react'
+import { API_INTERNAL as API } from '../../lib/server-fetch'
 
-import { useState, useEffect } from 'react';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ayurconnect/ui';
-import { MapPin, Calendar, DollarSign, Search, Star } from 'lucide-react';
-
-interface Package {
-  id: string;
-  title: string;
-  description: string;
-  duration: number;
-  price?: number;
-  location: string;
-  includes?: string;
+type Pkg = {
+  id: string
+  title: string
+  description: string
+  duration: number
+  price: number | null
+  location: string
+  includes: string | null
 }
 
-interface PackageType {
-  id: string;
-  name: string;
-  description: string;
-  duration: string;
-  includes: string[];
+async function fetchPackages(): Promise<Pkg[]> {
+  try {
+    const res = await fetch(`${API}/tourism/packages?limit=50`, { cache: 'no-store' })
+    if (!res.ok) return []
+    const data = (await res.json()) as { packages: Pkg[] }
+    return data.packages ?? []
+  } catch { return [] }
 }
 
-export default function TourismPage() {
-  const [packages, setPackages] = useState<Package[]>([]);
-  const [packageTypes, setPackageTypes] = useState<PackageType[]>([]);
-  const [locations, setLocations] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedLocation, setSelectedLocation] = useState<string>('all');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
+export const metadata = {
+  title: 'Kerala Medical Tourism — Authentic Panchakarma Packages | AyurConnect',
+  description: "Heal in God's Own Country. Classical Panchakarma rejuvenation, joint healing, stress relief, and Karkidaka Chikitsa packages with CCIM-verified Kerala practitioners.",
+}
 
-  useEffect(() => {
-    fetchPackages();
-    fetchPackageTypes();
-    fetchLocations();
-  }, [searchQuery, selectedLocation, minPrice, maxPrice]);
-
-  const fetchPackages = async () => {
-    try {
-      const params = new URLSearchParams();
-      if (searchQuery) params.append('location', searchQuery);
-      if (selectedLocation !== 'all') params.append('location', selectedLocation);
-      if (minPrice) params.append('minPrice', minPrice);
-      if (maxPrice) params.append('maxPrice', maxPrice);
-
-      const response = await fetch(`/api/tourism/packages?${params}`);
-      const data = await response.json();
-      setPackages(data.packages || []);
-    } catch (error) {
-      console.error('Error fetching packages:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchPackageTypes = async () => {
-    try {
-      const response = await fetch('/api/tourism/package-types');
-      const data = await response.json();
-      setPackageTypes(data);
-    } catch (error) {
-      console.error('Error fetching package types:', error);
-    }
-  };
-
-  const fetchLocations = async () => {
-    try {
-      const response = await fetch('/api/tourism/locations');
-      const data = await response.json();
-      setLocations(data);
-    } catch (error) {
-      console.error('Error fetching locations:', error);
-    }
-  };
-
-  if (loading) {
-    return <div className="container mx-auto px-4 py-8">Loading packages...</div>;
-  }
+export default async function TourismPage() {
+  const packages = await fetchPackages()
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-green-800 mb-4">Ayurveda Medical Tourism</h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Experience authentic Ayurvedic treatments in the heart of Kerala. Discover wellness packages
-          that combine traditional healing with modern comfort.
-        </p>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="bg-green-50 p-6 rounded-lg mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder="Search locations..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select District" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Districts</SelectItem>
-              {locations.map(location => (
-                <SelectItem key={location} value={location}>{location}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Input
-            type="number"
-            placeholder="Min Price"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
-          />
-          <Input
-            type="number"
-            placeholder="Max Price"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-          />
+    <>
+      <GradientHero variant="tourism" size="lg">
+        <div className="text-center max-w-3xl mx-auto">
+          <span className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur rounded-full text-xs text-white/90 border border-white/20 mb-5">
+            🌿 Heal in God&apos;s Own Country
+          </span>
+          <h1 className="font-serif text-4xl md:text-6xl text-white leading-tight">
+            Kerala Panchakarma <span className="text-gold-400">Packages</span>
+          </h1>
+          <p className="mt-5 text-lg text-white/80">
+            Authentic classical Ayurveda for international and domestic patients.
+            CCIM-verified doctors, AYUSH-certified centres, full board.
+          </p>
         </div>
-      </div>
+      </GradientHero>
 
-      {/* Package Types Overview */}
-      <div className="mb-12">
-        <h2 className="text-2xl font-bold text-green-800 mb-6">Treatment Categories</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {packageTypes.map(type => (
-            <Card key={type.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-lg">{type.name}</CardTitle>
-                <CardDescription>{type.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="h-4 w-4 text-green-600" />
-                    <span>Duration: {type.duration}</span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium mb-1">Includes:</p>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      {type.includes.map((item, index) => (
-                        <li key={index} className="flex items-center gap-1">
-                          <span className="text-green-500">✓</span> {item}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+      {/* How it works */}
+      <section className="container mx-auto px-4 py-14">
+        <h2 className="text-2xl md:text-3xl text-kerala-700 text-center mb-10">How it works</h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[
+            { n: '1', t: 'Free pre-consultation', d: 'Video call with a CCIM doctor — pick the right protocol for your condition.' },
+            { n: '2', t: 'Customised package',     d: 'Centre + doctor + duration + diet plan — all tailored to your prakriti and budget.' },
+            { n: '3', t: 'Travel & arrival',        d: 'We help with visa letter, airport pickup, accommodation arrangements.' },
+            { n: '4', t: 'Heal & transform',        d: 'Daily treatments, sattvic meals, yoga. Most patients see meaningful change in 7-21 days.' },
+          ].map((s) => (
+            <div key={s.n} className="p-5 bg-white rounded-card border border-gray-100 shadow-card">
+              <div className="w-10 h-10 rounded-full bg-kerala-600 text-white font-serif text-xl flex items-center justify-center mb-3">{s.n}</div>
+              <h3 className="font-semibold text-ink">{s.t}</h3>
+              <p className="text-sm text-gray-600 mt-1.5 leading-relaxed">{s.d}</p>
+            </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* Packages List */}
-      <div>
-        <h2 className="text-2xl font-bold text-green-800 mb-6">Available Packages</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {packages.length === 0 ? (
-            <div className="col-span-full">
-              <Card>
-                <CardContent className="text-center py-8">
-                  <MapPin className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                  <p className="text-gray-500">No packages found matching your criteria.</p>
-                </CardContent>
-              </Card>
-            </div>
-          ) : (
-            packages.map(pkg => (
-              <Card key={pkg.id} className="hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => setSelectedPackage(pkg)}>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <CardTitle className="text-xl text-green-800">{pkg.title}</CardTitle>
-                      <CardDescription className="flex items-center gap-1 mt-1">
-                        <MapPin className="h-4 w-4" />
-                        {pkg.location}
-                      </CardDescription>
-                    </div>
-                    {pkg.price && (
-                      <Badge className="bg-green-100 text-green-800">
-                        ₹{pkg.price.toLocaleString()}
-                      </Badge>
-                    )}
+      {/* Packages */}
+      <section className="container mx-auto px-4 pb-14">
+        <h2 className="text-2xl md:text-3xl text-kerala-700 text-center mb-2">Featured packages</h2>
+        <p className="text-center text-muted mb-8">{packages.length} packages from CCIM-verified centres across Kerala</p>
+
+        {packages.length === 0 ? (
+          <div className="text-center py-20 bg-white border border-gray-100 rounded-card">
+            <Plane className="mx-auto h-10 w-10 text-gray-300 mb-3" />
+            <p className="text-muted">No packages listed yet.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {packages.map((p) => (
+              <article key={p.id} className="bg-white rounded-card border border-gray-100 shadow-card hover:shadow-cardLg transition-shadow overflow-hidden flex flex-col">
+                <div className="bg-hero-tourism text-white p-5">
+                  <h3 className="font-serif text-2xl">{p.title}</h3>
+                  <div className="mt-2 flex items-center gap-3 text-sm text-white/80">
+                    <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {p.duration} days</span>
+                    {p.price && <span className="flex items-center gap-1 text-gold-300 font-semibold"><IndianRupee className="w-3.5 h-3.5" /> {p.price.toLocaleString()}</span>}
+                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {p.location}</span>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700 mb-4 line-clamp-3">{pkg.description}</p>
-
-                  <div className="flex items-center gap-4 text-sm text-gray-600 mb-4">
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      {pkg.duration} days
-                    </div>
-                  </div>
-
-                  {pkg.includes && (
-                    <div className="mb-4">
-                      <p className="text-sm font-medium mb-2">Package Includes:</p>
-                      <p className="text-sm text-gray-600 line-clamp-2">{pkg.includes}</p>
+                </div>
+                <div className="p-5 flex-1 flex flex-col">
+                  <p className="text-sm text-gray-700 leading-relaxed">{p.description}</p>
+                  {p.includes && (
+                    <div className="mt-3 pt-3 border-t border-gray-100">
+                      <div className="text-[11px] text-gray-500 uppercase tracking-wider mb-1">Includes</div>
+                      <p className="text-xs text-gray-700">{p.includes}</p>
                     </div>
                   )}
-
-                  <Button className="w-full bg-green-600 hover:bg-green-700">
-                    View Details & Book
-                  </Button>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
-      </div>
-
-      {/* Package Detail Modal */}
-      {selectedPackage && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-2xl text-green-800">{selectedPackage.title}</CardTitle>
-                  <CardDescription className="flex items-center gap-1 mt-1">
-                    <MapPin className="h-4 w-4" />
-                    {selectedPackage.location}
-                  </CardDescription>
+                  <Link
+                    href="/sign-in"
+                    className="mt-auto pt-4 inline-flex items-center justify-center px-4 py-2 bg-gold-500 text-white text-sm font-semibold rounded-md hover:bg-gold-600"
+                  >
+                    Enquire / Book
+                  </Link>
                 </div>
-                <Button variant="ghost" onClick={() => setSelectedPackage(null)}>×</Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Badge className="bg-blue-100 text-blue-800">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  {selectedPackage.duration} Days
-                </Badge>
-                {selectedPackage.price && (
-                  <Badge className="bg-green-100 text-green-800">
-                    <DollarSign className="h-4 w-4 mr-1" />
-                    ₹{selectedPackage.price.toLocaleString()}
-                  </Badge>
-                )}
-              </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
 
-              <div>
-                <h4 className="font-semibold mb-2">Description</h4>
-                <p className="text-gray-700">{selectedPackage.description}</p>
-              </div>
-
-              {selectedPackage.includes && (
-                <div>
-                  <h4 className="font-semibold mb-2">Package Includes</h4>
-                  <p className="text-gray-700">{selectedPackage.includes}</p>
-                </div>
-              )}
-
-              <div className="bg-green-50 p-4 rounded-lg">
-                <h4 className="font-semibold mb-2 text-green-800">Why Choose Kerala for Ayurveda?</h4>
-                <ul className="text-sm text-gray-700 space-y-1">
-                  <li>• Authentic traditional treatments passed down through generations</li>
-                  <li>• Experienced Ayurvedic doctors with modern medical knowledge</li>
-                  <li>• Serene environment conducive to healing and relaxation</li>
-                  <li>• High-quality herbal medicines from local sources</li>
-                  <li>• Combination of traditional wisdom and modern amenities</li>
-                </ul>
-              </div>
-
-              <div className="flex gap-4">
-                <Button className="flex-1 bg-green-600 hover:bg-green-700">
-                  Book This Package
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  Contact Us
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+      {/* Trust */}
+      <section className="bg-cream py-14">
+        <div className="container mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          {[
+            { num: '200+', label: 'International patients / year' },
+            { num: '15+',  label: 'Countries' },
+            { num: '100%', label: 'AYUSH certified' },
+            { num: '4.9★', label: 'Average rating' },
+          ].map((s) => (
+            <div key={s.label}>
+              <div className="font-serif text-4xl text-kerala-700">{s.num}</div>
+              <div className="text-sm text-muted mt-1">{s.label}</div>
+            </div>
+          ))}
         </div>
-      )}
-    </div>
-  );
+      </section>
+
+      {/* Why Kerala */}
+      <section className="container mx-auto px-4 py-14 grid grid-cols-1 md:grid-cols-3 gap-5">
+        {[
+          { icon: ShieldCheck, t: 'CCIM-verified doctors', d: 'Every consulting practitioner cross-checked against the Central Council of Indian Medicine register.' },
+          { icon: Plane,        t: 'Visa letter assistance', d: 'We provide medical-tourism invitation letters needed for AYUSH-visa applications.' },
+          { icon: MapPin,       t: 'UNESCO biodiversity',    d: "Western Ghats — one of the world's 8 hottest biodiversity hotspots, source of every classical herb." },
+        ].map((w) => {
+          const Icon = w.icon
+          return (
+            <div key={w.t} className="p-6 bg-white rounded-card border border-gray-100 shadow-card">
+              <span className="w-10 h-10 rounded-lg bg-kerala-50 text-kerala-700 flex items-center justify-center mb-3">
+                <Icon className="w-5 h-5" />
+              </span>
+              <h3 className="font-semibold text-ink">{w.t}</h3>
+              <p className="text-sm text-gray-600 mt-1.5 leading-relaxed">{w.d}</p>
+            </div>
+          )
+        })}
+      </section>
+    </>
+  )
 }

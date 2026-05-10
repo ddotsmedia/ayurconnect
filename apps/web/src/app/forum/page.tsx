@@ -1,238 +1,118 @@
-'use client';
+import Link from 'next/link'
+import { GradientHero } from '@ayurconnect/ui'
+import { MessageSquare, ShieldCheck } from 'lucide-react'
+import { API_INTERNAL as API } from '../../lib/server-fetch'
 
-import { useState, useEffect } from 'react';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, Textarea, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@ayurconnect/ui';
-import { MessageSquare, User, Calendar } from 'lucide-react';
-
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-  category: string;
-  language: string;
-  createdAt: string;
-  user: {
-    id: string;
-    name: string;
-  };
-  comments: Comment[];
+type Comment = { id: string; user: { name: string | null } | null }
+type Post = {
+  id: string
+  title: string
+  content: string
+  category: string
+  language: string
+  createdAt: string
+  user: { id: string; name: string | null; email: string }
+  comments: Comment[]
 }
 
-interface Comment {
-  id: string;
-  content: string;
-  createdAt: string;
-  user: {
-    id: string;
-    name: string;
-  };
+const CATEGORY: Record<string, { label: string; bg: string; text: string }> = {
+  'doctor-discussion': { label: 'Doctors',   bg: 'bg-kerala-50',  text: 'text-kerala-700'  },
+  'patient-forum':     { label: 'Patients',  bg: 'bg-blue-50',    text: 'text-blue-700'    },
+  'webinar':           { label: 'Webinar',   bg: 'bg-purple-50',  text: 'text-purple-700'  },
+  'research':          { label: 'Research',  bg: 'bg-amber-50',   text: 'text-amber-700'   },
 }
 
-interface Category {
-  id: string;
-  name: string;
-  description: string;
+async function fetchPosts(): Promise<Post[]> {
+  try {
+    const res = await fetch(`${API}/forum/posts?limit=50`, { cache: 'no-store' })
+    if (!res.ok) return []
+    const data = (await res.json()) as { posts: Post[] }
+    return data.posts ?? []
+  } catch { return [] }
 }
 
-export default function ForumPage() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedLanguage, setSelectedLanguage] = useState<string>('all');
-  const [loading, setLoading] = useState(true);
-  const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newPost, setNewPost] = useState({ title: '', content: '', category: '' });
+export const metadata = {
+  title: 'AyurConnect Community Forum — Doctors & Patients',
+  description: 'Discussions on classical Ayurveda cases, herbs, treatments, and patient questions. CCIM-verified doctors and patients from across Kerala.',
+}
 
-  useEffect(() => {
-    fetchPosts();
-    fetchCategories();
-  }, [selectedCategory, selectedLanguage]);
-
-  const fetchPosts = async () => {
-    try {
-      const params = new URLSearchParams();
-      if (selectedCategory !== 'all') params.append('category', selectedCategory);
-      if (selectedLanguage !== 'all') params.append('language', selectedLanguage);
-
-      const response = await fetch(`/api/forum/posts?${params}`);
-      const data = await response.json();
-      setPosts(data.posts || []);
-    } catch (error) {
-      console.error('Error fetching posts:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchCategories = async () => {
-    try {
-      const response = await fetch('/api/forum/categories');
-      const data = await response.json();
-      setCategories(data);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    }
-  };
-
-  const handleCreatePost = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const response = await fetch('/api/forum/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newPost)
-      });
-
-      if (response.ok) {
-        setNewPost({ title: '', content: '', category: '' });
-        setShowCreateForm(false);
-        fetchPosts();
-      }
-    } catch (error) {
-      console.error('Error creating post:', error);
-    }
-  };
-
-  const getCategoryName = (categoryId: string) => {
-    const category = categories.find(c => c.id === categoryId);
-    return category?.name || categoryId;
-  };
-
-  const getCategoryColor = (categoryId: string) => {
-    const colors: Record<string, string> = {
-      'doctor-discussion': 'bg-blue-100 text-blue-800',
-      'patient-forum': 'bg-green-100 text-green-800',
-      'webinar': 'bg-purple-100 text-purple-800',
-      'research': 'bg-orange-100 text-orange-800'
-    };
-    return colors[categoryId] || 'bg-gray-100 text-gray-800';
-  };
-
-  if (loading) {
-    return <div className="container mx-auto px-4 py-8">Loading forum...</div>;
-  }
+export default async function ForumPage() {
+  const posts = await fetchPosts()
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold text-green-800 mb-2">Ayurveda Community Forum</h1>
-          <p className="text-gray-600">Connect with fellow Ayurveda enthusiasts, doctors, and practitioners</p>
+    <>
+      <GradientHero variant="forum" size="md">
+        <div className="max-w-3xl">
+          <span className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur rounded-full text-xs text-white/90 border border-white/20 mb-4">
+            <MessageSquare className="w-3 h-3" /> Open community
+          </span>
+          <h1 className="text-3xl md:text-5xl text-white">Community Forum</h1>
+          <p className="text-white/70 mt-3">
+            Case discussions, research notes, herb questions, patient stories.
+            CCIM-verified doctors and patients, all on one platform.
+          </p>
+          <Link href="/sign-in" className="inline-block mt-5 px-5 py-2 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md text-sm">
+            Sign in to post
+          </Link>
         </div>
-        <Button onClick={() => setShowCreateForm(!showCreateForm)} className="bg-green-600 hover:bg-green-700">
-          {showCreateForm ? 'Cancel' : 'New Post'}
-        </Button>
-      </div>
+      </GradientHero>
 
-      {/* Filters */}
-      <div className="flex gap-4 mb-6">
-        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="All Categories" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            {categories.map(category => (
-              <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8">
+          <aside>
+            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Categories</h3>
+            <ul className="space-y-1 text-sm">
+              {Object.entries(CATEGORY).map(([k, v]) => {
+                const count = posts.filter((p) => p.category === k).length
+                return (
+                  <li key={k} className="flex justify-between text-gray-700">
+                    <span>{v.label}</span>
+                    <span className="text-subtle">{count}</span>
+                  </li>
+                )
+              })}
+            </ul>
+            <div className="mt-6 p-3 rounded-card bg-kerala-50 border border-kerala-100 text-xs text-kerala-800 leading-relaxed">
+              <strong>Doctors only?</strong> CCIM-verified practitioners get a verified badge and access to the doctor-discussion channel.
+            </div>
+          </aside>
 
-        <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-          <SelectTrigger className="w-32">
-            <SelectValue placeholder="Language" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            <SelectItem value="en">English</SelectItem>
-            <SelectItem value="ml">മലയാളം</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Create Post Form */}
-      {showCreateForm && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Create New Post</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleCreatePost} className="space-y-4">
-              <Input
-                placeholder="Post title..."
-                value={newPost.title}
-                onChange={(e) => setNewPost({...newPost, title: e.target.value})}
-                required
-              />
-              <Select value={newPost.category} onValueChange={(value) => setNewPost({...newPost, category: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map(category => (
-                    <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Textarea
-                placeholder="Share your thoughts..."
-                value={newPost.content}
-                onChange={(e) => setNewPost({...newPost, content: e.target.value})}
-                rows={4}
-                required
-              />
-              <Button type="submit" className="bg-green-600 hover:bg-green-700">Post</Button>
-            </form>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Posts List */}
-      <div className="space-y-4">
-        {posts.length === 0 ? (
-          <Card>
-            <CardContent className="text-center py-8">
-              <MessageSquare className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-              <p className="text-gray-500">No posts found. Be the first to start a discussion!</p>
-            </CardContent>
-          </Card>
-        ) : (
-          posts.map(post => (
-            <Card key={post.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <CardTitle className="text-xl mb-2">{post.title}</CardTitle>
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <User className="h-4 w-4" />
-                        {post.user.name}
+          <section>
+            <p className="text-sm text-muted mb-4"><strong className="text-ink">{posts.length}</strong> posts loaded</p>
+            {posts.length === 0 ? (
+              <div className="text-center py-20 bg-white border border-gray-100 rounded-card">
+                <MessageSquare className="mx-auto h-10 w-10 text-gray-300 mb-3" />
+                <p className="text-muted">No posts yet — be the first.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {posts.map((p) => {
+                  const cat = CATEGORY[p.category] ?? { label: p.category, bg: 'bg-gray-100', text: 'text-gray-700' }
+                  return (
+                    <article key={p.id} className="bg-white rounded-card border border-gray-100 shadow-card hover:shadow-cardLg hover:-translate-y-0.5 transition-all p-5">
+                      <div className="flex items-center gap-2 text-[11px] mb-2">
+                        <span className={`${cat.bg} ${cat.text} px-2 py-0.5 rounded-full font-medium`}>{cat.label}</span>
+                        <span className="text-subtle uppercase">{p.language}</span>
+                        <span className="text-subtle">·</span>
+                        <span className="text-gray-500">{p.user?.name ?? 'Anonymous'}</span>
+                        {p.user?.email?.endsWith('@ayurconnect.com') && (
+                          <span className="inline-flex items-center gap-0.5 text-kerala-700 text-[10px]"><ShieldCheck className="w-3 h-3" /> staff</span>
+                        )}
+                        <span className="text-subtle ml-auto">{new Date(p.createdAt).toLocaleDateString()}</span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
-                        {new Date(post.createdAt).toLocaleDateString()}
+                      <h3 className="text-lg font-semibold text-ink leading-snug">{p.title}</h3>
+                      <p className="text-sm text-gray-700 mt-1.5 line-clamp-3 leading-relaxed">{p.content}</p>
+                      <div className="mt-3 text-xs text-gray-500">
+                        {p.comments.length} {p.comments.length === 1 ? 'reply' : 'replies'}
                       </div>
-                      <Badge className={getCategoryColor(post.category)}>
-                        {getCategoryName(post.category)}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 text-gray-500">
-                    <MessageSquare className="h-4 w-4" />
-                    {post.comments.length}
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 mb-4 line-clamp-3">{post.content}</p>
-                <Button variant="outline" size="sm">
-                  Read More & Reply
-                </Button>
-              </CardContent>
-            </Card>
-          ))
-        )}
+                    </article>
+                  )
+                })}
+              </div>
+            )}
+          </section>
+        </div>
       </div>
-    </div>
-  );
+    </>
+  )
 }

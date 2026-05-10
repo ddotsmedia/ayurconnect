@@ -1,358 +1,113 @@
-'use client';
+import Link from 'next/link'
+import { GradientHero } from '@ayurconnect/ui'
+import { GraduationCap, MapPin, Phone, BookOpen } from 'lucide-react'
+import { API_INTERNAL as API } from '../../lib/server-fetch'
 
-import { useState, useEffect } from 'react';
-import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, Input, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Tabs, TabsContent, TabsList, TabsTrigger } from '@ayurconnect/ui';
-import { MapPin, Phone, Search, GraduationCap, BookOpen } from 'lucide-react';
-
-interface College {
-  id: string;
-  name: string;
-  district: string;
-  type: string;
-  profile?: string;
-  contact?: string;
-  address?: string;
+type College = {
+  id: string
+  name: string
+  district: string
+  type: string
+  profile: string | null
+  contact: string | null
+  address: string | null
 }
 
-interface CollegeType {
-  id: string;
-  name: string;
-  description: string;
+const TYPE_TONE: Record<string, { label: string; bg: string; text: string }> = {
+  ayurveda: { label: 'Ayurveda (BAMS / MD)', bg: 'bg-kerala-50',  text: 'text-kerala-700'  },
+  modern:   { label: 'Modern medicine',       bg: 'bg-blue-50',    text: 'text-blue-700'    },
+  nursing:  { label: 'Nursing',               bg: 'bg-amber-50',   text: 'text-amber-700'   },
+  pharmacy: { label: 'Pharmacy',              bg: 'bg-purple-50',  text: 'text-purple-700'  },
+  research: { label: 'Research institute',    bg: 'bg-teal-50',    text: 'text-teal-700'    },
 }
 
-interface AdmissionInfo {
-  course: string;
-  duration: string;
-  eligibility: string;
-  entrance: string;
-  seats: string;
-  fees: string;
+async function fetchColleges(): Promise<College[]> {
+  try {
+    const res = await fetch(`${API}/colleges?limit=100`, { cache: 'no-store' })
+    if (!res.ok) return []
+    const data = (await res.json()) as { colleges: College[] }
+    return data.colleges ?? []
+  } catch { return [] }
 }
 
-export default function CollegesPage() {
-  const [colleges, setColleges] = useState<College[]>([]);
-  const [collegeTypes, setCollegeTypes] = useState<CollegeType[]>([]);
-  const [districts, setDistricts] = useState<string[]>([]);
-  const [admissions, setAdmissions] = useState<Record<string, AdmissionInfo>>({});
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDistrict, setSelectedDistrict] = useState<string>('all');
-  const [selectedType, setSelectedType] = useState<string>('all');
-  const [loading, setLoading] = useState(true);
-  const [selectedCollege, setSelectedCollege] = useState<College | null>(null);
+export const metadata = {
+  title: 'Ayurveda Medical Colleges in Kerala — BAMS & MD | AyurConnect',
+  description: 'CCIM-affiliated BAMS and MD Ayurveda colleges across Kerala. Government and private. Established 1889 onwards.',
+}
 
-  useEffect(() => {
-    fetchColleges();
-    fetchCollegeTypes();
-    fetchDistricts();
-    fetchAdmissions();
-  }, [searchQuery, selectedDistrict, selectedType]);
+export default async function CollegesPage() {
+  const colleges = await fetchColleges()
 
-  const fetchColleges = async () => {
-    try {
-      const params = new URLSearchParams();
-      if (searchQuery) params.append('district', searchQuery); // Search in district for now
-      if (selectedDistrict !== 'all') params.append('district', selectedDistrict);
-      if (selectedType !== 'all') params.append('type', selectedType);
-
-      const response = await fetch(`/api/colleges/colleges?${params}`);
-      const data = await response.json();
-      setColleges(data.colleges || []);
-    } catch (error) {
-      console.error('Error fetching colleges:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchCollegeTypes = async () => {
-    try {
-      const response = await fetch('/api/colleges/college-types');
-      const data = await response.json();
-      setCollegeTypes(data);
-    } catch (error) {
-      console.error('Error fetching college types:', error);
-    }
-  };
-
-  const fetchDistricts = async () => {
-    try {
-      const response = await fetch('/api/colleges/districts');
-      const data = await response.json();
-      setDistricts(data);
-    } catch (error) {
-      console.error('Error fetching districts:', error);
-    }
-  };
-
-  const fetchAdmissions = async () => {
-    try {
-      const response = await fetch('/api/colleges/admissions');
-      const data = await response.json();
-      setAdmissions(data);
-    } catch (error) {
-      console.error('Error fetching admissions:', error);
-    }
-  };
-
-  const getCollegeTypeName = (typeId: string) => {
-    const type = collegeTypes.find(t => t.id === typeId);
-    return type?.name || typeId;
-  };
-
-  const getCollegeTypeColor = (typeId: string) => {
-    const colors: Record<string, string> = {
-      'ayurveda': 'bg-green-100 text-green-800',
-      'modern': 'bg-blue-100 text-blue-800',
-      'nursing': 'bg-pink-100 text-pink-800',
-      'pharmacy': 'bg-purple-100 text-purple-800',
-      'research': 'bg-orange-100 text-orange-800'
-    };
-    return colors[typeId] || 'bg-gray-100 text-gray-800';
-  };
-
-  if (loading) {
-    return <div className="container mx-auto px-4 py-8">Loading colleges...</div>;
-  }
+  const ayurveda = colleges.filter((c) => c.type === 'ayurveda').length
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-green-800 mb-4">Medical Colleges in Kerala</h1>
-        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-          Discover premier medical institutions offering Ayurveda, modern medicine,
-          nursing, and pharmacy education in God&apos;s Own Country.
-        </p>
-      </div>
-
-      <Tabs defaultValue="colleges" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="colleges">Colleges Directory</TabsTrigger>
-          <TabsTrigger value="admissions">Admission Guide</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="colleges" className="space-y-6">
-          {/* Search and Filters */}
-          <div className="bg-green-50 p-6 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search colleges..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Select value={selectedDistrict} onValueChange={setSelectedDistrict}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select District" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Districts</SelectItem>
-                  {districts.map(district => (
-                    <SelectItem key={district} value={district}>{district}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={selectedType} onValueChange={setSelectedType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="College Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  {collegeTypes.map(type => (
-                    <SelectItem key={type.id} value={type.id}>{type.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Colleges Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {colleges.length === 0 ? (
-              <div className="col-span-full">
-                <Card>
-                  <CardContent className="text-center py-8">
-                    <GraduationCap className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                    <p className="text-gray-500">No colleges found matching your criteria.</p>
-                  </CardContent>
-                </Card>
-              </div>
-            ) : (
-              colleges.map(college => (
-                <Card key={college.id} className="hover:shadow-md transition-shadow cursor-pointer"
-                      onClick={() => setSelectedCollege(college)}>
-                  <CardHeader>
-                    <CardTitle className="text-xl text-green-800">{college.name}</CardTitle>
-                    <CardDescription className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      {college.district}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Badge className={getCollegeTypeColor(college.type)}>
-                      {getCollegeTypeName(college.type)}
-                    </Badge>
-
-                    {college.profile && (
-                      <p className="text-gray-700 mt-3 line-clamp-3">{college.profile}</p>
-                    )}
-
-                    <div className="mt-4 space-y-2">
-                      {college.contact && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <Phone className="h-4 w-4" />
-                          {college.contact}
-                        </div>
-                      )}
-                      {college.address && (
-                        <div className="flex items-center gap-2 text-sm text-gray-600">
-                          <MapPin className="h-4 w-4" />
-                          {college.address}
-                        </div>
-                      )}
-                    </div>
-
-                    <Button className="w-full mt-4 bg-green-600 hover:bg-green-700">
-                      View Details
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="admissions" className="space-y-6">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-green-800 mb-4">Admission Information</h2>
-            <p className="text-gray-600">Complete guide to medical education admissions in Kerala</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Object.entries(admissions).map(([key, info]) => (
-              <Card key={key}>
-                <CardHeader>
-                  <CardTitle className="text-lg text-green-800">{info.course}</CardTitle>
-                  <Badge className={getCollegeTypeColor(key)}>
-                    {key.charAt(0).toUpperCase() + key.slice(1)}
-                  </Badge>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">Duration</p>
-                    <p className="text-sm text-gray-600">{info.duration}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">Eligibility</p>
-                    <p className="text-sm text-gray-600">{info.eligibility}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">Entrance Exam</p>
-                    <p className="text-sm text-gray-600">{info.entrance}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">Seats</p>
-                    <p className="text-sm text-gray-600">{info.seats}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-700">Fees</p>
-                    <p className="text-sm text-gray-600">{info.fees}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          <Card className="bg-blue-50">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-blue-800 mb-4">Important Notes</h3>
-              <ul className="space-y-2 text-sm text-blue-700">
-                <li>• All medical courses require NEET qualification for admission</li>
-                <li>• Ayurveda colleges have reservation for Kerala students</li>
-                <li>• Government colleges offer subsidized fees</li>
-                <li>• Private colleges may have management quota seats</li>
-                <li>• Regular updates on admission notifications through official websites</li>
-                <li>• Contact colleges directly for latest admission procedures</li>
-              </ul>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* College Detail Modal */}
-      {selectedCollege && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div>
-                  <CardTitle className="text-2xl text-green-800">{selectedCollege.name}</CardTitle>
-                  <CardDescription className="flex items-center gap-1 mt-1">
-                    <MapPin className="h-4 w-4" />
-                    {selectedCollege.district}
-                  </CardDescription>
-                </div>
-                <Button variant="ghost" onClick={() => setSelectedCollege(null)}>×</Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Badge className={getCollegeTypeColor(selectedCollege.type)}>
-                {getCollegeTypeName(selectedCollege.type)}
-              </Badge>
-
-              {selectedCollege.profile && (
-                <div>
-                  <h4 className="font-semibold mb-2">About</h4>
-                  <p className="text-gray-700">{selectedCollege.profile}</p>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {selectedCollege.contact && (
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4 text-green-600" />
-                    <div>
-                      <p className="text-sm font-medium">Contact</p>
-                      <p className="text-sm text-gray-600">{selectedCollege.contact}</p>
-                    </div>
-                  </div>
-                )}
-                {selectedCollege.address && (
-                  <div className="flex items-start gap-2">
-                    <MapPin className="h-4 w-4 text-green-600 mt-1" />
-                    <div>
-                      <p className="text-sm font-medium">Address</p>
-                      <p className="text-sm text-gray-600">{selectedCollege.address}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="bg-green-50 p-4 rounded-lg">
-                <h4 className="font-semibold mb-2 text-green-800">Courses Offered</h4>
-                <p className="text-sm text-gray-700">
-                  {selectedCollege.type === 'ayurveda' && 'BAMS (Bachelor of Ayurvedic Medicine and Surgery)'}
-                  {selectedCollege.type === 'modern' && 'MBBS, MD, MS, and various postgraduate courses'}
-                  {selectedCollege.type === 'nursing' && 'B.Sc Nursing, M.Sc Nursing, GNM'}
-                  {selectedCollege.type === 'pharmacy' && 'B.Pharm, M.Pharm, D.Pharm'}
-                  {selectedCollege.type === 'research' && 'PhD programs and medical research'}
-                </p>
-              </div>
-
-              <div className="flex gap-4">
-                <Button className="flex-1 bg-green-600 hover:bg-green-700">
-                  Apply Now
-                </Button>
-                <Button variant="outline" className="flex-1">
-                  Visit Website
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+    <>
+      <GradientHero variant="hospital" size="md">
+        <div className="max-w-3xl">
+          <span className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur rounded-full text-xs text-white/90 border border-white/20 mb-4">
+            <GraduationCap className="w-3 h-3" /> CCIM-affiliated
+          </span>
+          <h1 className="text-3xl md:text-5xl text-white">Medical Colleges in Kerala</h1>
+          <p className="text-white/70 mt-3">
+            BAMS, MD Ayurveda, modern medicine, nursing and pharmacy colleges across all 14 districts.
+            From Govt Ayurveda College Trivandrum (est. 1889) to today&apos;s top private institutions.
+          </p>
         </div>
-      )}
-    </div>
-  );
+      </GradientHero>
+
+      <div className="container mx-auto px-4 py-12">
+        <p className="text-sm text-muted mb-6">
+          <strong className="text-ink">{colleges.length}</strong> colleges
+          {ayurveda > 0 && <> · {ayurveda} Ayurveda specifically</>}
+        </p>
+
+        {colleges.length === 0 ? (
+          <div className="text-center py-20 bg-white border border-gray-100 rounded-card">
+            <GraduationCap className="mx-auto h-10 w-10 text-gray-300 mb-3" />
+            <p className="text-muted">No colleges listed yet.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {colleges.map((c) => {
+              const tone = TYPE_TONE[c.type] ?? { label: c.type, bg: 'bg-gray-100', text: 'text-gray-700' }
+              return (
+                <article key={c.id} className="bg-white rounded-card border border-gray-100 shadow-card hover:shadow-cardLg transition-shadow p-6">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <h3 className="font-serif text-xl text-kerala-700 leading-snug flex-1">{c.name}</h3>
+                    <span className={`${tone.bg} ${tone.text} px-2 py-0.5 rounded-full text-[10px] font-medium whitespace-nowrap`}>{tone.label}</span>
+                  </div>
+                  {c.profile && (
+                    <p className="text-sm text-gray-700 leading-relaxed">{c.profile}</p>
+                  )}
+                  <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-1 gap-1.5 text-xs text-gray-600">
+                    <div className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-gray-400" /> {c.district}{c.address ? ` · ${c.address}` : ''}</div>
+                    {c.contact && <div className="flex items-center gap-1.5"><Phone className="w-3.5 h-3.5 text-gray-400" /> {c.contact}</div>}
+                  </div>
+                </article>
+              )
+            })}
+          </div>
+        )}
+
+        {/* BAMS quick-info */}
+        <section className="mt-14 p-6 rounded-card bg-cream border border-gray-100">
+          <h2 className="font-serif text-2xl text-kerala-700 mb-4 flex items-center gap-2">
+            <BookOpen className="w-5 h-5" /> BAMS at a glance
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+            <div><strong className="text-ink">Course:</strong> Bachelor of Ayurvedic Medicine and Surgery</div>
+            <div><strong className="text-ink">Duration:</strong> 5.5 years (incl. 1-yr rotating internship)</div>
+            <div><strong className="text-ink">Eligibility:</strong> 10+2 with Physics / Chemistry / Biology, ≥50% marks</div>
+            <div><strong className="text-ink">Entrance:</strong> NEET (UG)</div>
+            <div><strong className="text-ink">Govt fees:</strong> ₹50,000 - ₹2 lakh / year</div>
+            <div><strong className="text-ink">Private fees:</strong> ₹2-5 lakh / year</div>
+          </div>
+        </section>
+
+        <div className="mt-10 text-center text-sm text-muted">
+          Looking for a CCIM-verified practising doctor? <Link href="/doctors" className="text-kerala-700 hover:underline">Browse the directory →</Link>
+        </div>
+      </div>
+    </>
+  )
 }
