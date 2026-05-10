@@ -24,6 +24,20 @@ const app = fp(async (fastify, opts: AppOptions) => {
     options: opts,
     forceESM: true,
   })
+
+  // ─── Bootstrap Meilisearch indexes (non-blocking) ────────────────────────
+  // Runs after autoload so prisma + meili decorators are ready. Failure is
+  // non-fatal; search just falls back to empty results until reindex succeeds.
+  fastify.addHook('onReady', async () => {
+    try {
+      const { ensureIndexes, reindexAll } = await import('./lib/search-sync.js')
+      await ensureIndexes(fastify)
+      const counts = await reindexAll(fastify)
+      fastify.log.info({ counts }, 'meilisearch: indexes bootstrapped')
+    } catch (err) {
+      fastify.log.warn({ err }, 'meilisearch: bootstrap failed (search will return empty)')
+    }
+  })
 }, { name: 'app' })
 
 export default app

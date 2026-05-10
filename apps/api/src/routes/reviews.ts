@@ -28,6 +28,39 @@ const reviews: FastifyPluginAsync = async (fastify) => {
     await fastify.prisma.review.delete({ where: { id } })
     return reply.code(204).send()
   })
+
+  // ─── Public: signed-in users may post a review for a doctor or hospital ──
+  // Body: { doctorId?: string, hospitalId?: string, rating: 1-5, comment?: string }
+  // One review per (user, doctor) and (user, hospital) — second submission updates the first.
+  fastify.post('/', { preHandler: fastify.requireSession }, async (request, reply) => {
+    const userId = request.session!.user.id
+    const { doctorId, hospitalId, rating, comment } = request.body as {
+      doctorId?: string; hospitalId?: string; rating?: number; comment?: string
+    }
+    if (!doctorId && !hospitalId) return reply.code(400).send({ error: 'doctorId or hospitalId required' })
+    if (doctorId && hospitalId)   return reply.code(400).send({ error: 'review one entity at a time' })
+    const r = Number(rating)
+    if (!Number.isFinite(r) || r < 1 || r > 5) return reply.code(400).send({ error: 'rating must be 1-5' })
+
+    // Idempotent: if the same user already reviewed the same target, update instead.
+    const existing = await fastify.prisma.review.findFirst({
+      where: doctorId ? { userId, doctorId } : { userId, hospitalId },
+    })
+
+    const data = {
+      userId,
+      doctorId: doctorId ?? null,
+      hospitalId: hospitalId ?? null,
+      rating: r,
+      comment: typeof comment === 'string' && comment.trim() ? comment.trim().slice(0, 2000) : null,
+    }
+
+    const review = existing
+      ? await fastify.prisma.review.update({ where: { id: existing.id }, data })
+      : await fastify.prisma.review.create({ data })
+
+    return { review, action: existing ? 'updated' : 'created' }
+  })
 }
 
 export default reviews

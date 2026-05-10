@@ -8,6 +8,8 @@ import {
 } from 'lucide-react'
 import { API_INTERNAL as API } from '../../../lib/server-fetch'
 import { physicianLd, breadcrumbLd, ldGraph } from '../../../lib/seo'
+import { getServerSession } from '../../../lib/auth'
+import { ReviewForm } from '../../../components/review-form'
 const ALL_DAYS: ReadonlyArray<string> = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 type Review = { id: string; rating: number; comment: string | null; createdAt: string; user: { name: string | null } | null }
@@ -56,7 +58,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function DoctorProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const doctor = await fetchDoctor(id)
+  const [doctor, sess] = await Promise.all([fetchDoctor(id), getServerSession()])
   if (!doctor) notFound()
 
   const related = await fetchRelated(doctor.district, doctor.id)
@@ -225,8 +227,11 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
 
           <section>
             <h2 className="text-2xl text-kerala-700 mb-4">Patient reviews</h2>
+            <div className="mb-5">
+              <ReviewForm doctorId={doctor.id} signedIn={!!sess} />
+            </div>
             {doctor.reviews.length === 0 ? (
-              <p className="text-muted italic">No reviews yet.</p>
+              <p className="text-muted italic">No reviews yet — be the first.</p>
             ) : (
               <div className="space-y-3">
                 {doctor.reviews.map((r) => (

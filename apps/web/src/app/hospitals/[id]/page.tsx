@@ -5,6 +5,8 @@ import { ShieldCheck, MapPin, Phone, Calendar, Award, Building2, Star, ArrowRigh
 import { API_INTERNAL as API } from '../../../lib/server-fetch'
 import { hospitalLd, breadcrumbLd, ldGraph, clip, abs, SITE_URL } from '../../../lib/seo'
 import { mapsDirectionsUrl, mapsLatLngUrl } from '../../../lib/maps'
+import { getServerSession } from '../../../lib/auth'
+import { ReviewForm } from '../../../components/review-form'
 
 type Hospital = {
   id: string
@@ -68,7 +70,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function HospitalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const h = await fetchHospital(id)
+  const [h, sess] = await Promise.all([fetchHospital(id), getServerSession()])
   if (!h) notFound()
 
   const related = await fetchRelated(h.district, h.id)
@@ -172,9 +174,12 @@ export default async function HospitalDetailPage({ params }: { params: Promise<{
             </section>
           )}
 
-          {h.reviews?.length > 0 && (
-            <section>
-              <h2 className="text-2xl text-kerala-700 mb-4">Reviews</h2>
+          <section>
+            <h2 className="text-2xl text-kerala-700 mb-4">Reviews</h2>
+            <div className="mb-5">
+              <ReviewForm hospitalId={h.id} signedIn={!!sess} />
+            </div>
+            {h.reviews && h.reviews.length > 0 && (
               <div className="space-y-4">
                 {h.reviews.slice(0, 5).map((r) => (
                   <article key={r.id} className="bg-white rounded-card border border-gray-100 p-5 shadow-card">
@@ -189,8 +194,8 @@ export default async function HospitalDetailPage({ params }: { params: Promise<{
                   </article>
                 ))}
               </div>
-            </section>
-          )}
+            )}
+          </section>
         </div>
 
         {/* SIDEBAR */}

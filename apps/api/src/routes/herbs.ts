@@ -1,4 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify'
+import { cached, bust } from '../lib/cache.js'
+import { upsertDoc, deleteDoc } from '../lib/search-sync.js'
 
 export const autoPrefix = '/herbs'
 
@@ -9,34 +11,43 @@ const herbs: FastifyPluginAsync = async (fastify) => {
     const { page = '1', limit = '12', search, rasa, guna } = request.query as Record<string, string>
     const pageNum = Number(page) || 1
     const limitNum = Math.min(Number(limit) || 12, 100)
-    const where: Record<string, unknown> = {}
-    if (search) {
-      where.OR = [
-        { name: { contains: search, mode: 'insensitive' } },
-        { sanskrit: { contains: search, mode: 'insensitive' } },
-        { english: { contains: search, mode: 'insensitive' } },
-        { malayalam: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { uses: { contains: search, mode: 'insensitive' } },
-      ]
-    }
-    if (rasa) where.rasa = rasa
-    if (guna) where.guna = guna
 
-    const [herbsList, total] = await Promise.all([
-      fastify.prisma.herb.findMany({
-        where,
-        orderBy: { name: 'asc' },
-        skip: (pageNum - 1) * limitNum,
-        take: limitNum,
-      }),
-      fastify.prisma.herb.count({ where }),
-    ])
+    // Cache is only safe for unfiltered list pages (the most-hit case).
+    // Filtered queries fall through to Postgres directly.
+    const cacheKey = `herbs:list:p${pageNum}:l${limitNum}` + (search ? '' : '') // skip cache when search present
+    const skipCache = !!search || !!rasa || !!guna
 
-    return {
-      herbs: herbsList,
-      pagination: { page: pageNum, limit: limitNum, total, pages: Math.ceil(total / limitNum) },
+    const compute = async () => {
+      const where: Record<string, unknown> = {}
+      if (search) {
+        where.OR = [
+          { name: { contains: search, mode: 'insensitive' } },
+          { sanskrit: { contains: search, mode: 'insensitive' } },
+          { english: { contains: search, mode: 'insensitive' } },
+          { malayalam: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } },
+          { uses: { contains: search, mode: 'insensitive' } },
+        ]
+      }
+      if (rasa) where.rasa = rasa
+      if (guna) where.guna = guna
+
+      const [herbsList, total] = await Promise.all([
+        fastify.prisma.herb.findMany({
+          where,
+          orderBy: { name: 'asc' },
+          skip: (pageNum - 1) * limitNum,
+          take: limitNum,
+        }),
+        fastify.prisma.herb.count({ where }),
+      ])
+      return {
+        herbs: herbsList,
+        pagination: { page: pageNum, limit: limitNum, total, pages: Math.ceil(total / limitNum) },
+      }
     }
+
+    return skipCache ? compute() : cached(fastify, cacheKey, 3600, compute)
   })
 
   fastify.get('/:id', async (request, reply) => {
@@ -51,7 +62,10 @@ const herbs: FastifyPluginAsync = async (fastify) => {
     if (!body.name) return reply.code(400).send({ error: 'name required' })
     const data: Record<string, unknown> = {}
     for (const k of HERB_FIELDS) data[k] = body[k] ?? null
-    return fastify.prisma.herb.create({ data: { ...data, name: body.name } })
+    const created = await fastify.prisma.herb.create({ data: { ...data, name: body.name } })
+    void bust(fastify, 'herbs:list:*')
+    void upsertDoc(fastify, 'herbs', created)
+    return created
   })
 
   fastify.patch('/:id', { preHandler: fastify.requireAdmin }, async (request) => {
@@ -61,12 +75,17 @@ const herbs: FastifyPluginAsync = async (fastify) => {
     for (const k of HERB_FIELDS) {
       if (body[k] !== undefined) data[k] = body[k] || null
     }
-    return fastify.prisma.herb.update({ where: { id }, data })
+    const updated = await fastify.prisma.herb.update({ where: { id }, data })
+    void bust(fastify, 'herbs:list:*')
+    void upsertDoc(fastify, 'herbs', updated)
+    return updated
   })
 
   fastify.delete('/:id', { preHandler: fastify.requireAdmin }, async (request, reply) => {
     const { id } = request.params as { id: string }
     await fastify.prisma.herb.delete({ where: { id } })
+    void bust(fastify, 'herbs:list:*')
+    void deleteDoc(fastify, 'herbs', id)
     return reply.code(204).send()
   })
 

@@ -7,6 +7,7 @@ import { cn } from './lib/utils'
 import { LangToggle } from './lang-toggle'
 import { t, type Lang } from './i18n'
 import { LogoLockup, LogoMark } from './logo'
+import { NavSearch } from './nav-search'
 
 function readLangCookie(): Lang {
   if (typeof document === 'undefined') return 'en'
@@ -152,6 +153,11 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
               )}
             </div>
 
+            {/* Universal search (desktop) */}
+            <div className="hidden lg:block flex-shrink min-w-0 mx-4">
+              <NavSearch />
+            </div>
+
             {/* Auth buttons + lang (desktop) */}
             <div className="hidden md:flex items-center gap-2">
               <LangToggle className="mr-1" />
@@ -246,6 +252,9 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                   <X className="w-5 h-5" />
                 </button>
               </div>
+            </div>
+            <div className="px-4 pt-4">
+              <NavSearch compact />
             </div>
             <nav className="flex-1 p-4 space-y-1">
               {NAV_LINKS.map((link) => (
