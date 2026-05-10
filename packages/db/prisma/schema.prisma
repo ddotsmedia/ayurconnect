@@ -36,6 +36,27 @@ model User {
   savedDoctors  SavedDoctor[]
   ownedDoctor   Doctor?       @relation("OwnedDoctor",   fields: [doctorId],   references: [id])
   ownedHospital Hospital?     @relation("OwnedHospital", fields: [hospitalId], references: [id])
+  notifications Notification[]
+}
+
+// ─── Notifications (added 2026-05-10 — Socket.io real-time delivery) ──────
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  // Stable type so the UI can pick an icon/colour:
+  //   appointment-booked | appointment-confirmed | appointment-cancelled |
+  //   review-received    | doctor-verified       | hospital-verified     |
+  //   forum-reply        | system
+  type      String
+  title     String
+  body      String?
+  link      String?  // optional URL to navigate to when clicked
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read, createdAt])
 }
 
 model Session {

@@ -1,4 +1,7 @@
 import type { FastifyPluginAsync } from 'fastify'
+import { createNotification } from '../lib/notify.js'
+import { sendWhatsApp } from '../lib/whatsapp.js'
+import { sendEmail, emailEnabled } from '../lib/email.js'
 
 export const autoPrefix = '/appointments'
 
@@ -73,6 +76,58 @@ const route: FastifyPluginAsync = async (fastify) => {
         status: 'scheduled',
       },
     })
+
+    // ─── Fan-out: notification, email, WhatsApp ──────────────────────────
+    void (async () => {
+      try {
+        const when = new Date(appt.dateTime).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })
+
+        // 1. In-app notification (patient)
+        await createNotification(fastify, {
+          userId: sess.user.id,
+          type:   'appointment-booked',
+          title:  `Appointment booked with ${doctor.name}`,
+          body:   `${when} · ${appt.type}`,
+          link:   '/dashboard/appointments',
+        })
+
+        // 2. In-app notification (doctor's owner user, if linked)
+        const docOwner = await fastify.prisma.user.findFirst({ where: { doctorId: doctor.id }, select: { id: true } })
+        if (docOwner) {
+          await createNotification(fastify, {
+            userId: docOwner.id,
+            type:   'appointment-booked',
+            title:  'New consultation booking',
+            body:   `${when} · ${appt.type}`,
+            link:   '/dashboard/appointments',
+          })
+        }
+
+        // 3. Email confirmation to patient (if Resend configured)
+        if (emailEnabled() && sess.user.email) {
+          await sendEmail({
+            to: sess.user.email,
+            subject: `Appointment confirmed — ${doctor.name}`,
+            html: `<p>Your appointment with <strong>${doctor.name}</strong> is scheduled for <strong>${when}</strong>.</p>
+                   <p>Type: ${appt.type}<br>Fee: ${appt.fee ? `₹${appt.fee}` : 'TBD'}</p>
+                   <p>You can cancel or reschedule from your dashboard at https://ayurconnect.com/dashboard/appointments.</p>`,
+            text: `Appointment with ${doctor.name} on ${when}. Manage at https://ayurconnect.com/dashboard/appointments`,
+          })
+        }
+
+        // 4. WhatsApp reminder to patient (if Twilio configured + user has phone)
+        const me = await fastify.prisma.user.findUnique({ where: { id: sess.user.id }, select: { phone: true } })
+        if (me?.phone) {
+          await sendWhatsApp({
+            to:   me.phone,
+            body: `🌿 AyurConnect: appointment with ${doctor.name} on ${when}. Manage at https://ayurconnect.com/dashboard/appointments`,
+          })
+        }
+      } catch (err) {
+        fastify.log.warn({ err }, 'appointment fan-out failed (non-fatal)')
+      }
+    })()
+
     return reply.code(201).send(appt)
   })
 

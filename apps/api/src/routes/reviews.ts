@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify'
+import { createNotification } from '../lib/notify.js'
 
 export const autoPrefix = '/reviews'
 
@@ -58,6 +59,40 @@ const reviews: FastifyPluginAsync = async (fastify) => {
     const review = existing
       ? await fastify.prisma.review.update({ where: { id: existing.id }, data })
       : await fastify.prisma.review.create({ data })
+
+    // Notify the reviewed entity's owner (if the doctor/hospital has a linked user).
+    if (!existing) {
+      try {
+        if (doctorId) {
+          const owner = await fastify.prisma.user.findFirst({ where: { doctorId }, select: { id: true } })
+          const doctor = await fastify.prisma.doctor.findUnique({ where: { id: doctorId }, select: { id: true, name: true } })
+          if (owner && doctor) {
+            void createNotification(fastify, {
+              userId: owner.id,
+              type:   'review-received',
+              title:  `New ${review.rating}★ review on your profile`,
+              body:   review.comment ? review.comment.slice(0, 140) : 'A patient left a star rating.',
+              link:   `/doctors/${doctor.id}`,
+            })
+          }
+        }
+        if (hospitalId) {
+          const owner = await fastify.prisma.user.findFirst({ where: { hospitalId }, select: { id: true } })
+          const hospital = await fastify.prisma.hospital.findUnique({ where: { id: hospitalId }, select: { id: true, name: true } })
+          if (owner && hospital) {
+            void createNotification(fastify, {
+              userId: owner.id,
+              type:   'review-received',
+              title:  `New ${review.rating}★ review for ${hospital.name}`,
+              body:   review.comment ? review.comment.slice(0, 140) : 'A patient left a star rating.',
+              link:   `/hospitals/${hospital.id}`,
+            })
+          }
+        }
+      } catch (err) {
+        fastify.log.warn({ err }, 'review-received notification failed')
+      }
+    }
 
     return { review, action: existing ? 'updated' : 'created' }
   })

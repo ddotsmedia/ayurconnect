@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Cormorant_Garamond, Inter } from 'next/font/google'
-import { Navbar, Footer, AyurBotWidget, MobileBottomNav, type NavbarSession } from '@ayurconnect/ui'
+import { Navbar, Footer, AyurBotWidget, MobileBottomNav, ServiceWorkerRegister, type NavbarSession } from '@ayurconnect/ui'
 import { getServerSession } from '../lib/auth'
 import { organizationLd, websiteLd, ldGraph, SITE_URL } from '../lib/seo'
 import './globals.css'
@@ -98,6 +98,7 @@ export default async function RootLayout({
         <Footer />
         <AyurBotWidget />
         <MobileBottomNav />
+        <ServiceWorkerRegister />
       </body>
     </html>
   )

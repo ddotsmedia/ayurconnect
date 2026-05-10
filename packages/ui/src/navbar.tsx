@@ -8,6 +8,7 @@ import { LangToggle } from './lang-toggle'
 import { t, type Lang } from './i18n'
 import { LogoLockup, LogoMark } from './logo'
 import { NavSearch } from './nav-search'
+import { NotificationBell } from './notification-bell'
 
 function readLangCookie(): Lang {
   if (typeof document === 'undefined') return 'en'
@@ -162,7 +163,9 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
             <div className="hidden md:flex items-center gap-2">
               <LangToggle className="mr-1" />
               {session ? (
-                <div ref={userRef} className="relative">
+                <>
+                  <NotificationBell />
+                  <div ref={userRef} className="relative">
                   <button
                     type="button"
                     onClick={() => setUserOpen((v) => !v)}
@@ -205,7 +208,8 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                       </button>
                     </div>
                   )}
-                </div>
+                  </div>
+                </>
               ) : (
                 <>
                   <Link href="/sign-in" className="px-3 py-1.5 text-sm text-gray-700 hover:text-kerala-700 transition-colors">

@@ -90,6 +90,7 @@ cmd_env() {
       check TWILIO_ACCOUNT_SID 'Twilio SMS (sid)'       'AC'
       check TWILIO_AUTH_TOKEN  'Twilio SMS (token)'     ''
       check TWILIO_FROM        'Twilio SMS (from)'      ''
+      check TWILIO_WHATSAPP_FROM 'Twilio WhatsApp (from)' ''
       check VOYAGE_API_KEY     'Voyage AI'              ''
     "
     return

@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify'
+import { createNotification } from '../lib/notify.js'
 
 export const autoPrefix = '/doctors'
 
@@ -108,7 +109,29 @@ const doctors: FastifyPluginAsync = async (fastify) => {
     for (const k of NUM_FIELDS) { const v = num(body[k]); if (v !== undefined) data[k] = v }
     if (body.ccimVerified !== undefined)        data.ccimVerified        = Boolean(body.ccimVerified)
     if (body.availableForOnline !== undefined)  data.availableForOnline  = Boolean(body.availableForOnline)
-    return fastify.prisma.doctor.update({ where: { id }, data })
+
+    // Detect a transition to verified=true so we can ping the doctor's owner user.
+    const before = await fastify.prisma.doctor.findUnique({ where: { id }, select: { ccimVerified: true } })
+    const updated = await fastify.prisma.doctor.update({ where: { id }, data })
+    if (before && !before.ccimVerified && updated.ccimVerified) {
+      try {
+        const owner = await fastify.prisma.user.findFirst({ where: { doctorId: id }, select: { id: true } })
+        if (owner) {
+          void createNotification(fastify, {
+            userId: owner.id,
+            type:   'doctor-verified',
+            title:  '🎉 Your CCIM verification is approved',
+            body:   'Your doctor profile is now publicly visible with the CCIM-verified badge.',
+            link:   `/doctors/${id}`,
+          })
+          // Promote DOCTOR_PENDING → DOCTOR
+          await fastify.prisma.user.update({ where: { id: owner.id }, data: { role: 'DOCTOR' } }).catch(() => null)
+        }
+      } catch (err) {
+        fastify.log.warn({ err }, 'doctor-verified notification failed')
+      }
+    }
+    return updated
   })
 
   fastify.delete('/:id', { preHandler: fastify.requireAdmin }, async (request, reply) => {
