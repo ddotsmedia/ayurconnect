@@ -310,6 +310,33 @@ model Job {
   @@index([type])
 }
 
+// ─── Auto-imported Ayurveda jobs (added 2026-05-10 — separate table from Job
+// because user-posted jobs require a userId FK; importer rows have no owner) ──
+model ImportedJob {
+  id              String    @id @default(cuid())
+  title           String
+  organization    String?
+  location        String?           // free-text from source (e.g. "Trivandrum, Kerala")
+  description     String?
+  qualifications  String?
+  lastDate        DateTime?
+  applyUrl        String
+  source          String            // 'kerala-psc' | 'nhm-kerala' | 'indeed' | 'naukri'
+  sourceId        String   @unique  // md5(source + applyUrl + title) — dedupe key
+  salary          String?
+  jobType         String?           // full-time | part-time | contract | govt
+  category        String?           // 'doctor' | 'therapist' | etc.
+  isAutoImported  Boolean  @default(true)
+  isActive        Boolean  @default(true)
+  importedAt      DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([source, importedAt])
+  @@index([isActive, importedAt])
+  @@index([category])
+}
+
 model Herb {
   id          String   @id @default(cuid())
   name        String

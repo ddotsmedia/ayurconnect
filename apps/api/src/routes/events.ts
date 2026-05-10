@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify'
+import { Prisma } from '@prisma/client'
 
 export const autoPrefix = '/events'
 
@@ -44,7 +45,11 @@ const route: FastifyPluginAsync = async (fastify) => {
         userId,
         sessionId: typeof body.sessionId === 'string' ? body.sessionId.slice(0, 60) : null,
         name:      body.name,
-        props:     (body.props && typeof body.props === 'object') ? (body.props as object) : null,
+        // Prisma 6 needs the JsonNull sentinel for nullable Json columns; plain
+        // null no longer satisfies the InputJsonValue union.
+        props:     (body.props && typeof body.props === 'object')
+          ? (body.props as Prisma.InputJsonValue)
+          : Prisma.JsonNull,
         path:      typeof body.path === 'string' ? body.path.slice(0, 200) : null,
       },
     }).catch(() => null) // ignore — analytics shouldn't ever 5xx the user

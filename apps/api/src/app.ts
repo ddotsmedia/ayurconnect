@@ -37,6 +37,16 @@ const app = fp(async (fastify, opts: AppOptions) => {
       fastify.log.warn({ err }, 'meilisearch: bootstrap failed (search will return empty)')
     }
 
+    // ─── Start hourly Ayurveda job importer cron ────────────────────────
+    // Runs once 10s after boot, then on the configured schedule (default
+    // hourly @ top of hour, IST). See cron/importerCron.ts for env knobs.
+    try {
+      const { startJobImportCron } = await import('./cron/importerCron.js')
+      startJobImportCron(fastify)
+    } catch (err) {
+      fastify.log.warn({ err }, 'jobImporter cron: failed to start (non-fatal)')
+    }
+
     // Embed any herbs missing a vector (one-time on first boot after migration,
     // then no-op on subsequent boots). Free Gemini quota easily covers 145 herbs.
     try {
