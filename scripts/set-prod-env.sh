@@ -45,6 +45,36 @@ for kv in "$@"; do
   VALUE=${kv#*=}
   KNOWN_KEYS+=("$KEY")
 
+  # ── Refuse obvious placeholders so AyurBot/Resend/Razorpay can't be
+  #    silently broken by pasting an example value verbatim.
+  case "$VALUE" in
+    *...*|*your-real-key*|*your-key-here*|*REPLACE_ME*|*xxxxxxxx*|*placeholder*)
+      echo "✗ refusing to set $KEY — value '$VALUE' looks like a placeholder/example."
+      echo "  Paste the real value (no '...', no 'your-real-key', etc.) and try again."
+      exit 2;;
+  esac
+
+  # ── Length floor for known-keyed credentials, to catch "I copied a snippet"
+  case "$KEY" in
+    ANTHROPIC_API_KEY)
+      if [ "${#VALUE}" -lt 50 ]; then
+        echo "✗ refusing to set $KEY — only ${#VALUE} chars; real Anthropic keys are ~108."
+        echo "  Get one at https://console.anthropic.com/settings/keys"
+        exit 2
+      fi
+      case "$VALUE" in
+        sk-ant-*) ;;
+        *) echo "✗ refusing to set $KEY — must start with 'sk-ant-' (yours starts with: ${VALUE:0:8}…)"; exit 2;;
+      esac
+      ;;
+    RAZORPAY_KEY_ID)
+      case "$VALUE" in rzp_*) ;; *) echo "✗ $KEY must start with rzp_test_ or rzp_live_"; exit 2;; esac
+      ;;
+    RESEND_API_KEY)
+      case "$VALUE" in re_*) ;; *) echo "✗ $KEY must start with re_"; exit 2;; esac
+      ;;
+  esac
+
   # Encode KEY and VALUE for safe transport: base64 the value to dodge any
   # shell / sed metacharacters (sk-ant-... keys are alphanumeric, but Resend
   # FROM strings contain spaces and angle brackets).

@@ -11,13 +11,17 @@ const SYSTEM_PROMPTS = {
 
 type PromptType = keyof typeof SYSTEM_PROMPTS
 
-// A key counts as "real" if it starts with sk-ant- (Anthropic's prefix). Empty
-// string, the placeholder REPLACE_ME_*, or anything else means not configured.
+// A key counts as "real" if it has the sk-ant- prefix AND is long enough AND
+// doesn't contain placeholder ellipses. Real Anthropic keys are ~108 chars.
 function keyState(): { ok: boolean; reason?: string } {
   const k = (process.env.ANTHROPIC_API_KEY ?? '').trim()
   if (!k)                              return { ok: false, reason: 'ANTHROPIC_API_KEY not set' }
   if (/^replace_me/i.test(k))          return { ok: false, reason: 'ANTHROPIC_API_KEY is the placeholder REPLACE_ME_…' }
   if (!k.startsWith('sk-ant-'))        return { ok: false, reason: 'ANTHROPIC_API_KEY does not look like a Claude key (should start with sk-ant-)' }
+  if (/\.{3}/.test(k))                 return { ok: false, reason: 'ANTHROPIC_API_KEY contains "..." — looks like an example, not a real key' }
+  if (/your[-_]?real[-_]?key|your[-_]?key|xxxx|placeholder/i.test(k))
+                                       return { ok: false, reason: 'ANTHROPIC_API_KEY contains placeholder text' }
+  if (k.length < 50)                   return { ok: false, reason: `ANTHROPIC_API_KEY is too short (${k.length} chars; real keys are ~108)` }
   return { ok: true }
 }
 
