@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <title>AyurConnect</title>
+  <rect width="200" height="200" rx="44" fill="#ffffff"/>
+  <g>
+    <path d="M100 30 L100 145
+             M100 50 L82 35  M100 50 L118 35
+             M100 70 L70 55  M100 70 L130 55
+             M100 95 L60 78  M100 95 L140 78
+             M100 120 L70 108  M100 120 L130 108"
+          stroke="#155228" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <ellipse cx="78"  cy="42"  rx="3" ry="6" fill="#3da041" transform="rotate(-28 78 42)"/>
+    <ellipse cx="122" cy="42"  rx="3" ry="6" fill="#3da041" transform="rotate(28 122 42)"/>
+    <ellipse cx="90"  cy="50"  rx="3" ry="6" fill="#3da041" transform="rotate(-10 90 50)"/>
+    <ellipse cx="110" cy="50"  rx="3" ry="6" fill="#3da041" transform="rotate(10 110 50)"/>
+    <ellipse cx="66"  cy="60"  rx="3" ry="6" fill="#3da041" transform="rotate(-32 66 60)"/>
+    <ellipse cx="134" cy="60"  rx="3" ry="6" fill="#3da041" transform="rotate(32 134 60)"/>
+    <ellipse cx="80"  cy="65"  rx="3" ry="6" fill="#3da041" transform="rotate(-18 80 65)"/>
+    <ellipse cx="120" cy="65"  rx="3" ry="6" fill="#3da041" transform="rotate(18 120 65)"/>
+    <ellipse cx="100" cy="65"  rx="3" ry="6" fill="#3da041"/>
+    <ellipse cx="56"  cy="80"  rx="3" ry="6" fill="#3da041" transform="rotate(-34 56 80)"/>
+    <ellipse cx="144" cy="80"  rx="3" ry="6" fill="#3da041" transform="rotate(34 144 80)"/>
+    <ellipse cx="72"  cy="86"  rx="3" ry="6" fill="#3da041" transform="rotate(-20 72 86)"/>
+    <ellipse cx="128" cy="86"  rx="3" ry="6" fill="#3da041" transform="rotate(20 128 86)"/>
+    <ellipse cx="90"  cy="88"  rx="3" ry="6" fill="#3da041" transform="rotate(-8 90 88)"/>
+    <ellipse cx="110" cy="88"  rx="3" ry="6" fill="#3da041" transform="rotate(8 110 88)"/>
+    <ellipse cx="66"  cy="102" rx="3" ry="6" fill="#3da041" transform="rotate(-22 66 102)"/>
+    <ellipse cx="134" cy="102" rx="3" ry="6" fill="#3da041" transform="rotate(22 134 102)"/>
+    <ellipse cx="82"  cy="108" rx="3" ry="6" fill="#3da041" transform="rotate(-10 82 108)"/>
+    <ellipse cx="118" cy="108" rx="3" ry="6" fill="#3da041" transform="rotate(10 118 108)"/>
+    <ellipse cx="100" cy="100" rx="3" ry="6" fill="#3da041"/>
+    <ellipse cx="92"  cy="122" rx="3" ry="6" fill="#3da041" transform="rotate(-8 92 122)"/>
+    <ellipse cx="108" cy="122" rx="3" ry="6" fill="#3da041" transform="rotate(8 108 122)"/>
+    <ellipse cx="78"  cy="128" rx="3" ry="6" fill="#3da041" transform="rotate(-16 78 128)"/>
+    <ellipse cx="122" cy="128" rx="3" ry="6" fill="#3da041" transform="rotate(16 122 128)"/>
+    <path d="M40 158 Q100 130 160 158" stroke="#155228" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M55 168 Q100 148 145 168" stroke="#3da041" stroke-width="6" fill="none" stroke-linecap="round"/>
+    <path d="M70 178 Q100 165 130 178" stroke="#3da041" stroke-width="6" fill="none" stroke-linecap="round"/>
+  </g>
+</svg>

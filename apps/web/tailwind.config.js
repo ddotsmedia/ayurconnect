@@ -9,17 +9,26 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Kerala palette — calibrated to the AyurConnect logo (deep forest tree
+        // + bright leaf bands). 700 is the wordmark colour, 500 is the soil
+        // band colour. Use 700 for headings/CTAs, 500 for accents.
         kerala: {
-          50:  '#f0fdf4',
-          100: '#e8f5e9',
-          200: '#bbf7d0',
-          300: '#86efac',
-          400: '#4ade80',
-          500: '#22c55e',
-          600: '#1b5e20',
-          700: '#155724',
-          800: '#0a2e0f',
+          50:  '#ecfdf3',
+          100: '#d1fae5',
+          200: '#a7f3d0',
+          300: '#6ee7b7',
+          400: '#34d399',
+          500: '#3da041', // logo "leaf" / soil band — vivid lime
+          600: '#1d7c2f',
+          700: '#155228', // logo wordmark + tree dark forest
+          800: '#0d3d1a',
           900: '#06200a',
+        },
+        leaf: { // alias for the bright soil-band colour, makes intent clear
+          50:  '#ecfdf3',
+          400: '#5fc063',
+          500: '#3da041',
+          600: '#2c8230',
         },
         gold: {
           50:  '#fffbeb',
@@ -49,11 +58,11 @@ module.exports = {
         cardXl: '0 20px 60px rgba(0,0,0,.2)',
       },
       backgroundImage: {
-        'hero-green':   'linear-gradient(135deg, #0a2e0f 0%, #1b5e20 50%, #2d6a4f 100%)',
-        'hero-tourism': 'linear-gradient(135deg, #0a2e0f 0%, #1b5e20 100%)',
+        'hero-green':   'linear-gradient(135deg, #0d3d1a 0%, #155228 50%, #1d7c2f 100%)',
+        'hero-tourism': 'linear-gradient(135deg, #0d3d1a 0%, #155228 100%)',
         'hero-forum':   'linear-gradient(135deg, #1e1b4b 0%, #4c1d95 100%)',
         'hero-jobs':    'linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%)',
-        'hero-bot':     'linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #1b5e20 100%)',
+        'hero-bot':     'linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #155228 100%)',
         'hero-hospital':'linear-gradient(135deg, #0c2340 0%, #1a3a6b 100%)',
       },
       keyframes: {

@@ -2,10 +2,11 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { Menu, X, ChevronDown, Leaf } from 'lucide-react'
+import { Menu, X, ChevronDown } from 'lucide-react'
 import { cn } from './lib/utils'
 import { LangToggle } from './lang-toggle'
 import { t, type Lang } from './i18n'
+import { LogoLockup, LogoMark } from './logo'
 
 function readLangCookie(): Lang {
   if (typeof document === 'undefined') return 'en'
@@ -53,15 +54,9 @@ export function Navbar() {
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 group" aria-label="AyurConnect home">
-              <span className="w-9 h-9 rounded-full bg-kerala-600 text-white flex items-center justify-center group-hover:bg-kerala-700 transition-colors">
-                <Leaf className="w-5 h-5" />
-              </span>
-              <span className="font-serif text-2xl">
-                <span className="text-kerala-700 font-semibold">Ayur</span>
-                <span className="text-gold-500 font-semibold">Connect</span>
-              </span>
+            {/* Logo lockup */}
+            <Link href="/" className="group" aria-label="AyurConnect home">
+              <LogoLockup className="group-hover:opacity-90 transition-opacity" />
             </Link>
 
             {/* Desktop links */}
@@ -164,7 +159,10 @@ export function Navbar() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between p-4 border-b">
-              <span className="font-serif text-xl text-kerala-700">{tr.nav.menu}</span>
+              <span className="inline-flex items-center gap-2">
+                <LogoMark className="h-7 w-7" />
+                <span className="font-serif text-xl text-kerala-700">{tr.nav.menu}</span>
+              </span>
               <div className="flex items-center gap-2">
                 <LangToggle />
                 <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="p-1">

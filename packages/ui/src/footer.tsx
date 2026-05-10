@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { Leaf, Facebook, Instagram, Youtube, Linkedin, ShieldCheck } from 'lucide-react'
+import { Facebook, Instagram, Youtube, Linkedin, ShieldCheck } from 'lucide-react'
+import { LogoCircular } from './logo'
 
 const COLS: Array<{ heading: string; links: Array<{ href: string; label: string }> }> = [
   {
@@ -37,18 +38,12 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand col */}
           <div>
-            <Link href="/" className="flex items-center gap-2 group">
-              <span className="w-9 h-9 rounded-full bg-white text-kerala-700 flex items-center justify-center">
-                <Leaf className="w-5 h-5" />
-              </span>
-              <span className="font-serif text-2xl">
-                <span className="text-white">Ayur</span>
-                <span className="text-gold-400">Connect</span>
-              </span>
+            <Link href="/" aria-label="AyurConnect home" className="inline-block bg-white rounded-full p-3 shadow-cardLg group">
+              <LogoCircular size={120} className="block group-hover:opacity-95 transition-opacity" />
             </Link>
-            <p className="mt-4 text-sm text-white/70 leading-relaxed">
+            <p className="mt-5 text-sm text-white/70 leading-relaxed">
               Kerala&apos;s #1 Ayurveda platform. Verified CCIM doctors, classical
-              Panchakarma centres, 1000+ medicinal herbs, AI-assisted health insights —
+              Panchakarma centres, 150+ medicinal herbs, AI-assisted health insights —
               rooted in God&apos;s Own Country.
             </p>
             <div className="flex items-center gap-3 mt-5">

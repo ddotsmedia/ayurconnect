@@ -35,7 +35,8 @@ export const metadata: Metadata = {
   },
   twitter: { card: 'summary_large_image', title: 'AyurConnect', description: "Kerala's Ayurveda platform" },
   alternates: { canonical: '/', languages: { 'en-IN': '/', 'ml-IN': '/?lang=ml' } },
-  icons: { icon: '/favicon.ico' },
+  // icon, apple-icon, opengraph-image are picked up automatically from
+  // app/icon.svg, app/apple-icon.png (if added), app/opengraph-image.tsx
 }
 
 const ORG_JSON_LD = {
