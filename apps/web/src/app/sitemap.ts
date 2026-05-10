@@ -18,13 +18,23 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/ayurbot',        priority: 0.5, changeFrequency: 'monthly' },
 ]
 
-async function fetchIds(path: string): Promise<Array<{ id: string; updatedAt?: string }>> {
+async function fetchIds(path: string, key?: string): Promise<Array<{ id: string; updatedAt?: string }>> {
   try {
     const res = await fetch(`${API_INTERNAL}${path}`, { next: { revalidate: 3600 } })
     if (!res.ok) return []
     const data = await res.json()
-    const items = Array.isArray(data) ? data : (data.items ?? data.data ?? [])
-    return items.map((x: { id: string; updatedAt?: string }) => ({ id: x.id, updatedAt: x.updatedAt }))
+    let items: unknown = []
+    if (Array.isArray(data)) items = data
+    else if (key && Array.isArray((data as Record<string, unknown>)[key])) items = (data as Record<string, unknown>)[key]
+    else {
+      // Fall back to first array-valued key on the response.
+      const firstArrayKey = Object.keys(data ?? {}).find((k) => Array.isArray((data as Record<string, unknown>)[k]))
+      if (firstArrayKey) items = (data as Record<string, unknown>)[firstArrayKey]
+    }
+    if (!Array.isArray(items)) return []
+    return (items as Array<{ id?: string; updatedAt?: string }>)
+      .filter((x) => typeof x?.id === 'string')
+      .map((x) => ({ id: x.id as string, updatedAt: x.updatedAt }))
   } catch {
     return []
   }
@@ -40,12 +50,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }))
 
   const [doctors, hospitals, herbs, articles, healthTips, forum] = await Promise.all([
-    fetchIds('/api/doctors?limit=500'),
-    fetchIds('/api/hospitals?limit=500'),
-    fetchIds('/api/herbs?limit=1000'),
-    fetchIds('/api/articles?limit=500'),
-    fetchIds('/api/health-tips?limit=500'),
-    fetchIds('/api/forum?limit=500'),
+    fetchIds('/doctors?limit=500',     'doctors'),
+    fetchIds('/hospitals?limit=500'),
+    fetchIds('/herbs?limit=1000',      'herbs'),
+    fetchIds('/articles?limit=500',    'articles'),
+    fetchIds('/health-tips?limit=500', 'tips'),
+    fetchIds('/forum?limit=500',       'posts'),
   ])
 
   const dynamic = (prefix: string, items: Array<{ id: string; updatedAt?: string }>, priority: number): MetadataRoute.Sitemap =>
