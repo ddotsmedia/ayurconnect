@@ -1,6 +1,27 @@
 # Integration keys to paste
 
-The site works with these set to empty (features degrade gracefully). To turn each one on, SSH to the VPS, edit `/opt/ayurconnect/apps/api/.env`, paste the value, then `pm2 restart ayurconnect-api`.
+The site works with these set to empty (features degrade gracefully). All keys are stored in `/opt/ayurconnect/apps/api/.env` on the prod VPS — that file is excluded from git and not touched by deploys, so values you paste persist.
+
+## ⚡ Fastest path: one command per key
+
+From this repo, run:
+
+```cmd
+set-prod-env ANTHROPIC_API_KEY=sk-ant-api03-...
+```
+
+That single command (Windows shim → `scripts/set-prod-env.sh`) will:
+1. SSH to `root@194.164.151.202`
+2. Replace (or append) the line in `/opt/ayurconnect/apps/api/.env`
+3. `pm2 restart ayurconnect-api`
+4. Curl the matching public endpoint (e.g. `/api/ayurbot/status`) and print the result
+
+Multi-key in one shot is fine:
+```cmd
+set-prod-env RAZORPAY_KEY_ID=rzp_test_... RAZORPAY_KEY_SECRET=... RESEND_API_KEY=re_...
+```
+
+The detailed manual route below is the same thing in slow motion — useful if you ever lose this script.
 
 ## 1. Anthropic Claude (AyurBot chat)
 
