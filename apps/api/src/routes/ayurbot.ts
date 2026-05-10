@@ -11,9 +11,39 @@ const SYSTEM_PROMPTS = {
 
 type PromptType = keyof typeof SYSTEM_PROMPTS
 
+// A key counts as "real" if it starts with sk-ant- (Anthropic's prefix). Empty
+// string, the placeholder REPLACE_ME_*, or anything else means not configured.
+function keyState(): { ok: boolean; reason?: string } {
+  const k = (process.env.ANTHROPIC_API_KEY ?? '').trim()
+  if (!k)                              return { ok: false, reason: 'ANTHROPIC_API_KEY not set' }
+  if (/^replace_me/i.test(k))          return { ok: false, reason: 'ANTHROPIC_API_KEY is the placeholder REPLACE_ME_…' }
+  if (!k.startsWith('sk-ant-'))        return { ok: false, reason: 'ANTHROPIC_API_KEY does not look like a Claude key (should start with sk-ant-)' }
+  return { ok: true }
+}
+
 const ayurbot: FastifyPluginAsync = async (fastify) => {
+  // Public lightweight health: is AyurBot configured? Used by the widget to
+  // show "offline · not configured" without firing an API call first.
+  fastify.get('/status', async () => {
+    const k = keyState()
+    return { enabled: k.ok, reason: k.reason ?? null, model: 'claude-haiku-4-5-20251001' }
+  })
+
   fastify.post('/chat', async (request, reply) => {
-    const { message, type } = request.body as { message: string; type?: PromptType }
+    const k = keyState()
+    if (!k.ok) {
+      return reply.code(503).send({
+        error: 'AyurBot is not configured on this server.',
+        reason: k.reason,
+        code: 'not-configured',
+      })
+    }
+
+    const { message, type } = request.body as { message?: string; type?: PromptType }
+    if (!message || typeof message !== 'string' || !message.trim()) {
+      return reply.code(400).send({ error: 'message required', code: 'bad-input' })
+    }
+
     const system = SYSTEM_PROMPTS[type ?? 'default'] ?? SYSTEM_PROMPTS.default
 
     try {
@@ -27,8 +57,31 @@ const ayurbot: FastifyPluginAsync = async (fastify) => {
       const text = first?.type === 'text' ? first.text : ''
       return { response: text }
     } catch (err) {
+      const e = err as { status?: number; message?: string; error?: { error?: { message?: string } } }
+      const status  = e?.status ?? 0
+      const upstream = e?.error?.error?.message ?? e?.message ?? 'unknown error'
       fastify.log.error({ err }, 'anthropic chat failed')
-      return reply.code(502).send({ error: 'AI service unavailable' })
+
+      if (status === 401) {
+        return reply.code(503).send({
+          error: 'Anthropic rejected the API key.',
+          reason: 'The configured ANTHROPIC_API_KEY is invalid or revoked.',
+          code: 'auth-failed',
+        })
+      }
+      if (status === 429) {
+        return reply.code(429).send({
+          error: 'AyurBot is rate-limited right now. Please try again in a minute.',
+          reason: upstream,
+          code: 'rate-limited',
+        })
+      }
+      return reply.code(502).send({
+        error: 'AyurBot upstream error.',
+        reason: upstream,
+        code: 'upstream-error',
+        status,
+      })
     }
   })
 

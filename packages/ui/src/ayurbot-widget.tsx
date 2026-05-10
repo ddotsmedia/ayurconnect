@@ -4,13 +4,15 @@ import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { MessageCircle, X, Send, Leaf } from 'lucide-react'
 
-type Message = { role: 'user' | 'bot'; content: string }
+type Message = { role: 'user' | 'bot' | 'error'; content: string }
+type Status = { enabled: boolean; reason: string | null }
 
 const HIDDEN_PREFIXES = ['/admin', '/sign-in']
 
 export function AyurBotWidget() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const [status, setStatus] = useState<Status | null>(null)
   const [messages, setMessages] = useState<Message[]>([
     { role: 'bot', content: 'Namaste 🙏 I\'m AyurBot — ask me anything about Kerala Ayurveda, herbs, or treatments. (Not medical advice.)' },
   ])
@@ -21,6 +23,17 @@ export function AyurBotWidget() {
   useEffect(() => {
     if (threadRef.current) threadRef.current.scrollTop = threadRef.current.scrollHeight
   }, [messages, busy, open])
+
+  // Lazy-fetch the configured/online state the first time the panel opens.
+  useEffect(() => {
+    if (!open || status !== null) return
+    let cancelled = false
+    fetch('/api/ayurbot/status')
+      .then((r) => r.json())
+      .then((s: Status) => { if (!cancelled) setStatus(s) })
+      .catch(() => { if (!cancelled) setStatus({ enabled: false, reason: 'network error reaching AyurBot service' }) })
+    return () => { cancelled = true }
+  }, [open, status])
 
   if (HIDDEN_PREFIXES.some((p) => pathname?.startsWith(p))) return null
 
@@ -36,18 +49,41 @@ export function AyurBotWidget() {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ message: t }),
       })
+      const text = await res.text()
+      let body: { response?: string; error?: string; reason?: string; code?: string } = {}
+      try { body = text ? JSON.parse(text) : {} } catch { /* keep empty */ }
+
       if (!res.ok) {
-        setMessages((m) => [...m, { role: 'bot', content: '⚠️ I\'m offline right now. Please try again in a minute.' }])
+        const reason = body.reason ?? body.error ?? `HTTP ${res.status}`
+        const friendly =
+          body.code === 'not-configured'
+            ? '⚙️ AyurBot is not configured on this site yet. Site owner: paste a valid ANTHROPIC_API_KEY and restart the API.'
+            : body.code === 'auth-failed'
+              ? '🔑 The site\'s Claude API key was rejected. Site owner: replace ANTHROPIC_API_KEY with a current key.'
+              : body.code === 'rate-limited'
+                ? '⏳ AyurBot is rate-limited right now. Try again in a minute.'
+                : `⚠️ ${body.error ?? 'AyurBot is offline right now.'}`
+        setMessages((m) => [...m, { role: 'error', content: `${friendly}\n\n(${reason})` }])
       } else {
-        const data = (await res.json()) as { response?: string }
-        setMessages((m) => [...m, { role: 'bot', content: data.response ?? 'No response.' }])
+        setMessages((m) => [...m, { role: 'bot', content: body.response ?? 'No response.' }])
       }
     } catch {
-      setMessages((m) => [...m, { role: 'bot', content: '⚠️ Network error.' }])
+      setMessages((m) => [...m, { role: 'error', content: '⚠️ Network error reaching AyurBot.' }])
     } finally {
       setBusy(false)
     }
   }
+
+  const dotColor = status === null
+    ? 'bg-gray-400'
+    : status.enabled
+      ? 'bg-green-400'
+      : 'bg-amber-400'
+  const stateLabel = status === null
+    ? 'connecting…'
+    : status.enabled
+      ? 'online · Kerala Ayurveda'
+      : 'offline · not configured'
 
   return (
     <>
@@ -70,7 +106,7 @@ export function AyurBotWidget() {
               <div>
                 <div className="font-semibold text-sm">AyurBot</div>
                 <div className="text-[10px] text-white/70 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-400" /> online · Kerala Ayurveda
+                  <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} /> {stateLabel}
                 </div>
               </div>
             </div>
@@ -79,6 +115,13 @@ export function AyurBotWidget() {
             </button>
           </header>
 
+          {status && !status.enabled && (
+            <div className="px-3 py-2 bg-amber-50 border-b border-amber-200 text-[11px] text-amber-900">
+              <strong>Heads-up:</strong> AyurBot can&apos;t reach Claude.
+              {status.reason ? <> Server says: <em>{status.reason}</em></> : null}
+            </div>
+          )}
+
           <div ref={threadRef} className="flex-1 overflow-y-auto p-3 space-y-2.5 bg-cream">
             {messages.map((m, i) => (
               <div key={i} className={m.role === 'user' ? 'flex justify-end' : 'flex justify-start'}>
@@ -86,7 +129,9 @@ export function AyurBotWidget() {
                   className={
                     m.role === 'user'
                       ? 'max-w-[80%] bg-kerala-600 text-white rounded-2xl rounded-tr-sm px-3.5 py-2 text-sm'
-                      : 'max-w-[80%] bg-white border border-gray-100 text-gray-800 rounded-2xl rounded-tl-sm px-3.5 py-2 text-sm whitespace-pre-line'
+                      : m.role === 'error'
+                        ? 'max-w-[85%] bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl rounded-tl-sm px-3.5 py-2 text-sm whitespace-pre-line'
+                        : 'max-w-[80%] bg-white border border-gray-100 text-gray-800 rounded-2xl rounded-tl-sm px-3.5 py-2 text-sm whitespace-pre-line'
                   }
                 >
                   {m.content}
@@ -113,7 +158,7 @@ export function AyurBotWidget() {
             <input
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about herbs, Panchakarma, doshas…"
+              placeholder={status?.enabled === false ? 'Bot is offline (see banner above)…' : 'Ask about herbs, Panchakarma, doshas…'}
               className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-kerala-600"
               disabled={busy}
             />
