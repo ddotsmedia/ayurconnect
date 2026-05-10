@@ -43,34 +43,59 @@ export function AyurBotWidget() {
     setMessages((m) => [...m, { role: 'user', content: t }])
     setInput('')
     setBusy(true)
-    try {
-      const res = await fetch('/api/ayurbot/chat', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ message: t }),
-      })
-      const text = await res.text()
-      let body: { response?: string; error?: string; reason?: string; code?: string } = {}
-      try { body = text ? JSON.parse(text) : {} } catch { /* keep empty */ }
 
-      if (!res.ok) {
-        const reason = body.reason ?? body.error ?? `HTTP ${res.status}`
-        const friendly =
-          body.code === 'not-configured'
-            ? '⚙️ AyurBot is not configured on this site yet. Site owner: paste a valid ANTHROPIC_API_KEY and restart the API.'
-            : body.code === 'auth-failed'
-              ? '🔑 The site\'s Claude API key was rejected. Site owner: replace ANTHROPIC_API_KEY with a current key.'
-              : body.code === 'no-credits'
-                ? '💳 AyurBot has run out of API credits. Site owner: top up at https://console.anthropic.com/settings/billing'
-                : body.code === 'rate-limited'
-                  ? '⏳ AyurBot is rate-limited right now. Try again in a minute.'
-                  : `⚠️ ${body.error ?? 'AyurBot is offline right now.'}`
-        setMessages((m) => [...m, { role: 'error', content: `${friendly}\n\n(${reason})` }])
-      } else {
-        setMessages((m) => [...m, { role: 'bot', content: body.response ?? 'No response.' }])
+    // Push a placeholder bot bubble we'll mutate as deltas arrive.
+    let botIndex = -1
+    setMessages((m) => { botIndex = m.length; return [...m, { role: 'bot', content: '' }] })
+
+    try {
+      const url = `/api/ayurbot/chat-stream?message=${encodeURIComponent(t)}&type=default`
+      const res = await fetch(url)
+      if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`)
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      let acc = ''
+      let errored = false
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+        const events = buffer.split('\n\n')
+        buffer = events.pop() ?? ''
+        for (const evt of events) {
+          let event = 'message', data = ''
+          for (const line of evt.split('\n')) {
+            if (line.startsWith('event:')) event = line.slice(6).trim()
+            else if (line.startsWith('data:')) data += line.slice(5).trim()
+          }
+          if (!data) continue
+          try {
+            const obj = JSON.parse(data) as { text?: string; reason?: string; code?: string }
+            if (event === 'delta' && obj.text) {
+              acc += obj.text
+              setMessages((m) => { const next = [...m]; if (next[botIndex]) next[botIndex] = { role: 'bot', content: acc }; return next })
+            } else if (event === 'error') {
+              errored = true
+              const friendly =
+                obj.code === 'not-configured' ? '⚙️ AyurBot is not configured. Site owner: paste a valid GOOGLE_API_KEY / GROQ_API_KEY / ANTHROPIC_API_KEY.'
+                : obj.code === 'auth-failed'  ? '🔑 The configured API key was rejected.'
+                : obj.code === 'no-credits'   ? '💳 AyurBot has run out of credits/quota.'
+                : obj.code === 'rate-limited' ? '⏳ Rate-limited — try again shortly.'
+                : `⚠️ ${obj.reason ?? 'AyurBot upstream error.'}`
+              setMessages((m) => { const next = [...m]; if (next[botIndex]) next[botIndex] = { role: 'error', content: friendly }; return next })
+            }
+          } catch { /* malformed line, skip */ }
+        }
+      }
+
+      if (!errored && !acc) {
+        setMessages((m) => { const next = [...m]; if (next[botIndex]) next[botIndex] = { role: 'bot', content: '(no response)' }; return next })
       }
     } catch {
-      setMessages((m) => [...m, { role: 'error', content: '⚠️ Network error reaching AyurBot.' }])
+      setMessages((m) => { const next = [...m]; if (next[botIndex]) next[botIndex] = { role: 'error', content: '⚠️ Network error reaching AyurBot.' }; return next })
     } finally {
       setBusy(false)
     }

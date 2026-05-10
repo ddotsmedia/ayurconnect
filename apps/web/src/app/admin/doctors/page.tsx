@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { adminApi } from '../../../lib/admin-api'
 import { EntityFormShell, Field, inputClass } from '../../../components/admin/entity-form-shell'
+import { ImageUpload } from '../../../components/image-upload'
 
 const DISTRICTS = [
   'Thiruvananthapuram', 'Kollam', 'Pathanamthitta', 'Alappuzha', 'Kottayam',
@@ -145,8 +146,8 @@ export default function DoctorsAdminPage() {
             <Field label="Consultation fee (₹)">
               <input type="number" min="0" className={inputClass} value={form.consultationFee} onChange={(e) => setForm({ ...form, consultationFee: e.target.value })} placeholder="800" />
             </Field>
-            <Field label="Photo URL">
-              <input className={inputClass} value={form.photoUrl} onChange={(e) => setForm({ ...form, photoUrl: e.target.value })} placeholder="https://…" />
+            <Field label="Photo">
+              <ImageUpload value={form.photoUrl || null} onChange={(url) => setForm({ ...form, photoUrl: url ?? '' })} bucket="profile" shape="square" />
             </Field>
             <Field label="Contact">
               <input className={inputClass} value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} placeholder="+91-..." />

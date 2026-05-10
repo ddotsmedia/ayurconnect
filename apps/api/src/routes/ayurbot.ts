@@ -1,5 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify'
-import { chat, pickProvider } from '../lib/llm.js'
+import { chat, chatStream, pickProvider } from '../lib/llm.js'
 
 export const autoPrefix = '/ayurbot'
 
@@ -57,6 +57,42 @@ const ayurbot: FastifyPluginAsync = async (fastify) => {
       code,
       provider: failure.provider,
     })
+  })
+
+  // ─── Streaming chat (SSE) ─────────────────────────────────────────────
+  // GET so EventSource works (POST works too via fetch+ReadableStream readers).
+  // Query: ?message=...&type=default|prakriti|herb|symptom
+  fastify.get('/chat-stream', async (request, reply) => {
+    const { message, type } = request.query as { message?: string; type?: PromptType }
+    if (!message || typeof message !== 'string' || !message.trim()) {
+      return reply.code(400).send({ error: 'message required' })
+    }
+    const system = SYSTEM_PROMPTS[type ?? 'default'] ?? SYSTEM_PROMPTS.default
+
+    reply.raw.writeHead(200, {
+      'content-type': 'text/event-stream; charset=utf-8',
+      'cache-control': 'no-cache, no-transform',
+      'connection': 'keep-alive',
+      // Prevent buffered nginx from delaying chunks:
+      'x-accel-buffering': 'no',
+    })
+
+    const send = (event: string, data: unknown) => {
+      reply.raw.write(`event: ${event}\n`)
+      reply.raw.write(`data: ${JSON.stringify(data)}\n\n`)
+    }
+
+    try {
+      for await (const chunk of chatStream({ system, message })) {
+        if (chunk.type === 'text')   send('delta', { text: chunk.delta })
+        if (chunk.type === 'done')   send('done',  { provider: chunk.provider })
+        if (chunk.type === 'error')  send('error', { reason: chunk.reason, code: chunk.code, provider: chunk.provider })
+      }
+    } catch (err) {
+      send('error', { reason: err instanceof Error ? err.message : String(err), code: 'upstream-error', provider: null })
+    } finally {
+      reply.raw.end()
+    }
   })
 
   fastify.post('/quiz', async (request) => {

@@ -149,6 +149,129 @@ async function callGroq({ system, message }: { system: string; message: string }
   }
 }
 
+// ─── Streaming variant ───────────────────────────────────────────────────
+// Yields one chunk per `text` delta from the active provider. Falls back to
+// emitting the full response in one chunk if the provider is reached but
+// streaming isn't supported (kept robust against odd network failures).
+
+export type StreamChunk =
+  | { type: 'text'; delta: string }
+  | { type: 'done'; provider: Provider }
+  | { type: 'error'; reason: string; code: ChatResult extends { code: infer C } ? C : never; provider: Provider | null }
+
+export async function* chatStream(opts: { system: string; message: string }): AsyncGenerator<StreamChunk> {
+  const state = pickProvider()
+  if (!state.ok || !state.provider) {
+    yield { type: 'error', reason: state.reason ?? 'AyurBot not configured', code: 'not-configured' as never, provider: null }
+    return
+  }
+  try {
+    if (state.provider === 'gemini')    { yield* streamGemini(opts, state.model!);   yield { type: 'done', provider: 'gemini'    }; return }
+    if (state.provider === 'groq')      { yield* streamGroq(opts, state.model!);     yield { type: 'done', provider: 'groq'      }; return }
+    if (state.provider === 'anthropic') { yield* streamAnthropic(opts, state.model!); yield { type: 'done', provider: 'anthropic' }; return }
+  } catch (e) {
+    yield { type: 'error', reason: e instanceof Error ? e.message : String(e), code: 'upstream-error' as never, provider: state.provider }
+  }
+}
+
+// Gemini streaming via streamGenerateContent
+async function* streamGemini({ system, message }: { system: string; message: string }, model: string): AsyncGenerator<StreamChunk> {
+  const key = process.env.GOOGLE_API_KEY!
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${encodeURIComponent(key)}`
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: system }] },
+      contents: [{ role: 'user', parts: [{ text: message }] }],
+      generationConfig: { maxOutputTokens: 1024, temperature: 0.7 },
+    }),
+  })
+  if (!res.ok || !res.body) {
+    const errBody = await res.text().catch(() => '')
+    const m = errBody.match(/"message":\s*"([^"]+)"/)?.[1] ?? `HTTP ${res.status}`
+    if (res.status === 401 || res.status === 403)        { yield { type: 'error', reason: m, code: 'auth-failed'    as never, provider: 'gemini' }; return }
+    if (res.status === 429)                              { yield { type: 'error', reason: m, code: 'rate-limited'   as never, provider: 'gemini' }; return }
+    if (/quota|billing|exceeded/i.test(m))               { yield { type: 'error', reason: m, code: 'no-credits'     as never, provider: 'gemini' }; return }
+    yield { type: 'error', reason: m, code: 'upstream-error' as never, provider: 'gemini' }
+    return
+  }
+  yield* readSSE(res.body, (raw) => {
+    try {
+      const obj = JSON.parse(raw) as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> }
+      const parts = obj.candidates?.[0]?.content?.parts ?? []
+      return parts.map((p) => p.text ?? '').join('')
+    } catch { return '' }
+  })
+}
+
+// Groq streaming via OpenAI-compatible SSE
+async function* streamGroq({ system, message }: { system: string; message: string }, model: string): AsyncGenerator<StreamChunk> {
+  const key = process.env.GROQ_API_KEY!
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
+    body: JSON.stringify({
+      model, max_tokens: 1024, stream: true,
+      messages: [{ role: 'system', content: system }, { role: 'user', content: message }],
+    }),
+  })
+  if (!res.ok || !res.body) {
+    yield { type: 'error', reason: `HTTP ${res.status}`, code: 'upstream-error' as never, provider: 'groq' }
+    return
+  }
+  yield* readSSE(res.body, (raw) => {
+    if (raw === '[DONE]') return ''
+    try {
+      const obj = JSON.parse(raw) as { choices?: Array<{ delta?: { content?: string } }> }
+      return obj.choices?.[0]?.delta?.content ?? ''
+    } catch { return '' }
+  })
+}
+
+// Anthropic streaming via Messages API
+async function* streamAnthropic({ system, message }: { system: string; message: string }, model: string): AsyncGenerator<StreamChunk> {
+  const key = process.env.ANTHROPIC_API_KEY!
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+    body: JSON.stringify({ model, max_tokens: 1024, system, stream: true, messages: [{ role: 'user', content: message }] }),
+  })
+  if (!res.ok || !res.body) {
+    yield { type: 'error', reason: `HTTP ${res.status}`, code: 'upstream-error' as never, provider: 'anthropic' }
+    return
+  }
+  yield* readSSE(res.body, (raw) => {
+    try {
+      const obj = JSON.parse(raw) as { type?: string; delta?: { type?: string; text?: string } }
+      if (obj.type === 'content_block_delta' && obj.delta?.type === 'text_delta') return obj.delta.text ?? ''
+      return ''
+    } catch { return '' }
+  })
+}
+
+// Generic SSE reader. Calls `extractText` on each `data:` payload to pull the text delta.
+async function* readSSE(body: ReadableStream<Uint8Array>, extractText: (raw: string) => string): AsyncGenerator<StreamChunk> {
+  const reader = body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+    const lines = buffer.split('\n')
+    buffer = lines.pop() ?? ''
+    for (const line of lines) {
+      const trimmed = line.trim()
+      if (!trimmed.startsWith('data:')) continue
+      const raw = trimmed.slice(5).trim()
+      if (!raw) continue
+      const delta = extractText(raw)
+      if (delta) yield { type: 'text', delta }
+    }
+  }
+}
+
 // ─── Anthropic Claude (paid) ─────────────────────────────────────────────
 async function callAnthropic({ system, message }: { system: string; message: string }, model: string): Promise<ChatResult> {
   const key = process.env.ANTHROPIC_API_KEY!

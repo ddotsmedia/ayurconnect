@@ -83,33 +83,64 @@ export default function AyurBotPage() {
     append({ role: 'user', content: t })
     setInput('')
     setBusy(true)
-    try {
-      const res = await fetch('/api/ayurbot/chat', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ message: t, type: mode }),
-      })
-      const raw = await res.text()
-      let body: { response?: string; error?: string; reason?: string; code?: string } = {}
-      try { body = raw ? JSON.parse(raw) : {} } catch { /* keep empty */ }
+    append({ role: 'bot', content: '' }) // placeholder for stream
 
-      if (!res.ok) {
-        const friendly =
-          body.code === 'not-configured'
-            ? '⚙️ AyurBot is not configured on this site yet. Site owner: paste a valid ANTHROPIC_API_KEY.'
-            : body.code === 'auth-failed'
-              ? '🔑 The site\'s Claude API key was rejected.'
-              : body.code === 'no-credits'
-                ? '💳 AyurBot has run out of API credits. Site owner: top up at https://console.anthropic.com/settings/billing'
-                : body.code === 'rate-limited'
-                  ? '⏳ AyurBot is rate-limited right now. Try again in a minute.'
-                  : `⚠️ ${body.error ?? 'AyurBot is offline.'}`
-        append({ role: 'error', content: `${friendly}\n\n(${body.reason ?? `HTTP ${res.status}`})` })
-      } else {
-        append({ role: 'bot', content: body.response ?? 'No response.' })
+    try {
+      const url = `/api/ayurbot/chat-stream?message=${encodeURIComponent(t)}&type=${encodeURIComponent(mode)}`
+      const res = await fetch(url)
+      if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`)
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      let acc = ''
+
+      const replaceLast = (msg: Message) => {
+        setMessages((cur) => {
+          const list = [...cur[mode]]
+          if (list.length > 0) list[list.length - 1] = msg
+          return { ...cur, [mode]: list }
+        })
       }
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+        const events = buffer.split('\n\n')
+        buffer = events.pop() ?? ''
+        for (const evt of events) {
+          let event = 'message', data = ''
+          for (const line of evt.split('\n')) {
+            if (line.startsWith('event:')) event = line.slice(6).trim()
+            else if (line.startsWith('data:')) data += line.slice(5).trim()
+          }
+          if (!data) continue
+          try {
+            const obj = JSON.parse(data) as { text?: string; reason?: string; code?: string }
+            if (event === 'delta' && obj.text) {
+              acc += obj.text
+              replaceLast({ role: 'bot', content: acc })
+            } else if (event === 'error') {
+              const friendly =
+                obj.code === 'not-configured' ? '⚙️ AyurBot is not configured.'
+                : obj.code === 'auth-failed'  ? '🔑 The configured API key was rejected.'
+                : obj.code === 'no-credits'   ? '💳 AyurBot has run out of credits/quota.'
+                : obj.code === 'rate-limited' ? '⏳ Rate-limited — try again shortly.'
+                : `⚠️ ${obj.reason ?? 'AyurBot upstream error.'}`
+              replaceLast({ role: 'error', content: friendly })
+            }
+          } catch { /* skip malformed */ }
+        }
+      }
+
+      if (!acc) replaceLast({ role: 'bot', content: '(no response)' })
     } catch {
-      append({ role: 'error', content: '⚠️ Network error reaching AyurBot.' })
+      setMessages((cur) => {
+        const list = [...cur[mode]]
+        if (list.length > 0) list[list.length - 1] = { role: 'error', content: '⚠️ Network error reaching AyurBot.' }
+        return { ...cur, [mode]: list }
+      })
     } finally {
       setBusy(false)
     }

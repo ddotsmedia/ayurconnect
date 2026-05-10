@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ShieldCheck, AlertTriangle } from 'lucide-react'
+import { ImageUpload } from '../../../components/image-upload'
 
 type DoctorOwned = {
   id: string; name: string; specialization: string; district: string;
@@ -237,7 +238,9 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
         <Field label="Experience (years)"><input type="number" min={0} value={d.experienceYears} onChange={(e) => setD({ ...d, experienceYears: Number(e.target.value) })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
         <Field label="Consultation fee (₹)"><input type="number" min={0} value={d.consultationFee} onChange={(e) => setD({ ...d, consultationFee: Number(e.target.value) })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
         <Field label="Languages (comma-separated)" full><input value={d.languages} onChange={(e) => setD({ ...d, languages: e.target.value })} placeholder="Malayalam, English, Hindi" className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
-        <Field label="Photo URL" full><input value={d.photoUrl} onChange={(e) => setD({ ...d, photoUrl: e.target.value })} placeholder="https://…" className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="Profile photo" full>
+          <ImageUpload value={d.photoUrl || null} onChange={(url) => setD({ ...d, photoUrl: url ?? '' })} bucket="profile" shape="square" />
+        </Field>
         <Field label="Short profile (1–2 lines)" full><input value={d.profile} onChange={(e) => setD({ ...d, profile: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
         <Field label="Detailed bio" full><textarea value={d.bio} onChange={(e) => setD({ ...d, bio: e.target.value })} rows={4} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
       </div>
