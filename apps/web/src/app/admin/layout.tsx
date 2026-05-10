@@ -7,6 +7,7 @@ const NAV: Array<{ href: string; label: string; group?: string }> = [
   { href: '/admin/users',     label: 'Users',     group: 'people' },
   { href: '/admin/doctors',   label: 'Doctors',   group: 'directory' },
   { href: '/admin/verify',    label: 'CCIM queue', group: 'directory' },
+  { href: '/admin/import',    label: 'Bulk import', group: 'directory' },
   { href: '/admin/hospitals', label: 'Hospitals', group: 'directory' },
   { href: '/admin/herbs',     label: 'Herbs',     group: 'directory' },
   { href: '/admin/colleges',  label: 'Colleges',  group: 'directory' },

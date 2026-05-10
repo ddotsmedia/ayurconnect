@@ -104,6 +104,11 @@ model Doctor {
   consultationFee    Int?     // INR
   contact            String?
   address            String?
+  // ─── Provenance / verification (added 2026-05-10 with import pipeline) ──
+  tcmcNumber         String?  @unique // Travancore-Cochin Medical Council registration #
+  source             String?  // e.g. 'tcmc', 'kerala-tourism', 'self-register', 'admin', 'csv'
+  sourceUrl          String?  // URL of the public listing this record came from
+  importedAt         DateTime?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -129,6 +134,11 @@ model Hospital {
   address         String?
   latitude        Float?
   longitude       Float?
+  // ─── Provenance / classification (added 2026-05-10 with import pipeline) ──
+  classification  String?  // 'olive-leaf' | 'green-leaf' | null (Kerala Tourism's official rating)
+  source          String?  // e.g. 'kerala-tourism', 'ism-kerala', 'self-register', 'admin', 'csv'
+  sourceUrl       String?
+  importedAt      DateTime?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

@@ -10,8 +10,16 @@
 #   ayur deploy "commit message"      git add/commit/push + watch CI
 #   ayur ship [--seed] [--migrate]    direct deploy (skip GitHub Actions)
 #   ayur admin <email>                promote user to ADMIN role
+#   ayur import <source> [opts]       bulk-import doctors/clinics (see below)
 #   ayur ssh                          interactive SSH to the VPS
 #   ayur help                         this message
+#
+# Import sources:
+#   ayur import kerala-tourism                   builtin curated Olive/Green Leaf list
+#   ayur import csv --type doctors --file f.csv  CSV → /admin/import/doctors
+#   ayur import csv --type hospitals --file f.csv
+#   add --dry-run to preview without writing
+#   needs ADMIN_COOKIE env var (see scripts/import/run.mjs header)
 
 set -euo pipefail
 
@@ -30,7 +38,7 @@ cd "$REPO"
 have() { command -v "$1" >/dev/null 2>&1; }
 ssh_v() { ssh -o StrictHostKeyChecking=accept-new "$VPS" "$@"; }
 
-usage() { sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; }
+usage() { sed -n '2,23p' "$0" | sed 's/^# \{0,1\}//'; }
 
 # Curl + take first <max> chars of body, on a single line, for compact prints.
 peek() {
@@ -136,6 +144,20 @@ cmd_ssh() {
   exec ssh -o StrictHostKeyChecking=accept-new "$VPS"
 }
 
+cmd_import() {
+  local source="${1:-}"
+  if [ -z "$source" ]; then
+    echo "usage: ayur import <source> [--type doctors|hospitals] [--file path.csv] [--dry-run]" >&2
+    echo "       sources: kerala-tourism, csv" >&2
+    exit 1
+  fi
+  shift
+  if ! command -v node >/dev/null 2>&1; then
+    echo "✗ node not in PATH" >&2; exit 1
+  fi
+  node "$REPO/scripts/import/run.mjs" --source "$source" "$@"
+}
+
 # ─── dispatch ─────────────────────────────────────────────────────────────
 SUB="${1:-help}"
 shift || true
@@ -149,6 +171,7 @@ case "$SUB" in
   ship)           cmd_ship "$@" ;;
   admin)          cmd_admin "$@" ;;
   ssh)            cmd_ssh "$@" ;;
+  import)         cmd_import "$@" ;;
   help|-h|--help) usage ;;
   *) echo "✗ unknown subcommand: $SUB"; echo; usage; exit 1 ;;
 esac

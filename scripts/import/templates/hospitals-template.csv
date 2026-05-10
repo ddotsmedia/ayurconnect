@@ -1,0 +1,3 @@
+name,type,district,classification,ayushCertified,panchakarma,nabh,establishedYear,services,contact,address,profile,latitude,longitude,source,sourceUrl
+"Example Ayurveda Hospital","hospital","Ernakulam","green-leaf",true,true,false,1995,"Panchakarma,Kayachikitsa,Yoga","+91-484-1234567","MG Road, Kochi","A modern Ayurveda hospital with classical Panchakarma facilities.",10.0289,76.3416,"manual",""
+"Example Wellness Centre","wellness","Thiruvananthapuram","olive-leaf",true,true,false,2000,"Panchakarma,Beach Resort,Yoga","+91-471-2345678","Kovalam Beach","Premium beach-side wellness retreat.",8.4004,76.9787,"kerala-tourism","https://www.keralatourism.org/ayurveda/"
