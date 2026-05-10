@@ -61,12 +61,28 @@ if [ ! -f pnpm-workspace.yaml ]; then
 fi
 
 # ─── ssh preflight ─────────────────────────────────────────────────────────
+# Use an `if ... ; then ... else ... fi` form so set -e doesn't trip on the
+# failure path (we want to print diagnostics, not silently abort).
 step "preflight"
-if ! ssh -o BatchMode=yes -o ConnectTimeout=10 "$VPS" "true" 2>/dev/null; then
-  err "cannot ssh to $VPS — is your key authorized?"
+if ssh -o BatchMode=yes -o ConnectTimeout=10 "$VPS" "true" 2>/dev/null; then
+  ok "ssh ok ($VPS)"
+else
+  err "cannot ssh to $VPS"
+  echo
+  echo "  --- environment ---"
+  echo "  bash:    $(command -v bash 2>/dev/null || echo '(not found)')"
+  echo "  ssh:     $(command -v ssh 2>/dev/null || echo '(not found)')"
+  echo "  HOME:    ${HOME:-(unset)}"
+  echo "  USER:    ${USER:-${USERNAME:-(unset)}}"
+  echo "  PWD:     $(pwd)"
+  echo
+  echo "  --- ssh keys in \$HOME/.ssh ---"
+  ls -la "${HOME:-/}/.ssh/" 2>&1 | sed 's/^/    /' | head -15
+  echo
+  echo "  --- ssh -vv probe (last 30 lines) ---"
+  ssh -vv -o BatchMode=yes -o ConnectTimeout=5 "$VPS" "true" 2>&1 | tail -30 | sed 's/^/    /' || true
   exit 1
 fi
-ok "ssh ok ($VPS)"
 
 if $CHECK_ONLY; then
   ssh "$VPS" "test -d $DEPLOY_DIR && echo '$DEPLOY_DIR present' || echo '$DEPLOY_DIR missing'"
