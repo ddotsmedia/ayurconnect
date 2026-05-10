@@ -108,8 +108,13 @@ function SignInForm() {
         </button>
       </form>
 
-      <div className="text-center text-xs text-gray-500">
-        <Link href="/" className="hover:underline">← back to site</Link>
+      <div className="text-center text-xs text-gray-500 space-y-1">
+        <div>
+          New to AyurConnect? <Link href="/register" className="text-green-700 hover:underline font-medium">Choose your role to register</Link>
+        </div>
+        <div>
+          <Link href="/" className="hover:underline">← back to site</Link>
+        </div>
       </div>
     </div>
   )

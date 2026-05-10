@@ -17,8 +17,9 @@ model User {
   name          String?
   emailVerified Boolean   @default(false)
   image         String?
-  role          String    @default("USER") // USER | DOCTOR | THERAPIST | ADMIN
+  role          String    @default("USER") // USER | DOCTOR_PENDING | DOCTOR | HOSPITAL_PENDING | HOSPITAL | THERAPIST | ADMIN
   doctorId      String?   @unique // optional 1:1 link to Doctor row this user manages
+  hospitalId    String?   @unique // optional 1:1 link to Hospital row this user manages
   prakriti      String?   // vata | pitta | kapha | (combinations like 'pitta-vata')
   phone         String?
   createdAt     DateTime  @default(now())
@@ -33,7 +34,8 @@ model User {
   appointments  Appointment[]
   upvotes       Upvote[]
   savedDoctors  SavedDoctor[]
-  ownedDoctor   Doctor?       @relation("OwnedDoctor", fields: [doctorId], references: [id])
+  ownedDoctor   Doctor?       @relation("OwnedDoctor",   fields: [doctorId],   references: [id])
+  ownedHospital Hospital?     @relation("OwnedHospital", fields: [hospitalId], references: [id])
 }
 
 model Session {
@@ -132,6 +134,7 @@ model Hospital {
 
   reviews      Review[]
   appointments Appointment[]
+  ownedBy      User?         @relation("OwnedHospital")
 }
 
 model Review {

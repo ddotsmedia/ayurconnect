@@ -12,6 +12,13 @@ type DoctorOwned = {
   availableForOnline: boolean | null; profile: string | null;
   bio: string | null; photoUrl: string | null;
 }
+type HospitalOwned = {
+  id: string; name: string; type: string; district: string;
+  ccimVerified: boolean; ayushCertified: boolean; panchakarma: boolean; nabh: boolean;
+  establishedYear: number | null; services: string[] | null;
+  profile: string | null; contact: string | null; address: string | null;
+  latitude: number | null; longitude: number | null;
+}
 type Me = {
   user: {
     id: string
@@ -22,7 +29,9 @@ type Me = {
     phone: string | null
     emailVerified: boolean
     doctorId: string | null
+    hospitalId: string | null
     ownedDoctor: DoctorOwned | null
+    ownedHospital: HospitalOwned | null
   } | null
 }
 
@@ -81,7 +90,8 @@ export default function ProfilePage() {
   if (loading) return <p className="text-muted">Loading…</p>
   if (!me) return <p className="text-muted">Sign in to view your profile.</p>
 
-  const isDoctor = me.role === 'DOCTOR' || me.doctorId != null
+  const isDoctor   = me.role === 'DOCTOR'   || me.role === 'DOCTOR_PENDING'   || me.doctorId   != null
+  const isHospital = me.role === 'HOSPITAL' || me.role === 'HOSPITAL_PENDING' || me.hospitalId != null
 
   return (
     <div className="space-y-6">
@@ -148,7 +158,8 @@ export default function ProfilePage() {
         </div>
       </form>
 
-      {isDoctor && me.ownedDoctor && <DoctorEditForm doctor={me.ownedDoctor} onSaved={load} />}
+      {isDoctor   && me.ownedDoctor   && <DoctorEditForm   doctor={me.ownedDoctor}     onSaved={load} />}
+      {isHospital && me.ownedHospital && <HospitalEditForm hospital={me.ownedHospital} onSaved={load} />}
     </div>
   )
 }
@@ -266,5 +277,92 @@ function Field({ label, full = false, children }: { label: string; full?: boolea
       <span className="block text-xs font-medium text-gray-700 mb-1.5">{label}</span>
       {children}
     </label>
+  )
+}
+
+function HospitalEditForm({ hospital, onSaved }: { hospital: HospitalOwned; onSaved: () => void | Promise<void> }) {
+  const [h, setH] = useState({
+    name: hospital.name,
+    type: hospital.type,
+    district: hospital.district,
+    establishedYear: hospital.establishedYear ?? 0,
+    services: (hospital.services ?? []).join(', '),
+    profile: hospital.profile ?? '',
+    contact: hospital.contact ?? '',
+    address: hospital.address ?? '',
+    ayushCertified: hospital.ayushCertified,
+    panchakarma: hospital.panchakarma,
+    nabh: hospital.nabh,
+  })
+  const [saving, setSaving] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+  const [ok, setOk] = useState(false)
+
+  async function save(e: React.FormEvent) {
+    e.preventDefault(); setSaving(true); setErr(null); setOk(false)
+    try {
+      const body = {
+        name: h.name, type: h.type, district: h.district,
+        establishedYear: Number(h.establishedYear) || null,
+        services: h.services.split(',').map((s) => s.trim()).filter(Boolean),
+        profile: h.profile, contact: h.contact, address: h.address,
+        ayushCertified: h.ayushCertified, panchakarma: h.panchakarma, nabh: h.nabh,
+      }
+      const res = await fetch('/api/me/hospital', {
+        method: 'PATCH', credentials: 'include',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      setOk(true)
+      await onSaved()
+    } catch (e) { setErr(String(e)) } finally { setSaving(false) }
+  }
+
+  return (
+    <form onSubmit={save} className="bg-white rounded-card border border-gray-100 shadow-card p-6 space-y-4">
+      <h2 className="text-xl text-kerala-700 flex items-center gap-2">
+        Hospital profile
+        {hospital.ccimVerified
+          ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-kerala-700 bg-kerala-50 px-2 py-1 rounded-full"><ShieldCheck className="w-3 h-3" /> Verified</span>
+          : <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-1 rounded-full">Awaiting verification</span>}
+      </h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Field label="Hospital / centre name"><input value={h.name} onChange={(e) => setH({ ...h, name: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="Type">
+          <select value={h.type} onChange={(e) => setH({ ...h, type: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm bg-white">
+            {['hospital', 'panchakarma', 'wellness', 'clinic'].map((t) => <option key={t} value={t}>{t}</option>)}
+          </select>
+        </Field>
+        <Field label="District"><input value={h.district} onChange={(e) => setH({ ...h, district: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="Established year"><input type="number" min={1800} max={2030} value={h.establishedYear} onChange={(e) => setH({ ...h, establishedYear: Number(e.target.value) })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="Phone"><input value={h.contact} onChange={(e) => setH({ ...h, contact: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="Address"><input value={h.address} onChange={(e) => setH({ ...h, address: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="Services (comma-separated)" full><input value={h.services} onChange={(e) => setH({ ...h, services: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="Public profile / tagline" full><textarea value={h.profile} onChange={(e) => setH({ ...h, profile: e.target.value })} rows={3} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        <label className="flex items-center gap-2 px-3 py-2 border rounded-md text-sm cursor-pointer hover:bg-gray-50">
+          <input type="checkbox" checked={h.ayushCertified} onChange={(e) => setH({ ...h, ayushCertified: e.target.checked })} /> AYUSH
+        </label>
+        <label className="flex items-center gap-2 px-3 py-2 border rounded-md text-sm cursor-pointer hover:bg-gray-50">
+          <input type="checkbox" checked={h.panchakarma} onChange={(e) => setH({ ...h, panchakarma: e.target.checked })} /> Panchakarma
+        </label>
+        <label className="flex items-center gap-2 px-3 py-2 border rounded-md text-sm cursor-pointer hover:bg-gray-50">
+          <input type="checkbox" checked={h.nabh} onChange={(e) => setH({ ...h, nabh: e.target.checked })} /> NABH
+        </label>
+      </div>
+
+      {err && <p className="text-sm text-red-600">{err}</p>}
+      {ok  && <p className="text-sm text-kerala-700">Hospital profile saved ✓</p>}
+
+      <div className="flex justify-end pt-2">
+        <button type="submit" disabled={saving} className="px-5 py-2 bg-kerala-600 text-white rounded-md font-semibold hover:bg-kerala-700 disabled:opacity-50">
+          {saving ? 'Saving…' : 'Save hospital profile'}
+        </button>
+      </div>
+    </form>
   )
 }

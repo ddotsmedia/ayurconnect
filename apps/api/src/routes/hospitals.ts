@@ -7,14 +7,23 @@ const STRING_FIELDS = ['name', 'type', 'district', 'profile', 'contact', 'addres
 
 const hospitals: FastifyPluginAsync = async (fastify) => {
   fastify.get('/', async (request) => {
-    const { district, type } = request.query as { district?: string; type?: string }
+    const { district, type, q, verified, limit } = request.query as Record<string, string>
     const where: Record<string, unknown> = {}
     if (district) where.district = { contains: district, mode: 'insensitive' }
-    if (type) where.type = { contains: type, mode: 'insensitive' }
+    if (type)     where.type     = { contains: type, mode: 'insensitive' }
+    if (verified === 'true')  where.ccimVerified = true
+    if (verified === 'false') where.ccimVerified = false
+    if (q) where.OR = [
+      { name: { contains: q, mode: 'insensitive' } },
+      { type: { contains: q, mode: 'insensitive' } },
+      { district: { contains: q, mode: 'insensitive' } },
+    ]
+    const take = Math.min(Number(limit) || 100, 500)
     return fastify.prisma.hospital.findMany({
       where,
       include: { reviews: true },
       orderBy: { createdAt: 'desc' },
+      take,
     })
   })
 

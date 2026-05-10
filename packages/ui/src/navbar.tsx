@@ -136,7 +136,7 @@ export function Navbar() {
                 {tr.nav.login}
               </Link>
               <Link
-                href="/sign-in"
+                href="/register"
                 className="px-4 py-1.5 text-sm font-semibold bg-gold-500 text-white rounded-md hover:bg-gold-600 transition-colors"
               >
                 {tr.nav.joinFree}
@@ -200,7 +200,7 @@ export function Navbar() {
                 {tr.nav.login}
               </Link>
               <Link
-                href="/sign-in"
+                href="/register"
                 onClick={() => setMobileOpen(false)}
                 className="block w-full px-4 py-2 text-center bg-gold-500 text-white rounded-md hover:bg-gold-600"
               >

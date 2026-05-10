@@ -15,7 +15,9 @@ type MeResponse = {
     phone: string | null
     emailVerified: boolean
     doctorId: string | null
+    hospitalId: string | null
     ownedDoctor: { id: string; name: string; specialization: string } | null
+    ownedHospital: { id: string; name: string; type: string } | null
   } | null
   stats: { savedCount: number; apptCount: number; postCount: number }
 }
@@ -43,14 +45,32 @@ const DOCTOR_NAV = [
   { href: '/dashboard/appointments', label: 'My appointments' },
   { href: '/dashboard/profile',      label: 'My profile' },
 ]
+const HOSPITAL_NAV = [
+  { href: '/dashboard',         label: 'Overview' },
+  { href: '/dashboard/profile', label: 'Hospital profile' },
+]
+
+function roleLabel(role: string): string {
+  switch (role) {
+    case 'ADMIN':            return 'Admin'
+    case 'DOCTOR':           return 'Doctor'
+    case 'DOCTOR_PENDING':   return 'Doctor (pending)'
+    case 'HOSPITAL':         return 'Hospital'
+    case 'HOSPITAL_PENDING': return 'Hospital (pending)'
+    case 'THERAPIST':        return 'Therapist'
+    default:                 return 'Patient'
+  }
+}
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const sess = await getServerSession()
   if (!sess) redirect('/sign-in?next=/dashboard')
 
   const me = await fetchMe()
-  const isDoctor = me.user?.role === 'DOCTOR' || (me.user?.doctorId != null)
-  const nav = isDoctor ? DOCTOR_NAV : PATIENT_NAV
+  const role = me.user?.role ?? 'USER'
+  const isDoctor   = role === 'DOCTOR'   || role === 'DOCTOR_PENDING'   || me.user?.doctorId != null
+  const isHospital = role === 'HOSPITAL' || role === 'HOSPITAL_PENDING' || me.user?.hospitalId != null
+  const nav = isHospital ? HOSPITAL_NAV : isDoctor ? DOCTOR_NAV : PATIENT_NAV
   const initials = (me.user?.name ?? me.user?.email ?? '?').slice(0, 2).toUpperCase()
 
   return (
@@ -63,8 +83,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <div className="min-w-0">
             <div className="text-sm font-semibold truncate">{me.user?.name ?? me.user?.email}</div>
             <div className="text-[11px] text-muted">
-              {isDoctor ? 'Doctor' : 'Patient'}
-              {sess.user.role === 'ADMIN' && ' · Admin'}
+              {roleLabel(role)}
             </div>
           </div>
         </div>
