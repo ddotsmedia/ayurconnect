@@ -4,6 +4,14 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ShieldCheck, AlertTriangle } from 'lucide-react'
 
+type DoctorOwned = {
+  id: string; name: string; specialization: string; district: string;
+  qualification: string | null; experienceYears: number | null;
+  ccimVerified: boolean; consultationFee: number | null;
+  languages: string[] | null; availableDays: string[] | null;
+  availableForOnline: boolean | null; profile: string | null;
+  bio: string | null; photoUrl: string | null;
+}
 type Me = {
   user: {
     id: string
@@ -14,11 +22,7 @@ type Me = {
     phone: string | null
     emailVerified: boolean
     doctorId: string | null
-    ownedDoctor: {
-      id: string; name: string; specialization: string; district: string;
-      qualification: string | null; experienceYears: number | null;
-      ccimVerified: boolean; consultationFee: number | null;
-    } | null
+    ownedDoctor: DoctorOwned | null
   } | null
 }
 
@@ -144,24 +148,123 @@ export default function ProfilePage() {
         </div>
       </form>
 
-      {isDoctor && me.ownedDoctor && (
-        <section className="bg-white rounded-card border border-gray-100 shadow-card p-6">
-          <h2 className="text-xl text-kerala-700 mb-3 flex items-center gap-2">
-            Your doctor profile {me.ownedDoctor.ccimVerified && <span className="inline-flex items-center gap-1 text-xs font-semibold text-kerala-700 bg-kerala-50 px-2 py-1 rounded-full"><ShieldCheck className="w-3 h-3" /> CCIM</span>}
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div><strong className="text-ink">Name:</strong> {me.ownedDoctor.name}</div>
-            <div><strong className="text-ink">Specialization:</strong> {me.ownedDoctor.specialization}</div>
-            <div><strong className="text-ink">District:</strong> {me.ownedDoctor.district}</div>
-            <div><strong className="text-ink">Qualification:</strong> {me.ownedDoctor.qualification ?? '—'}</div>
-            <div><strong className="text-ink">Experience:</strong> {me.ownedDoctor.experienceYears != null ? `${me.ownedDoctor.experienceYears} yrs` : '—'}</div>
-            <div><strong className="text-ink">Consultation fee:</strong> {me.ownedDoctor.consultationFee ? `₹${me.ownedDoctor.consultationFee}` : '—'}</div>
-          </div>
-          <p className="text-xs text-muted mt-4">
-            To edit doctor details, go to the <Link href="/admin/doctors" className="text-kerala-700 hover:underline">Admin Doctors</Link> page (admin role required) — or ask an admin to update on your behalf. A self-edit page will be added in a future update.
-          </p>
-        </section>
-      )}
+      {isDoctor && me.ownedDoctor && <DoctorEditForm doctor={me.ownedDoctor} onSaved={load} />}
     </div>
+  )
+}
+
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+
+function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () => void | Promise<void> }) {
+  const [d, setD] = useState({
+    name: doctor.name,
+    specialization: doctor.specialization,
+    district: doctor.district,
+    qualification: doctor.qualification ?? '',
+    experienceYears: doctor.experienceYears ?? 0,
+    consultationFee: doctor.consultationFee ?? 0,
+    languages: (doctor.languages ?? []).join(', '),
+    availableDays: new Set(doctor.availableDays ?? []),
+    availableForOnline: doctor.availableForOnline ?? true,
+    profile: doctor.profile ?? '',
+    bio: doctor.bio ?? '',
+    photoUrl: doctor.photoUrl ?? '',
+  })
+  const [saving, setSaving] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+  const [ok, setOk] = useState(false)
+
+  function toggleDay(day: string) {
+    const next = new Set(d.availableDays)
+    if (next.has(day)) next.delete(day); else next.add(day)
+    setD({ ...d, availableDays: next })
+  }
+
+  async function save(e: React.FormEvent) {
+    e.preventDefault(); setSaving(true); setErr(null); setOk(false)
+    try {
+      const body = {
+        name: d.name,
+        specialization: d.specialization,
+        district: d.district,
+        qualification: d.qualification,
+        experienceYears: Number(d.experienceYears) || 0,
+        consultationFee: Number(d.consultationFee) || 0,
+        languages: d.languages.split(',').map((s) => s.trim()).filter(Boolean),
+        availableDays: Array.from(d.availableDays),
+        availableForOnline: d.availableForOnline,
+        profile: d.profile,
+        bio: d.bio,
+        photoUrl: d.photoUrl,
+      }
+      const res = await fetch('/api/me/doctor', {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(body),
+      })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      setOk(true)
+      await onSaved()
+    } catch (e) { setErr(String(e)) } finally { setSaving(false) }
+  }
+
+  return (
+    <form onSubmit={save} className="bg-white rounded-card border border-gray-100 shadow-card p-6 space-y-4">
+      <h2 className="text-xl text-kerala-700 flex items-center gap-2">
+        Doctor profile
+        {doctor.ccimVerified
+          ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-kerala-700 bg-kerala-50 px-2 py-1 rounded-full"><ShieldCheck className="w-3 h-3" /> CCIM Verified</span>
+          : <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-1 rounded-full">Awaiting CCIM verification</span>}
+      </h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Field label="Display name"><input value={d.name} onChange={(e) => setD({ ...d, name: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="Specialization"><input value={d.specialization} onChange={(e) => setD({ ...d, specialization: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="District"><input value={d.district} onChange={(e) => setD({ ...d, district: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="Qualification"><input value={d.qualification} onChange={(e) => setD({ ...d, qualification: e.target.value })} placeholder="BAMS, MD (Panchakarma)" className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="Experience (years)"><input type="number" min={0} value={d.experienceYears} onChange={(e) => setD({ ...d, experienceYears: Number(e.target.value) })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="Consultation fee (₹)"><input type="number" min={0} value={d.consultationFee} onChange={(e) => setD({ ...d, consultationFee: Number(e.target.value) })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="Languages (comma-separated)" full><input value={d.languages} onChange={(e) => setD({ ...d, languages: e.target.value })} placeholder="Malayalam, English, Hindi" className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="Photo URL" full><input value={d.photoUrl} onChange={(e) => setD({ ...d, photoUrl: e.target.value })} placeholder="https://…" className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="Short profile (1–2 lines)" full><input value={d.profile} onChange={(e) => setD({ ...d, profile: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="Detailed bio" full><textarea value={d.bio} onChange={(e) => setD({ ...d, bio: e.target.value })} rows={4} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+      </div>
+
+      <div>
+        <span className="block text-xs font-medium text-gray-700 mb-2">Available days</span>
+        <div className="flex flex-wrap gap-2">
+          {DAYS.map((day) => (
+            <button type="button" key={day} onClick={() => toggleDay(day)}
+              className={d.availableDays.has(day) ? 'px-3 py-1.5 text-sm rounded-full bg-kerala-700 text-white' : 'px-3 py-1.5 text-sm rounded-full bg-gray-100 text-gray-700'}>
+              {day}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" checked={d.availableForOnline} onChange={(e) => setD({ ...d, availableForOnline: e.target.checked })} />
+        Available for online consultations
+      </label>
+
+      {err && <p className="text-sm text-red-600">{err}</p>}
+      {ok  && <p className="text-sm text-kerala-700">Doctor profile saved ✓</p>}
+
+      <div className="flex justify-end pt-2">
+        <button type="submit" disabled={saving} className="px-5 py-2 bg-kerala-600 text-white rounded-md font-semibold hover:bg-kerala-700 disabled:opacity-50">
+          {saving ? 'Saving…' : 'Save doctor profile'}
+        </button>
+      </div>
+    </form>
+  )
+}
+
+function Field({ label, full = false, children }: { label: string; full?: boolean; children: React.ReactNode }) {
+  return (
+    <label className={full ? 'md:col-span-2 block' : 'block'}>
+      <span className="block text-xs font-medium text-gray-700 mb-1.5">{label}</span>
+      {children}
+    </label>
   )
 }

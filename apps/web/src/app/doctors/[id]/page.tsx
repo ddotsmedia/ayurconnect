@@ -62,8 +62,27 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
   const specs = doctor.specialization.split(/[,/|]/).map((s) => s.trim()).filter(Boolean)
   const availDays = new Set((doctor.availableDays ?? []).map((d) => d.slice(0, 3)))
 
+  const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ayurconnect.com'
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Physician',
+    '@id': `${BASE}/doctors/${doctor.id}`,
+    name: doctor.name,
+    medicalSpecialty: specs,
+    description: doctor.bio ?? doctor.profile ?? undefined,
+    url: `${BASE}/doctors/${doctor.id}`,
+    image: doctor.photoUrl ?? undefined,
+    knowsLanguage: doctor.languages ?? undefined,
+    address: { '@type': 'PostalAddress', addressLocality: doctor.district, addressRegion: 'KL', addressCountry: 'IN', streetAddress: doctor.address ?? undefined },
+    telephone: doctor.contact ?? undefined,
+    aggregateRating: doctor.averageRating != null && doctor.reviewsCount > 0 ? {
+      '@type': 'AggregateRating', ratingValue: doctor.averageRating, reviewCount: doctor.reviewsCount,
+    } : undefined,
+  }
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* HERO */}
       <section className="bg-hero-green text-white">
         <div className="container mx-auto px-4 py-12 md:py-16">

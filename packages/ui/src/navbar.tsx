@@ -4,16 +4,14 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { Menu, X, ChevronDown, Leaf } from 'lucide-react'
 import { cn } from './lib/utils'
+import { LangToggle } from './lang-toggle'
+import { t, type Lang } from './i18n'
 
-const NAV_LINKS = [
-  { href: '/doctors',   label: 'Doctors',   hasMega: true  },
-  { href: '/hospitals', label: 'Hospitals', hasMega: false },
-  { href: '/herbs',     label: 'Herbs',     hasMega: false },
-  { href: '/ayurbot',   label: 'AyurBot',   hasMega: false },
-  { href: '/forum',     label: 'Forum',     hasMega: false },
-  { href: '/jobs',      label: 'Jobs',      hasMega: false },
-  { href: '/tourism',   label: 'Tourism',   hasMega: false },
-]
+function readLangCookie(): Lang {
+  if (typeof document === 'undefined') return 'en'
+  const m = document.cookie.match(/(?:^|;\s*)lang=(en|ml)/)
+  return (m?.[1] as Lang) ?? 'en'
+}
 
 const TOP_SPECS = ['Panchakarma', 'Kayachikitsa', 'Prasuti Tantra', 'Kaumarbhritya', 'Shalya', 'Manasika']
 const TOP_DISTRICTS = ['Thiruvananthapuram', 'Ernakulam', 'Kozhikode', 'Thrissur', 'Kottayam', 'Malappuram']
@@ -22,8 +20,21 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [megaOpen, setMegaOpen] = useState(false)
+  const [lang, setLang] = useState<Lang>('en')
+  const tr = t(lang)
+
+  const NAV_LINKS = [
+    { href: '/doctors',   label: tr.nav.doctors,   hasMega: true  },
+    { href: '/hospitals', label: tr.nav.hospitals, hasMega: false },
+    { href: '/herbs',     label: tr.nav.herbs,     hasMega: false },
+    { href: '/ayurbot',   label: tr.nav.ayurbot,   hasMega: false },
+    { href: '/forum',     label: tr.nav.forum,     hasMega: false },
+    { href: '/jobs',      label: tr.nav.jobs,      hasMega: false },
+    { href: '/tourism',   label: tr.nav.tourism,   hasMega: false },
+  ]
 
   useEffect(() => {
+    setLang(readLangCookie())
     const onScroll = () => setScrolled(window.scrollY > 8)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -74,7 +85,7 @@ export function Navbar() {
                       <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2 w-[640px] animate-slide-up">
                         <div className="bg-white shadow-cardLg rounded-card border border-gray-100 grid grid-cols-2 gap-6 p-6">
                           <div>
-                            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">By Specialization</h4>
+                            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">{tr.nav.bySpec}</h4>
                             <ul className="space-y-1.5">
                               {TOP_SPECS.map((s) => (
                                 <li key={s}>
@@ -86,7 +97,7 @@ export function Navbar() {
                             </ul>
                           </div>
                           <div>
-                            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">By District</h4>
+                            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">{tr.nav.byDistrict}</h4>
                             <ul className="space-y-1.5">
                               {TOP_DISTRICTS.map((d) => (
                                 <li key={d}>
@@ -99,7 +110,7 @@ export function Navbar() {
                           </div>
                           <div className="col-span-2 pt-3 border-t border-gray-100">
                             <Link href="/doctors" className="text-sm font-medium text-kerala-700 hover:underline">
-                              View all 500+ doctors →
+                              {tr.nav.viewAll} →
                             </Link>
                           </div>
                         </div>
@@ -118,16 +129,17 @@ export function Navbar() {
               )}
             </div>
 
-            {/* Auth buttons (desktop) */}
+            {/* Auth buttons + lang (desktop) */}
             <div className="hidden md:flex items-center gap-2">
+              <LangToggle className="mr-1" />
               <Link href="/sign-in" className="px-3 py-1.5 text-sm text-gray-700 hover:text-kerala-700 transition-colors">
-                Login
+                {tr.nav.login}
               </Link>
               <Link
                 href="/sign-in"
                 className="px-4 py-1.5 text-sm font-semibold bg-gold-500 text-white rounded-md hover:bg-gold-600 transition-colors"
               >
-                Join Free
+                {tr.nav.joinFree}
               </Link>
             </div>
 
@@ -152,10 +164,13 @@ export function Navbar() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between p-4 border-b">
-              <span className="font-serif text-xl text-kerala-700">Menu</span>
-              <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="p-1">
-                <X className="w-5 h-5" />
-              </button>
+              <span className="font-serif text-xl text-kerala-700">{tr.nav.menu}</span>
+              <div className="flex items-center gap-2">
+                <LangToggle />
+                <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="p-1">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
             </div>
             <nav className="flex-1 p-4 space-y-1">
               {NAV_LINKS.map((link) => (
@@ -182,14 +197,14 @@ export function Navbar() {
                 onClick={() => setMobileOpen(false)}
                 className="block w-full px-4 py-2 text-center text-kerala-700 border border-kerala-600 rounded-md hover:bg-kerala-50"
               >
-                Login
+                {tr.nav.login}
               </Link>
               <Link
                 href="/sign-in"
                 onClick={() => setMobileOpen(false)}
                 className="block w-full px-4 py-2 text-center bg-gold-500 text-white rounded-md hover:bg-gold-600"
               >
-                Join Free
+                {tr.nav.joinFree}
               </Link>
             </div>
           </div>

@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { headers as nextHeaders } from 'next/headers'
-import { DoctorCard, GradientHero, type DoctorCardData } from '@ayurconnect/ui'
+import { DoctorCard, GradientHero, t, readLangFromCookieHeader, type DoctorCardData } from '@ayurconnect/ui'
 import {
   Search, Stethoscope, Building2, Bot, MessageSquare, Briefcase, Leaf, Plane,
   GraduationCap, ShieldCheck, Video, Sparkles, Users, MapPin, Lock, Star,
@@ -84,7 +84,13 @@ async function getHealthTips(): Promise<Tip[]> {
 }
 
 export default async function HomePage() {
-  const [featuredDoctors, healthTips] = await Promise.all([getFeaturedDoctors(), getHealthTips()])
+  const [featuredDoctors, healthTips, hdrs] = await Promise.all([
+    getFeaturedDoctors(),
+    getHealthTips(),
+    nextHeaders(),
+  ])
+  const lang = readLangFromCookieHeader(hdrs.get('cookie'))
+  const tr = t(lang)
 
   return (
     <>
@@ -92,24 +98,23 @@ export default async function HomePage() {
       <GradientHero variant="green" size="lg">
         <div className="text-center max-w-3xl mx-auto pb-14">
           <span className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur rounded-full text-xs text-white/90 border border-white/20 mb-5">
-            🌿 God&apos;s Own Country — Home of Authentic Ayurveda
+            🌿 {tr.hero.tag}
           </span>
           <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl text-white leading-tight">
-            Kerala&apos;s #1 <span className="text-gold-400">Ayurveda</span> Platform
+            {tr.hero.title}
           </h1>
           <p className="mt-5 text-lg text-white/80 max-w-2xl mx-auto">
-            Verified CCIM doctors. Classical Panchakarma centres. 1000+ medicinal herbs.
-            AI-powered guidance. All in one place.
+            {tr.hero.subtitle}
           </p>
           <div className="mt-8 flex flex-wrap gap-3 justify-center">
             <Link href="/doctors" className="px-6 py-3 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md transition-colors">
-              Find Doctors
+              {tr.hero.ctaFindDoctor}
             </Link>
             <Link href="/ayurbot" className="px-6 py-3 border-2 border-white/40 text-white hover:bg-white/10 font-semibold rounded-md transition-colors">
-              Try AyurBot AI
+              {tr.hero.ctaAskAyurBot}
             </Link>
-            <Link href="/tourism" className="px-6 py-3 border-2 border-white/40 text-white hover:bg-white/10 font-semibold rounded-md transition-colors">
-              Panchakarma
+            <Link href="/herbs" className="px-6 py-3 border-2 border-white/40 text-white hover:bg-white/10 font-semibold rounded-md transition-colors">
+              {tr.hero.ctaExploreHerbs}
             </Link>
           </div>
         </div>

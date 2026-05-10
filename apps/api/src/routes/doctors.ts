@@ -29,7 +29,8 @@ const doctors: FastifyPluginAsync = async (fastify) => {
     const where: Record<string, unknown> = {}
     if (district) where.district = { contains: district, mode: 'insensitive' }
     if (specialization) where.specialization = { contains: specialization, mode: 'insensitive' }
-    if (verified === 'true') where.ccimVerified = true
+    if (verified === 'true')  where.ccimVerified = true
+    if (verified === 'false') where.ccimVerified = false
     if (online === 'true') where.availableForOnline = true
     if (language) where.languages = { has: language }
     if (q) where.OR = [

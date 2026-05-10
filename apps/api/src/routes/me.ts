@@ -59,6 +59,40 @@ const me: FastifyPluginAsync = async (fastify) => {
       select: { id: true, email: true, name: true, prakriti: true, phone: true, image: true },
     })
   })
+
+  // Doctor self-edit: only the user with user.doctorId === <doctor id> can edit it.
+  fastify.patch('/doctor', async (request, reply) => {
+    const userId = request.session!.user.id
+    const user = await fastify.prisma.user.findUnique({ where: { id: userId }, select: { doctorId: true } })
+    if (!user?.doctorId) return reply.code(403).send({ error: 'no linked doctor profile' })
+
+    const body = request.body as Record<string, unknown>
+    const data: Record<string, unknown> = {}
+    const setStr = (k: string) => { if (typeof body[k] === 'string') data[k] = body[k] }
+    const setStrOrNull = (k: string) => { if (typeof body[k] === 'string') data[k] = (body[k] as string) || null }
+    const setIntOrNull = (k: string) => { if (body[k] == null) return; const n = Number(body[k]); if (!Number.isNaN(n)) data[k] = n }
+    const setBool = (k: string) => { if (typeof body[k] === 'boolean') data[k] = body[k] }
+    const setStrArray = (k: string) => { if (Array.isArray(body[k])) data[k] = (body[k] as unknown[]).filter((v): v is string => typeof v === 'string') }
+
+    setStr('name')
+    setStr('specialization')
+    setStr('district')
+    setStrOrNull('qualification')
+    setStrOrNull('profile')
+    setStrOrNull('bio')
+    setStrOrNull('contact')
+    setStrOrNull('address')
+    setStrOrNull('photoUrl')
+    setIntOrNull('experienceYears')
+    setIntOrNull('consultationFee')
+    setBool('availableForOnline')
+    setStrArray('languages')
+    setStrArray('availableDays')
+
+    if (Object.keys(data).length === 0) return reply.code(400).send({ error: 'no editable fields' })
+
+    return fastify.prisma.doctor.update({ where: { id: user.doctorId }, data })
+  })
 }
 
 export default me

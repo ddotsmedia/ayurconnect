@@ -56,6 +56,45 @@ Verify: `curl https://ayurconnect.com/api/payments/config` should return `{"enab
 
 When you're ready for live payments, generate live keys in Razorpay (after KYC) and replace these. The webhook URL to register in Razorpay (for production) is `https://ayurconnect.com/api/payments/webhook` — that endpoint isn't built yet; ask me to add it when you go live.
 
+## 4. Twilio SMS (optional — appointment reminders)
+
+**Without it:** `sendSms()` logs and returns `{ ok: true }` so flows keep working.
+**With it:** Real SMS via Twilio.
+
+Where to get: https://console.twilio.com → "Account info" → SID + Auth Token. Buy a sender number under "Phone Numbers".
+
+```bash
+ssh root@194.164.151.202
+nano /opt/ayurconnect/apps/api/.env
+# TWILIO_ACCOUNT_SID=AC...
+# TWILIO_AUTH_TOKEN=...
+# TWILIO_FROM=+1XXXXXXXXXX
+pm2 restart ayurconnect-api
+```
+
+You also need to install the SDK once: `cd /opt/ayurconnect && pnpm --filter api add twilio`. The helper dynamic-imports it so the app starts cleanly even if absent.
+
+## 5. PostHog (optional — product analytics)
+
+**Without it:** `capture()` is a no-op.
+**With it:** Events (doctor_search, ayurbot_message, booking_started, etc.) flow into PostHog.
+
+Where to get: https://app.posthog.com → Project Settings → Project API Key. Public key, safe to expose.
+
+```bash
+ssh root@194.164.151.202
+nano /opt/ayurconnect/apps/web/.env.local
+# NEXT_PUBLIC_POSTHOG_KEY=phc_...
+# NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
+pm2 restart ayurconnect-web
+```
+
+You also need to install the SDK once: `pnpm --filter @ayurconnect/web add posthog-js`.
+
+## 6. Google Maps (optional — only for embed iframes)
+
+Link-out to Google Maps (Search / Directions) works without a key. Set `NEXT_PUBLIC_GOOGLE_MAPS_KEY` only if you want `<iframe>` embeds inside the site.
+
 ---
 
 ## After you paste any key
