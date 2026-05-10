@@ -49,8 +49,9 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
     heading: 'Platform',
     links: [
       { href: '/sign-in',  label: 'Sign in' },
-      { href: '/sign-in',  label: 'Join free' },
-      { href: '/admin',    label: 'Admin' },
+      { href: '/register', label: 'Join free' },
+      { href: '/privacy',  label: 'Privacy policy' },
+      { href: '/terms',    label: 'Terms of service' },
     ],
   },
 ]

@@ -1,4 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify'
+import { moderate } from '../lib/moderation.js'
+import { createNotification } from '../lib/notify.js'
 
 export const autoPrefix = '/forum'
 
@@ -76,6 +78,18 @@ const forum: FastifyPluginAsync = async (fastify) => {
       return reply.code(400).send({ error: 'title, content, category required' })
     }
     const userId = request.session!.user.id
+
+    // AI moderation on title + body — block obvious abuse / spam / medical-fraud.
+    const m = await moderate(`${title}\n\n${content}`)
+    if (m.blocked) {
+      return reply.code(422).send({
+        error: 'Post couldn\'t be published.',
+        reason: m.reason,
+        verdict: m.verdict,
+        code: 'moderation-blocked',
+      })
+    }
+
     const post = await fastify.prisma.post.create({
       data: { title, content, category, language, userId },
       include: { user: { select: { id: true, name: true } } },
@@ -88,10 +102,43 @@ const forum: FastifyPluginAsync = async (fastify) => {
     const { content } = request.body as { content?: string }
     if (!content) return reply.code(400).send({ error: 'content required' })
     const userId = request.session!.user.id
+
+    // AI moderation
+    const m = await moderate(content)
+    if (m.blocked) {
+      return reply.code(422).send({
+        error: 'Reply couldn\'t be posted.',
+        reason: m.reason,
+        verdict: m.verdict,
+        code: 'moderation-blocked',
+      })
+    }
+
     const comment = await fastify.prisma.comment.create({
       data: { content, postId: id, userId },
       include: { user: { select: { id: true, name: true } } },
     })
+
+    // Notify the post author (skip if they replied to themselves)
+    try {
+      const post = await fastify.prisma.post.findUnique({
+        where: { id },
+        select: { id: true, title: true, userId: true },
+      })
+      if (post && post.userId !== userId) {
+        const author = comment.user?.name ?? 'Someone'
+        void createNotification(fastify, {
+          userId: post.userId,
+          type:   'forum-reply',
+          title:  `${author} replied to your post`,
+          body:   `On "${post.title}": ${content.slice(0, 140)}`,
+          link:   `/forum/${post.id}`,
+        })
+      }
+    } catch (err) {
+      fastify.log.warn({ err }, 'forum-reply notification failed (non-fatal)')
+    }
+
     return reply.code(201).send(comment)
   })
 

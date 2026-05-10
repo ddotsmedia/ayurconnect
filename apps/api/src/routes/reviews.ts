@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify'
 import { createNotification } from '../lib/notify.js'
+import { moderate } from '../lib/moderation.js'
 
 export const autoPrefix = '/reviews'
 
@@ -42,6 +43,19 @@ const reviews: FastifyPluginAsync = async (fastify) => {
     if (doctorId && hospitalId)   return reply.code(400).send({ error: 'review one entity at a time' })
     const r = Number(rating)
     if (!Number.isFinite(r) || r < 1 || r > 5) return reply.code(400).send({ error: 'rating must be 1-5' })
+
+    // ─── AI moderation: block abusive / spam / medical-fraud reviews ─────
+    if (typeof comment === 'string' && comment.trim().length > 5) {
+      const m = await moderate(comment)
+      if (m.blocked) {
+        return reply.code(422).send({
+          error: 'Review couldn\'t be posted.',
+          reason: m.reason,
+          verdict: m.verdict,
+          code: 'moderation-blocked',
+        })
+      }
+    }
 
     // Idempotent: if the same user already reviewed the same target, update instead.
     const existing = await fastify.prisma.review.findFirst({

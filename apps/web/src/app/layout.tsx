@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Suspense } from 'react'
 import { Cormorant_Garamond, Inter } from 'next/font/google'
-import { Navbar, Footer, AyurBotWidget, MobileBottomNav, ServiceWorkerRegister, type NavbarSession, type FooterSettings } from '@ayurconnect/ui'
+import { Navbar, Footer, AyurBotWidget, MobileBottomNav, ServiceWorkerRegister, CookieConsent, type NavbarSession, type FooterSettings } from '@ayurconnect/ui'
 import { getServerSession } from '../lib/auth'
 import { organizationLd, websiteLd, ldGraph, SITE_URL } from '../lib/seo'
 import { API_INTERNAL as API } from '../lib/server-fetch'
@@ -110,6 +110,7 @@ export default async function RootLayout({
         <AyurBotWidget />
         <MobileBottomNav />
         <ServiceWorkerRegister />
+        <CookieConsent />
         <Suspense fallback={null}><PageViewTracker /></Suspense>
       </body>
     </html>
