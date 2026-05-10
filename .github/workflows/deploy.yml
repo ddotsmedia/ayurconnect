@@ -26,7 +26,22 @@ jobs:
           chmod 700 ~/.ssh
           printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          # Accept the VPS host key on first connect; do not fail the build if
+          # ssh-keyscan can't reach the host (transient network blip on the runner).
+          ssh-keyscan -T 5 -H "$SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+          # Belt & braces: accept-new + identity-only so we never depend on the
+          # known_hosts entry above being there.
+          cat > ~/.ssh/config <<EOF
+          Host *
+            StrictHostKeyChecking accept-new
+            UserKnownHostsFile ~/.ssh/known_hosts
+            IdentityFile ~/.ssh/id_ed25519
+            IdentitiesOnly yes
+            ServerAliveInterval 30
+            ServerAliveCountMax 3
+            ConnectTimeout 15
+          EOF
+          chmod 600 ~/.ssh/config
 
       - name: deploy
         env:
