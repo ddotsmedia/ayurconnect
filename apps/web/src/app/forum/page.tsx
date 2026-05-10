@@ -51,8 +51,8 @@ export default async function ForumPage() {
             Case discussions, research notes, herb questions, patient stories.
             CCIM-verified doctors and patients, all on one platform.
           </p>
-          <Link href="/sign-in" className="inline-block mt-5 px-5 py-2 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md text-sm">
-            Sign in to post
+          <Link href="/forum/new" className="inline-block mt-5 px-5 py-2 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md text-sm">
+            + New post
           </Link>
         </div>
       </GradientHero>
@@ -89,23 +89,25 @@ export default async function ForumPage() {
                 {posts.map((p) => {
                   const cat = CATEGORY[p.category] ?? { label: p.category, bg: 'bg-gray-100', text: 'text-gray-700' }
                   return (
-                    <article key={p.id} className="bg-white rounded-card border border-gray-100 shadow-card hover:shadow-cardLg hover:-translate-y-0.5 transition-all p-5">
-                      <div className="flex items-center gap-2 text-[11px] mb-2">
-                        <span className={`${cat.bg} ${cat.text} px-2 py-0.5 rounded-full font-medium`}>{cat.label}</span>
-                        <span className="text-subtle uppercase">{p.language}</span>
-                        <span className="text-subtle">·</span>
-                        <span className="text-gray-500">{p.user?.name ?? 'Anonymous'}</span>
-                        {p.user?.email?.endsWith('@ayurconnect.com') && (
-                          <span className="inline-flex items-center gap-0.5 text-kerala-700 text-[10px]"><ShieldCheck className="w-3 h-3" /> staff</span>
-                        )}
-                        <span className="text-subtle ml-auto">{new Date(p.createdAt).toLocaleDateString()}</span>
-                      </div>
-                      <h3 className="text-lg font-semibold text-ink leading-snug">{p.title}</h3>
-                      <p className="text-sm text-gray-700 mt-1.5 line-clamp-3 leading-relaxed">{p.content}</p>
-                      <div className="mt-3 text-xs text-gray-500">
-                        {p.comments.length} {p.comments.length === 1 ? 'reply' : 'replies'}
-                      </div>
-                    </article>
+                    <Link key={p.id} href={`/forum/${p.id}`} className="block">
+                      <article className="bg-white rounded-card border border-gray-100 shadow-card hover:shadow-cardLg hover:-translate-y-0.5 hover:border-kerala-200 transition-all p-5">
+                        <div className="flex items-center gap-2 text-[11px] mb-2">
+                          <span className={`${cat.bg} ${cat.text} px-2 py-0.5 rounded-full font-medium`}>{cat.label}</span>
+                          <span className="text-subtle uppercase">{p.language}</span>
+                          <span className="text-subtle">·</span>
+                          <span className="text-gray-500">{p.user?.name ?? 'Anonymous'}</span>
+                          {p.user?.email?.endsWith('@ayurconnect.com') && (
+                            <span className="inline-flex items-center gap-0.5 text-kerala-700 text-[10px]"><ShieldCheck className="w-3 h-3" /> staff</span>
+                          )}
+                          <span className="text-subtle ml-auto">{new Date(p.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <h3 className="text-lg font-semibold text-ink leading-snug">{p.title}</h3>
+                        <p className="text-sm text-gray-700 mt-1.5 line-clamp-3 leading-relaxed">{p.content}</p>
+                        <div className="mt-3 text-xs text-gray-500">
+                          {p.comments.length} {p.comments.length === 1 ? 'reply' : 'replies'}
+                        </div>
+                      </article>
+                    </Link>
                   )
                 })}
               </div>

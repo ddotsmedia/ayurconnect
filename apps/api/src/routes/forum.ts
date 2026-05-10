@@ -44,10 +44,30 @@ const forum: FastifyPluginAsync = async (fastify) => {
           include: { user: { select: { id: true, name: true } } },
           orderBy: { createdAt: 'asc' },
         },
+        upvotes: { select: { userId: true } },
       },
     })
     if (!post) return reply.code(404).send({ error: 'Post not found' })
-    return post
+    return {
+      ...post,
+      upvoteCount: post.upvotes.length,
+      upvotes: undefined,
+    }
+  })
+
+  fastify.post('/posts/:id/upvote', { preHandler: fastify.requireSession }, async (request, reply) => {
+    const { id } = request.params as { id: string }
+    const userId = request.session!.user.id
+    try {
+      await fastify.prisma.upvote.create({ data: { userId, postId: id } })
+      const count = await fastify.prisma.upvote.count({ where: { postId: id } })
+      return reply.code(201).send({ upvoted: true, count })
+    } catch {
+      // already upvoted -> toggle off
+      await fastify.prisma.upvote.deleteMany({ where: { userId, postId: id } })
+      const count = await fastify.prisma.upvote.count({ where: { postId: id } })
+      return { upvoted: false, count }
+    }
   })
 
   fastify.post('/posts', { preHandler: fastify.requireSession }, async (request, reply) => {

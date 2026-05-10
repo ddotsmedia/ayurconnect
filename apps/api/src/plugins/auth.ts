@@ -2,6 +2,7 @@ import fp from 'fastify-plugin'
 import { betterAuth } from 'better-auth'
 import { prismaAdapter } from 'better-auth/adapters/prisma'
 import type { FastifyReply, FastifyRequest } from 'fastify'
+import { sendEmail, emailEnabled } from '../lib/email.js'
 
 type AuthSession = {
   user: { id: string; email: string; name: string | null; role: string }
@@ -40,7 +41,34 @@ export default fp(async (fastify) => {
     baseURL,
     basePath: '/auth',
     trustedOrigins: trusted,
-    emailAndPassword: { enabled: true, autoSignIn: true },
+    emailAndPassword: {
+      enabled: true,
+      autoSignIn: true,
+      requireEmailVerification: emailEnabled(),
+    },
+    emailVerification: emailEnabled() ? {
+      sendOnSignUp: true,
+      autoSignInAfterVerification: true,
+      sendVerificationEmail: async ({ user, url }) => {
+        await sendEmail({
+          to: user.email,
+          subject: 'Verify your AyurConnect email',
+          html: `
+            <div style="font-family:system-ui,sans-serif;max-width:480px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px">
+              <h1 style="font-family:Georgia,serif;color:#155724;margin:0 0 12px">Welcome to AyurConnect 🌿</h1>
+              <p>Hi ${user.name ?? 'there'},</p>
+              <p>Click below to verify <strong>${user.email}</strong> and start booking consultations with CCIM-verified Kerala doctors.</p>
+              <p style="margin:20px 0">
+                <a href="${url}" style="display:inline-block;padding:12px 20px;background:#1b5e20;color:white;text-decoration:none;border-radius:8px;font-weight:600">Verify email</a>
+              </p>
+              <p style="font-size:13px;color:#6b7280">If the button doesn't work, paste this link: <br><a href="${url}">${url}</a></p>
+              <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0">
+              <p style="font-size:12px;color:#9ca3af">If you didn't sign up, ignore this email.</p>
+            </div>`,
+          text: `Welcome to AyurConnect. Verify your email: ${url}`,
+        })
+      },
+    } : undefined,
     user: {
       additionalFields: {
         role: { type: 'string', defaultValue: 'USER', input: false },

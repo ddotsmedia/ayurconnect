@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 
-const PROTECTED_PREFIXES = ['/admin']
+const PROTECTED_PREFIXES = ['/admin', '/dashboard']
 
 // Better Auth session cookie names (with and without the Secure prefix
 // browsers add when served over HTTPS).
