@@ -119,8 +119,20 @@ export async function forwardToBetterAuth(
   if (!['GET', 'HEAD'].includes(request.method)) {
     const chunks: Buffer[] = []
     for await (const chunk of request.raw) chunks.push(chunk as Buffer)
-    init.body = Buffer.concat(chunks).toString('utf8')
-    if (!headers.has('content-type')) headers.set('content-type', 'application/json')
+    const bodyText = Buffer.concat(chunks).toString('utf8')
+    if (bodyText.length > 0) {
+      init.body = bodyText
+      // Only claim application/json if the client didn't set a content-type AND
+      // we actually have a body. Otherwise Better Auth's better-call router
+      // tries JSON.parse('') and throws SyntaxError "Unexpected end of JSON
+      // input" — which is what was killing sign-out.
+      if (!headers.has('content-type')) headers.set('content-type', 'application/json')
+    } else {
+      // No body — strip any spurious content-type the client may have sent so
+      // Better Auth doesn't try to parse nothing.
+      headers.delete('content-type')
+      headers.delete('content-length')
+    }
   }
   const res = await auth.handler(new Request(url, init))
   reply.status(res.status)
