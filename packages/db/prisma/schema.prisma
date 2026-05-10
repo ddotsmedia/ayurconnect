@@ -37,6 +37,31 @@ model User {
   ownedDoctor   Doctor?       @relation("OwnedDoctor",   fields: [doctorId],   references: [id])
   ownedHospital Hospital?     @relation("OwnedHospital", fields: [hospitalId], references: [id])
   notifications Notification[]
+  journal       JournalEntry[]
+}
+
+// ─── Patient health journal (added 2026-05-10) ────────────────────────────
+// Daily wellness log. Used to track symptoms over time and feed the AI
+// weekly summary endpoint that reports trends in dosha imbalance.
+model JournalEntry {
+  id           String   @id @default(cuid())
+  userId       String
+  // Date (without time component) — one entry per user per day.
+  date         DateTime @db.Date
+  mood         Int?     // 1-5
+  sleepHours   Float?
+  energy       Int?     // 1-5
+  symptoms     String[] @default([])
+  doshaFeel    String?  // vata | pitta | kapha | balanced
+  food         String?  // free-text food log
+  notes        String?  // anything else
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
 }
 
 // ─── Notifications (added 2026-05-10 — Socket.io real-time delivery) ──────

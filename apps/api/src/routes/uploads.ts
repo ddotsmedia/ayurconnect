@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify'
 import { randomUUID } from 'node:crypto'
+import sharp from 'sharp'
 
 export const autoPrefix = '/uploads'
 
@@ -27,24 +28,48 @@ const uploads: FastifyPluginAsync = async (fastify) => {
     const bucket = requested && ALLOWED_BUCKETS.has(`ayurconnect-${requested}`) ? `ayurconnect-${requested}` : 'ayurconnect-profile'
 
     const ext = part.mimetype.split('/')[1]?.replace('jpeg', 'jpg') ?? 'bin'
-    const key = `users/${userId}/${randomUUID()}.${ext}`
+    const id  = randomUUID()
+    const key = `users/${userId}/${id}.${ext}`
+
+    // ─── Generate optimised WebP variant + EXIF-strip the original ─────
+    // sharp also handles auto-rotate based on EXIF orientation, which fixes
+    // sideways photos from phones. Original kept for fidelity; webp served
+    // by default to <img>/picture tags for smaller bandwidth.
+    let optimised: Buffer = buf
+    let webp: Buffer | null = null
+    try {
+      // Re-encode (and strip metadata) the original at its native format
+      const pipeline = sharp(buf, { failOn: 'none' }).rotate()
+      optimised = await pipeline.clone()
+        .resize({ width: 1600, withoutEnlargement: true })
+        .toFormat(part.mimetype.includes('png') ? 'png' : 'jpeg', { quality: 85 })
+        .toBuffer()
+      webp = await pipeline.clone()
+        .resize({ width: 1600, withoutEnlargement: true })
+        .webp({ quality: 80 })
+        .toBuffer()
+    } catch (err) {
+      fastify.log.warn({ err }, 'sharp re-encode failed, uploading original as-is')
+    }
 
     try {
-      await fastify.s3.putObject(bucket, key, buf, buf.byteLength, { 'Content-Type': part.mimetype })
+      await fastify.s3.putObject(bucket, key, optimised, optimised.byteLength, { 'Content-Type': part.mimetype })
+      if (webp) {
+        const webpKey = `users/${userId}/${id}.webp`
+        await fastify.s3.putObject(bucket, webpKey, webp, webp.byteLength, { 'Content-Type': 'image/webp' })
+      }
     } catch (err) {
       fastify.log.error({ err }, 'minio upload failed')
       return reply.code(502).send({ error: 'storage unavailable' })
     }
 
-    // The URL is served back through THIS API at /api/uploads/<bucket>/<key>,
-    // which streams from MinIO with the right content-type. No CORS / no public
-    // bucket policy needed; the URL works via Cloudflare directly.
     return {
-      url: `/api/uploads/${bucket}/${key}`,
+      url:     `/api/uploads/${bucket}/${key}`,
+      webpUrl: webp ? `/api/uploads/${bucket}/users/${userId}/${id}.webp` : null,
       bucket,
       key,
-      size: buf.byteLength,
-      mime: part.mimetype,
+      size:  optimised.byteLength,
+      mime:  part.mimetype,
     }
   })
 
