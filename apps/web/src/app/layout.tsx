@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Cormorant_Garamond, Inter } from 'next/font/google'
-import { Navbar, Footer, AyurBotWidget, MobileBottomNav } from '@ayurconnect/ui'
+import { Navbar, Footer, AyurBotWidget, MobileBottomNav, type NavbarSession } from '@ayurconnect/ui'
+import { getServerSession } from '../lib/auth'
 import './globals.css'
 
 const cormorant = Cormorant_Garamond({
@@ -50,16 +51,21 @@ const ORG_JSON_LD = {
   description: "Kerala's #1 Ayurveda platform — CCIM-verified doctors, hospitals, herbs, and AI insights.",
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const sess = await getServerSession()
+  const navSession: NavbarSession = sess
+    ? { user: { id: sess.user.id, email: sess.user.email, name: sess.user.name, role: sess.user.role, image: sess.user.image ?? null } }
+    : null
+
   return (
     <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
       <body className="min-h-screen bg-cream font-sans text-ink">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSON_LD) }} />
-        <Navbar />
+        <Navbar session={navSession} />
         <main className="pb-16 md:pb-0">{children}</main>
         <Footer />
         <AyurBotWidget />
