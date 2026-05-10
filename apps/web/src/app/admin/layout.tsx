@@ -4,6 +4,7 @@ import { getServerSession } from '../../lib/auth'
 
 const NAV: Array<{ href: string; label: string; group?: string }> = [
   { href: '/admin',           label: 'Dashboard' },
+  { href: '/admin/analytics', label: 'Analytics' },
   { href: '/admin/users',     label: 'Users',     group: 'people' },
   { href: '/admin/doctors',   label: 'Doctors',   group: 'directory' },
   { href: '/admin/verify',    label: 'CCIM queue', group: 'directory' },

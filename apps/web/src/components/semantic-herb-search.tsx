@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { Sparkles, Loader2 } from 'lucide-react'
+import { track } from '../lib/track'
 
 type Hit = { id: string; name: string; sanskrit: string | null; english: string | null; uses: string | null; score: number }
 
@@ -32,6 +33,7 @@ export function SemanticHerbSearch() {
         }
         const data = (await res.json()) as { herbs: Hit[] }
         setHits(data.herbs ?? [])
+        track('search', { q: term, kind: 'semantic-herb', hits: data.herbs?.length ?? 0 })
       } catch (e) {
         if ((e as Error).name !== 'AbortError') setErr(String(e))
       } finally { setBusy(false) }

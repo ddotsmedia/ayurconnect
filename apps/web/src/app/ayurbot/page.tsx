@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { Bot, Leaf, Stethoscope, Activity, Send, Loader2 } from 'lucide-react'
+import { track } from '../../lib/track'
 
 type Mode = 'default' | 'prakriti' | 'herb' | 'symptom'
 type Message = { role: 'user' | 'bot' | 'error'; content: string }
@@ -83,6 +84,7 @@ export default function AyurBotPage() {
     append({ role: 'user', content: t })
     setInput('')
     setBusy(true)
+    track('ayurbot_chat', { mode, length: t.length })
     append({ role: 'bot', content: '' }) // placeholder for stream
 
     try {

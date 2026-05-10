@@ -393,6 +393,22 @@ model MedicalTourismPackage {
   updatedAt   DateTime @updatedAt
 }
 
+// ─── Analytics event log ─────────────────────────────────────────────────
+// Lightweight in-DB events for site-wide analytics. Anonymous users are
+// keyed by sessionId (cookie); signed-in users link to userId.
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  sessionId String?
+  name      String   // 'search' | 'doctor_view' | 'ayurbot_chat' | 'booking_started' | ...
+  props     Json?
+  path      String?  // optional referer path
+  createdAt DateTime @default(now())
+
+  @@index([name, createdAt])
+  @@index([userId, createdAt])
+}
+
 // ─── Site-wide admin-editable settings (key/value store) ─────────────────
 // Used for social media URLs, contact info, taglines, etc.
 // Reading is public; writing is admin-gated.
