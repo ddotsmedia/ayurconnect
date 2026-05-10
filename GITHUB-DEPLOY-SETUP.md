@@ -63,24 +63,47 @@ You can also trigger a deploy manually any time without pushing: go to **Actions
 
 ## After setup — your normal workflow
 
-```powershell
-# edit code via Claude or VS Code, then:
-git add -A
-git commit -m "what changed and why"
-git push                               # deploy fires automatically
-```
-
-You can still run a deploy manually any time:
+The fastest path is a single command from any directory in CMD or PowerShell:
 
 ```powershell
-pnpm ship                # standard manual deploy (use this — `pnpm deploy` collides with pnpm's built-in)
-pnpm ship:check          # ssh + dirs + PM2 reachability check only
-pnpm ship:dry            # print every step without executing
-pnpm ship:seed           # also re-run db:seed
-pnpm ship -- --logs      # tail PM2 logs after smoke test
+push "what changed"      # stages → commits → pushes → watches CI → smoke-tests prod
 ```
 
-Same script as the GitHub Actions runs. Useful when offline, when testing changes pre-commit, or for a manual recovery deploy.
+End-to-end output looks like this (~80 seconds for the whole pipeline):
+
+```
+▶ stage + commit
+  ✓ committed
+▶ push to origin
+  ✓ pushed
+▶ wait for GitHub Actions to start a run
+  ✓ run id: 25618418537  (https://github.com/.../actions/runs/25618418537)
+▶ follow CI run
+  ✓ deploy in 1m10s
+  ✓ CI green
+▶ smoke test https://ayurconnect.com
+  ✓ /                                → 200
+  ✓ /doctors                         → 200
+  ✓ /hospitals                       → 200
+  ... etc
+▶ ✓ live: https://ayurconnect.com/
+```
+
+If CI fails, `push` exits non-zero and shows the last 30 lines of the failed step's log so you can fix forward. If the smoke test on prod fails despite CI passing, same — exits non-zero with which paths broke.
+
+The `push` script lives at `C:\Users\home\bin\push.sh` (called from `push.cmd`) and depends on `gh` CLI being authenticated (it's auto-installed in the home `bin` folder; `gh` was already installed during initial setup).
+
+If you want to bypass git and push directly to the VPS without committing (e.g. WIP smoke):
+
+```powershell
+ship                     # direct local→VPS deploy: sync → install → migrate → build → restart → smoke
+ship --check             # ssh + dirs + PM2 reachability check only
+ship --dry-run           # print every step without executing
+ship --seed              # also re-run db:seed
+ship --logs              # tail PM2 logs after smoke
+```
+
+Same `scripts/deploy.sh` runs in both `ship` (local-direct) and the GitHub Actions workflow (after `push`). `pnpm ship` from the repo directory is the npm-script equivalent.
 
 ---
 
