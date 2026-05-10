@@ -7,6 +7,7 @@ import {
   Users, Mail, Phone, Share2, Flag, ArrowRight,
 } from 'lucide-react'
 import { API_INTERNAL as API } from '../../../lib/server-fetch'
+import { physicianLd, breadcrumbLd, ldGraph } from '../../../lib/seo'
 const ALL_DAYS: ReadonlyArray<string> = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
 type Review = { id: string; rating: number; comment: string | null; createdAt: string; user: { name: string | null } | null }
@@ -62,23 +63,29 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
   const specs = doctor.specialization.split(/[,/|]/).map((s) => s.trim()).filter(Boolean)
   const availDays = new Set((doctor.availableDays ?? []).map((d) => d.slice(0, 3)))
 
-  const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ayurconnect.com'
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Physician',
-    '@id': `${BASE}/doctors/${doctor.id}`,
-    name: doctor.name,
-    medicalSpecialty: specs,
-    description: doctor.bio ?? doctor.profile ?? undefined,
-    url: `${BASE}/doctors/${doctor.id}`,
-    image: doctor.photoUrl ?? undefined,
-    knowsLanguage: doctor.languages ?? undefined,
-    address: { '@type': 'PostalAddress', addressLocality: doctor.district, addressRegion: 'KL', addressCountry: 'IN', streetAddress: doctor.address ?? undefined },
-    telephone: doctor.contact ?? undefined,
-    aggregateRating: doctor.averageRating != null && doctor.reviewsCount > 0 ? {
-      '@type': 'AggregateRating', ratingValue: doctor.averageRating, reviewCount: doctor.reviewsCount,
-    } : undefined,
-  }
+  const jsonLd = ldGraph(
+    physicianLd({
+      id: doctor.id,
+      name: doctor.name,
+      specialization: doctor.specialization,
+      district: doctor.district,
+      qualification: doctor.qualification,
+      bio: doctor.bio,
+      profile: doctor.profile,
+      contact: doctor.contact,
+      address: doctor.address,
+      photoUrl: doctor.photoUrl,
+      languages: doctor.languages,
+      averageRating: doctor.averageRating,
+      reviewsCount: doctor.reviewsCount,
+    }),
+    breadcrumbLd([
+      { name: 'Home', url: '/' },
+      { name: 'Doctors', url: '/doctors' },
+      { name: doctor.district, url: `/doctors?district=${encodeURIComponent(doctor.district)}` },
+      { name: doctor.name, url: `/doctors/${doctor.id}` },
+    ]),
+  )
 
   return (
     <>

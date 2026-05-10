@@ -1,9 +1,11 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { headers as nextHeaders } from 'next/headers'
+import type { Metadata } from 'next'
 import { GradientHero } from '@ayurconnect/ui'
 import { ChevronLeft, ShieldCheck } from 'lucide-react'
 import { API_INTERNAL as API } from '../../../lib/server-fetch'
+import { articleLd, breadcrumbLd, ldGraph, clip, SITE_URL } from '../../../lib/seo'
 import { UpvoteButton } from './upvote-button'
 import { ReplyForm } from './reply-form'
 
@@ -36,14 +38,55 @@ async function fetchPost(id: string): Promise<Post | null> {
   } catch { return null }
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params
+  const post = await fetchPost(id)
+  if (!post) return { title: 'Post not found' }
+  const description = clip(post.content, 200)
+  return {
+    title: post.title,
+    description,
+    alternates: { canonical: `/forum/${post.id}` },
+    openGraph: {
+      title: post.title, description,
+      url: `${SITE_URL}/forum/${post.id}`,
+      type: 'article',
+      publishedTime: post.createdAt,
+      authors: [post.user?.name ?? 'AyurConnect'],
+    },
+    twitter: { card: 'summary_large_image', title: post.title, description },
+  }
+}
+
 export default async function ForumPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const post = await fetchPost(id)
   if (!post) notFound()
   const cat = CATEGORY[post.category] ?? { label: post.category, bg: 'bg-gray-100', text: 'text-gray-700' }
 
+  const jsonLd = ldGraph(
+    articleLd({
+      id: post.id,
+      title: post.title,
+      content: post.content,
+      category: post.category,
+      language: post.language,
+      createdAt: post.createdAt,
+      authorName: post.user?.name,
+      type: 'DiscussionForumPosting',
+      urlPath: `/forum/${post.id}`,
+    }),
+    breadcrumbLd([
+      { name: 'Home', url: '/' },
+      { name: 'Forum', url: '/forum' },
+      { name: cat.label, url: `/forum?category=${post.category}` },
+      { name: post.title, url: `/forum/${post.id}` },
+    ]),
+  )
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <GradientHero variant="forum" size="md">
         <div className="max-w-3xl">
           <Link href="/forum" className="inline-flex items-center gap-1 text-sm text-white/70 hover:text-white mb-3">
