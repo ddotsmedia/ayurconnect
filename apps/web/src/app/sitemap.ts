@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { API_INTERNAL } from '@/lib/server-fetch'
+import { CONDITION_SLUGS } from './treatments/_data/conditions'
 
 const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ayurconnect.com'
 
@@ -7,15 +8,30 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '',                priority: 1.0, changeFrequency: 'daily'   },
   { path: '/doctors',        priority: 0.9, changeFrequency: 'daily'   },
   { path: '/hospitals',      priority: 0.8, changeFrequency: 'weekly'  },
+  { path: '/treatments',     priority: 0.85, changeFrequency: 'weekly' },
   { path: '/herbs',          priority: 0.8, changeFrequency: 'weekly'  },
   { path: '/health-tips',    priority: 0.7, changeFrequency: 'weekly'  },
   { path: '/panchakarma',    priority: 0.7, changeFrequency: 'monthly' },
   { path: '/articles',       priority: 0.7, changeFrequency: 'weekly'  },
+  { path: '/research',                 priority: 0.7, changeFrequency: 'monthly' },
+  { path: '/about',                    priority: 0.6, changeFrequency: 'monthly' },
+  { path: '/about/leadership',         priority: 0.5, changeFrequency: 'monthly' },
+  { path: '/about/methodology',        priority: 0.55, changeFrequency: 'monthly' },
+  { path: '/about/why-ayurveda-works', priority: 0.65, changeFrequency: 'monthly' },
+  { path: '/about/certifications',     priority: 0.55, changeFrequency: 'monthly' },
+  { path: '/cost-estimator', priority: 0.75, changeFrequency: 'monthly' },
+  { path: '/contact',        priority: 0.5,  changeFrequency: 'yearly'  },
+  { path: '/partnership',    priority: 0.5,  changeFrequency: 'yearly'  },
   { path: '/forum',          priority: 0.6, changeFrequency: 'daily'   },
   { path: '/jobs',           priority: 0.6, changeFrequency: 'daily'   },
   { path: '/colleges',       priority: 0.5, changeFrequency: 'monthly' },
   { path: '/tourism',        priority: 0.6, changeFrequency: 'monthly' },
   { path: '/ayurbot',        priority: 0.5, changeFrequency: 'monthly' },
+  ...CONDITION_SLUGS.map((slug) => ({
+    path: `/treatments/${slug}` as const,
+    priority: 0.8,
+    changeFrequency: 'monthly' as const,
+  })),
 ]
 
 async function fetchIds(path: string, key?: string): Promise<Array<{ id: string; updatedAt?: string }>> {

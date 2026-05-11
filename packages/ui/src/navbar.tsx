@@ -39,13 +39,14 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
   const userRef = useRef<HTMLDivElement | null>(null)
 
   const NAV_LINKS = [
-    { href: '/doctors',   label: tr.nav.doctors,   hasMega: true  },
-    { href: '/hospitals', label: tr.nav.hospitals, hasMega: false },
-    { href: '/herbs',     label: tr.nav.herbs,     hasMega: false },
-    { href: '/ayurbot',   label: tr.nav.ayurbot,   hasMega: false },
-    { href: '/forum',     label: tr.nav.forum,     hasMega: false },
-    { href: '/jobs',      label: tr.nav.jobs,      hasMega: false },
-    { href: '/tourism',   label: tr.nav.tourism,   hasMega: false },
+    { href: '/doctors',    label: tr.nav.doctors,    hasMega: true  },
+    { href: '/hospitals',  label: tr.nav.hospitals,  hasMega: false },
+    { href: '/treatments', label: tr.nav.treatments, hasMega: false },
+    { href: '/herbs',      label: tr.nav.herbs,      hasMega: false },
+    { href: '/ayurbot',    label: tr.nav.ayurbot,    hasMega: false },
+    { href: '/forum',      label: tr.nav.forum,      hasMega: false },
+    { href: '/jobs',       label: tr.nav.jobs,       hasMega: false },
+    { href: '/tourism',    label: tr.nav.tourism,    hasMega: false },
   ]
 
   useEffect(() => {

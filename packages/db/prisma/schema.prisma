@@ -493,6 +493,29 @@ model HealthTip {
   @@index([season])
 }
 
+// ─── Lead capture (added 2026-05-11) ────────────────────────────────────
+// Generic inquiries from public lead-capture pages: cost estimator,
+// contact form, partnership/franchise enquiries. Admin reviews + replies
+// out-of-band. We deliberately do NOT auth-gate the POST endpoint so
+// non-registered visitors can submit; rate-limited at the route layer.
+model Lead {
+  id          String   @id @default(cuid())
+  kind        String   // 'cost_estimator' | 'contact' | 'partnership' | 'franchise'
+  name        String
+  email       String
+  phone       String?
+  country     String?  // ISO-2
+  subject     String?  // short label / treatment slug / partnership type
+  message     String
+  meta        Json?    // form-specific fields (estimator inputs etc.)
+  status      String   @default("new")  // 'new' | 'contacted' | 'closed' | 'spam'
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([kind, status, createdAt])
+  @@index([createdAt])
+}
+
 // ---------- AyurBot RAG (Phase 4) ----------
 // Vector column added via raw SQL in migration after CREATE EXTENSION vector.
 model KnowledgeChunk {
