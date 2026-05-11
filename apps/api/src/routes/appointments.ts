@@ -304,11 +304,103 @@ const route: FastifyPluginAsync = async (fastify) => {
     }
     const updated = await fastify.prisma.appointment.update({
       where: { id: appt.id },
-      data: { status: 'completed' },
+      data: { status: 'completed', consultationEndedAt: new Date() },
     })
     // Don't fire the "leave a review" prompt here — the reminder cron does that
     // a few hours later so the patient has time to digest the visit.
     return updated
+  })
+
+  // ─── Online consultation endpoints ──────────────────────────────────────
+  // GET /appointments/:id/consultation
+  // Returns appointment + video-room URL + role-filtered clinical notes.
+  // doctorPrivateNotes is never sent to the patient.
+  fastify.get('/:id/consultation', async (request, reply) => {
+    const { id } = request.params as { id: string }
+    const sess = request.session!
+    const appt = await fastify.prisma.appointment.findUnique({
+      where: { id },
+      include: {
+        doctor: { select: { id: true, name: true, specialization: true, qualification: true, photoUrl: true } },
+        user:   { select: { id: true, name: true, email: true } },
+      },
+    })
+    if (!appt) return reply.code(404).send({ error: 'not found' })
+    const userExt = sess.user as unknown as { doctorId?: string; role: string; id: string }
+    const isAdmin = userExt.role === 'ADMIN'
+    const isMine = appt.userId === sess.user.id
+    const isMyDoctor = userExt.doctorId === appt.doctorId
+    if (!isAdmin && !isMine && !isMyDoctor) return reply.code(403).send({ error: 'forbidden' })
+
+    // Extract the video room URL from notes (where the booking flow stashed it)
+    const videoUrl = appt.notes?.match(/Video room: (https?:\/\/\S+)/)?.[1] ?? null
+
+    // Role-filter the clinical notes — patient never sees doctor's private notes.
+    const baseFields = {
+      id: appt.id, status: appt.status, type: appt.type, dateTime: appt.dateTime,
+      chiefComplaint: appt.chiefComplaint, duration: appt.duration,
+      consultationStartedAt: appt.consultationStartedAt, consultationEndedAt: appt.consultationEndedAt,
+      consultationSummary: appt.consultationSummary,
+      prescription: appt.prescription,
+      treatmentPlan: appt.treatmentPlan,
+      followUpRecommended: appt.followUpRecommended,
+      followUpAfterWeeks: appt.followUpAfterWeeks,
+      doctor: appt.doctor, user: appt.user,
+      videoUrl,
+      videoEnabled: videoEnabled(),
+      role: isMyDoctor || isAdmin ? 'doctor' : 'patient',
+    }
+    if (isMyDoctor || isAdmin) {
+      return { ...baseFields, doctorPrivateNotes: appt.doctorPrivateNotes }
+    }
+    return baseFields
+  })
+
+  // PATCH /appointments/:id/clinical-notes — doctor-only structured notes update.
+  // Accepts any subset of: consultationSummary, prescription, treatmentPlan,
+  // doctorPrivateNotes, followUpRecommended, followUpAfterWeeks.
+  fastify.patch('/:id/clinical-notes', async (request, reply) => {
+    const res = await loadDoctorAuthed(request)
+    if ('error' in res) return reply.code(res.error.code).send({ error: res.error.msg })
+    const { appt } = res
+    const body = request.body as Record<string, unknown>
+    const data: Record<string, unknown> = {}
+
+    const setStr = (k: 'consultationSummary' | 'prescription' | 'treatmentPlan' | 'doctorPrivateNotes') => {
+      if (body[k] === null) { data[k] = null; return }
+      if (typeof body[k] === 'string') data[k] = (body[k] as string).slice(0, 8000)
+    }
+    setStr('consultationSummary')
+    setStr('prescription')
+    setStr('treatmentPlan')
+    setStr('doctorPrivateNotes')
+    if (typeof body.followUpRecommended === 'boolean') data.followUpRecommended = body.followUpRecommended
+    if (body.followUpAfterWeeks === null) data.followUpAfterWeeks = null
+    else if (typeof body.followUpAfterWeeks === 'number' && Number.isFinite(body.followUpAfterWeeks)) {
+      data.followUpAfterWeeks = Math.max(1, Math.min(52, Math.round(body.followUpAfterWeeks)))
+    }
+    if (Object.keys(data).length === 0) return reply.code(400).send({ error: 'no editable fields' })
+
+    return fastify.prisma.appointment.update({ where: { id: appt.id }, data })
+  })
+
+  // PATCH /appointments/:id/start — marks consultation as started (when doctor
+  // or patient opens /consult page within the appointment window). Idempotent;
+  // only sets the first time. Either party can trigger.
+  fastify.patch('/:id/start', async (request, reply) => {
+    const { id } = request.params as { id: string }
+    const sess = request.session!
+    const appt = await fastify.prisma.appointment.findUnique({ where: { id }, select: { id: true, userId: true, doctorId: true, consultationStartedAt: true } })
+    if (!appt) return reply.code(404).send({ error: 'not found' })
+    const userExt = sess.user as unknown as { doctorId?: string; role: string }
+    const isAdmin = userExt.role === 'ADMIN'
+    const isMine = appt.userId === sess.user.id
+    const isMyDoctor = userExt.doctorId === appt.doctorId
+    if (!isAdmin && !isMine && !isMyDoctor) return reply.code(403).send({ error: 'forbidden' })
+
+    if (appt.consultationStartedAt) return { ok: true, alreadyStarted: true }
+    await fastify.prisma.appointment.update({ where: { id }, data: { consultationStartedAt: new Date() } })
+    return { ok: true, alreadyStarted: false }
   })
 }
 

@@ -426,6 +426,15 @@ model Appointment {
   reminded24hAt   DateTime?
   reminded1hAt    DateTime?
   reviewPrompted  Boolean   @default(false) // post-appointment "leave a review" notification fired
+  // Online consultation clinical record (filled by doctor during/after the call):
+  consultationStartedAt DateTime?
+  consultationEndedAt   DateTime?
+  consultationSummary   String?   // observations / diagnosis — visible to patient
+  prescription          String?   // medications, dosages, duration — visible to patient
+  treatmentPlan         String?   // recommended Panchakarma, lifestyle, follow-up — visible to patient
+  doctorPrivateNotes    String?   // doctor's private clinical notes — never shown to patient
+  followUpRecommended   Boolean   @default(false)
+  followUpAfterWeeks    Int?      // doctor's suggested follow-up window
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 

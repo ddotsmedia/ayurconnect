@@ -235,10 +235,15 @@ export default function AppointmentsPage() {
                     {a.status === 'declined' && a.declineReason && (
                       <p className="mt-2 text-xs text-red-700"><strong>Decline reason:</strong> {a.declineReason}</p>
                     )}
-                    {isVideo && videoUrl && (isConfirmed || isPending) && !isPast && (
-                      <a href={videoUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-xs text-kerala-700 hover:underline">
-                        <Video className="w-3 h-3" /> Join video room
-                      </a>
+                    {isVideo && (isConfirmed || isPending) && !isPast && (
+                      <Link href={`/consult/${a.id}`} className="mt-3 inline-flex items-center gap-1 text-xs text-kerala-700 hover:underline font-semibold">
+                        <Video className="w-3 h-3" /> Open consultation room →
+                      </Link>
+                    )}
+                    {isPast && (isConfirmed || isCompleted) && (
+                      <Link href={`/consult/${a.id}`} className="mt-3 inline-flex items-center gap-1 text-xs text-kerala-700 hover:underline">
+                        <Video className="w-3 h-3" /> View consultation summary →
+                      </Link>
                     )}
                   </div>
 
