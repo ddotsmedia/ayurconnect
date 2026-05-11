@@ -77,6 +77,39 @@ async function fetchText(url: string, attempts = 2): Promise<string | null> {
   return null
 }
 
+// ─── RSS fetch — must NOT follow redirects ───────────────────────────────
+// Some WordPress installations (including arogyakeralam.gov.in) return a
+// 302 redirect on /feed/?s=… requests with the RSS XML body inline AND a
+// Location header pointing at the homepage. Browser-friendly behavior that
+// breaks naive HTTP clients. We therefore accept 302 + don't follow it, so
+// we read the body directly.
+async function fetchRss(url: string): Promise<string | null> {
+  try {
+    const res = await axios.get<string>(url, {
+      timeout: TIMEOUT_MS,
+      responseType: 'text',
+      maxRedirects: 0,
+      headers: {
+        'User-Agent': ua(),
+        'Accept':     'application/rss+xml, application/xml;q=0.9, */*;q=0.8',
+      },
+      validateStatus: (s) => s === 200 || s === 301 || s === 302 || s === 304,
+    })
+    const body = typeof res.data === 'string' ? res.data : String(res.data)
+    if (!body || !body.includes('<rss') && !body.includes('<feed')) return null
+    return body
+  } catch (err) {
+    const e = err as AxiosError
+    // Axios throws on certain status codes even though we asked it not to —
+    // if the response has a body we can still read, use it.
+    const resp = (e as { response?: { data?: string; status?: number } }).response
+    if (resp?.data && typeof resp.data === 'string' && (resp.data.includes('<rss') || resp.data.includes('<feed'))) {
+      return resp.data
+    }
+    return null
+  }
+}
+
 // ─── Scraper output shape ────────────────────────────────────────────────
 export type ScrapedJob = {
   title:           string
@@ -104,7 +137,7 @@ async function scrapeNhmKerala(): Promise<ScrapedJob[]> {
 
   for (const q of queries) {
     const url = `${baseUrl}/feed/?s=${encodeURIComponent(q)}`
-    const xml = await fetchText(url).catch(() => null)
+    const xml = await fetchRss(url).catch(() => null)
     if (!xml) continue
 
     const $ = cheerioLoad(xml, { xmlMode: true })
