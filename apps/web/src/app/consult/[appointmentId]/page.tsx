@@ -34,6 +34,7 @@ type Consultation = {
 }
 
 type Mode = 'lobby' | 'live' | 'post'
+type ErrorKind = 'not-found' | 'forbidden' | 'fetch-failed' | null
 
 export default function ConsultationPage({ params }: { params: Promise<{ appointmentId: string }> }) {
   const { appointmentId } = use(params)
@@ -41,7 +42,11 @@ export default function ConsultationPage({ params }: { params: Promise<{ appoint
 
   const [data, setData]     = useState<Consultation | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError]   = useState<string | null>(null)
+  const [errorKind, setErrorKind] = useState<ErrorKind>(null)
+  const [errorDetail, setErrorDetail] = useState<string | null>(null)
+  // In-session warning (camera/mic permission, missing video URL) — shown inline,
+  // does NOT replace the whole page like a load-failure does.
+  const [liveWarn, setLiveWarn] = useState<string | null>(null)
   const [mode, setMode]     = useState<Mode>('lobby')
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
 
@@ -53,13 +58,13 @@ export default function ConsultationPage({ params }: { params: Promise<{ appoint
   const previewStreamRef = useRef<MediaStream | null>(null)
 
   async function load() {
-    setLoading(true); setError(null)
+    setLoading(true); setErrorKind(null); setErrorDetail(null)
     try {
       const res = await fetch(`/api/appointments/${appointmentId}/consultation`, { credentials: 'include' })
       if (res.status === 401) { router.push(`/sign-in?next=/consult/${appointmentId}`); return }
-      if (res.status === 403) { setError('You are not authorized to view this consultation.'); return }
-      if (res.status === 404) { setError('Consultation not found.'); return }
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      if (res.status === 403) { setErrorKind('forbidden'); return }
+      if (res.status === 404) { setErrorKind('not-found'); return }
+      if (!res.ok) { setErrorKind('fetch-failed'); setErrorDetail(`HTTP ${res.status}`); return }
       const d = (await res.json()) as Consultation
       setData(d)
       // Decide mode from state
@@ -68,7 +73,7 @@ export default function ConsultationPage({ params }: { params: Promise<{ appoint
       const isPast = now > start + 90 * 60_000 || Boolean(d.consultationEndedAt) || d.status === 'completed'
       if (isPast) setMode('post')
       else setMode('lobby')
-    } catch (e) { setError(String(e)) } finally { setLoading(false) }
+    } catch (e) { setErrorKind('fetch-failed'); setErrorDetail(String(e)) } finally { setLoading(false) }
   }
   useEffect(() => { load() /* eslint-disable-next-line */ }, [appointmentId])
 
@@ -93,13 +98,13 @@ export default function ConsultationPage({ params }: { params: Promise<{ appoint
       }
       setDevicesChecked(true)
     } catch (e) {
-      setError('Could not access camera/microphone. Check browser permissions and reload.')
+      setLiveWarn('Could not access camera/microphone. Check browser permissions and reload.')
       setCamOk(false); setMicOk(false); setDevicesChecked(true)
     }
   }
 
   async function startCall() {
-    if (!data?.videoUrl) { setError('Video room not configured for this appointment.'); return }
+    if (!data?.videoUrl) { setLiveWarn('Video room not configured for this appointment.'); return }
     // Stop the preview to release camera before iframe takes over
     previewStreamRef.current?.getTracks().forEach((t) => t.stop())
     previewStreamRef.current = null
@@ -122,16 +127,8 @@ export default function ConsultationPage({ params }: { params: Promise<{ appoint
       </div>
     )
   }
-  if (error || !data) {
-    return (
-      <div className="container mx-auto px-4 py-20 max-w-md text-center">
-        <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-3" />
-        <p className="text-red-700 mb-4">{error ?? 'Consultation not available'}</p>
-        <Link href="/dashboard/appointments" className="inline-flex items-center gap-1 text-sm text-kerala-700 hover:underline">
-          <ChevronLeft className="w-4 h-4" /> Back to appointments
-        </Link>
-      </div>
-    )
+  if (errorKind || !data) {
+    return <ConsultationErrorState kind={errorKind ?? 'not-found'} detail={errorDetail} appointmentId={appointmentId} />
   }
 
   return (
@@ -157,6 +154,14 @@ export default function ConsultationPage({ params }: { params: Promise<{ appoint
         </div>
       </header>
 
+      {liveWarn && (
+        <div className="container mx-auto px-4 pt-4">
+          <div className="p-3 rounded-md bg-amber-50 border border-amber-200 text-sm text-amber-900 flex justify-between items-center gap-3">
+            <span><AlertCircle className="w-4 h-4 inline mr-1.5" />{liveWarn}</span>
+            <button onClick={() => setLiveWarn(null)} className="text-amber-800 hover:text-amber-900 text-xs underline">dismiss</button>
+          </div>
+        </div>
+      )}
       {mode === 'lobby'  && <Lobby data={data} devicesChecked={devicesChecked} camOk={camOk} micOk={micOk} runDeviceCheck={runDeviceCheck} videoRef={videoRef} startCall={startCall} />}
       {mode === 'live'   && <Live data={data} iframeRef={iframeRef} endCall={endCall} />}
       {mode === 'post'   && <PostCall data={data} reload={load} />}
@@ -637,5 +642,105 @@ function Section({ icon: Icon, title, hint, children }: { icon: typeof FileText;
       </header>
       {children}
     </section>
+  )
+}
+
+// ─── Friendly empty/error state ───────────────────────────────────────────
+// The consultation page receives an ID via URL. If it's wrong (typed, stale,
+// or visited speculatively) we show this rather than a terse "not found".
+function ConsultationErrorState({ kind, detail, appointmentId }: { kind: 'not-found' | 'forbidden' | 'fetch-failed'; detail: string | null; appointmentId: string }) {
+  return (
+    <div className="min-h-screen bg-cream">
+      <header className="bg-white border-b border-gray-100">
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <Link href="/dashboard/appointments" className="inline-flex items-center gap-1 text-sm text-muted hover:text-kerala-700">
+            <ChevronLeft className="w-4 h-4" /> Back to appointments
+          </Link>
+          <span className="text-sm font-medium inline-flex items-center gap-2"><Stethoscope className="w-4 h-4 text-kerala-700" /> Consultation</span>
+          <span />
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-16 max-w-xl">
+        <div className="text-center mb-8">
+          <div className="w-14 h-14 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-7 h-7" />
+          </div>
+          {kind === 'not-found' && <>
+            <h1 className="font-serif text-2xl md:text-3xl text-kerala-700">We couldn&apos;t find this consultation</h1>
+            <p className="text-muted mt-3 text-sm leading-relaxed">
+              No appointment matches the ID <code className="px-1.5 py-0.5 bg-gray-100 rounded text-[11px] tabular-nums">{appointmentId.slice(0, 12)}{appointmentId.length > 12 ? '…' : ''}</code>.
+              This usually means one of three things:
+            </p>
+          </>}
+          {kind === 'forbidden' && <>
+            <h1 className="font-serif text-2xl md:text-3xl text-kerala-700">This consultation isn&apos;t yours</h1>
+            <p className="text-muted mt-3 text-sm leading-relaxed">
+              You&apos;re signed in, but the consultation room belongs to a different patient or doctor. Only the assigned patient and doctor can join.
+            </p>
+          </>}
+          {kind === 'fetch-failed' && <>
+            <h1 className="font-serif text-2xl md:text-3xl text-kerala-700">Couldn&apos;t load the consultation</h1>
+            <p className="text-muted mt-3 text-sm leading-relaxed">
+              The server isn&apos;t responding. Try again in a moment, or contact support if this keeps happening.
+              {detail && <span className="block mt-2 font-mono text-xs text-gray-400">({detail})</span>}
+            </p>
+          </>}
+        </div>
+
+        {kind === 'not-found' && (
+          <div className="space-y-3">
+            <div className="p-4 bg-white rounded-card border border-gray-100">
+              <h3 className="font-semibold text-sm text-kerala-700">1 · You haven&apos;t booked a consultation yet</h3>
+              <p className="text-sm text-gray-700 mt-1.5">Find a CCIM-verified doctor and book a video appointment — the consultation link arrives in your appointments dashboard.</p>
+              <Link href="/doctors" className="mt-3 inline-flex items-center gap-1.5 text-sm text-kerala-700 hover:underline font-semibold">
+                Browse doctors →
+              </Link>
+            </div>
+            <div className="p-4 bg-white rounded-card border border-gray-100">
+              <h3 className="font-semibold text-sm text-kerala-700">2 · You followed an old or copy-pasted link</h3>
+              <p className="text-sm text-gray-700 mt-1.5">Open your appointments dashboard — click &ldquo;Open consultation room&rdquo; on the booking you want to join. The ID in the URL must match a real appointment.</p>
+              <Link href="/dashboard/appointments" className="mt-3 inline-flex items-center gap-1.5 text-sm text-kerala-700 hover:underline font-semibold">
+                My appointments →
+              </Link>
+            </div>
+            <div className="p-4 bg-white rounded-card border border-gray-100">
+              <h3 className="font-semibold text-sm text-kerala-700">3 · The appointment was cancelled or declined</h3>
+              <p className="text-sm text-gray-700 mt-1.5">Cancelled or declined bookings don&apos;t have an active consultation room. Re-book with the same doctor or pick another one.</p>
+              <Link href="/doctors" className="mt-3 inline-flex items-center gap-1.5 text-sm text-kerala-700 hover:underline font-semibold">
+                Find a doctor →
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {kind === 'forbidden' && (
+          <div className="p-4 bg-white rounded-card border border-gray-100 text-sm">
+            <p className="text-gray-700">If this is your appointment, you may be signed in with the wrong account.</p>
+            <div className="mt-4 flex gap-2 flex-wrap">
+              <Link href="/dashboard/appointments" className="inline-flex items-center gap-1.5 px-4 py-2 bg-kerala-600 hover:bg-kerala-700 text-white rounded text-sm font-semibold">
+                Open my appointments
+              </Link>
+              <Link href="/sign-in" className="inline-flex items-center gap-1.5 px-4 py-2 border border-gray-200 hover:bg-gray-50 rounded text-sm">
+                Switch account
+              </Link>
+            </div>
+          </div>
+        )}
+
+        {kind === 'fetch-failed' && (
+          <div className="p-4 bg-white rounded-card border border-gray-100 text-sm">
+            <div className="flex gap-2 flex-wrap">
+              <button onClick={() => window.location.reload()} className="inline-flex items-center gap-1.5 px-4 py-2 bg-kerala-600 hover:bg-kerala-700 text-white rounded text-sm font-semibold">
+                Retry
+              </button>
+              <Link href="/contact" className="inline-flex items-center gap-1.5 px-4 py-2 border border-gray-200 hover:bg-gray-50 rounded text-sm">
+                Contact support
+              </Link>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
   )
 }
