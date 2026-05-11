@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Suspense } from 'react'
 import { Cormorant_Garamond, Inter } from 'next/font/google'
-import { Navbar, Footer, AyurBotWidget, MobileBottomNav, ServiceWorkerRegister, CookieConsent, type NavbarSession, type FooterSettings } from '@ayurconnect/ui'
+import { Navbar, Footer, AyurBotWidget, MobileBottomNav, ServiceWorkerRegister, CookieConsent, TopContactBar, type NavbarSession, type FooterSettings } from '@ayurconnect/ui'
 import { getServerSession } from '../lib/auth'
 import { organizationLd, websiteLd, ldGraph, SITE_URL } from '../lib/seo'
 import { API_INTERNAL as API } from '../lib/server-fetch'
@@ -104,6 +104,7 @@ export default async function RootLayout({
     <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
       <body className="min-h-screen bg-cream font-sans text-ink">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ROOT_JSON_LD) }} />
+        <TopContactBar settings={footerSettings} />
         <Navbar session={navSession} />
         <main className="pb-16 md:pb-0">{children}</main>
         <Footer settings={footerSettings} />

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { GradientHero } from '@ayurconnect/ui'
-import { Mail, MessageCircle, CheckCircle2, ChevronRight } from 'lucide-react'
+import { Mail, MessageCircle, CheckCircle2, ChevronRight, Phone } from 'lucide-react'
 import { CountrySelect } from '../../components/country-select'
 import { PhoneInput } from '../../components/phone-input'
 import { detectCountry } from '../../lib/detect-country'
@@ -68,6 +68,37 @@ export default function ContactPage() {
           </p>
         </div>
       </GradientHero>
+
+      {/* Direct contact channels — visible above the form so users with simple
+          enquiries don't have to scroll/fill the form. */}
+      <section className="container mx-auto px-4 pt-10 max-w-3xl">
+        <div className="grid sm:grid-cols-2 gap-3">
+          <a
+            href="tel:+971509379212"
+            className="flex items-center gap-3 p-4 bg-white rounded-card border border-gray-100 hover:border-kerala-300 transition-colors group"
+          >
+            <div className="w-10 h-10 rounded-full bg-kerala-50 text-kerala-700 flex items-center justify-center flex-shrink-0 group-hover:bg-kerala-100">
+              <Phone className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs uppercase tracking-wider text-gold-600 font-semibold">Call us</div>
+              <div className="text-base font-semibold text-ink mt-0.5 tabular-nums">+971 50 937 9212</div>
+            </div>
+          </a>
+          <a
+            href="mailto:info@ayurconnect.com"
+            className="flex items-center gap-3 p-4 bg-white rounded-card border border-gray-100 hover:border-kerala-300 transition-colors group"
+          >
+            <div className="w-10 h-10 rounded-full bg-kerala-50 text-kerala-700 flex items-center justify-center flex-shrink-0 group-hover:bg-kerala-100">
+              <Mail className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs uppercase tracking-wider text-gold-600 font-semibold">Email us</div>
+              <div className="text-base font-semibold text-ink mt-0.5">info@ayurconnect.com</div>
+            </div>
+          </a>
+        </div>
+      </section>
 
       <section className="container mx-auto px-4 py-14 max-w-3xl">
         {sent ? (
