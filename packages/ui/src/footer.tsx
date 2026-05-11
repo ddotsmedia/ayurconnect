@@ -42,10 +42,11 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
     links: [
       { href: '/ayurbot',         label: 'AyurBot AI' },
       { href: '/prakriti-quiz',   label: 'Prakriti Quiz' },
+      { href: '/wellness-check',  label: 'Wellness Check' },
       { href: '/diet-planner',    label: 'AI Diet Planner' },
       { href: '/tourism',         label: 'Medical Tourism' },
       { href: '/cost-estimator',  label: 'Cost Estimator' },
-      { href: '/forum',           label: 'Community Forum' },
+      { href: '/case-studies',    label: 'Case Studies' },
     ],
   },
   {
@@ -55,7 +56,10 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
       { href: '/about/methodology',        label: 'Our Methodology' },
       { href: '/about/why-ayurveda-works', label: 'Why Ayurveda Works' },
       { href: '/about/certifications',     label: 'Certifications' },
+      { href: '/about/press',              label: 'Press & Media' },
+      { href: '/about/investors',          label: 'Investor Relations' },
       { href: '/research',                 label: 'Clinical Research' },
+      { href: '/knowledge',                label: 'Knowledge Hub' },
     ],
   },
   {
@@ -66,6 +70,7 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
       { href: '/products/hms',    label: 'AyurConnect HMS' },
       { href: '/products/saas',   label: 'White-label SaaS' },
       { href: '/products/mobile', label: 'Mobile Apps' },
+      { href: '/roi-calculator',  label: 'ROI Calculator' },
       { href: '/partnership',     label: 'Partnership' },
     ],
   },

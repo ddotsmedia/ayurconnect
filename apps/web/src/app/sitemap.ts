@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next'
 import { API_INTERNAL } from '@/lib/server-fetch'
 import { CONDITION_SLUGS } from './treatments/_data/conditions'
 import { PRODUCT_SLUGS } from './products/_data/products'
+import { CASE_STUDY_SLUGS } from './case-studies/_data/cases'
 
 const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ayurconnect.com'
 
@@ -29,12 +30,23 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/tourism',        priority: 0.6, changeFrequency: 'monthly' },
   { path: '/ayurbot',        priority: 0.5, changeFrequency: 'monthly' },
   { path: '/prakriti-quiz',  priority: 0.85, changeFrequency: 'monthly' },
+  { path: '/wellness-check', priority: 0.85, changeFrequency: 'monthly' },
   { path: '/diet-planner',   priority: 0.8,  changeFrequency: 'monthly' },
+  { path: '/knowledge',      priority: 0.75, changeFrequency: 'weekly'  },
+  { path: '/case-studies',   priority: 0.75, changeFrequency: 'monthly' },
   { path: '/marketplace',    priority: 0.75, changeFrequency: 'weekly'  },
   { path: '/academy',        priority: 0.7,  changeFrequency: 'monthly' },
+  { path: '/roi-calculator', priority: 0.6,  changeFrequency: 'monthly' },
+  { path: '/about/press',     priority: 0.55, changeFrequency: 'monthly' },
+  { path: '/about/investors', priority: 0.55, changeFrequency: 'monthly' },
   ...CONDITION_SLUGS.map((slug) => ({
     path: `/treatments/${slug}` as const,
     priority: 0.8,
+    changeFrequency: 'monthly' as const,
+  })),
+  ...CASE_STUDY_SLUGS.map((slug) => ({
+    path: `/case-studies/${slug}` as const,
+    priority: 0.65,
     changeFrequency: 'monthly' as const,
   })),
   ...PRODUCT_SLUGS.map((slug) => ({
