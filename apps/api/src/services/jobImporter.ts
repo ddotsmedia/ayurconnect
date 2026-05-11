@@ -1,14 +1,19 @@
 // Ayurveda / Kerala / BAMS / AYUSH job auto-importer.
 //
-// Sources:
-//   1. Kerala PSC notifications  (govt — public record, no ToS issues)
-//   2. NHM Kerala recruitment    (govt — public record, no ToS issues)
-//   3. Indeed India              ⚠ ToS-ambiguous; commercial site uses bot detection
-//   4. Naukri.com                ⚠ ToS prohibits scraping; aggressive anti-bot
+// Source reality (as of 2026-05-11, after audit):
+//   1. NHM Kerala (arogyakeralam.gov.in)  WordPress RSS feed   ✓ WORKS
+//   2. Kerala PSC (keralapsc.gov.in)      Drupal HTML listing  ⚠ PARTIAL — gazette
+//      listings page works but Ayurveda-specific categories sit inside PDFs.
+//      We extract gazette announcements and let admin drill in manually.
+//   3. Indeed India                       ⚠ Cloudflare CAPTCHA — disabled by default.
+//      Indeed requires the paid Publisher API for legitimate access.
+//   4. Naukri.com                         ⚠ JS-only SPA — disabled by default. ToS
+//      forbids scraping; only an Enterprise contract would unlock data.
 //
 // Each scraper is wrapped in its own try/catch so one failure doesn't kill
-// the others. Per-source disable flags via env: JOB_IMPORT_DISABLE_NAUKRI=true
-// etc., so an admin can pause a scraper without redeploying.
+// the others. Per-source enable flags via env: JOB_IMPORT_ENABLE_NAUKRI=true
+// to re-enable a disabled scraper (e.g. after refactoring with a headless
+// browser proxy).
 //
 // Dedupe: every record gets a sourceId = md5(source + applyUrl + title); the
 // DB has a unique constraint on sourceId so re-imports become no-ops via
@@ -21,15 +26,12 @@ import type { FastifyInstance } from 'fastify'
 
 // ─── Config ──────────────────────────────────────────────────────────────
 const TIMEOUT_MS  = 15_000
-const REQUEST_GAP = 2_000           // 2-second delay between requests within a single source
+const REQUEST_GAP = 1_500
 const KEYWORDS = [
   'ayurveda', 'ayurvedic', 'bams', 'vaidya', 'ayush', 'panchakarma',
   'shalakya', 'kayachikitsa', 'prasuti', 'rasashastra', 'dravyaguna',
 ]
 
-// Rotate between a few realistic browser UAs to slightly extend lifespan
-// before commercial sites start bot-blocking us. Doesn't make scraping
-// more legitimate — just slows down detection.
 const UAS: ReadonlyArray<string> = [
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Safari/605.1.15',
@@ -48,20 +50,18 @@ const fingerprint = (source: string, applyUrl: string, title: string): string =>
   createHash('md5').update(`${source}|${applyUrl}|${title}`).digest('hex')
 
 // ─── Common HTTP fetch with retry + UA + timeout ─────────────────────────
-async function fetchHtml(url: string, attempts = 2): Promise<string | null> {
+async function fetchText(url: string, attempts = 2): Promise<string | null> {
   for (let i = 0; i < attempts; i++) {
     try {
       const res = await axios.get<string>(url, {
         timeout: TIMEOUT_MS,
         responseType: 'text',
-        // Many of these endpoints redirect; allow up to 5 hops.
         maxRedirects: 5,
         headers: {
           'User-Agent': ua(),
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'Accept-Language': 'en-IN,en;q=0.9',
         },
-        // Don't throw on 3xx/4xx — let the caller decide
         validateStatus: (s) => s >= 200 && s < 500,
       })
       if (res.status >= 400) return null
@@ -69,10 +69,8 @@ async function fetchHtml(url: string, attempts = 2): Promise<string | null> {
     } catch (err) {
       const e = err as AxiosError
       if (i === attempts - 1) {
-        // last attempt — caller logs the failure
         throw new Error(`fetch ${url} failed: ${e.code ?? e.message}`)
       }
-      // exponential backoff: 1s, 3s, 7s …
       await sleep(1_000 * (2 ** i + 1))
     }
   }
@@ -94,95 +92,122 @@ export type ScrapedJob = {
   category?:       string | null
 }
 
-// ─── Scraper 1: Kerala PSC notifications ─────────────────────────────────
-// We scrape the public notifications page. Public-record listings; no ToS issue.
-async function scrapeKeralaPsc(): Promise<ScrapedJob[]> {
-  const url = 'https://www.keralapsc.gov.in/notifications/notifications'
-  const html = await fetchHtml(url)
-  if (!html) return []
-  const $ = cheerioLoad(html)
-  const out: ScrapedJob[] = []
-
-  // The PSC notification page is a long table; structure changes occasionally.
-  // We use a tolerant selector: any <a> within a table row whose row text
-  // mentions our keywords.
-  $('table tr').each((_, tr) => {
-    const $tr = $(tr)
-    const text = $tr.text().toLowerCase()
-    if (!isAyurvedaJob(text)) return
-
-    const link = $tr.find('a[href]').first()
-    const href = link.attr('href')
-    const title = link.text().trim() || $tr.find('td').eq(1).text().trim()
-    if (!title || !href) return
-
-    const applyUrl = new URL(href, url).toString()
-    out.push({
-      title,
-      organization: 'Kerala Public Service Commission',
-      location:     'Kerala',
-      description:  $tr.text().replace(/\s+/g, ' ').trim().slice(0, 1500),
-      applyUrl,
-      source:       'kerala-psc',
-      jobType:      'govt',
-      category:     'government',
-    })
-  })
-
-  return out
-}
-
-// ─── Scraper 2: National Health Mission Kerala ───────────────────────────
+// ─── Scraper 1: NHM Kerala via WP RSS (multi-keyword) ────────────────────
+// arogyakeralam.gov.in is a WordPress site with public RSS that supports
+// per-query feeds via /feed/?s=<keyword>. We query each keyword in turn and
+// merge — dedupe happens later via fingerprint.
 async function scrapeNhmKerala(): Promise<ScrapedJob[]> {
-  const url = 'https://arogyakeralam.gov.in/2020/01/10/recruitments-2/'
-  const html = await fetchHtml(url)
-  if (!html) return []
-  const $ = cheerioLoad(html)
+  const baseUrl = 'https://arogyakeralam.gov.in'
+  const queries = ['ayurveda', 'ayush', 'bams']
   const out: ScrapedJob[] = []
+  const seen = new Set<string>()
 
-  // Page structure: WordPress with a long list of <li>/<p> entries.
-  // We pick anchor tags whose surrounding text mentions keywords.
-  $('a[href]').each((_, a) => {
-    const $a = $(a)
-    const href = $a.attr('href')
-    const title = $a.text().replace(/\s+/g, ' ').trim()
-    const ctx = $a.closest('li, p, td, div').text().toLowerCase()
-    if (!href || !title) return
-    if (!isAyurvedaJob(`${title} ${ctx}`)) return
+  for (const q of queries) {
+    const url = `${baseUrl}/feed/?s=${encodeURIComponent(q)}`
+    const xml = await fetchText(url).catch(() => null)
+    if (!xml) continue
 
-    const applyUrl = new URL(href, url).toString()
-    out.push({
-      title:        title.slice(0, 250),
-      organization: 'National Health Mission, Kerala',
-      location:     'Kerala',
-      description:  $a.closest('li, p, td, div').text().replace(/\s+/g, ' ').trim().slice(0, 1500),
-      applyUrl,
-      source:       'nhm-kerala',
-      jobType:      'govt',
-      category:     'government',
+    const $ = cheerioLoad(xml, { xmlMode: true })
+    $('item').each((_, item) => {
+      const $item = $(item)
+      const title = $item.find('title').first().text().trim()
+      let link = $item.find('link').first().text().trim()
+      const description = $item.find('description').first().text().trim()
+      const pubDate = $item.find('pubDate').first().text().trim()
+      const guid = $item.find('guid').first().text().trim()
+
+      if (!title || !link) return
+      // Normalise relative paths
+      if (link.startsWith('/')) link = baseUrl + link
+      if (!isAyurvedaJob(`${title} ${description}`)) return
+      if (seen.has(guid || link)) return
+      seen.add(guid || link)
+
+      out.push({
+        title:         title.slice(0, 250),
+        organization:  'National Health Mission, Kerala',
+        location:      'Kerala',
+        description:   description.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 1500),
+        applyUrl:      link,
+        source:        'nhm-kerala',
+        jobType:       'govt',
+        category:      'government',
+        lastDate:      pubDate ? new Date(pubDate) : null,
+      })
     })
-  })
+
+    await sleep(REQUEST_GAP)
+  }
 
   return out
 }
 
-// ─── Scraper 3: Indeed India ─────────────────────────────────────────────
-// ⚠ Indeed ToS prohibits automated scraping. Indeed has aggressive bot detection
-// (PerimeterX) and rotates DOM frequently. This will work intermittently then
-// start returning empty results. Disable with JOB_IMPORT_DISABLE_INDEED=true.
+// ─── Scraper 2: Kerala PSC gazette listing ───────────────────────────────
+// PSC publishes extra-ordinary gazettes monthly. The gazette page lists
+// "CAT.NO 19/2026" style category numbers; the actual Ayurveda category
+// titles are inside PDF gazettes we don't parse.
 //
-// Legitimate alternative: Indeed Publisher API (https://ads.indeed.com/jobroll/xmlfeed).
+// What this scraper DOES capture: each gazette page link as a single "job"
+// entry, tagged as `category: gazette-batch`. Admin can drill in to find
+// Ayurveda categories. Realistic Ayurveda postings: ~3–5 per year, so a
+// monthly gazette-batch link is the right granularity.
+//
+// To disable: JOB_IMPORT_DISABLE_PSC=true.
+async function scrapeKeralaPsc(): Promise<ScrapedJob[]> {
+  if (process.env.JOB_IMPORT_DISABLE_PSC === 'true') return []
+
+  const url = 'https://www.keralapsc.gov.in/index.php/notifications'
+  const html = await fetchText(url)
+  if (!html) return []
+  const $ = cheerioLoad(html)
+  const out: ScrapedJob[] = []
+  const seen = new Set<string>()
+
+  // The page lists gazette entries — usually <a> tags inside the main content
+  // area with hreflang="en" and href containing "extra-ordinary-gazette".
+  $('a[hreflang="en"]').each((_, a) => {
+    const $a = $(a)
+    const href = $a.attr('href') ?? ''
+    const title = $a.text().replace(/\s+/g, ' ').trim()
+    if (!href.includes('extra-ordinary-gazette')) return
+    if (!title) return
+    if (seen.has(href)) return
+    seen.add(href)
+
+    const applyUrl = new URL(href, url).toString()
+    out.push({
+      title:         `Kerala PSC — ${title}`,
+      organization:  'Kerala Public Service Commission',
+      location:      'Kerala',
+      description:   `Kerala PSC publishes BAMS / Ayurveda-relevant postings via the Extra Ordinary Gazette. Visit the link to view the full gazette and find Ayurveda-specific category numbers.`,
+      applyUrl,
+      source:        'kerala-psc',
+      jobType:       'govt',
+      category:      'gazette-batch',
+    })
+  })
+
+  // Cap to the 6 most recent gazettes — older ones are historical.
+  return out.slice(0, 6)
+}
+
+// ─── Scraper 3: Indeed India (DISABLED by default) ───────────────────────
+// Indeed serves a Cloudflare CAPTCHA to non-browser clients. The only viable
+// legitimate access path is Indeed Publisher API (https://ads.indeed.com/jobroll/xmlfeed).
+// Enable only with the paid API: JOB_IMPORT_ENABLE_INDEED=true.
 async function scrapeIndeed(): Promise<ScrapedJob[]> {
-  if (process.env.JOB_IMPORT_DISABLE_INDEED === 'true') return []
+  if (process.env.JOB_IMPORT_ENABLE_INDEED !== 'true') return []
 
   const url = 'https://in.indeed.com/jobs?q=ayurveda+OR+bams+OR+ayush&l=Kerala'
-  const html = await fetchHtml(url)
+  const html = await fetchText(url)
   if (!html) return []
+  // Detect Cloudflare challenge and skip silently — no point parsing
+  if (/cloudflare|cf-chl|captcha|security check/i.test(html.slice(0, 2000))) {
+    return []
+  }
   const $ = cheerioLoad(html)
   const out: ScrapedJob[] = []
 
-  // Tolerant selector: Indeed's class names rotate weekly. We grep for
-  // h2.jobTitle anchors which has stayed stable across recent versions.
   $('h2.jobTitle a, [data-jk] h2 a, .jobTitle a').each((_, a) => {
     const $a = $(a)
     const card = $a.closest('[data-jk], .job_seen_beacon, .resultContent')
@@ -210,15 +235,16 @@ async function scrapeIndeed(): Promise<ScrapedJob[]> {
   return out
 }
 
-// ─── Scraper 4: Naukri ───────────────────────────────────────────────────
-// ⚠ Naukri ToS Section 2 explicitly prohibits robots/spiders. Cloudflare +
-// reCAPTCHA on this domain will likely block our requests within hours.
-// Disable with JOB_IMPORT_DISABLE_NAUKRI=true.
+// ─── Scraper 4: Naukri (DISABLED by default) ─────────────────────────────
+// Naukri renders job cards client-side via Next.js — the initial HTML response
+// contains the page shell only. Scraping requires headless Chromium (puppeteer/
+// playwright) which is heavyweight + bot-blocked. Naukri ToS Section 2
+// explicitly prohibits robots/spiders. Enable with: JOB_IMPORT_ENABLE_NAUKRI=true.
 async function scrapeNaukri(): Promise<ScrapedJob[]> {
-  if (process.env.JOB_IMPORT_DISABLE_NAUKRI === 'true') return []
+  if (process.env.JOB_IMPORT_ENABLE_NAUKRI !== 'true') return []
 
   const url = 'https://www.naukri.com/ayurveda-jobs-in-kerala'
-  const html = await fetchHtml(url)
+  const html = await fetchText(url)
   if (!html) return []
   const $ = cheerioLoad(html)
   const out: ScrapedJob[] = []
@@ -253,11 +279,6 @@ async function scrapeNaukri(): Promise<ScrapedJob[]> {
 }
 
 // ─── Persist scraped jobs via Prisma upsert ──────────────────────────────
-// Uses the unique sourceId index so re-imports are idempotent. We bump
-// `importedAt` on every upsert so admins can sort by freshness.
-//
-// Returns counts plus the list of newly-created rows so the caller can fan
-// out WhatsApp alerts only for fresh listings (not for updates).
 type CreatedJob = {
   id: string; title: string; organization: string | null; location: string | null;
   salary: string | null; applyUrl: string; source: string; category: string | null;
@@ -314,8 +335,8 @@ export type ImportSummary = {
 export async function runJobImport(fastify: FastifyInstance): Promise<ImportSummary> {
   const t0 = Date.now()
   const sources: Array<{ name: ScrapedJob['source']; fn: () => Promise<ScrapedJob[]> }> = [
-    { name: 'kerala-psc', fn: scrapeKeralaPsc },
     { name: 'nhm-kerala', fn: scrapeNhmKerala },
+    { name: 'kerala-psc', fn: scrapeKeralaPsc },
     { name: 'indeed',     fn: scrapeIndeed     },
     { name: 'naukri',     fn: scrapeNaukri     },
   ]
@@ -347,9 +368,6 @@ export async function runJobImport(fastify: FastifyInstance): Promise<ImportSumm
     { scraped: 0, created: 0, updated: 0 },
   )
 
-  // ─── Fan out WhatsApp alerts for newly-created jobs ────────────────────
-  // No-op when WhatsApp isn't configured. Failures here never bubble up —
-  // the importer's job is to import; alerts are best-effort.
   if (allNewJobs.length > 0) {
     try {
       const { sendAlertsForNewJobs } = await import('./whatsappAlerts.js')
