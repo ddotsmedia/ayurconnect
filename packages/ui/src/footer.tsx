@@ -41,10 +41,11 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
     heading: 'Health',
     links: [
       { href: '/ayurbot',         label: 'AyurBot AI' },
+      { href: '/prakriti-quiz',   label: 'Prakriti Quiz' },
+      { href: '/diet-planner',    label: 'AI Diet Planner' },
       { href: '/tourism',         label: 'Medical Tourism' },
       { href: '/cost-estimator',  label: 'Cost Estimator' },
       { href: '/forum',           label: 'Community Forum' },
-      { href: '/jobs',            label: 'Ayurveda Jobs' },
     ],
   },
   {
@@ -58,10 +59,20 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
     ],
   },
   {
+    heading: 'For Business',
+    links: [
+      { href: '/marketplace',     label: 'Marketplace' },
+      { href: '/academy',         label: 'Academy' },
+      { href: '/products/hms',    label: 'AyurConnect HMS' },
+      { href: '/products/saas',   label: 'White-label SaaS' },
+      { href: '/products/mobile', label: 'Mobile Apps' },
+      { href: '/partnership',     label: 'Partnership' },
+    ],
+  },
+  {
     heading: 'Platform',
     links: [
       { href: '/contact',     label: 'Contact us' },
-      { href: '/partnership', label: 'Partnership' },
       { href: '/sign-in',     label: 'Sign in' },
       { href: '/register',    label: 'Join free' },
       { href: '/privacy',     label: 'Privacy' },
@@ -80,7 +91,7 @@ export function Footer({ settings = {} }: { settings?: FooterSettings } = {}) {
   return (
     <footer className="bg-kerala-800 text-white mt-20">
       <div className="container mx-auto px-4 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
           {/* Brand col */}
           <div>
             <Link href="/" aria-label="AyurConnect home" className="inline-block bg-white rounded-full p-3 shadow-cardLg group">

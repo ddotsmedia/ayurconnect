@@ -40,6 +40,7 @@ model User {
   ownedHospital Hospital?     @relation("OwnedHospital", fields: [hospitalId], references: [id])
   notifications Notification[]
   journal       JournalEntry[]
+  assignedLeads Lead[]        @relation("LeadAssignee")
 }
 
 // ─── Patient health journal (added 2026-05-10) ────────────────────────────
@@ -498,21 +499,73 @@ model HealthTip {
 // contact form, partnership/franchise enquiries. Admin reviews + replies
 // out-of-band. We deliberately do NOT auth-gate the POST endpoint so
 // non-registered visitors can submit; rate-limited at the route layer.
+//
+// Pipeline columns added 2026-05-11b for CRM upgrade — stage drives the
+// kanban view in /admin/leads. status retained for back-compat but stage
+// is now the source of truth for sales pipeline state.
 model Lead {
-  id          String   @id @default(cuid())
-  kind        String   // 'cost_estimator' | 'contact' | 'partnership' | 'franchise'
-  name        String
-  email       String
-  phone       String?
-  country     String?  // ISO-2
-  subject     String?  // short label / treatment slug / partnership type
-  message     String
-  meta        Json?    // form-specific fields (estimator inputs etc.)
-  status      String   @default("new")  // 'new' | 'contacted' | 'closed' | 'spam'
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  kind         String   // 'cost_estimator' | 'contact' | 'partnership' | 'franchise' | 'marketplace_vendor' | 'academy' | 'product_waitlist'
+  name         String
+  email        String
+  phone        String?
+  country      String?  // ISO-2
+  subject      String?  // short label / treatment slug / partnership type
+  message      String
+  meta         Json?    // form-specific fields (estimator inputs etc.)
+  status       String   @default("new")     // legacy: 'new' | 'contacted' | 'closed' | 'spam'
+  stage        String   @default("new")     // CRM: 'new' | 'contacted' | 'qualified' | 'quoted' | 'won' | 'lost' | 'spam'
+  assignedToId String?  // admin user assigned to this lead
+  followUpAt   DateTime?
+  notesJson    Json?    // array of { at, by, text, kind } — timeline
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assignedTo   User?    @relation("LeadAssignee", fields: [assignedToId], references: [id])
 
   @@index([kind, status, createdAt])
+  @@index([stage, createdAt])
+  @@index([assignedToId])
+  @@index([followUpAt])
+  @@index([createdAt])
+}
+
+// ─── Prakriti quiz results (added 2026-05-11b) ──────────────────────────
+// One row per quiz attempt. Signed-in users link to userId; anonymous
+// attempts are stored against sessionId. Used for personalisation later
+// (Diet Engine consumes the latest dominant dosha per user).
+model PrakritiAssessment {
+  id         String   @id @default(cuid())
+  userId     String?
+  sessionId  String?
+  vata       Int      // raw score 0-N
+  pitta      Int
+  kapha      Int
+  dominant   String   // 'vata' | 'pitta' | 'kapha' | 'vata-pitta' | 'pitta-kapha' | 'vata-kapha' | 'tridoshic'
+  responses  Json     // map of questionId -> 'V' | 'P' | 'K'
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([dominant])
+  @@index([createdAt])
+}
+
+// ─── AI Diet Engine outputs (added 2026-05-11b) ─────────────────────────
+// Cached LLM-generated meal plans. Re-use if dosha + season + conditions +
+// preferences match a recent plan (within 30 days) to avoid burning quota
+// for identical requests.
+model DietPlan {
+  id           String   @id @default(cuid())
+  userId       String?
+  dosha        String
+  season       String?
+  conditions   String[]
+  preferences  Json?    // { vegetarian, eggs, dairy, allergies, region }
+  output       Json     // { days: [{ meals: [...] }], favorFoods, avoidFoods, principles }
+  createdAt    DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([dosha, season])
   @@index([createdAt])
 }
 
