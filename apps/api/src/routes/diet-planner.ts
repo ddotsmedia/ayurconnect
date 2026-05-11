@@ -40,42 +40,44 @@ type GeneratedPlan = {
   notes: string
 }
 
-const SYSTEM_PROMPT = `You are an Ayurvedic clinical dietitian trained in classical Charaka & Sushruta dietary principles, with deep knowledge of Kerala cuisine and South Indian Ayurvedic kitchen practice.
+const SYSTEM_PROMPT = `You are an Ayurvedic clinical dietitian trained in classical Charaka & Sushruta dietary principles, with deep knowledge of Kerala cuisine.
 
-You generate practical 7-day meal plans tailored to dosha, season (ritu), and condition. You write in plain English, use familiar food names alongside Sanskrit where helpful, and ground every recommendation in classical Ayurvedic logic (rasa, virya, vipaka, prabhava, dosha-pacifying effect).
+You generate practical 7-day meal plans tailored to dosha, season (ritu), and condition.
 
-You MUST return ONLY valid JSON matching this exact schema, no markdown fences, no commentary, no leading/trailing text:
+OUTPUT FORMAT (CRITICAL):
+- Return ONLY valid JSON. No markdown fences, no commentary, no leading or trailing text.
+- Keep "description" fields under 18 words. Keep "principle" fields under 12 words.
+- Use familiar food names. Add Sanskrit term in brackets only when helpful.
+- Output MUST be complete and parseable. Aim for under 6000 tokens total.
 
+EXACT SCHEMA:
 {
   "days": [
     {
       "day": "Monday",
       "meals": [
-        { "slot": "breakfast",   "name": "Spiced oat porridge with ghee", "description": "Rolled oats cooked with cardamom, ginger, raisins, ghee, sweetened lightly with jaggery.", "principle": "warm, moist, sweet — pacifies Vata" },
-        { "slot": "mid-morning", "name": "...", "description": "...", "principle": "..." },
-        { "slot": "lunch",       "name": "...", "description": "...", "principle": "..." },
-        { "slot": "evening",     "name": "...", "description": "...", "principle": "..." },
-        { "slot": "dinner",      "name": "...", "description": "...", "principle": "..." }
+        { "slot": "breakfast", "name": "Oat porridge with ghee + cardamom", "description": "Cooked oats with ghee, cardamom, raisins, jaggery.", "principle": "Warm, moist, sweet — pacifies Vata" },
+        { "slot": "lunch",     "name": "...", "description": "...", "principle": "..." },
+        { "slot": "evening",   "name": "...", "description": "...", "principle": "..." },
+        { "slot": "dinner",    "name": "...", "description": "...", "principle": "..." }
       ]
     }
-    /* … 6 more days, Tuesday-Sunday … */
   ],
-  "favor":      ["Warm cooked food", "Sweet & sour tastes", "Ghee + sesame oil", "..."],
-  "avoid":      ["Cold raw salads", "Dry crackers", "Skipping meals", "..."],
-  "principles": ["Eat warm meals at regular times", "Largest meal at midday", "..."],
-  "drinks":     ["Warm water with cumin", "Ginger-cardamom tea", "..."],
-  "notes":      "1-2 sentence summary tailored to this user's dosha + season."
+  "favor":      ["Warm cooked food", "Sweet & sour tastes", "Ghee", "Cooked vegetables"],
+  "avoid":      ["Cold raw salads", "Skipping meals", "Iced drinks"],
+  "principles": ["Eat warm meals at regular times", "Largest meal at midday"],
+  "drinks":     ["Warm water with cumin", "Ginger-cardamom tea"],
+  "notes":      "Short 1-2 sentence summary."
 }
 
-Constraints:
-- Always exactly 7 days (Mon-Sun)
-- Always 5 meal slots per day in this exact order: breakfast, mid-morning, lunch, evening, dinner
+CONSTRAINTS:
+- Exactly 7 days (Monday through Sunday)
+- Exactly 4 meal slots/day in this order: breakfast, lunch, evening, dinner
+- 5-8 items each in favor / avoid / principles / drinks
 - Honor dietary restrictions strictly (vegetarian, no eggs, no dairy, allergies)
-- Prefer South Indian / Kerala / Indian recipes where dietary preferences allow
-- Match the dominant dosha — Vata wants warm-moist-grounding, Pitta wants cool-mild-sweet, Kapha wants light-warm-pungent
-- Adjust for season: summer (Grishma) prefers cooling; winter (Hemanta) prefers warming; monsoon (Varsha) prefers light easily-digestible
-- Never recommend stopping medicines or omit a meal as "intermittent fasting" — Ayurveda eats 3 main meals
-- Never include 6 tastes per single meal — that's wrong; daily variety is the principle, not single-meal completeness`
+- Match the dosha: Vata=warm-moist-grounding, Pitta=cool-mild-sweet, Kapha=light-warm-pungent
+- Adjust for season: Grishma=cooling, Hemanta=warming, Varsha=light easily-digestible
+- Never tell user to stop medicines or skip meals`
 
 function buildUserMessage(opts: {
   dosha: string
@@ -176,9 +178,9 @@ const route: FastifyPluginAsync = async (fastify) => {
 
     // Generate via LLM
     const message = buildUserMessage({ dosha, season, conditions, preferences })
-    // 7-day plan × 5 meals × ~50 tokens each + favor/avoid/principles/drinks/notes ≈ 5000 tokens.
-    // 8192 gives headroom for verbose models without uncapping pathologically.
-    const result = await chat({ system: SYSTEM_PROMPT, message, maxTokens: 8192 })
+    // 7-day plan × 4 meals × ~45 tokens each + favor/avoid/principles/drinks/notes ≈ 4500 tokens.
+    // 16384 gives generous headroom for verbose models without truncation.
+    const result = await chat({ system: SYSTEM_PROMPT, message, maxTokens: 16384 })
     if (!result.ok) {
       const failure = result as Extract<typeof result, { ok: false }>
       fastify.log.warn({ result: failure }, 'diet-planner: LLM call failed')
@@ -186,7 +188,11 @@ const route: FastifyPluginAsync = async (fastify) => {
     }
     const plan = parsePlan(result.text)
     if (!plan) {
-      fastify.log.warn({ raw: result.text.slice(0, 500) }, 'diet-planner: failed to parse LLM output')
+      fastify.log.warn({
+        rawHead: result.text.slice(0, 300),
+        rawTail: result.text.slice(-300),
+        length: result.text.length,
+      }, 'diet-planner: failed to parse LLM output')
       return reply.code(502).send({ error: 'AI returned malformed plan — please retry' })
     }
 
