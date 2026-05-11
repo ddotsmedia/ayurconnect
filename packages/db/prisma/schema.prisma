@@ -411,14 +411,21 @@ model Appointment {
   hospitalId      String?
   dateTime        DateTime
   type            String    // consultation-video | consultation-in-person | panchakarma
-  status          String    @default("scheduled") // scheduled | confirmed | completed | cancelled | no-show
+  status          String    @default("scheduled") // scheduled | confirmed | reschedule-proposed | completed | cancelled | no-show | declined
   notes           String?
   chiefComplaint  String?
   duration        String?   // "less than a week" | "1-4 weeks" | "1-6 months" | "more than 6 months"
   fee             Int?      // INR
-  paymentStatus   String?   // pending | paid | refunded | failed
+  paymentStatus   String?   // pending | paid | refunded | failed | free
   paymentProvider String?   // razorpay | manual
   paymentRef      String?   // razorpay order_id / payment_id
+  // Doctor's decision audit + reschedule proposals (set by /accept, /decline, /propose-new-time):
+  declineReason   String?   // when status=declined
+  proposedAt      DateTime? // alternate dateTime proposed by doctor when status=reschedule-proposed
+  // Reminder de-dupe — prevents the cron from firing the same reminder twice:
+  reminded24hAt   DateTime?
+  reminded1hAt    DateTime?
+  reviewPrompted  Boolean   @default(false) // post-appointment "leave a review" notification fired
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 

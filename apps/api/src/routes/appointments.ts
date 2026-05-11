@@ -1,4 +1,4 @@
-import type { FastifyPluginAsync } from 'fastify'
+import type { FastifyPluginAsync, FastifyRequest } from 'fastify'
 import { createNotification } from '../lib/notify.js'
 import { sendWhatsApp } from '../lib/whatsapp.js'
 import { sendEmail, emailEnabled } from '../lib/email.js'
@@ -176,6 +176,139 @@ const route: FastifyPluginAsync = async (fastify) => {
       where: { id },
       data: { status: 'cancelled' },
     })
+  })
+
+  // ─── Doctor-side status transitions ─────────────────────────────────────
+  // Only the assigned doctor (user.doctorId === appt.doctorId) or an admin
+  // can accept/decline/propose-new-time/complete a booking.
+  async function loadDoctorAuthed(request: FastifyRequest) {
+    const { id } = request.params as { id: string }
+    const sess = request.session!
+    const appt = await fastify.prisma.appointment.findUnique({
+      where: { id },
+      include: { doctor: { select: { id: true, name: true } }, user: { select: { id: true, email: true, name: true } } },
+    })
+    if (!appt) return { error: { code: 404, msg: 'not found' } as const }
+    const userExt = sess.user as unknown as { doctorId?: string; role: string; id: string }
+    const isAdmin = userExt.role === 'ADMIN'
+    const isMyDoctor = userExt.doctorId === appt.doctorId
+    if (!isAdmin && !isMyDoctor) return { error: { code: 403, msg: 'forbidden — only the assigned doctor can change status' } as const }
+    return { appt }
+  }
+
+  async function notifyPatient(
+    appt: { id: string; userId: string },
+    patient: { email: string; name: string | null } | null,
+    payload: { type: 'appointment-confirmed' | 'appointment-declined' | 'appointment-rescheduled'; title: string; body: string; whatsappBody?: string },
+  ) {
+    try {
+      await createNotification(fastify, {
+        userId: appt.userId, type: payload.type, title: payload.title, body: payload.body,
+        link: '/dashboard/appointments',
+      })
+      if (emailEnabled() && patient?.email) {
+        await sendEmail({
+          to: patient.email, subject: payload.title,
+          html: `<p>${payload.body}</p><p>Manage at https://ayurconnect.com/dashboard/appointments</p>`,
+          text: `${payload.body} — https://ayurconnect.com/dashboard/appointments`,
+        })
+      }
+      const p = await fastify.prisma.user.findUnique({ where: { id: appt.userId }, select: { phone: true } })
+      if (p?.phone && payload.whatsappBody) {
+        await sendWhatsApp({ to: p.phone, body: payload.whatsappBody })
+      }
+    } catch (err) {
+      fastify.log.warn({ err, apptId: appt.id }, 'doctor-status-change patient notification failed')
+    }
+  }
+
+  // POST /appointments/:id/accept — doctor confirms the booking
+  fastify.patch('/:id/accept', async (request, reply) => {
+    const res = await loadDoctorAuthed(request)
+    if ('error' in res) return reply.code(res.error.code).send({ error: res.error.msg })
+    const { appt } = res
+    if (appt.status === 'cancelled' || appt.status === 'declined' || appt.status === 'completed') {
+      return reply.code(409).send({ error: `cannot accept appointment in status ${appt.status}` })
+    }
+    const updated = await fastify.prisma.appointment.update({
+      where: { id: appt.id },
+      data: { status: 'confirmed' },
+    })
+    const when = new Date(updated.dateTime).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })
+    void notifyPatient(updated, appt.user, {
+      type: 'appointment-confirmed',
+      title: `Your appointment is confirmed`,
+      body:  `${appt.doctor?.name} confirmed your appointment on ${when}.`,
+      whatsappBody: `🌿 AyurConnect: ${appt.doctor?.name} confirmed your appointment on ${when}.`,
+    })
+    return updated
+  })
+
+  // PATCH /appointments/:id/decline — doctor refuses + optional reason
+  fastify.patch('/:id/decline', async (request, reply) => {
+    const res = await loadDoctorAuthed(request)
+    if ('error' in res) return reply.code(res.error.code).send({ error: res.error.msg })
+    const { appt } = res
+    const body = request.body as { reason?: string }
+    const reason = typeof body.reason === 'string' ? body.reason.trim().slice(0, 500) : null
+
+    const updated = await fastify.prisma.appointment.update({
+      where: { id: appt.id },
+      data: { status: 'declined', declineReason: reason },
+    })
+    void notifyPatient(updated, appt.user, {
+      type: 'appointment-declined',
+      title: 'Your appointment was declined',
+      body:  reason
+        ? `${appt.doctor?.name} couldn't take this booking. Reason: ${reason}. Please reschedule with another time or doctor.`
+        : `${appt.doctor?.name} couldn't take this booking. Please book a different slot.`,
+      whatsappBody: `🌿 AyurConnect: ${appt.doctor?.name} couldn't take your booking${reason ? ` (${reason})` : ''}. Reschedule at ayurconnect.com/dashboard/appointments`,
+    })
+    return updated
+  })
+
+  // PATCH /appointments/:id/propose-new-time — doctor suggests alternate slot
+  // Body: { proposedAt: ISO datetime, note?: string }
+  fastify.patch('/:id/propose-new-time', async (request, reply) => {
+    const res = await loadDoctorAuthed(request)
+    if ('error' in res) return reply.code(res.error.code).send({ error: res.error.msg })
+    const { appt } = res
+    const body = request.body as { proposedAt?: string; note?: string }
+    if (!body.proposedAt) return reply.code(400).send({ error: 'proposedAt required' })
+    const proposed = new Date(body.proposedAt)
+    if (Number.isNaN(proposed.getTime())) return reply.code(400).send({ error: 'invalid proposedAt' })
+    if (proposed.getTime() < Date.now()) return reply.code(400).send({ error: 'proposedAt must be in the future' })
+
+    const note = typeof body.note === 'string' ? body.note.trim().slice(0, 500) : null
+    const updated = await fastify.prisma.appointment.update({
+      where: { id: appt.id },
+      data: { status: 'reschedule-proposed', proposedAt: proposed, declineReason: note },
+    })
+    const when = proposed.toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' })
+    void notifyPatient(updated, appt.user, {
+      type: 'appointment-rescheduled',
+      title: `${appt.doctor?.name} proposed a new time`,
+      body:  `${appt.doctor?.name} suggested rescheduling your appointment to ${when}${note ? ` (${note})` : ''}. Accept or rebook from your dashboard.`,
+      whatsappBody: `🌿 AyurConnect: ${appt.doctor?.name} proposed a new time: ${when}. Confirm at ayurconnect.com/dashboard/appointments`,
+    })
+    return updated
+  })
+
+  // PATCH /appointments/:id/complete — doctor marks as completed (post-visit)
+  fastify.patch('/:id/complete', async (request, reply) => {
+    const res = await loadDoctorAuthed(request)
+    if ('error' in res) return reply.code(res.error.code).send({ error: res.error.msg })
+    const { appt } = res
+    if (appt.status === 'cancelled' || appt.status === 'declined') {
+      return reply.code(409).send({ error: `cannot complete appointment in status ${appt.status}` })
+    }
+    const updated = await fastify.prisma.appointment.update({
+      where: { id: appt.id },
+      data: { status: 'completed' },
+    })
+    // Don't fire the "leave a review" prompt here — the reminder cron does that
+    // a few hours later so the patient has time to digest the visit.
+    return updated
   })
 }
 

@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { ShieldCheck, MapPin, Phone, Calendar, Award, Building2, Star, ArrowRight } from 'lucide-react'
+import { ShieldCheck, MapPin, Phone, Calendar, Building2, Star, ArrowRight } from 'lucide-react'
+import { GradientHero } from '@ayurconnect/ui'
 import { API_INTERNAL as API } from '../../../lib/server-fetch'
-import { hospitalLd, breadcrumbLd, ldGraph, clip, abs, SITE_URL } from '../../../lib/seo'
+import { hospitalLd, breadcrumbLd, ldGraph, clip, SITE_URL } from '../../../lib/seo'
 import { mapsDirectionsUrl, mapsLatLngUrl } from '../../../lib/maps'
 import { getServerSession } from '../../../lib/auth'
 import { ReviewForm } from '../../../components/review-form'
@@ -95,53 +96,51 @@ export default async function HospitalDetailPage({ params }: { params: Promise<{
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* HERO */}
-      <section className="bg-hero-green text-white">
-        <div className="container mx-auto px-4 py-12 md:py-16">
-          {/* Breadcrumbs (visible) */}
-          <nav aria-label="Breadcrumb" className="text-xs text-white/70 mb-4">
-            <Link href="/" className="hover:text-white">Home</Link>
-            <span className="mx-1.5">/</span>
-            <Link href="/hospitals" className="hover:text-white">Hospitals</Link>
-            <span className="mx-1.5">/</span>
-            <span className="text-white">{h.name}</span>
-          </nav>
+      {/* HERO — green gradient + leaf overlay (matches doctor profile pattern) */}
+      <GradientHero variant="green" size="md">
+        <nav aria-label="Breadcrumb" className="text-xs text-white/70 mb-4">
+          <Link href="/" className="hover:text-white">Home</Link>
+          <span className="mx-1.5">/</span>
+          <Link href="/hospitals" className="hover:text-white">Hospitals</Link>
+          <span className="mx-1.5">/</span>
+          <span className="text-white">{h.name}</span>
+        </nav>
 
-          <div className="flex flex-col md:flex-row gap-6 items-start">
-            <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-white/15 ring-4 ring-white/15 flex items-center justify-center flex-shrink-0">
-              <Building2 className="w-10 h-10 text-white" />
+        <div className="flex flex-col md:flex-row gap-6 items-start">
+          <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-white/15 ring-4 ring-white/15 flex items-center justify-center flex-shrink-0">
+            <Building2 className="w-10 h-10 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              {h.ccimVerified && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-gold-500 text-white rounded-full text-xs font-semibold">
+                  <ShieldCheck className="w-3 h-3" /> CCIM Verified
+                </span>
+              )}
+              {h.classification === 'olive-leaf' && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-500 text-white rounded-full text-xs font-semibold">
+                  🌿 Olive Leaf certified
+                </span>
+              )}
+              {h.classification === 'green-leaf' && (
+                <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded-full text-xs font-semibold">
+                  🌿 Green Leaf certified
+                </span>
+              )}
+              {h.ayushCertified && <span className="px-3 py-1 bg-white/15 border border-white/25 rounded-full text-xs">AYUSH</span>}
+              {h.nabh && <span className="px-3 py-1 bg-white/15 border border-white/25 rounded-full text-xs">NABH</span>}
+              {h.panchakarma && <span className="px-3 py-1 bg-white/15 border border-white/25 rounded-full text-xs">Panchakarma</span>}
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-wrap items-center gap-2 mb-2">
-                {h.ccimVerified && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-gold-500 text-white rounded-full text-xs font-semibold">
-                    <ShieldCheck className="w-3 h-3" /> CCIM Verified
-                  </span>
-                )}
-                {h.classification === 'olive-leaf' && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-emerald-500 text-white rounded-full text-xs font-semibold">
-                    🌿 Olive Leaf certified
-                  </span>
-                )}
-                {h.classification === 'green-leaf' && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-600 text-white rounded-full text-xs font-semibold">
-                    🌿 Green Leaf certified
-                  </span>
-                )}
-                {h.ayushCertified && <span className="px-3 py-1 bg-white/15 border border-white/25 rounded-full text-xs">AYUSH</span>}
-                {h.nabh && <span className="px-3 py-1 bg-white/15 border border-white/25 rounded-full text-xs">NABH</span>}
-              </div>
-              <h1 className="font-serif text-3xl md:text-5xl text-white leading-tight">{h.name}</h1>
-              <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/80">
-                <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {h.district}</span>
-                <span className="capitalize">{h.type}</span>
-                {h.establishedYear && <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> Est. {h.establishedYear}</span>}
-                {avg != null && <span className="flex items-center gap-1.5"><Star className="w-4 h-4 fill-gold-400 text-gold-400" /> {avg.toFixed(1)} ({ratings.length})</span>}
-              </div>
+            <h1 className="font-serif text-3xl md:text-5xl text-white leading-tight">{h.name}</h1>
+            <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-white/80">
+              <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {h.district}</span>
+              <span className="capitalize">{h.type}</span>
+              {h.establishedYear && <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> Est. {h.establishedYear}</span>}
+              {avg != null && <span className="flex items-center gap-1.5"><Star className="w-4 h-4 fill-gold-400 text-gold-400" /> {avg.toFixed(1)} ({ratings.length})</span>}
             </div>
           </div>
         </div>
-      </section>
+      </GradientHero>
 
       {/* BODY */}
       <div className="container mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
@@ -198,8 +197,30 @@ export default async function HospitalDetailPage({ params }: { params: Promise<{
           </section>
         </div>
 
-        {/* SIDEBAR */}
+        {/* SIDEBAR — matches /doctors/[id] sticky pattern */}
         <aside className="space-y-4 lg:sticky lg:top-24 self-start">
+          {/* Primary CTA card */}
+          <div className="bg-white rounded-card border border-gray-100 shadow-cardLg p-6">
+            <h3 className="font-serif text-xl text-kerala-700">Visit this centre</h3>
+            <p className="text-sm text-muted mt-1">
+              {h.panchakarma
+                ? 'Panchakarma + classical Ayurvedic consultation. Book a slot or call to discuss your case.'
+                : 'Book an in-person consultation or call for residency packages and treatment plans.'}
+            </p>
+            {h.contact && (
+              <a href={`tel:${h.contact.replace(/\s+/g, '')}`} className="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md text-sm">
+                <Phone className="w-4 h-4" /> Call {h.contact}
+              </a>
+            )}
+            <a href={directionsUrl} target="_blank" rel="noreferrer" className="mt-2 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-kerala-600 text-kerala-700 hover:bg-kerala-50 font-semibold rounded-md text-sm">
+              <MapPin className="w-4 h-4" /> Directions
+            </a>
+            <p className="text-[11px] text-subtle mt-3 leading-relaxed">
+              Booking flow opens for hospitals in a later phase. For now, calling or visiting in person is the most reliable route.
+            </p>
+          </div>
+
+          {/* Quick info */}
           <div className="bg-white rounded-card border border-gray-100 shadow-card p-5">
             <h3 className="text-sm font-semibold text-gray-900">Quick info</h3>
             <dl className="mt-3 text-sm space-y-2">
@@ -219,12 +240,17 @@ export default async function HospitalDetailPage({ params }: { params: Promise<{
                   <span className="text-gray-700">Established {h.establishedYear}</span>
                 </div>
               )}
+              <div className="flex items-start gap-2 capitalize">
+                <Building2 className="w-4 h-4 text-kerala-700 mt-0.5" />
+                <span className="text-gray-700">{h.type}</span>
+              </div>
             </dl>
           </div>
 
-          <div className="bg-amber-50 border border-amber-200 rounded-card p-4 text-xs text-amber-900">
-            <Award className="w-4 h-4 inline mr-1" />
-            Certifications shown above (AYUSH / NABH / Olive-Leaf / Green-Leaf) are cross-checked against published Kerala-government registers.
+          {/* Verification panel */}
+          <div className="bg-kerala-50 border border-kerala-100 rounded-card p-4 text-xs text-kerala-900">
+            <ShieldCheck className="w-4 h-4 inline mr-1" />
+            <strong>Verified credentials:</strong> AYUSH / NABH / Olive-Leaf / Green-Leaf shown on this page are cross-checked against published Kerala-government registers. <Link href="/about/certifications" className="underline hover:text-kerala-700">Learn what these mean →</Link>
           </div>
 
           <Link href="/hospitals" className="block text-center px-4 py-2 text-sm border border-kerala-600 text-kerala-700 rounded-md hover:bg-kerala-50">

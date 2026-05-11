@@ -49,9 +49,20 @@ export function startHeartbeat(): void {
 
 // ─── Public API ─────────────────────────────────────────────────────────
 export type NotificationType =
-  | 'appointment-booked' | 'appointment-confirmed' | 'appointment-cancelled'
-  | 'review-received'    | 'doctor-verified'       | 'hospital-verified'
-  | 'forum-reply'        | 'system'
+  | 'appointment-booked'
+  | 'appointment-confirmed'
+  | 'appointment-cancelled'
+  | 'appointment-declined'
+  | 'appointment-rescheduled'
+  | 'appointment-reminder-24h'
+  | 'appointment-reminder-1h'
+  | 'appointment-review-prompt'
+  | 'review-received'
+  | 'doctor-verified'
+  | 'hospital-verified'
+  | 'forum-reply'
+  | 'journal-weekly-summary'
+  | 'system'
 
 export type CreateNotifyInput = {
   userId: string

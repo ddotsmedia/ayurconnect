@@ -47,6 +47,28 @@ const app = fp(async (fastify, opts: AppOptions) => {
       fastify.log.warn({ err }, 'jobImporter cron: failed to start (non-fatal)')
     }
 
+    // ─── Start 15-min appointment reminder + post-visit review-prompt cron ──
+    // Fires WhatsApp + email + in-app reminders at 24h and 1h before each
+    // confirmed appointment, and prompts patients for a review 4-24h after
+    // the appointment time. Dedupes via reminded24hAt/reminded1hAt/reviewPrompted
+    // columns on Appointment so multiple cron passes never double-send.
+    try {
+      const { startAppointmentReminderCron } = await import('./cron/appointmentReminders.js')
+      startAppointmentReminderCron(fastify)
+    } catch (err) {
+      fastify.log.warn({ err }, 'appointment-reminder cron: failed to start (non-fatal)')
+    }
+
+    // ─── Start weekly Sunday-7pm health-journal summary cron ────────────
+    // For each user with 3+ journal entries that week, generates the AI
+    // summary and emails + notifies them.
+    try {
+      const { startJournalSummaryCron } = await import('./cron/journalSummary.js')
+      startJournalSummaryCron(fastify)
+    } catch (err) {
+      fastify.log.warn({ err }, 'journal-summary cron: failed to start (non-fatal)')
+    }
+
     // Embed any herbs missing a vector (one-time on first boot after migration,
     // then no-op on subsequent boots). Free Gemini quota easily covers 145 herbs.
     try {
