@@ -19,7 +19,7 @@ const me: FastifyPluginAsync = async (fastify) => {
             id: true, name: true, specialization: true, district: true,
             ccimVerified: true, qualification: true, experienceYears: true,
             languages: true, availableDays: true, availableForOnline: true,
-            consultationFee: true, profile: true, bio: true, photoUrl: true,
+            profile: true, bio: true, photoUrl: true,
           },
         },
         ownedHospital: {
@@ -101,7 +101,6 @@ const me: FastifyPluginAsync = async (fastify) => {
         ccimVerified: false, // admin-approved later
         qualification:   typeof body.qualification === 'string'   ? body.qualification   : null,
         experienceYears: body.experienceYears != null && !Number.isNaN(Number(body.experienceYears)) ? Number(body.experienceYears) : null,
-        consultationFee: body.consultationFee != null && !Number.isNaN(Number(body.consultationFee)) ? Number(body.consultationFee) : null,
         contact:         typeof body.contact === 'string' ? body.contact : null,
         address:         typeof body.address === 'string' ? body.address : null,
         languages:       Array.isArray(body.languages) ? (body.languages as unknown[]).filter((x): x is string => typeof x === 'string') : [],
@@ -221,7 +220,6 @@ const me: FastifyPluginAsync = async (fastify) => {
     setStrOrNull('address')
     setStrOrNull('photoUrl')
     setIntOrNull('experienceYears')
-    setIntOrNull('consultationFee')
     setBool('availableForOnline')
     setStrArray('languages')
     setStrArray('availableDays')

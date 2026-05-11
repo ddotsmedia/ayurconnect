@@ -14,7 +14,6 @@ type Saved = {
     district: string
     ccimVerified: boolean
     qualification?: string | null
-    consultationFee?: number | null
     averageRating?: number | null
     reviewsCount?: number | null
   }

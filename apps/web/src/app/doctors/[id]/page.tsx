@@ -257,11 +257,7 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
         <aside className="space-y-4 lg:sticky lg:top-20 self-start">
           <div className="bg-white rounded-card border border-gray-100 shadow-cardLg p-6">
             <h3 className="font-serif text-xl text-kerala-700">Book a consultation</h3>
-            {doctor.consultationFee ? (
-              <p className="text-sm text-muted mt-1">Fee from <strong className="text-ink">₹{doctor.consultationFee}</strong></p>
-            ) : (
-              <p className="text-sm text-muted mt-1">Schedule a video or in-person visit.</p>
-            )}
+            <p className="text-sm text-muted mt-1">Schedule a video or in-person visit.</p>
             <Link
               href={`/sign-in?next=/doctors/${doctor.id}`}
               className="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md text-sm"

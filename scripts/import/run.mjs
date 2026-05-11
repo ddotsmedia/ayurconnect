@@ -86,7 +86,7 @@ function parseCsv(text) {
         row[headers[ci]] = v.split(',').map((s) => s.trim()).filter(Boolean)
       } else if (['ayushCertified', 'panchakarma', 'nabh', 'availableForOnline'].includes(headers[ci])) {
         row[headers[ci]] = /^(true|1|yes)$/i.test(v)
-      } else if (['experienceYears', 'consultationFee', 'establishedYear', 'latitude', 'longitude'].includes(headers[ci])) {
+      } else if (['experienceYears', 'establishedYear', 'latitude', 'longitude'].includes(headers[ci])) {
         row[headers[ci]] = Number.isFinite(Number(v)) ? Number(v) : null
       } else {
         row[headers[ci]] = v

@@ -17,7 +17,6 @@ type ImportDoctor = {
   district?: string
   qualification?: string | null
   experienceYears?: number | null
-  consultationFee?: number | null
   languages?: string[]
   availableDays?: string[]
   availableForOnline?: boolean
@@ -91,7 +90,6 @@ const adminImport: FastifyPluginAsync = async (fastify) => {
           district,
           qualification:    STR_OR_NULL(r.qualification),
           experienceYears:  NUM_OR_NULL(r.experienceYears),
-          consultationFee:  NUM_OR_NULL(r.consultationFee),
           languages:        STR_ARR(r.languages),
           availableDays:    STR_ARR(r.availableDays),
           availableForOnline: r.availableForOnline === undefined ? true : BOOL(r.availableForOnline),

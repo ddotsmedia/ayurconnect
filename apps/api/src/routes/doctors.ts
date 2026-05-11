@@ -5,7 +5,7 @@ export const autoPrefix = '/doctors'
 
 const STR_FIELDS = ['name', 'specialization', 'district', 'profile', 'bio', 'qualification', 'photoUrl', 'contact', 'address'] as const
 const ARR_FIELDS = ['languages', 'availableDays'] as const
-const NUM_FIELDS = ['experienceYears', 'consultationFee'] as const
+const NUM_FIELDS = ['experienceYears'] as const
 
 function arr(v: unknown): string[] | undefined {
   if (v === undefined) return undefined

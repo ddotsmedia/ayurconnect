@@ -16,7 +16,7 @@ export default function DoctorRegisterPage() {
     name: '', email: '', password: '',
     qualification: '', specialization: '',
     country: 'IN', state: '', district: '',
-    experienceYears: '', consultationFee: '', contact: '', languages: 'Malayalam, English',
+    experienceYears: '', contact: '', languages: 'Malayalam, English',
   })
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
@@ -38,7 +38,6 @@ export default function DoctorRegisterPage() {
         district: form.district,
         qualification: form.qualification || null,
         experienceYears: form.experienceYears ? Number(form.experienceYears) : null,
-        consultationFee: form.consultationFee ? Number(form.consultationFee) : null,
         contact: form.contact || null,
         languages: form.languages.split(',').map((s) => s.trim()).filter(Boolean),
       })
@@ -102,9 +101,6 @@ export default function DoctorRegisterPage() {
             </Field>
             <Field label="Experience (years)">
               <input type="number" min={0} value={form.experienceYears} onChange={(e) => setForm({ ...form, experienceYears: e.target.value })} className="input" />
-            </Field>
-            <Field label="Consultation fee (₹)">
-              <input type="number" min={0} value={form.consultationFee} onChange={(e) => setForm({ ...form, consultationFee: e.target.value })} className="input" placeholder="500" />
             </Field>
             <Field label="Languages (comma-separated)">
               <input value={form.languages} onChange={(e) => setForm({ ...form, languages: e.target.value })} className="input" />

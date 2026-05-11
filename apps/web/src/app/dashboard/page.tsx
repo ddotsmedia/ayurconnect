@@ -14,7 +14,7 @@ type MeResponse = {
     doctorId: string | null
     ownedDoctor: {
       id: string; name: string; specialization: string; district: string;
-      ccimVerified: boolean; consultationFee: number | null
+      ccimVerified: boolean
     } | null
   } | null
   stats: { savedCount: number; apptCount: number; postCount: number }
@@ -77,9 +77,6 @@ export default async function DashboardOverview() {
             <div>
               <div className="font-semibold text-ink">{me.user.ownedDoctor.name}</div>
               <div className="text-sm text-muted">{me.user.ownedDoctor.specialization} · {me.user.ownedDoctor.district}</div>
-              {me.user.ownedDoctor.consultationFee != null && (
-                <div className="text-sm text-gray-700 mt-1">Consultation fee: <strong>₹{me.user.ownedDoctor.consultationFee}</strong></div>
-              )}
             </div>
             <Link href={`/doctors/${me.user.ownedDoctor.id}`} className="text-sm text-kerala-700 hover:underline">View public profile →</Link>
           </div>

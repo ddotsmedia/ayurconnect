@@ -24,7 +24,7 @@ const SETTINGS: Record<IndexKey, Record<string, unknown>> = {
   doctors: {
     searchableAttributes: ['name', 'specialization', 'qualification', 'district', 'languages', 'profile', 'bio'],
     filterableAttributes: ['district', 'specialization', 'ccimVerified', 'availableForOnline', 'languages'],
-    sortableAttributes:   ['experienceYears', 'consultationFee', 'createdAt'],
+    sortableAttributes:   ['experienceYears', 'createdAt'],
     rankingRules: ['words', 'typo', 'proximity', 'attribute', 'sort', 'exactness'],
   },
   hospitals: {
@@ -69,7 +69,7 @@ export async function reindexAll(fastify: FastifyInstance): Promise<{ doctors: n
       select: {
         id: true, name: true, specialization: true, district: true, qualification: true,
         profile: true, bio: true, languages: true, ccimVerified: true,
-        experienceYears: true, consultationFee: true, availableForOnline: true,
+        experienceYears: true, availableForOnline: true,
         photoUrl: true, createdAt: true,
       },
     }),

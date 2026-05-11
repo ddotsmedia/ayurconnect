@@ -26,7 +26,6 @@ type Doctor = {
   photoUrl: string | null
   availableDays: string[]
   availableForOnline: boolean
-  consultationFee: number | null
   profile: string | null
   bio: string | null
   contact: string | null
@@ -37,7 +36,7 @@ type Doctor = {
 const empty = {
   name: '', specialization: '', district: '', ccimVerified: false,
   qualification: '', experienceYears: '', languages: '', photoUrl: '',
-  availableDays: [] as string[], availableForOnline: true, consultationFee: '',
+  availableDays: [] as string[], availableForOnline: true,
   profile: '', bio: '', contact: '', address: '',
 }
 
@@ -71,7 +70,6 @@ export default function DoctorsAdminPage() {
       photoUrl: d.photoUrl ?? '',
       availableDays: d.availableDays ?? [],
       availableForOnline: d.availableForOnline,
-      consultationFee: d.consultationFee == null ? '' : String(d.consultationFee),
       profile: d.profile ?? '', bio: d.bio ?? '',
       contact: d.contact ?? '', address: d.address ?? '',
     })
@@ -143,9 +141,6 @@ export default function DoctorsAdminPage() {
             <Field label="Experience (years)">
               <input type="number" min="0" className={inputClass} value={form.experienceYears} onChange={(e) => setForm({ ...form, experienceYears: e.target.value })} />
             </Field>
-            <Field label="Consultation fee (₹)">
-              <input type="number" min="0" className={inputClass} value={form.consultationFee} onChange={(e) => setForm({ ...form, consultationFee: e.target.value })} placeholder="800" />
-            </Field>
             <Field label="Photo">
               <ImageUpload value={form.photoUrl || null} onChange={(url) => setForm({ ...form, photoUrl: url ?? '' })} bucket="profile" shape="square" />
             </Field>
@@ -208,15 +203,14 @@ export default function DoctorsAdminPage() {
               <th className="px-4 py-2.5">Specialization</th>
               <th className="px-4 py-2.5">District</th>
               <th className="px-4 py-2.5">Exp</th>
-              <th className="px-4 py-2.5">Fee</th>
               <th className="px-4 py-2.5">CCIM</th>
               <th className="px-4 py-2.5 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y">
-            {loading && <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">Loading…</td></tr>}
+            {loading && <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-500">Loading…</td></tr>}
             {!loading && items.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-8 text-center text-gray-500">No doctors yet.</td></tr>
+              <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-500">No doctors yet.</td></tr>
             )}
             {items.map((d) => (
               <tr key={d.id}>
@@ -224,7 +218,6 @@ export default function DoctorsAdminPage() {
                 <td className="px-4 py-2.5">{d.specialization}</td>
                 <td className="px-4 py-2.5">{d.district}</td>
                 <td className="px-4 py-2.5">{d.experienceYears ?? '—'}</td>
-                <td className="px-4 py-2.5">{d.consultationFee ? `₹${d.consultationFee}` : '—'}</td>
                 <td className="px-4 py-2.5">{d.ccimVerified ? '✓' : '—'}</td>
                 <td className="px-4 py-2.5 text-right space-x-3">
                   <button onClick={() => startEdit(d)} className="text-green-700 hover:underline text-xs">Edit</button>

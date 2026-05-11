@@ -17,7 +17,7 @@ type Row = Record<string, unknown>
 
 const ARRAY_COLS = new Set(['languages', 'availableDays', 'services'])
 const BOOL_COLS = new Set(['ayushCertified', 'panchakarma', 'nabh', 'availableForOnline'])
-const NUM_COLS = new Set(['experienceYears', 'consultationFee', 'establishedYear', 'latitude', 'longitude'])
+const NUM_COLS = new Set(['experienceYears', 'establishedYear', 'latitude', 'longitude'])
 
 function parseCsv(text: string): Row[] {
   const lines = text.replace(/\r\n/g, '\n').split('\n').filter((l) => l.trim().length > 0)

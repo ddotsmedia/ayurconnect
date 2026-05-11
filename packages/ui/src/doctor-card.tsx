@@ -21,7 +21,6 @@ export type DoctorCardData = {
   availableForOnline?: boolean | null
   averageRating?: number | null
   reviewsCount?: number | null
-  consultationFee?: number | null
   profile?: string | null
 }
 
@@ -120,12 +119,7 @@ export function DoctorCard({ doctor, className }: { doctor: DoctorCardData; clas
         )}
       </div>
 
-      <div className="mt-auto pt-4 flex items-center justify-between">
-        {doctor.consultationFee ? (
-          <span className="text-xs text-gray-500">from <strong className="text-ink">₹{doctor.consultationFee}</strong></span>
-        ) : (
-          <span className="text-xs text-gray-400" />
-        )}
+      <div className="mt-auto pt-4 flex items-center justify-end">
         <Link
           href={`/doctors/${doctor.id}`}
           className="px-3.5 py-1.5 text-xs font-semibold bg-kerala-600 text-white rounded-md hover:bg-kerala-700 transition-colors"

@@ -80,8 +80,8 @@ const route: FastifyPluginAsync = async (fastify) => {
         chiefComplaint: body.chiefComplaint ? String(body.chiefComplaint) : null,
         duration: body.duration ? String(body.duration) : null,
         notes: body.notes ? String(body.notes) : null,
-        fee: doctor.consultationFee ?? null,
-        paymentStatus: 'pending',
+        fee: null,
+        paymentStatus: 'free',
         status: 'scheduled',
       },
     })

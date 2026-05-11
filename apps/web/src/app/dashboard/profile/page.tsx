@@ -8,7 +8,7 @@ import { ImageUpload } from '../../../components/image-upload'
 type DoctorOwned = {
   id: string; name: string; specialization: string; district: string;
   qualification: string | null; experienceYears: number | null;
-  ccimVerified: boolean; consultationFee: number | null;
+  ccimVerified: boolean;
   languages: string[] | null; availableDays: string[] | null;
   availableForOnline: boolean | null; profile: string | null;
   bio: string | null; photoUrl: string | null;
@@ -174,7 +174,6 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
     district: doctor.district,
     qualification: doctor.qualification ?? '',
     experienceYears: doctor.experienceYears ?? 0,
-    consultationFee: doctor.consultationFee ?? 0,
     languages: (doctor.languages ?? []).join(', '),
     availableDays: new Set(doctor.availableDays ?? []),
     availableForOnline: doctor.availableForOnline ?? true,
@@ -201,7 +200,6 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
         district: d.district,
         qualification: d.qualification,
         experienceYears: Number(d.experienceYears) || 0,
-        consultationFee: Number(d.consultationFee) || 0,
         languages: d.languages.split(',').map((s) => s.trim()).filter(Boolean),
         availableDays: Array.from(d.availableDays),
         availableForOnline: d.availableForOnline,
@@ -236,7 +234,6 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
         <Field label="District"><input value={d.district} onChange={(e) => setD({ ...d, district: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
         <Field label="Qualification"><input value={d.qualification} onChange={(e) => setD({ ...d, qualification: e.target.value })} placeholder="BAMS, MD (Panchakarma)" className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
         <Field label="Experience (years)"><input type="number" min={0} value={d.experienceYears} onChange={(e) => setD({ ...d, experienceYears: Number(e.target.value) })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
-        <Field label="Consultation fee (₹)"><input type="number" min={0} value={d.consultationFee} onChange={(e) => setD({ ...d, consultationFee: Number(e.target.value) })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
         <Field label="Languages (comma-separated)" full><input value={d.languages} onChange={(e) => setD({ ...d, languages: e.target.value })} placeholder="Malayalam, English, Hindi" className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
         <Field label="Profile photo" full>
           <ImageUpload value={d.photoUrl || null} onChange={(url) => setD({ ...d, photoUrl: url ?? '' })} bucket="profile" shape="square" />
