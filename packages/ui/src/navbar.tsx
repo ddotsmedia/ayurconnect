@@ -29,25 +29,48 @@ function initialsOf(s: NonNullable<NavbarSession>): string {
   return (first + second).toUpperCase()
 }
 
+type NavChildLink = { href: string; label: string }
+type NavItem =
+  | { kind: 'mega';  href: string; label: string }
+  | { kind: 'link';  href: string; label: string }
+  | { kind: 'group'; key: string; label: string; children: NavChildLink[] }
+
 export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [megaOpen, setMegaOpen] = useState(false)
+  const [openGroup, setOpenGroup] = useState<string | null>(null)
   const [userOpen, setUserOpen] = useState(false)
   const [lang, setLang] = useState<Lang>('en')
   const tr = t(lang)
   const userRef = useRef<HTMLDivElement | null>(null)
 
-  const NAV_LINKS = [
-    { href: '/doctors',              label: tr.nav.doctors,    hasMega: true  },
-    { href: '/online-consultation',  label: tr.nav.consult,    hasMega: false },
-    { href: '/hospitals',            label: tr.nav.hospitals,  hasMega: false },
-    { href: '/treatments',           label: tr.nav.treatments, hasMega: false },
-    { href: '/herbs',                label: tr.nav.herbs,      hasMega: false },
-    { href: '/ayurbot',              label: tr.nav.ayurbot,    hasMega: false },
-    { href: '/forum',                label: tr.nav.forum,      hasMega: false },
-    { href: '/jobs',                 label: tr.nav.jobs,       hasMega: false },
-    { href: '/tourism',              label: tr.nav.tourism,    hasMega: false },
+  // Compact navigation — 5 visible items instead of 9. Less-used links roll up
+  // into two small dropdowns (Learn / Community). The Doctors mega-menu stays
+  // as-is for its spec/district shortcuts.
+  const NAV_LINKS: NavItem[] = [
+    { kind: 'mega',  href: '/doctors',              label: tr.nav.doctors },
+    { kind: 'link',  href: '/online-consultation',  label: tr.nav.consult },
+    { kind: 'link',  href: '/hospitals',            label: tr.nav.hospitals },
+    {
+      kind: 'group', key: 'learn', label: tr.nav.learn,
+      children: [
+        { href: '/treatments',  label: tr.nav.treatments },
+        { href: '/herbs',       label: tr.nav.herbs },
+        { href: '/ayurbot',     label: tr.nav.ayurbot },
+        { href: '/health-tips', label: tr.nav.healthTips },
+        { href: '/articles',    label: tr.nav.articles },
+      ],
+    },
+    {
+      kind: 'group', key: 'community', label: tr.nav.community,
+      children: [
+        { href: '/forum',    label: tr.nav.forum },
+        { href: '/jobs',     label: tr.nav.jobs },
+        { href: '/tourism',  label: tr.nav.tourism },
+        { href: '/colleges', label: tr.nav.colleges },
+      ],
+    },
   ]
 
   useEffect(() => {
@@ -91,60 +114,94 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
               <LogoLockup className="group-hover:opacity-90 transition-opacity" />
             </Link>
 
-            {/* Desktop links */}
-            <div className="hidden md:flex items-center gap-1">
-              {NAV_LINKS.map((link) =>
-                link.hasMega ? (
-                  <div
-                    key={link.href}
-                    className="relative"
-                    onMouseEnter={() => setMegaOpen(true)}
-                    onMouseLeave={() => setMegaOpen(false)}
-                  >
-                    <Link
-                      href={link.href}
-                      className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:text-kerala-700 transition-colors"
+            {/* Desktop links — 5 visible items in compact mode */}
+            <div className="hidden md:flex items-center gap-0.5">
+              {NAV_LINKS.map((link) => {
+                if (link.kind === 'mega') {
+                  return (
+                    <div
+                      key={link.href}
+                      className="relative"
+                      onMouseEnter={() => { setMegaOpen(true); setOpenGroup(null) }}
+                      onMouseLeave={() => setMegaOpen(false)}
                     >
-                      {link.label}
-                      <ChevronDown className="w-3.5 h-3.5" />
-                    </Link>
-                    {megaOpen && (
-                      <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2 w-[640px] animate-slide-up">
-                        <div className="bg-white shadow-cardLg rounded-card border border-gray-100 grid grid-cols-2 gap-6 p-6">
-                          <div>
-                            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">{tr.nav.bySpec}</h4>
-                            <ul className="space-y-1.5">
-                              {TOP_SPECS.map((s) => (
-                                <li key={s}>
-                                  <Link href={`/doctors?specialization=${encodeURIComponent(s)}`} className="text-sm text-gray-700 hover:text-kerala-700">
-                                    {s}
-                                  </Link>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div>
-                            <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">{tr.nav.byDistrict}</h4>
-                            <ul className="space-y-1.5">
-                              {TOP_DISTRICTS.map((d) => (
-                                <li key={d}>
-                                  <Link href={`/doctors?district=${encodeURIComponent(d)}`} className="text-sm text-gray-700 hover:text-kerala-700">
-                                    {d}
-                                  </Link>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          <div className="col-span-2 pt-3 border-t border-gray-100">
-                            <Link href="/doctors" className="text-sm font-medium text-kerala-700 hover:underline">
-                              {tr.nav.viewAll} →
-                            </Link>
+                      <Link href={link.href} className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:text-kerala-700 transition-colors">
+                        {link.label}
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </Link>
+                      {megaOpen && (
+                        <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2 w-[640px] animate-slide-up">
+                          <div className="bg-white shadow-cardLg rounded-card border border-gray-100 grid grid-cols-2 gap-6 p-6">
+                            <div>
+                              <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">{tr.nav.bySpec}</h4>
+                              <ul className="space-y-1.5">
+                                {TOP_SPECS.map((s) => (
+                                  <li key={s}>
+                                    <Link href={`/doctors?specialization=${encodeURIComponent(s)}`} className="text-sm text-gray-700 hover:text-kerala-700">
+                                      {s}
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-3">{tr.nav.byDistrict}</h4>
+                              <ul className="space-y-1.5">
+                                {TOP_DISTRICTS.map((d) => (
+                                  <li key={d}>
+                                    <Link href={`/doctors?district=${encodeURIComponent(d)}`} className="text-sm text-gray-700 hover:text-kerala-700">
+                                      {d}
+                                    </Link>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div className="col-span-2 pt-3 border-t border-gray-100">
+                              <Link href="/doctors" className="text-sm font-medium text-kerala-700 hover:underline">
+                                {tr.nav.viewAll} →
+                              </Link>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                ) : (
+                      )}
+                    </div>
+                  )
+                }
+                if (link.kind === 'group') {
+                  const isOpen = openGroup === link.key
+                  return (
+                    <div
+                      key={link.key}
+                      className="relative"
+                      onMouseEnter={() => { setOpenGroup(link.key); setMegaOpen(false) }}
+                      onMouseLeave={() => setOpenGroup(null)}
+                    >
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 px-3 py-2 text-sm text-gray-700 hover:text-kerala-700 transition-colors"
+                      >
+                        {link.label}
+                        <ChevronDown className={cn('w-3.5 h-3.5 transition-transform', isOpen && 'rotate-180')} />
+                      </button>
+                      {isOpen && (
+                        <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2 w-56 animate-slide-up">
+                          <div className="bg-white shadow-cardLg rounded-card border border-gray-100 py-2">
+                            {link.children.map((c) => (
+                              <Link
+                                key={c.href}
+                                href={c.href}
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-kerala-50 hover:text-kerala-700"
+                              >
+                                {c.label}
+                              </Link>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
+                }
+                return (
                   <Link
                     key={link.href}
                     href={link.href}
@@ -152,8 +209,8 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                   >
                     {link.label}
                   </Link>
-                ),
-              )}
+                )
+              })}
             </div>
 
             {/* Universal search (desktop) */}
@@ -262,24 +319,38 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
             <div className="px-4 pt-4">
               <NavSearch compact />
             </div>
-            <nav className="flex-1 p-4 space-y-1">
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="block px-3 py-2.5 rounded text-gray-800 hover:bg-kerala-50"
-                  onClick={() => setMobileOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              ))}
-              <Link
-                href="/colleges"
-                className="block px-3 py-2.5 rounded text-gray-800 hover:bg-kerala-50"
-                onClick={() => setMobileOpen(false)}
-              >
-                Colleges
-              </Link>
+            <nav className="flex-1 p-4 overflow-y-auto">
+              {NAV_LINKS.map((link) => {
+                // mega + plain link → flat row
+                if (link.kind === 'mega' || link.kind === 'link') {
+                  return (
+                    <Link
+                      key={link.kind === 'mega' ? link.href : link.href}
+                      href={link.href}
+                      className="block px-3 py-2.5 rounded text-gray-800 hover:bg-kerala-50"
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  )
+                }
+                // group → section header + indented children
+                return (
+                  <div key={link.key} className="pt-3 first:pt-0">
+                    <div className="px-3 pb-1 text-[10px] uppercase tracking-wider text-gray-400 font-semibold">{link.label}</div>
+                    {link.children.map((c) => (
+                      <Link
+                        key={c.href}
+                        href={c.href}
+                        className="block px-3 py-2 rounded text-gray-800 hover:bg-kerala-50 text-sm"
+                        onClick={() => setMobileOpen(false)}
+                      >
+                        {c.label}
+                      </Link>
+                    ))}
+                  </div>
+                )
+              })}
             </nav>
             <div className="p-4 border-t space-y-2">
               {session ? (

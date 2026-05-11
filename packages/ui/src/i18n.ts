@@ -2,7 +2,7 @@ export type Lang = 'en' | 'ml'
 
 export const STRINGS = {
   en: {
-    nav: { doctors: 'Doctors', hospitals: 'Hospitals', herbs: 'Herbs', ayurbot: 'AyurBot', forum: 'Forum', jobs: 'Jobs', tourism: 'Tourism', treatments: 'Treatments', consult: 'Online Consult', login: 'Login', joinFree: 'Join Free', menu: 'Menu', viewAll: 'View all 500+ doctors', bySpec: 'By Specialization', byDistrict: 'By District' },
+    nav: { doctors: 'Doctors', hospitals: 'Hospitals', herbs: 'Herbs', ayurbot: 'AyurBot', forum: 'Forum', jobs: 'Jobs', tourism: 'Tourism', treatments: 'Treatments', consult: 'Online Consult', learn: 'Learn', community: 'Community', healthTips: 'Health Tips', articles: 'Articles', colleges: 'Colleges', login: 'Login', joinFree: 'Join Free', menu: 'Menu', viewAll: 'View all 500+ doctors', bySpec: 'By Specialization', byDistrict: 'By District' },
     hero: {
       tag: "Kerala's Ayurveda Heritage, Reimagined",
       title: 'Find CCIM-verified Ayurveda doctors',
@@ -14,7 +14,7 @@ export const STRINGS = {
     common: { search: 'Search', district: 'District', specialization: 'Specialization', readMore: 'Read more', viewProfile: 'View Profile', book: 'Book' },
   },
   ml: {
-    nav: { doctors: 'ഡോക്ടർമാർ', hospitals: 'ആശുപത്രികൾ', herbs: 'ഔഷധസസ്യങ്ങൾ', ayurbot: 'ആയുർബോട്ട്', forum: 'ചർച്ച', jobs: 'ജോലികൾ', tourism: 'ടൂറിസം', treatments: 'ചികിത്സ', consult: 'ഓൺലൈൻ കൺസൾട്ട്', login: 'പ്രവേശിക്കുക', joinFree: 'സൗജന്യ അംഗത്വം', menu: 'മെനു', viewAll: 'എല്ലാ 500+ ഡോക്ടർമാരെയും കാണുക', bySpec: 'വിദഗ്ധത പ്രകാരം', byDistrict: 'ജില്ല പ്രകാരം' },
+    nav: { doctors: 'ഡോക്ടർമാർ', hospitals: 'ആശുപത്രികൾ', herbs: 'ഔഷധസസ്യങ്ങൾ', ayurbot: 'ആയുർബോട്ട്', forum: 'ചർച്ച', jobs: 'ജോലികൾ', tourism: 'ടൂറിസം', treatments: 'ചികിത്സ', consult: 'ഓൺലൈൻ കൺസൾട്ട്', learn: 'പഠിക്കുക', community: 'കമ്മ്യൂണിറ്റി', healthTips: 'ആരോഗ്യ ടിപ്സ്', articles: 'ലേഖനങ്ങൾ', colleges: 'കോളേജുകൾ', login: 'പ്രവേശിക്കുക', joinFree: 'സൗജന്യ അംഗത്വം', menu: 'മെനു', viewAll: 'എല്ലാ 500+ ഡോക്ടർമാരെയും കാണുക', bySpec: 'വിദഗ്ധത പ്രകാരം', byDistrict: 'ജില്ല പ്രകാരം' },
     hero: {
       tag: 'കേരളത്തിന്റെ ആയുർവേദ പാരമ്പര്യം, പുതിയ രൂപത്തിൽ',
       title: 'CCIM വെരിഫൈഡ് ആയുർവേദ ഡോക്ടർമാരെ കണ്ടെത്തുക',
