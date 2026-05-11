@@ -29,6 +29,7 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/colleges',       priority: 0.5, changeFrequency: 'monthly' },
   { path: '/tourism',        priority: 0.6, changeFrequency: 'monthly' },
   { path: '/ayurbot',        priority: 0.5, changeFrequency: 'monthly' },
+  { path: '/online-consultation', priority: 0.9, changeFrequency: 'weekly' },
   { path: '/prakriti-quiz',  priority: 0.85, changeFrequency: 'monthly' },
   { path: '/wellness-check', priority: 0.85, changeFrequency: 'monthly' },
   { path: '/diet-planner',   priority: 0.8,  changeFrequency: 'monthly' },

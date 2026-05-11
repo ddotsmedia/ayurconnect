@@ -40,13 +40,14 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
   {
     heading: 'Health',
     links: [
-      { href: '/ayurbot',         label: 'AyurBot AI' },
-      { href: '/prakriti-quiz',   label: 'Prakriti Quiz' },
-      { href: '/wellness-check',  label: 'Wellness Check' },
-      { href: '/diet-planner',    label: 'AI Diet Planner' },
-      { href: '/tourism',         label: 'Medical Tourism' },
-      { href: '/cost-estimator',  label: 'Cost Estimator' },
-      { href: '/case-studies',    label: 'Case Studies' },
+      { href: '/online-consultation', label: 'Online Consultation' },
+      { href: '/ayurbot',             label: 'AyurBot AI' },
+      { href: '/prakriti-quiz',       label: 'Prakriti Quiz' },
+      { href: '/wellness-check',      label: 'Wellness Check' },
+      { href: '/diet-planner',        label: 'AI Diet Planner' },
+      { href: '/tourism',             label: 'Medical Tourism' },
+      { href: '/cost-estimator',      label: 'Cost Estimator' },
+      { href: '/case-studies',        label: 'Case Studies' },
     ],
   },
   {
