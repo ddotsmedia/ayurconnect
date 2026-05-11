@@ -13,10 +13,9 @@ const VALID_DOMINANTS = new Set([
   'tridoshic',
 ])
 
-function pickSessionId(request: { headers: Record<string, string | string[] | undefined>; cookies?: Record<string, string> }): string | null {
-  // Use the Better Auth session token if present, otherwise fall back to a
-  // request-fingerprint string. We don't issue our own cookie for this — it
-  // is purely for analytics correlation.
+function pickSessionId(request: { headers: Record<string, string | string[] | undefined> }): string | null {
+  // Use the Better Auth session token if present, otherwise fall back to null.
+  // Purely for analytics correlation — we don't issue our own cookie.
   const ck = (request.headers.cookie as string) || ''
   const m = ck.match(/(?:^|;\s*)better-auth\.session_token=([^;]+)/)
   if (m) return m[1].slice(0, 60)

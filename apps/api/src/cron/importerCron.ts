@@ -2,19 +2,30 @@
 //
 // Schedule: '0 * * * *' (top of every hour). Also fires once on startup
 // after a 10-second delay so freshly-deployed instances pull data without
-// waiting up to an hour.
+// waiting up to an hour. Each fire runs 10 sources in parallel via
+// Promise.allSettled in services/jobImporter.ts → runJobImport.
 //
-// Disable per-source via env (see services/jobImporter.ts):
-//   JOB_IMPORT_DISABLE_NAUKRI=true
-//   JOB_IMPORT_DISABLE_INDEED=true
+// The 10 sources:
+//   1. nhm-kerala        WP RSS multi-keyword     (working)
+//   2. kerala-psc        Drupal HTML gazette page (working — gazette batches)
+//   3. indeed            Cloudflare-blocked       (disabled by default)
+//   4. naukri            JS-only SPA              (disabled by default)
+//   5. Evanios Jobs      commercial Kerala board
+//   6. FreeJobAlert      govt-jobs aggregator
+//   7. 20Govt Kerala     Kerala govt-jobs board
+//   8. SimplyHired       likely Cloudflare-blocked
+//   9. NHM Kerala (NAM)  Arogyakeralam /nam-kerala/ page
+//  10. OLX Kerala        likely Cloudflare-blocked (often returns 0)
+//
+// Per-source flags (see services/jobImporter.ts):
+//   JOB_IMPORT_ENABLE_INDEED=true        enable Indeed (paid Publisher API)
+//   JOB_IMPORT_ENABLE_NAUKRI=true        enable Naukri (headless browser)
+//   JOB_IMPORT_DISABLE_PSC=true          disable PSC scraper
+//   JOB_IMPORT_DISABLE_OLX=true          disable OLX (often blocked)
+//   JOB_IMPORT_DISABLE_SIMPLYHIRED=true  disable SimplyHired (often blocked)
 //
 // Disable the cron entirely:
 //   JOB_IMPORT_CRON_DISABLED=true
-//
-// We're aware that hourly hits on Naukri/Indeed will get IP-banned within
-// a few days. This is a deliberate user choice; the per-source disable
-// flags let us pause the commercial sources without redeploying once
-// they start failing.
 
 import cron, { type ScheduledTask } from 'node-cron'
 import type { FastifyInstance } from 'fastify'

@@ -1,23 +1,30 @@
-// Ayurveda / Kerala / BAMS / AYUSH job auto-importer.
+// Ayurveda / Kerala / BAMS / AYUSH job auto-importer — 10 sources, hourly cron.
 //
-// Source reality (as of 2026-05-11, after audit):
-//   1. NHM Kerala (arogyakeralam.gov.in)  WordPress RSS feed   ✓ WORKS
-//   2. Kerala PSC (keralapsc.gov.in)      Drupal HTML listing  ⚠ PARTIAL — gazette
-//      listings page works but Ayurveda-specific categories sit inside PDFs.
-//      We extract gazette announcements and let admin drill in manually.
-//   3. Indeed India                       ⚠ Cloudflare CAPTCHA — disabled by default.
-//      Indeed requires the paid Publisher API for legitimate access.
-//   4. Naukri.com                         ⚠ JS-only SPA — disabled by default. ToS
-//      forbids scraping; only an Enterprise contract would unlock data.
+// Sources (10 total, run in parallel via Promise.allSettled):
+//   1. NHM Kerala WP feed         (arogyakeralam.gov.in/feed/?s=*) — RSS
+//   2. Kerala PSC notifications   (keralapsc.gov.in/index.php/notifications)
+//   3. Indeed India               (in.indeed.com) — disabled by default
+//   4. Naukri.com                 (naukri.com) — disabled by default
+//   5. Evanios Jobs               (evaniosjobs.com/kerala/…)
+//   6. FreeJobAlert               (freejobalert.com)
+//   7. 20Govt Kerala              (kerala.20govt.com/jobs-for/bams)
+//   8. SimplyHired India          (simplyhired.co.in)
+//   9. NHM Kerala NAM page        (arogyakeralam.gov.in/nam-kerala) — distinct
+//      from the WP RSS scraper above; targets the National Ayush Mission page.
+//  10. OLX Kerala Jobs            (olx.in)
 //
 // Each scraper is wrapped in its own try/catch so one failure doesn't kill
-// the others. Per-source enable flags via env: JOB_IMPORT_ENABLE_NAUKRI=true
-// to re-enable a disabled scraper (e.g. after refactoring with a headless
-// browser proxy).
+// the others. Per-source enable / disable flags via env:
+//   JOB_IMPORT_ENABLE_INDEED=true       enable Indeed (needs paid API)
+//   JOB_IMPORT_ENABLE_NAUKRI=true       enable Naukri (needs headless browser)
+//   JOB_IMPORT_DISABLE_PSC=true         disable PSC gazette scraper
+//   JOB_IMPORT_DISABLE_OLX=true         disable OLX scraper (often blocked)
+//   JOB_IMPORT_DISABLE_SIMPLYHIRED=true disable SimplyHired (often blocked)
 //
-// Dedupe: every record gets a sourceId = md5(source + applyUrl + title); the
-// DB has a unique constraint on sourceId so re-imports become no-ops via
-// upsert. importedAt is updated on each upsert so we can prune stale rows.
+// Dedupe: every record gets a sourceId. Default is md5(source|applyUrl|title);
+// individual scrapers can override with j.sourceId to use a more stable key
+// (e.g. md5(`evanios-${jobId}`) when the upstream ad ID is reliable). The DB
+// has a unique constraint on sourceId so re-imports are idempotent upserts.
 
 import axios, { type AxiosError } from 'axios'
 import { load as cheerioLoad } from 'cheerio'
@@ -26,10 +33,11 @@ import type { FastifyInstance } from 'fastify'
 
 // ─── Config ──────────────────────────────────────────────────────────────
 const TIMEOUT_MS  = 15_000
-const REQUEST_GAP = 1_500
+const REQUEST_GAP = 2_000   // delay between requests within a single scraper
 const KEYWORDS = [
   'ayurveda', 'ayurvedic', 'bams', 'vaidya', 'ayush', 'panchakarma',
   'shalakya', 'kayachikitsa', 'prasuti', 'rasashastra', 'dravyaguna',
+  'therapist', 'therapy', 'pharmacist',
 ]
 
 const UAS: ReadonlyArray<string> = [
@@ -48,6 +56,11 @@ const isAyurvedaJob = (text: string | null | undefined): boolean => {
 
 const fingerprint = (source: string, applyUrl: string, title: string): string =>
   createHash('md5').update(`${source}|${applyUrl}|${title}`).digest('hex')
+
+// Single-string variant — used by scrapers that have a more stable natural
+// key (upstream ad ID, slug, etc.) than the default source/url/title triple.
+const fingerprintOf = (key: string): string =>
+  createHash('md5').update(key).digest('hex')
 
 // ─── Common HTTP fetch with retry + UA + timeout ─────────────────────────
 async function fetchText(url: string, attempts = 2): Promise<string | null> {
@@ -111,6 +124,15 @@ async function fetchRss(url: string): Promise<string | null> {
 }
 
 // ─── Scraper output shape ────────────────────────────────────────────────
+export type SourceName =
+  | 'kerala-psc' | 'nhm-kerala' | 'indeed' | 'naukri'
+  | 'Evanios Jobs'
+  | 'FreeJobAlert'
+  | '20Govt Kerala'
+  | 'SimplyHired'
+  | 'NHM Kerala (Arogyakeralam)'
+  | 'OLX Kerala'
+
 export type ScrapedJob = {
   title:           string
   organization?:   string | null
@@ -119,11 +141,24 @@ export type ScrapedJob = {
   qualifications?: string | null
   lastDate?:       Date | null
   applyUrl:        string
-  source:          'kerala-psc' | 'nhm-kerala' | 'indeed' | 'naukri'
+  source:          SourceName
   salary?:         string | null
   jobType?:        string | null
   category?:       string | null
+  // Override the default fingerprint(source, applyUrl, title). Use when the
+  // upstream has a stable natural key (jobId, ad slug, etc.) that's more
+  // reliable than title-based hashing.
+  sourceId?:       string
 }
+
+// Canonical ordered list of all 10 sources — used by runJobImport for the
+// Promise.allSettled fan-out and by the admin /status endpoint to ensure
+// every source appears in the breakdown (even with a 0 count).
+export const ALL_SOURCES: readonly SourceName[] = [
+  'nhm-kerala', 'kerala-psc', 'indeed', 'naukri',
+  'Evanios Jobs', 'FreeJobAlert', '20Govt Kerala',
+  'SimplyHired', 'NHM Kerala (Arogyakeralam)', 'OLX Kerala',
+]
 
 // ─── Scraper 1: NHM Kerala via WP RSS (multi-keyword) ────────────────────
 // arogyakeralam.gov.in is a WordPress site with public RSS that supports
@@ -311,6 +346,348 @@ async function scrapeNaukri(): Promise<ScrapedJob[]> {
   return out
 }
 
+// ─── Helper: detect Cloudflare / CAPTCHA / WAF challenge in body ─────────
+// Many of the commercial scrapers below serve a challenge page in response
+// to non-browser clients. We bail early so the caller logs `scraped: 0`
+// without further effort.
+function isChallengePage(html: string): boolean {
+  const head = html.slice(0, 3000).toLowerCase()
+  return /cloudflare|cf-chl|captcha|security check|verify you are human|access denied|forbidden/.test(head)
+}
+
+// ─── Scraper 5: Evanios Jobs (Kerala Ayurveda + Therapist) ────────────────
+// Commercial Kerala job board. Two URLs — doctor + therapist — merged into
+// a single source via the supplied jobId for dedupe.
+async function scrapeEvanios(): Promise<ScrapedJob[]> {
+  const urls = [
+    'https://www.evaniosjobs.com/kerala/ayurveda-doctor-jobs',
+    'https://www.evaniosjobs.com/kerala/ayurveda-therapist-jobs',
+  ]
+  const out: ScrapedJob[] = []
+  const seen = new Set<string>()
+
+  for (const url of urls) {
+    const html = await fetchText(url).catch(() => null)
+    if (!html) { await sleep(REQUEST_GAP); continue }
+    if (isChallengePage(html)) { await sleep(REQUEST_GAP); continue }
+
+    const $ = cheerioLoad(html)
+    // Tolerant selectors — Evanios card markup may shift between releases.
+    $('.job-card, .job-listing, .vacancy, .listing-card, article, .row .col').each((_, card) => {
+      const $card = $(card)
+      const title = ($card.find('.job-title, h2, h3, .title').first().text() || '').replace(/\s+/g, ' ').trim()
+      if (!title) return
+
+      const cardText = $card.text()
+      const jobIdMatch = cardText.match(/JOB\s*ID[:\s#]*([0-9]{4,10})/i)
+        || $card.find('[data-id], [data-job-id]').first().attr('data-id')?.match(/(\d{4,10})/)
+      const jobId = Array.isArray(jobIdMatch) ? jobIdMatch[1] : null
+      if (!jobId || seen.has(jobId)) return
+      seen.add(jobId)
+
+      const orgText = ($card.find('.company-type, .company-name, .organization, .org').first().text() || '').replace(/\s+/g, ' ').trim()
+      const locText = ($card.find('.location, .city, .district, .area').first().text() || '').replace(/\s+/g, ' ').trim()
+      const postedText = ($card.find('.posted, .date, .posted-date, time').first().text() || '').trim()
+
+      out.push({
+        title:        title.slice(0, 250),
+        organization: orgText || 'Ayurvedic facility',
+        location:     locText || 'Kerala',
+        description:  cardText.replace(/\s+/g, ' ').trim().slice(0, 1500),
+        applyUrl:     'https://www.evaniosjobs.com/kerala/ayurveda-doctor-jobs',
+        source:       'Evanios Jobs',
+        jobType:      'PRIVATE',
+        category:     /therapist/i.test(title) ? 'therapist' : 'doctor',
+        lastDate:     postedText && !Number.isNaN(Date.parse(postedText)) ? new Date(postedText) : null,
+        sourceId:     fingerprintOf(`evanios-${jobId}`),
+      })
+    })
+
+    await sleep(REQUEST_GAP)
+  }
+
+  return out
+}
+
+// ─── Scraper 6: FreeJobAlert — BAMS Kerala govt jobs ──────────────────────
+// Aggregator of Indian govt-job notifications. Public HTML listing — usually
+// scrapeable without bot defences.
+async function scrapeFreeJobAlert(): Promise<ScrapedJob[]> {
+  const url = 'https://www.freejobalert.com/search-jobs/bams-government-jobs/?state=Kerala'
+  const html = await fetchText(url).catch(() => null)
+  if (!html) return []
+  if (isChallengePage(html)) return []
+
+  const $ = cheerioLoad(html)
+  const out: ScrapedJob[] = []
+  const seen = new Set<string>()
+
+  // Listings are usually anchor tags inside post-content / tabular rows.
+  // Capture each link whose text matches Ayurveda keywords + Kerala context.
+  $('a[href]').each((_, a) => {
+    const $a = $(a)
+    const title = $a.text().replace(/\s+/g, ' ').trim()
+    const href = ($a.attr('href') ?? '').trim()
+    if (!title || !href) return
+    if (title.length < 10) return  // ignore "Read more" / "Apply" link text
+
+    const ctx = $a.closest('article, .post, tr, li, p, div').text().replace(/\s+/g, ' ')
+    if (!isAyurvedaJob(`${title} ${ctx}`)) return
+    if (!/kerala/i.test(`${title} ${ctx}`)) return
+
+    const applyUrl = href.startsWith('http') ? href : new URL(href, url).toString()
+    const lastDateMatch = ctx.match(/last\s*date[:\s]*([0-9./-]+)/i)
+    const lastDate = lastDateMatch ? new Date(lastDateMatch[1]) : null
+    const organization = ($a.closest('article, .post').find('h2, h3').first().text() || ctx.split('|')[0] || '').trim().slice(0, 200)
+    const key = `freejobalert-${title}-${organization}`
+    if (seen.has(key)) return
+    seen.add(key)
+
+    out.push({
+      title:        title.slice(0, 250),
+      organization: organization || null,
+      location:     'Kerala, India',
+      description:  ctx.slice(0, 1500),
+      applyUrl,
+      source:       'FreeJobAlert',
+      jobType:      'GOVERNMENT',
+      category:     'government',
+      lastDate:     lastDate && !Number.isNaN(lastDate.getTime()) ? lastDate : null,
+      sourceId:     fingerprintOf(key),
+    })
+  })
+
+  return out
+}
+
+// ─── Scraper 7: 20Govt Kerala — BAMS section ──────────────────────────────
+// kerala.20govt.com publishes Kerala-specific govt job notifications.
+async function scrape20Govt(): Promise<ScrapedJob[]> {
+  const url = 'https://kerala.20govt.com/jobs-for/bams/'
+  const html = await fetchText(url).catch(() => null)
+  if (!html) return []
+  if (isChallengePage(html)) return []
+
+  const $ = cheerioLoad(html)
+  const out: ScrapedJob[] = []
+  const seen = new Set<string>()
+
+  $('article, .post, .job-post, .entry').each((_, art) => {
+    const $art = $(art)
+    const $heading = $art.find('h1, h2, h3').first()
+    const title = $heading.text().replace(/\s+/g, ' ').trim()
+    if (!title || title.length < 10) return
+
+    const titleLink = $heading.find('a[href]').first().attr('href')
+      ?? $art.find('a[href]').first().attr('href')
+      ?? ''
+    if (!titleLink) return
+
+    const text = $art.text().replace(/\s+/g, ' ').trim()
+    if (!isAyurvedaJob(`${title} ${text}`)) return
+
+    const lastDateMatch = text.match(/(?:last\s*date|walk[-\s]*in)[:\s]*([0-9./-]+)/i)
+    const lastDateStr = lastDateMatch ? lastDateMatch[1] : ''
+    const lastDate = lastDateStr ? new Date(lastDateStr) : null
+
+    const orgMatch = text.match(/department[:\s]+([^|·\n]{3,80})/i)
+      ?? text.match(/organization[:\s]+([^|·\n]{3,80})/i)
+    const organization = orgMatch ? orgMatch[1].trim() : null
+
+    const applyUrl = titleLink.startsWith('http') ? titleLink : new URL(titleLink, url).toString()
+    const key = `20govt-${title}-${lastDateStr}`
+    if (seen.has(key)) return
+    seen.add(key)
+
+    out.push({
+      title:        title.slice(0, 250),
+      organization,
+      location:     'Kerala, India',
+      description:  text.slice(0, 1500),
+      applyUrl,
+      source:       '20Govt Kerala',
+      jobType:      'GOVERNMENT',
+      category:     'government',
+      lastDate:     lastDate && !Number.isNaN(lastDate.getTime()) ? lastDate : null,
+      sourceId:     fingerprintOf(key),
+    })
+  })
+
+  return out
+}
+
+// ─── Scraper 8: SimplyHired India ────────────────────────────────────────
+// Owned by Recruit Holdings (same parent as Indeed). Usually shares Cloudflare/
+// PerimeterX defenses. Likely to return 403 or challenge HTML — we detect that
+// and bail. Disable with JOB_IMPORT_DISABLE_SIMPLYHIRED=true.
+async function scrapeSimplyHired(): Promise<ScrapedJob[]> {
+  if (process.env.JOB_IMPORT_DISABLE_SIMPLYHIRED === 'true') return []
+
+  const urls = [
+    'https://www.simplyhired.co.in/search?q=ayurveda+doctor&l=kerala',
+    'https://www.simplyhired.co.in/search?q=bams+doctor&l=kerala',
+    'https://www.simplyhired.co.in/search?q=ayurveda+therapist&l=kerala',
+  ]
+  const out: ScrapedJob[] = []
+  const seen = new Set<string>()
+
+  for (const url of urls) {
+    const html = await fetchText(url).catch(() => null)
+    if (!html) { await sleep(REQUEST_GAP); continue }
+    if (isChallengePage(html)) { await sleep(REQUEST_GAP); continue }
+
+    const $ = cheerioLoad(html)
+    $('article, .SerpJob-jobCard, .card, [data-testid*="result"]').each((_, card) => {
+      const $card = $(card)
+      const titleEl = $card.find('h2 a, h3 a, .jobTitle a, [data-testid="jobTitle"]').first()
+      const title = titleEl.text().replace(/\s+/g, ' ').trim()
+      const href = titleEl.attr('href') ?? ''
+      if (!title || !href) return
+
+      const cardText = $card.text()
+      if (!isAyurvedaJob(`${title} ${cardText}`)) return
+
+      const org = ($card.find('[data-testid*="company"], .companyName').first().text() || '').trim() || null
+      const loc = ($card.find('[data-testid*="location"], .location, .companyLocation').first().text() || '').trim() || 'Kerala'
+      const salary = ($card.find('[data-testid*="salary"], .salary, [class*="salary"]').first().text() || '').trim() || null
+
+      const applyUrl = href.startsWith('http') ? href : new URL(href, 'https://www.simplyhired.co.in').toString()
+      const key = `simplyhired-${title}-${org ?? ''}-${loc}`
+      if (seen.has(key)) return
+      seen.add(key)
+
+      out.push({
+        title:        title.slice(0, 250),
+        organization: org,
+        location:     loc.slice(0, 120),
+        description:  cardText.replace(/\s+/g, ' ').trim().slice(0, 1500),
+        applyUrl,
+        source:       'SimplyHired',
+        jobType:      'PRIVATE',
+        category:     /therapist/i.test(title) ? 'therapist' : 'doctor',
+        salary:       salary?.slice(0, 120) ?? null,
+        sourceId:     fingerprintOf(key),
+      })
+    })
+
+    await sleep(REQUEST_GAP)
+  }
+
+  return out
+}
+
+// ─── Scraper 9: NHM Kerala — National Ayush Mission page ─────────────────
+// Distinct from the WP RSS scraper above. Targets the dedicated /nam-kerala/
+// page which lists current NAM-Kerala recruitment notifications + attached
+// PDFs / detail links.
+async function scrapeArogyakeralam(): Promise<ScrapedJob[]> {
+  const url = 'https://arogyakeralam.gov.in/nam-kerala/'
+  const html = await fetchText(url).catch(() => null)
+  if (!html) return []
+  if (isChallengePage(html)) return []
+
+  const $ = cheerioLoad(html)
+  const out: ScrapedJob[] = []
+  const seen = new Set<string>()
+
+  $('a[href]').each((_, a) => {
+    const $a = $(a)
+    const href = ($a.attr('href') ?? '').trim()
+    const title = $a.text().replace(/\s+/g, ' ').trim()
+    if (!href || !title) return
+    if (title.length < 8) return
+
+    // Filter — only links whose text or surrounding paragraph mentions an
+    // Ayurveda-relevant role.
+    const ctx = $a.closest('li, p, td, div').text().replace(/\s+/g, ' ')
+    if (!isAyurvedaJob(`${title} ${ctx}`)) return
+
+    const applyUrl = href.startsWith('http') ? href : new URL(href, url).toString()
+    const lastDateMatch = ctx.match(/(?:last\s*date|deadline)[:\s]*([0-9./-]+)/i)
+    const lastDate = lastDateMatch ? new Date(lastDateMatch[1]) : null
+    const key = `arogyakeralam-${title}`
+    if (seen.has(key)) return
+    seen.add(key)
+
+    out.push({
+      title:        title.slice(0, 250),
+      organization: 'NHM Kerala / National Health Mission',
+      location:     'Kerala, India',
+      description:  ctx.slice(0, 1500),
+      applyUrl,
+      source:       'NHM Kerala (Arogyakeralam)',
+      jobType:      'GOVERNMENT',
+      category:     'government',
+      lastDate:     lastDate && !Number.isNaN(lastDate.getTime()) ? lastDate : null,
+      sourceId:     fingerprintOf(key),
+    })
+  })
+
+  return out
+}
+
+// ─── Scraper 10: OLX Kerala Jobs (Ayurveda) ──────────────────────────────
+// OLX has Cloudflare + a custom anti-bot layer and their ToS explicitly bans
+// automated scraping. Almost always returns 403 or a JS challenge page. The
+// scraper code below is correct for the listing markup — but expect it to
+// log scraped:0 unless you wire up a residential-proxy or Playwright path.
+// Disable with JOB_IMPORT_DISABLE_OLX=true.
+async function scrapeOLX(): Promise<ScrapedJob[]> {
+  if (process.env.JOB_IMPORT_DISABLE_OLX === 'true') return []
+
+  const url = 'https://www.olx.in/kerala_g2001160/jobs_c4/q-ayurveda'
+  const html = await fetchText(url).catch(() => null)
+  if (!html) return []
+  if (isChallengePage(html)) return []
+
+  const $ = cheerioLoad(html)
+  const out: ScrapedJob[] = []
+  const seen = new Set<string>()
+
+  // OLX SSR shape — listing cards usually have data-aut-id / EIR-style attrs
+  $('li[data-aut-id="itemBox"], li.EIR5N, .a8c1f, article, [data-aut-id*="item"]').each((_, card) => {
+    const $card = $(card)
+    const $link = $card.find('a[href]').first()
+    const href = ($link.attr('href') ?? '').trim()
+    if (!href) return
+
+    const title = ($card.find('[data-aut-id="itemTitle"], h2, span._2tW1I').first().text()
+                || $link.attr('title')
+                || $link.text()).replace(/\s+/g, ' ').trim()
+    if (!title) return
+
+    // Strict keyword filter per spec — title-only, must contain at least one
+    // Ayurveda-relevant token.
+    if (!/ayurveda|ayurvedic|bams|vaidya|panchakarma/i.test(title)) return
+
+    const adIdMatch = href.match(/-iid-(\d+)/)
+      ?? href.match(/\/iid-(\d+)/)
+      ?? href.match(/(\d{6,})/)
+    const adId = adIdMatch ? adIdMatch[1] : null
+    if (!adId || seen.has(adId)) return
+    seen.add(adId)
+
+    const applyUrl = href.startsWith('http') ? href : new URL(href, 'https://www.olx.in').toString()
+    const loc = ($card.find('[data-aut-id="item-location"], ._2VQu4').first().text() || '').replace(/\s+/g, ' ').trim() || 'Kerala'
+    const salary = ($card.find('[data-aut-id="itemPrice"], ._89yzn').first().text() || '').trim() || null
+
+    out.push({
+      title:        title.slice(0, 250),
+      organization: 'Private Employer',
+      location:     loc.slice(0, 120),
+      description:  $card.text().replace(/\s+/g, ' ').trim().slice(0, 1500),
+      applyUrl,
+      source:       'OLX Kerala',
+      jobType:      'PRIVATE',
+      category:     'private',
+      salary:       salary?.slice(0, 120) ?? null,
+      sourceId:     fingerprintOf(`olx-${adId}`),
+    })
+  })
+
+  return out
+}
+
 // ─── Persist scraped jobs via Prisma upsert ──────────────────────────────
 type CreatedJob = {
   id: string; title: string; organization: string | null; location: string | null;
@@ -320,7 +697,7 @@ async function persist(fastify: FastifyInstance, jobs: ScrapedJob[]): Promise<{ 
   let created = 0, updated = 0
   const newJobs: CreatedJob[] = []
   for (const j of jobs) {
-    const sourceId = fingerprint(j.source, j.applyUrl, j.title)
+    const sourceId = j.sourceId ?? fingerprint(j.source, j.applyUrl, j.title)
     const data = {
       title:          j.title.slice(0, 500),
       organization:   j.organization ?? null,
@@ -365,32 +742,59 @@ export type ImportSummary = {
   durationMs: number
 }
 
+// runOne — wrap a single source: scrape → persist → log. Never throws; any
+// failure becomes a per-source error entry in the summary so Promise.allSettled
+// always resolves with structured data per source.
+type SourceResult = { source: SourceName; scraped: number; created: number; updated: number; newJobs: CreatedJob[]; error?: string }
+
+async function runOne(
+  fastify: FastifyInstance,
+  name: SourceName,
+  fn: () => Promise<ScrapedJob[]>,
+): Promise<SourceResult> {
+  try {
+    fastify.log.info({ source: name }, 'jobImporter: starting source')
+    const jobs = await fn()
+    const { created, updated, newJobs } = await persist(fastify, jobs)
+    fastify.log.info({ source: name, scraped: jobs.length, created, updated }, 'jobImporter: source done')
+    return { source: name, scraped: jobs.length, created, updated, newJobs }
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    fastify.log.warn({ err, source: name }, 'jobImporter: source failed (continuing with others)')
+    return { source: name, scraped: 0, created: 0, updated: 0, newJobs: [], error: msg.slice(0, 300) }
+  }
+}
+
 export async function runJobImport(fastify: FastifyInstance): Promise<ImportSummary> {
   const t0 = Date.now()
-  const sources: Array<{ name: ScrapedJob['source']; fn: () => Promise<ScrapedJob[]> }> = [
-    { name: 'nhm-kerala', fn: scrapeNhmKerala },
-    { name: 'kerala-psc', fn: scrapeKeralaPsc },
-    { name: 'indeed',     fn: scrapeIndeed     },
-    { name: 'naukri',     fn: scrapeNaukri     },
-  ]
 
-  const perSource: ImportSummary['perSource'] = []
-  const allNewJobs: CreatedJob[] = []
-  for (const s of sources) {
-    try {
-      fastify.log.info({ source: s.name }, 'jobImporter: starting source')
-      const jobs = await s.fn()
-      const { created, updated, newJobs } = await persist(fastify, jobs)
-      allNewJobs.push(...newJobs)
-      perSource.push({ source: s.name, scraped: jobs.length, created, updated })
-      fastify.log.info({ source: s.name, scraped: jobs.length, created, updated }, 'jobImporter: source done')
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err)
-      fastify.log.warn({ err, source: s.name }, 'jobImporter: source failed (continuing with others)')
-      perSource.push({ source: s.name, scraped: 0, created: 0, updated: 0, error: msg.slice(0, 300) })
-    }
-    await sleep(REQUEST_GAP)
-  }
+  // All 10 sources fan out in parallel. Each one is bounded by its own
+  // TIMEOUT_MS + internal REQUEST_GAP loop, so wall-time is the slowest
+  // single source rather than the sum.
+  const settled = await Promise.allSettled([
+    runOne(fastify, 'nhm-kerala',                  scrapeNhmKerala),
+    runOne(fastify, 'kerala-psc',                  scrapeKeralaPsc),
+    runOne(fastify, 'indeed',                      scrapeIndeed),
+    runOne(fastify, 'naukri',                      scrapeNaukri),
+    runOne(fastify, 'Evanios Jobs',                scrapeEvanios),
+    runOne(fastify, 'FreeJobAlert',                scrapeFreeJobAlert),
+    runOne(fastify, '20Govt Kerala',               scrape20Govt),
+    runOne(fastify, 'SimplyHired',                 scrapeSimplyHired),
+    runOne(fastify, 'NHM Kerala (Arogyakeralam)',  scrapeArogyakeralam),
+    runOne(fastify, 'OLX Kerala',                  scrapeOLX),
+  ])
+
+  // runOne never rejects so every entry is fulfilled — but guard anyway.
+  const results: SourceResult[] = settled.map((r) =>
+    r.status === 'fulfilled'
+      ? r.value
+      : { source: 'kerala-psc' as SourceName, scraped: 0, created: 0, updated: 0, newJobs: [], error: String(r.reason) },
+  )
+
+  const perSource: ImportSummary['perSource'] = results.map((r) => ({
+    source: r.source, scraped: r.scraped, created: r.created, updated: r.updated, error: r.error,
+  }))
+  const allNewJobs: CreatedJob[] = results.flatMap((r) => r.newJobs)
 
   const total = perSource.reduce(
     (acc, s) => ({
