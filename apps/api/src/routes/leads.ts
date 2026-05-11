@@ -8,7 +8,15 @@ export const autoPrefix = '/leads'
 //
 // Sister admin endpoints live in admin.ts under /admin/leads.
 
-const ALLOWED_KINDS = new Set(['cost_estimator', 'contact', 'partnership', 'franchise'])
+const ALLOWED_KINDS = new Set([
+  'cost_estimator',
+  'contact',
+  'partnership',
+  'franchise',
+  'marketplace_vendor',  // /marketplace vendor inquiry form
+  'academy',             // /academy course interest form
+  'product_waitlist',    // /products/{hms,saas,mobile} waitlist form
+])
 
 // Naive in-process rate-limit: 5 submissions / 10 min / IP. Process-local, so
 // won't survive PM2 reload and won't sync across instances — acceptable for

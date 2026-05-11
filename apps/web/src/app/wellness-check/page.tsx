@@ -116,12 +116,26 @@ export default function WellnessCheckPage() {
             {reports.map((r) => {
               const score = axisScores.find((s) => s.axis === r.axis)!
               const meta = TIER_META[score.tier]
+              // Tailwind safelist — these must be literal strings (not template
+              // interpolation) so Tailwind's tree-shaker picks them up.
+              const badgeCls: Record<string, string> = {
+                emerald: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+                amber:   'text-amber-700 bg-amber-50 border-amber-200',
+                orange:  'text-orange-700 bg-orange-50 border-orange-200',
+                rose:    'text-rose-700 bg-rose-50 border-rose-200',
+              }
+              const helpCls: Record<string, string> = {
+                emerald: 'bg-emerald-50 border-emerald-200 text-emerald-900',
+                amber:   'bg-amber-50 border-amber-200 text-amber-900',
+                orange:  'bg-orange-50 border-orange-200 text-orange-900',
+                rose:    'bg-rose-50 border-rose-200 text-rose-900',
+              }
               return (
                 <article key={r.axis} className="p-6 bg-white rounded-card border border-gray-100 shadow-card">
                   <header className="mb-4">
                     <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
                       <h3 className="font-serif text-xl md:text-2xl text-kerala-700">{r.label}</h3>
-                      <span className={`text-xs px-2 py-1 rounded-full text-${meta.color}-700 bg-${meta.color}-50 border border-${meta.color}-200 uppercase font-semibold`}>
+                      <span className={`text-xs px-2 py-1 rounded-full border uppercase font-semibold ${badgeCls[meta.color]}`}>
                         {meta.label} · {score.pct}/100
                       </span>
                     </div>
@@ -155,7 +169,7 @@ export default function WellnessCheckPage() {
                     </div>
                   </div>
 
-                  <div className={`mt-4 p-3 rounded-md text-sm border bg-${meta.color}-50 border-${meta.color}-200 text-${meta.color}-900`}>
+                  <div className={`mt-4 p-3 rounded-md text-sm border ${helpCls[meta.color]}`}>
                     <strong>When to seek help:</strong> {r.recommendations.whenToSeekHelp}
                   </div>
                 </article>
