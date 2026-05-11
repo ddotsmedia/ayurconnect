@@ -1,16 +1,9 @@
 import Link from 'next/link'
 import { headers as nextHeaders } from 'next/headers'
 import { DoctorCard, GradientHero, type DoctorCardData } from '@ayurconnect/ui'
-import { Search, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
-
-const DISTRICTS = [
-  'Thiruvananthapuram', 'Kollam', 'Pathanamthitta', 'Alappuzha', 'Kottayam',
-  'Idukki', 'Ernakulam', 'Thrissur', 'Palakkad', 'Malappuram', 'Kozhikode',
-  'Wayanad', 'Kannur', 'Kasaragod',
-]
-const SPECS = ['Panchakarma', 'Kayachikitsa', 'Prasuti Tantra', 'Kaumarbhritya', 'Shalya', 'Shalakya', 'Manasika', 'Rasashastra', 'Dravyaguna', 'Roganidana']
-const LANGUAGES = ['Malayalam', 'English', 'Tamil', 'Hindi', 'Arabic', 'Kannada']
+import { DoctorFilterSidebar } from './_filter-sidebar'
 
 type SearchParams = { [key: string]: string | undefined }
 
@@ -46,6 +39,8 @@ export default async function DoctorsPage({ searchParams }: { searchParams: Prom
   const { doctors, pagination } = data
 
   const activeFilters: Array<{ key: keyof SearchParams; label: string; value: string }> = []
+  if (sp.country && sp.country !== 'IN') activeFilters.push({ key: 'country',       label: 'Country',          value: sp.country })
+  if (sp.state)           activeFilters.push({ key: 'state',           label: 'State',            value: sp.state })
   if (sp.district)        activeFilters.push({ key: 'district',        label: 'District',         value: sp.district })
   if (sp.specialization)  activeFilters.push({ key: 'specialization',  label: 'Specialization',   value: sp.specialization })
   if (sp.language)        activeFilters.push({ key: 'language',        label: 'Language',         value: sp.language })
@@ -71,76 +66,22 @@ export default async function DoctorsPage({ searchParams }: { searchParams: Prom
         </div>
       </GradientHero>
 
-      <div className="container mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8">
-        {/* SIDEBAR */}
-        <aside className="space-y-6 lg:sticky lg:top-20 self-start">
-          <form action="/doctors" method="get" className="space-y-5">
-            {/* keep current page=1 reset on filter change */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Search</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  name="q"
-                  defaultValue={sp.q ?? ''}
-                  placeholder="Name, condition, herb…"
-                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-kerala-600"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">District</label>
-              <select name="district" defaultValue={sp.district ?? ''} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-kerala-600">
-                <option value="">All</option>
-                {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Specialization</label>
-              <select name="specialization" defaultValue={sp.specialization ?? ''} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-kerala-600">
-                <option value="">All</option>
-                {SPECS.map((s) => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Language</label>
-              <select name="language" defaultValue={sp.language ?? ''} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-kerala-600">
-                <option value="">Any</option>
-                {LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
-              </select>
-            </div>
-
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="verified" value="true" defaultChecked={sp.verified === 'true'} className="w-4 h-4 rounded border-gray-300 accent-kerala-600" />
-                CCIM verified only
-              </label>
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" name="online" value="true" defaultChecked={sp.online === 'true'} className="w-4 h-4 rounded border-gray-300 accent-kerala-600" />
-                Online consultations
-              </label>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Sort by</label>
-              <select name="sort" defaultValue={sp.sort ?? 'rating'} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-kerala-600">
-                <option value="rating">Best rated</option>
-                <option value="experience">Most experienced</option>
-                <option value="newest">Recently added</option>
-              </select>
-            </div>
-
-            <button type="submit" className="w-full px-4 py-2 bg-kerala-600 text-white font-semibold rounded-md hover:bg-kerala-700 text-sm">
-              Apply filters
-            </button>
-            <Link href="/doctors" className="block text-center text-sm text-muted hover:text-gray-700">
-              Clear all
-            </Link>
-          </form>
-        </aside>
+      <div className="container mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
+        {/* SIDEBAR — country + state + district + specialization + language + sort filters.
+            Now a client component so it can use CountrySelect / StateSelect dropdowns
+            with country-dependent state options. URL stays in sync — sharing /doctors?country=AE
+            survives full page reloads + back button. */}
+        <DoctorFilterSidebar
+          country={sp.country ?? 'IN'}
+          state={sp.state ?? ''}
+          district={sp.district ?? ''}
+          specialization={sp.specialization ?? ''}
+          language={sp.language ?? ''}
+          verified={sp.verified ?? ''}
+          online={sp.online ?? ''}
+          sort={sp.sort ?? 'rating'}
+          q={sp.q ?? ''}
+        />
 
         {/* RESULTS */}
         <section>

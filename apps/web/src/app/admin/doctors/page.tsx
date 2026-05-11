@@ -4,12 +4,8 @@ import { useEffect, useState } from 'react'
 import { adminApi } from '../../../lib/admin-api'
 import { EntityFormShell, Field, inputClass } from '../../../components/admin/entity-form-shell'
 import { ImageUpload } from '../../../components/image-upload'
-
-const DISTRICTS = [
-  'Thiruvananthapuram', 'Kollam', 'Pathanamthitta', 'Alappuzha', 'Kottayam',
-  'Idukki', 'Ernakulam', 'Thrissur', 'Palakkad', 'Malappuram', 'Kozhikode',
-  'Wayanad', 'Kannur', 'Kasaragod',
-]
+import { CountrySelect } from '../../../components/country-select'
+import { StateSelect } from '../../../components/state-select'
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const COMMON_LANGUAGES = ['Malayalam', 'English', 'Tamil', 'Hindi', 'Arabic', 'Kannada', 'Tulu']
@@ -18,6 +14,8 @@ type Doctor = {
   id: string
   name: string
   specialization: string
+  country: string | null
+  state: string | null
   district: string
   ccimVerified: boolean
   qualification: string | null
@@ -34,7 +32,9 @@ type Doctor = {
 }
 
 const empty = {
-  name: '', specialization: '', district: '', ccimVerified: false,
+  name: '', specialization: '',
+  country: 'IN', state: '', district: '',
+  ccimVerified: false,
   qualification: '', experienceYears: '', languages: '', photoUrl: '',
   availableDays: [] as string[], availableForOnline: true,
   profile: '', bio: '', contact: '', address: '',
@@ -63,7 +63,9 @@ export default function DoctorsAdminPage() {
   function startEdit(d: Doctor) {
     setEditingId(d.id)
     setForm({
-      name: d.name, specialization: d.specialization, district: d.district, ccimVerified: d.ccimVerified,
+      name: d.name, specialization: d.specialization,
+      country: d.country ?? 'IN', state: d.state ?? '', district: d.district,
+      ccimVerified: d.ccimVerified,
       qualification: d.qualification ?? '',
       experienceYears: d.experienceYears == null ? '' : String(d.experienceYears),
       languages: (d.languages ?? []).join(', '),
@@ -132,11 +134,20 @@ export default function DoctorsAdminPage() {
             <Field label="Specialization *">
               <input required className={inputClass} value={form.specialization} onChange={(e) => setForm({ ...form, specialization: e.target.value })} />
             </Field>
-            <Field label="District *">
-              <select required className={inputClass} value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })}>
-                <option value="">— select —</option>
-                {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
-              </select>
+            <Field label="Country *">
+              <CountrySelect value={form.country} onChange={(c) => setForm({ ...form, country: c, state: '' })} />
+            </Field>
+            <Field label="State / region">
+              <StateSelect country={form.country} value={form.state} onChange={(s) => setForm({ ...form, state: s })} />
+            </Field>
+            <Field label="City / district *">
+              <input
+                required
+                className={inputClass}
+                value={form.district}
+                onChange={(e) => setForm({ ...form, district: e.target.value })}
+                placeholder="e.g. Ernakulam, Dubai, Mumbai"
+              />
             </Field>
             <Field label="Experience (years)">
               <input type="number" min="0" className={inputClass} value={form.experienceYears} onChange={(e) => setForm({ ...form, experienceYears: e.target.value })} />
@@ -201,7 +212,7 @@ export default function DoctorsAdminPage() {
             <tr>
               <th className="px-4 py-2.5">Name</th>
               <th className="px-4 py-2.5">Specialization</th>
-              <th className="px-4 py-2.5">District</th>
+              <th className="px-4 py-2.5">Location</th>
               <th className="px-4 py-2.5">Exp</th>
               <th className="px-4 py-2.5">CCIM</th>
               <th className="px-4 py-2.5 text-right">Actions</th>
@@ -216,7 +227,10 @@ export default function DoctorsAdminPage() {
               <tr key={d.id}>
                 <td className="px-4 py-2.5 font-medium">{d.name}</td>
                 <td className="px-4 py-2.5">{d.specialization}</td>
-                <td className="px-4 py-2.5">{d.district}</td>
+                <td className="px-4 py-2.5 text-xs">
+                  <div>{d.district}{d.state && d.state !== d.district ? `, ${d.state}` : ''}</div>
+                  {d.country && d.country !== 'IN' && <div className="text-gray-400">{d.country}</div>}
+                </td>
                 <td className="px-4 py-2.5">{d.experienceYears ?? '—'}</td>
                 <td className="px-4 py-2.5">{d.ccimVerified ? '✓' : '—'}</td>
                 <td className="px-4 py-2.5 text-right space-x-3">

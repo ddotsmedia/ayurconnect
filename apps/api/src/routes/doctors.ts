@@ -3,7 +3,7 @@ import { createNotification } from '../lib/notify.js'
 
 export const autoPrefix = '/doctors'
 
-const STR_FIELDS = ['name', 'specialization', 'district', 'profile', 'bio', 'qualification', 'photoUrl', 'contact', 'address'] as const
+const STR_FIELDS = ['name', 'specialization', 'district', 'state', 'country', 'profile', 'bio', 'qualification', 'photoUrl', 'contact', 'address'] as const
 const ARR_FIELDS = ['languages', 'availableDays'] as const
 const NUM_FIELDS = ['experienceYears'] as const
 
@@ -22,12 +22,14 @@ function num(v: unknown): number | null | undefined {
 const doctors: FastifyPluginAsync = async (fastify) => {
   fastify.get('/', async (request) => {
     const {
-      district, specialization, q, language, verified, online,
+      country, state, district, specialization, q, language, verified, online,
       sort = 'rating', page = '1', limit = '12',
     } = request.query as Record<string, string>
     const pageNum = Number(page) || 1
     const limitNum = Math.min(Number(limit) || 12, 60)
     const where: Record<string, unknown> = {}
+    if (country && /^[A-Z]{2}$/.test(country)) where.country = country
+    if (state)    where.state    = { contains: state, mode: 'insensitive' }
     if (district) where.district = { contains: district, mode: 'insensitive' }
     if (specialization) where.specialization = { contains: specialization, mode: 'insensitive' }
     if (verified === 'true')  where.ccimVerified = true
@@ -35,10 +37,11 @@ const doctors: FastifyPluginAsync = async (fastify) => {
     if (online === 'true') where.availableForOnline = true
     if (language) where.languages = { has: language }
     if (q) where.OR = [
-      { name: { contains: q, mode: 'insensitive' } },
+      { name:           { contains: q, mode: 'insensitive' } },
       { specialization: { contains: q, mode: 'insensitive' } },
-      { profile: { contains: q, mode: 'insensitive' } },
-      { bio: { contains: q, mode: 'insensitive' } },
+      { profile:        { contains: q, mode: 'insensitive' } },
+      { bio:            { contains: q, mode: 'insensitive' } },
+      { state:          { contains: q, mode: 'insensitive' } },
     ]
 
     const orderBy: Record<string, 'asc' | 'desc'> =
@@ -95,7 +98,20 @@ const doctors: FastifyPluginAsync = async (fastify) => {
   fastify.post('/', { preHandler: fastify.requireAdmin }, async (request) => {
     const body = request.body as Record<string, unknown>
     const data: Record<string, unknown> = {}
-    for (const k of STR_FIELDS) if (body[k] !== undefined) data[k] = body[k] || null
+    for (const k of STR_FIELDS) {
+      if (body[k] === undefined) continue
+      if (k === 'country') {
+        // Country must be ISO-2; silently coerce invalid → 'IN' default.
+        const v = typeof body.country === 'string' && /^[A-Z]{2}$/.test(body.country) ? body.country : 'IN'
+        data.country = v
+        continue
+      }
+      if (k === 'state') {
+        data.state = typeof body.state === 'string' && body.state.trim() ? body.state.trim().slice(0, 100) : null
+        continue
+      }
+      data[k] = body[k] || null
+    }
     for (const k of ARR_FIELDS) { const v = arr(body[k]); if (v !== undefined) data[k] = v }
     for (const k of NUM_FIELDS) { const v = num(body[k]); if (v !== undefined) data[k] = v }
     if (body.ccimVerified !== undefined)        data.ccimVerified        = Boolean(body.ccimVerified)
@@ -107,7 +123,20 @@ const doctors: FastifyPluginAsync = async (fastify) => {
     const { id } = request.params as { id: string }
     const body = request.body as Record<string, unknown>
     const data: Record<string, unknown> = {}
-    for (const k of STR_FIELDS) if (body[k] !== undefined) data[k] = body[k] || null
+    for (const k of STR_FIELDS) {
+      if (body[k] === undefined) continue
+      if (k === 'country') {
+        // Country must be ISO-2; silently coerce invalid → 'IN' default.
+        const v = typeof body.country === 'string' && /^[A-Z]{2}$/.test(body.country) ? body.country : 'IN'
+        data.country = v
+        continue
+      }
+      if (k === 'state') {
+        data.state = typeof body.state === 'string' && body.state.trim() ? body.state.trim().slice(0, 100) : null
+        continue
+      }
+      data[k] = body[k] || null
+    }
     for (const k of ARR_FIELDS) { const v = arr(body[k]); if (v !== undefined) data[k] = v }
     for (const k of NUM_FIELDS) { const v = num(body[k]); if (v !== undefined) data[k] = v }
     if (body.ccimVerified !== undefined)        data.ccimVerified        = Boolean(body.ccimVerified)
