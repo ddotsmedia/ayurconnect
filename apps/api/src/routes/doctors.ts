@@ -60,7 +60,9 @@ const doctors: FastifyPluginAsync = async (fastify) => {
     const enriched = items.map((d) => {
       const ratings = d.reviews.map((r) => r.rating)
       const avg = ratings.length ? ratings.reduce((a, b) => a + b, 0) / ratings.length : null
-      return { ...d, reviewsCount: ratings.length, averageRating: avg ? Math.round(avg * 10) / 10 : null }
+      // consultationFee is a deprecated DB column — strip from public responses.
+      const { consultationFee: _fee, ...rest } = d
+      return { ...rest, reviewsCount: ratings.length, averageRating: avg ? Math.round(avg * 10) / 10 : null }
     })
 
     return {
@@ -82,8 +84,9 @@ const doctors: FastifyPluginAsync = async (fastify) => {
     })
     if (!doctor) return reply.code(404).send({ error: 'Doctor not found' })
     const ratings = doctor.reviews.map((r) => r.rating)
+    const { consultationFee: _fee, ...rest } = doctor
     return {
-      ...doctor,
+      ...rest,
       averageRating: ratings.length ? Math.round((ratings.reduce((a, b) => a + b, 0) / ratings.length) * 10) / 10 : null,
       reviewsCount: ratings.length,
     }
