@@ -75,7 +75,7 @@ export type ChatResult =
   | { ok: true; text: string; provider: Provider }
   | { ok: false; status: number; reason: string; code: 'auth-failed' | 'no-credits' | 'rate-limited' | 'upstream-error' | 'not-configured'; provider: Provider | null }
 
-export async function chat(opts: { system: string; message: string }): Promise<ChatResult> {
+export async function chat(opts: { system: string; message: string; maxTokens?: number }): Promise<ChatResult> {
   const state = pickProvider()
   if (!state.ok || !state.provider) {
     return { ok: false, status: 503, reason: state.reason ?? 'AyurBot is not configured', code: 'not-configured', provider: null }
@@ -88,7 +88,7 @@ export async function chat(opts: { system: string; message: string }): Promise<C
 }
 
 // ─── Gemini (Google AI Studio free tier) ─────────────────────────────────
-async function callGemini({ system, message }: { system: string; message: string }, model: string): Promise<ChatResult> {
+async function callGemini({ system, message, maxTokens }: { system: string; message: string; maxTokens?: number }, model: string): Promise<ChatResult> {
   const key = process.env.GOOGLE_API_KEY!
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`
   try {
@@ -98,7 +98,7 @@ async function callGemini({ system, message }: { system: string; message: string
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: system }] },
         contents: [{ role: 'user', parts: [{ text: message }] }],
-        generationConfig: { maxOutputTokens: 1024, temperature: 0.7 },
+        generationConfig: { maxOutputTokens: maxTokens ?? 1024, temperature: 0.7 },
       }),
     })
     const body = await res.json().catch(() => ({} as Record<string, unknown>))
@@ -119,7 +119,7 @@ async function callGemini({ system, message }: { system: string; message: string
 }
 
 // ─── Groq (Llama 3.3 70B free tier) ──────────────────────────────────────
-async function callGroq({ system, message }: { system: string; message: string }, model: string): Promise<ChatResult> {
+async function callGroq({ system, message, maxTokens }: { system: string; message: string; maxTokens?: number }, model: string): Promise<ChatResult> {
   const key = process.env.GROQ_API_KEY!
   try {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -127,7 +127,7 @@ async function callGroq({ system, message }: { system: string; message: string }
       headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
       body: JSON.stringify({
         model,
-        max_tokens: 1024,
+        max_tokens: maxTokens ?? 1024,
         messages: [
           { role: 'system', content: system },
           { role: 'user', content: message },
@@ -273,7 +273,7 @@ async function* readSSE(body: ReadableStream<Uint8Array>, extractText: (raw: str
 }
 
 // ─── Anthropic Claude (paid) ─────────────────────────────────────────────
-async function callAnthropic({ system, message }: { system: string; message: string }, model: string): Promise<ChatResult> {
+async function callAnthropic({ system, message, maxTokens }: { system: string; message: string; maxTokens?: number }, model: string): Promise<ChatResult> {
   const key = process.env.ANTHROPIC_API_KEY!
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
@@ -285,7 +285,7 @@ async function callAnthropic({ system, message }: { system: string; message: str
       },
       body: JSON.stringify({
         model,
-        max_tokens: 1024,
+        max_tokens: maxTokens ?? 1024,
         system,
         messages: [{ role: 'user', content: message }],
       }),

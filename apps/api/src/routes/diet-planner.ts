@@ -101,12 +101,21 @@ function buildUserMessage(opts: {
 }
 
 function parsePlan(raw: string): GeneratedPlan | null {
-  // Strip markdown fences if model added them
-  const trimmed = raw.trim()
+  // Models inconsistently wrap in ```json … ``` fences; sometimes they include
+  // leading commentary like "Here is your plan:". Extract the JSON object
+  // robustly by finding the first { … matching } in the string.
+  let body = raw.trim()
     .replace(/^```(?:json)?\s*/i, '')
     .replace(/\s*```$/i, '')
+
+  // Fallback: locate the outermost { … } object
+  const firstBrace = body.indexOf('{')
+  const lastBrace  = body.lastIndexOf('}')
+  if (firstBrace === -1 || lastBrace === -1 || lastBrace <= firstBrace) return null
+  body = body.slice(firstBrace, lastBrace + 1)
+
   try {
-    const parsed = JSON.parse(trimmed) as Partial<GeneratedPlan>
+    const parsed = JSON.parse(body) as Partial<GeneratedPlan>
     if (!Array.isArray(parsed.days) || parsed.days.length === 0) return null
     return {
       days:       parsed.days as DayPlan[],
@@ -167,7 +176,9 @@ const route: FastifyPluginAsync = async (fastify) => {
 
     // Generate via LLM
     const message = buildUserMessage({ dosha, season, conditions, preferences })
-    const result = await chat({ system: SYSTEM_PROMPT, message })
+    // 7-day plan × 5 meals × ~50 tokens each + favor/avoid/principles/drinks/notes ≈ 5000 tokens.
+    // 8192 gives headroom for verbose models without uncapping pathologically.
+    const result = await chat({ system: SYSTEM_PROMPT, message, maxTokens: 8192 })
     if (!result.ok) {
       const failure = result as Extract<typeof result, { ok: false }>
       fastify.log.warn({ result: failure }, 'diet-planner: LLM call failed')
