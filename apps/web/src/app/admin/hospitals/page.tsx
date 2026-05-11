@@ -3,12 +3,8 @@
 import { useEffect, useState } from 'react'
 import { adminApi } from '../../../lib/admin-api'
 import { EntityFormShell, Field, inputClass } from '../../../components/admin/entity-form-shell'
-
-const DISTRICTS = [
-  'Thiruvananthapuram', 'Kollam', 'Pathanamthitta', 'Alappuzha', 'Kottayam',
-  'Idukki', 'Ernakulam', 'Thrissur', 'Palakkad', 'Malappuram', 'Kozhikode',
-  'Wayanad', 'Kannur', 'Kasaragod',
-]
+import { CountrySelect } from '../../../components/country-select'
+import { StateSelect } from '../../../components/state-select'
 
 const TYPES = ['hospital', 'clinic', 'panchakarma', 'pharmacy', 'wellness']
 
@@ -16,6 +12,8 @@ type Hospital = {
   id: string
   name: string
   type: string
+  country: string | null
+  state: string | null
   district: string
   ccimVerified: boolean
   ayushCertified: boolean
@@ -29,7 +27,7 @@ type Hospital = {
 }
 
 const empty = {
-  name: '', type: '', district: '',
+  name: '', type: '', country: 'IN', state: '', district: '',
   ccimVerified: false, ayushCertified: false, panchakarma: false, nabh: false,
   profile: '', contact: '', address: '', latitude: '', longitude: '',
 }
@@ -53,7 +51,10 @@ export default function HospitalsAdminPage() {
   function startEdit(h: Hospital) {
     setEditingId(h.id)
     setForm({
-      name: h.name, type: h.type, district: h.district,
+      name: h.name, type: h.type,
+      country: h.country ?? 'IN',
+      state: h.state ?? '',
+      district: h.district,
       ccimVerified: h.ccimVerified, ayushCertified: h.ayushCertified, panchakarma: h.panchakarma, nabh: h.nabh,
       profile: h.profile ?? '', contact: h.contact ?? '', address: h.address ?? '',
       latitude: h.latitude == null ? '' : String(h.latitude),
@@ -112,11 +113,20 @@ export default function HospitalsAdminPage() {
                 {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </Field>
-            <Field label="District *">
-              <select required className={inputClass} value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })}>
-                <option value="">— select —</option>
-                {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
-              </select>
+            <Field label="Country *">
+              <CountrySelect value={form.country} onChange={(c) => setForm({ ...form, country: c, state: '' })} />
+            </Field>
+            <Field label="State / region">
+              <StateSelect country={form.country} value={form.state} onChange={(s) => setForm({ ...form, state: s })} />
+            </Field>
+            <Field label="City / district *">
+              <input
+                required
+                className={inputClass}
+                value={form.district}
+                onChange={(e) => setForm({ ...form, district: e.target.value })}
+                placeholder="e.g. Ernakulam, Mumbai, Dubai"
+              />
             </Field>
             <Field label="Contact">
               <input className={inputClass} value={form.contact} onChange={(e) => setForm({ ...form, contact: e.target.value })} />
@@ -149,7 +159,7 @@ export default function HospitalsAdminPage() {
             <tr>
               <th className="px-4 py-2.5">Name</th>
               <th className="px-4 py-2.5">Type</th>
-              <th className="px-4 py-2.5">District</th>
+              <th className="px-4 py-2.5">Location</th>
               <th className="px-4 py-2.5">Flags</th>
               <th className="px-4 py-2.5 text-right">Actions</th>
             </tr>
@@ -163,7 +173,10 @@ export default function HospitalsAdminPage() {
               <tr key={h.id}>
                 <td className="px-4 py-2.5 font-medium">{h.name}</td>
                 <td className="px-4 py-2.5">{h.type}</td>
-                <td className="px-4 py-2.5">{h.district}</td>
+                <td className="px-4 py-2.5 text-xs">
+                  <div>{h.district}{h.state && h.state !== h.district ? `, ${h.state}` : ''}</div>
+                  {h.country && h.country !== 'IN' && <div className="text-gray-400">{h.country}</div>}
+                </td>
                 <td className="px-4 py-2.5 text-xs text-gray-600">
                   {[h.ccimVerified && 'CCIM', h.ayushCertified && 'AYUSH', h.panchakarma && 'PK', h.nabh && 'NABH']
                     .filter(Boolean).join(' · ') || '—'}

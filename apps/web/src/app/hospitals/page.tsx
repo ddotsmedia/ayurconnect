@@ -2,11 +2,14 @@ import Link from 'next/link'
 import { GradientHero } from '@ayurconnect/ui'
 import { ShieldCheck, MapPin, Phone, Award } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
+import { HospitalFilterBar } from './_filter-bar'
 
 type Hospital = {
   id: string
   name: string
   type: string
+  country: string | null
+  state: string | null
   district: string
   ccimVerified: boolean
   ayushCertified: boolean
@@ -28,21 +31,41 @@ const TYPE_LABEL: Record<string, string> = {
   wellness: 'Wellness resort',
 }
 
-async function fetchHospitals(): Promise<Hospital[]> {
+async function fetchHospitals(params: URLSearchParams): Promise<Hospital[]> {
   try {
-    const res = await fetch(`${API}/hospitals`, { cache: 'no-store' })
+    const res = await fetch(`${API}/hospitals?${params.toString()}`, { cache: 'no-store' })
     if (!res.ok) return []
     return (await res.json()) as Hospital[]
   } catch { return [] }
 }
 
 export const metadata = {
-  title: 'Ayurveda Hospitals & Wellness Centres in Kerala | AyurConnect',
-  description: 'CCIM-verified, AYUSH-certified Ayurveda hospitals, Panchakarma centres, and wellness resorts across Kerala — government and private.',
+  title: 'Ayurveda Hospitals & Wellness Centres | AyurConnect',
+  description: 'CCIM-verified, AYUSH-certified Ayurveda hospitals, Panchakarma centres, and wellness resorts. Filter by country, state, and district.',
 }
 
-export default async function HospitalsPage() {
-  const hospitals = await fetchHospitals()
+type SearchParams = {
+  country?:  string
+  state?:    string
+  district?: string
+  type?:     string
+  verified?: string
+  q?:        string
+}
+
+export default async function HospitalsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
+  const sp = await searchParams
+  // Build the API query string from the filters in the URL
+  const apiParams = new URLSearchParams()
+  if (sp.country)  apiParams.set('country',  sp.country)
+  if (sp.state)    apiParams.set('state',    sp.state)
+  if (sp.district) apiParams.set('district', sp.district)
+  if (sp.type)     apiParams.set('type',     sp.type)
+  if (sp.verified) apiParams.set('verified', sp.verified)
+  if (sp.q)        apiParams.set('q',        sp.q)
+
+  const hospitals = await fetchHospitals(apiParams)
+  const totalFilters = Array.from(apiParams.keys()).filter((k) => k !== 'country' || apiParams.get('country') !== 'IN').length
 
   return (
     <>
@@ -57,11 +80,23 @@ export default async function HospitalsPage() {
       </GradientHero>
 
       <div className="container mx-auto px-4 py-12">
-        <p className="text-sm text-muted mb-6"><strong className="text-ink">{hospitals.length}</strong> centres listed</p>
+        <HospitalFilterBar
+          initialCountry={sp.country ?? 'IN'}
+          initialState={sp.state ?? ''}
+          initialDistrict={sp.district ?? ''}
+          initialType={sp.type ?? ''}
+          initialVerified={sp.verified ?? ''}
+          initialQ={sp.q ?? ''}
+        />
+
+        <p className="text-sm text-muted mb-6">
+          <strong className="text-ink">{hospitals.length}</strong> centre{hospitals.length === 1 ? '' : 's'}
+          {totalFilters > 0 && ' matching your filters'}
+        </p>
 
         {hospitals.length === 0 ? (
           <div className="text-center py-20 bg-white border border-gray-100 rounded-card">
-            <p className="text-muted">No hospitals listed yet.</p>
+            <p className="text-muted">{totalFilters > 0 ? 'No hospitals match these filters. Try widening your search.' : 'No hospitals listed yet.'}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -103,7 +138,14 @@ export default async function HospitalsPage() {
                   )}
 
                   <div className="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs text-gray-600">
-                    <div className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-gray-400" /> {h.district}</div>
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-gray-400" />
+                      <span>
+                        {h.district}
+                        {h.state && h.state !== h.district ? `, ${h.state}` : ''}
+                        {h.country && h.country !== 'IN' ? ` · ${h.country}` : ''}
+                      </span>
+                    </div>
                     {avgRating != null && (
                       <div className="flex items-center gap-1.5"><Award className="w-3.5 h-3.5 text-gold-500" /> {avgRating} ({ratings.length})</div>
                     )}

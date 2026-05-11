@@ -3,20 +3,23 @@ import type { FastifyPluginAsync } from 'fastify'
 export const autoPrefix = '/hospitals'
 
 const FLAG_FIELDS = ['ccimVerified', 'ayushCertified', 'panchakarma', 'nabh'] as const
-const STRING_FIELDS = ['name', 'type', 'district', 'profile', 'contact', 'address'] as const
+const STRING_FIELDS = ['name', 'type', 'district', 'state', 'country', 'profile', 'contact', 'address'] as const
 
 const hospitals: FastifyPluginAsync = async (fastify) => {
   fastify.get('/', async (request) => {
-    const { district, type, q, verified, limit } = request.query as Record<string, string>
+    const { country, state, district, type, q, verified, limit } = request.query as Record<string, string>
     const where: Record<string, unknown> = {}
+    if (country && /^[A-Z]{2}$/.test(country)) where.country = country
+    if (state)    where.state    = { contains: state, mode: 'insensitive' }
     if (district) where.district = { contains: district, mode: 'insensitive' }
     if (type)     where.type     = { contains: type, mode: 'insensitive' }
     if (verified === 'true')  where.ccimVerified = true
     if (verified === 'false') where.ccimVerified = false
     if (q) where.OR = [
-      { name: { contains: q, mode: 'insensitive' } },
-      { type: { contains: q, mode: 'insensitive' } },
+      { name:     { contains: q, mode: 'insensitive' } },
+      { type:     { contains: q, mode: 'insensitive' } },
       { district: { contains: q, mode: 'insensitive' } },
+      { state:    { contains: q, mode: 'insensitive' } },
     ]
     const take = Math.min(Number(limit) || 100, 500)
     return fastify.prisma.hospital.findMany({
@@ -44,10 +47,14 @@ const hospitals: FastifyPluginAsync = async (fastify) => {
 
   fastify.post('/', { preHandler: fastify.requireAdmin }, async (request) => {
     const body = request.body as Record<string, unknown>
+    const country = typeof body.country === 'string' && /^[A-Z]{2}$/.test(body.country) ? body.country : 'IN'
+    const state   = typeof body.state === 'string' && body.state.trim() ? body.state.trim().slice(0, 100) : null
     return fastify.prisma.hospital.create({
       data: {
         name: String(body.name),
         type: String(body.type),
+        country,
+        state,
         district: String(body.district),
         ccimVerified: Boolean(body.ccimVerified),
         ayushCertified: Boolean(body.ayushCertified),
@@ -67,7 +74,18 @@ const hospitals: FastifyPluginAsync = async (fastify) => {
     const body = request.body as Record<string, unknown>
     const data: Record<string, unknown> = {}
     for (const k of STRING_FIELDS) {
-      if (body[k] !== undefined) data[k] = body[k]
+      if (body[k] === undefined) continue
+      // Validate country (ISO-2). Allow null/empty state. Pass-through for the rest.
+      if (k === 'country') {
+        const v = typeof body.country === 'string' && /^[A-Z]{2}$/.test(body.country) ? body.country : null
+        if (v) data.country = v
+        continue
+      }
+      if (k === 'state') {
+        data.state = typeof body.state === 'string' && body.state.trim() ? body.state.trim().slice(0, 100) : null
+        continue
+      }
+      data[k] = body[k]
     }
     for (const k of FLAG_FIELDS) {
       if (body[k] !== undefined) data[k] = Boolean(body[k])
