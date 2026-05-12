@@ -6,6 +6,7 @@ import { EntityFormShell, Field, inputClass } from '../../../components/admin/en
 import { ImageUpload } from '../../../components/image-upload'
 import { CountrySelect } from '../../../components/country-select'
 import { StateSelect } from '../../../components/state-select'
+import { SocialLinksField, type SocialLinks } from '../../../components/social-links'
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const COMMON_LANGUAGES = ['Malayalam', 'English', 'Tamil', 'Hindi', 'Arabic', 'Kannada', 'Tulu']
@@ -28,6 +29,12 @@ type Doctor = {
   bio: string | null
   contact: string | null
   address: string | null
+  websiteUrl: string | null
+  linkedinUrl: string | null
+  facebookUrl: string | null
+  instagramUrl: string | null
+  twitterUrl: string | null
+  youtubeUrl: string | null
   createdAt: string
 }
 
@@ -38,6 +45,7 @@ const empty = {
   qualification: '', experienceYears: '', languages: '', photoUrl: '',
   availableDays: [] as string[], availableForOnline: true,
   profile: '', bio: '', contact: '', address: '',
+  websiteUrl: '', linkedinUrl: '', facebookUrl: '', instagramUrl: '', twitterUrl: '', youtubeUrl: '',
 }
 
 type DoctorListResponse = { doctors: Doctor[]; pagination: { total: number } }
@@ -74,6 +82,12 @@ export default function DoctorsAdminPage() {
       availableForOnline: d.availableForOnline,
       profile: d.profile ?? '', bio: d.bio ?? '',
       contact: d.contact ?? '', address: d.address ?? '',
+      websiteUrl:   d.websiteUrl   ?? '',
+      linkedinUrl:  d.linkedinUrl  ?? '',
+      facebookUrl:  d.facebookUrl  ?? '',
+      instagramUrl: d.instagramUrl ?? '',
+      twitterUrl:   d.twitterUrl   ?? '',
+      youtubeUrl:   d.youtubeUrl   ?? '',
     })
     setShowForm(true)
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -203,6 +217,29 @@ export default function DoctorsAdminPage() {
           <Field label="Bio (long-form, shown on profile page)">
             <textarea rows={5} className={inputClass} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} />
           </Field>
+
+          <div className="pt-2 border-t">
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">Social links <span className="font-normal text-gray-400 text-xs">— all optional</span></h3>
+            <SocialLinksField
+              values={{
+                websiteUrl:   form.websiteUrl,
+                linkedinUrl:  form.linkedinUrl,
+                facebookUrl:  form.facebookUrl,
+                instagramUrl: form.instagramUrl,
+                twitterUrl:   form.twitterUrl,
+                youtubeUrl:   form.youtubeUrl,
+              }}
+              onChange={(s: SocialLinks) => setForm({
+                ...form,
+                websiteUrl:   s.websiteUrl   ?? '',
+                linkedinUrl:  s.linkedinUrl  ?? '',
+                facebookUrl:  s.facebookUrl  ?? '',
+                instagramUrl: s.instagramUrl ?? '',
+                twitterUrl:   s.twitterUrl   ?? '',
+                youtubeUrl:   s.youtubeUrl   ?? '',
+              })}
+            />
+          </div>
         </EntityFormShell>
       )}
 

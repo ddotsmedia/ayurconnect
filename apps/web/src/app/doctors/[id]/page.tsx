@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { headers as nextHeaders } from 'next/headers'
 import { DoctorCard, type DoctorCardData } from '@ayurconnect/ui'
+import { SocialLinksDisplay } from '../../../components/social-links'
 import {
   ShieldCheck, MapPin, Star, Languages, Calendar, Award, Stethoscope,
   Users, Mail, Phone, Share2, Flag, ArrowRight,
@@ -17,6 +18,12 @@ type DoctorDetail = DoctorCardData & {
   bio?: string | null
   contact?: string | null
   address?: string | null
+  websiteUrl?:   string | null
+  linkedinUrl?:  string | null
+  facebookUrl?:  string | null
+  instagramUrl?: string | null
+  twitterUrl?:   string | null
+  youtubeUrl?:   string | null
   reviews: Review[]
   averageRating: number | null
   reviewsCount: number
@@ -296,6 +303,24 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
               <Mail className="w-4 h-4" /> Contact us
             </a>
           </div>
+
+          {/* Social links — renders only if doctor filled any; WhatsApp auto-derived from contact phone */}
+          {(doctor.websiteUrl || doctor.linkedinUrl || doctor.facebookUrl || doctor.instagramUrl || doctor.twitterUrl || doctor.youtubeUrl || doctor.contact) && (
+            <div className="bg-white rounded-card border border-gray-100 p-5">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Follow / connect</h3>
+              <SocialLinksDisplay
+                links={{
+                  websiteUrl:   doctor.websiteUrl,
+                  linkedinUrl:  doctor.linkedinUrl,
+                  facebookUrl:  doctor.facebookUrl,
+                  instagramUrl: doctor.instagramUrl,
+                  twitterUrl:   doctor.twitterUrl,
+                  youtubeUrl:   doctor.youtubeUrl,
+                }}
+                whatsappPhone={doctor.contact}
+              />
+            </div>
+          )}
         </aside>
       </div>
 

@@ -3,9 +3,25 @@ import { createNotification } from '../lib/notify.js'
 
 export const autoPrefix = '/doctors'
 
-const STR_FIELDS = ['name', 'specialization', 'district', 'state', 'country', 'profile', 'bio', 'qualification', 'photoUrl', 'contact', 'address'] as const
+const STR_FIELDS = [
+  'name', 'specialization', 'district', 'state', 'country',
+  'profile', 'bio', 'qualification', 'photoUrl', 'contact', 'address',
+  'websiteUrl', 'linkedinUrl', 'facebookUrl', 'instagramUrl', 'twitterUrl', 'youtubeUrl',
+] as const
 const ARR_FIELDS = ['languages', 'availableDays'] as const
 const NUM_FIELDS = ['experienceYears'] as const
+const SOCIAL_URL_FIELDS = ['websiteUrl', 'linkedinUrl', 'facebookUrl', 'instagramUrl', 'twitterUrl', 'youtubeUrl'] as const
+type SocialUrlField = typeof SOCIAL_URL_FIELDS[number]
+
+// Permissive URL check — accept http(s) only, max 500 chars. Empty / non-string
+// becomes null. Pattern is intentionally loose so users can paste short URLs.
+function normalizeUrl(v: unknown): string | null {
+  if (typeof v !== 'string') return null
+  const s = v.trim()
+  if (!s) return null
+  if (!/^https?:\/\/\S+\.\S+/i.test(s)) return null
+  return s.slice(0, 500)
+}
 
 function arr(v: unknown): string[] | undefined {
   if (v === undefined) return undefined
@@ -110,6 +126,10 @@ const doctors: FastifyPluginAsync = async (fastify) => {
         data.state = typeof body.state === 'string' && body.state.trim() ? body.state.trim().slice(0, 100) : null
         continue
       }
+      if ((SOCIAL_URL_FIELDS as readonly string[]).includes(k)) {
+        data[k] = normalizeUrl(body[k])
+        continue
+      }
       data[k] = body[k] || null
     }
     for (const k of ARR_FIELDS) { const v = arr(body[k]); if (v !== undefined) data[k] = v }
@@ -133,6 +153,10 @@ const doctors: FastifyPluginAsync = async (fastify) => {
       }
       if (k === 'state') {
         data.state = typeof body.state === 'string' && body.state.trim() ? body.state.trim().slice(0, 100) : null
+        continue
+      }
+      if ((SOCIAL_URL_FIELDS as readonly string[]).includes(k)) {
+        data[k] = normalizeUrl(body[k])
         continue
       }
       data[k] = body[k] || null

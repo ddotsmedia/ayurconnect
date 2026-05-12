@@ -5,6 +5,7 @@ import { adminApi } from '../../../lib/admin-api'
 import { EntityFormShell, Field, inputClass } from '../../../components/admin/entity-form-shell'
 import { CountrySelect } from '../../../components/country-select'
 import { StateSelect } from '../../../components/state-select'
+import { SocialLinksField, type SocialLinks } from '../../../components/social-links'
 
 const TYPES = ['hospital', 'clinic', 'panchakarma', 'pharmacy', 'wellness']
 
@@ -24,12 +25,19 @@ type Hospital = {
   address: string | null
   latitude: number | null
   longitude: number | null
+  websiteUrl: string | null
+  linkedinUrl: string | null
+  facebookUrl: string | null
+  instagramUrl: string | null
+  twitterUrl: string | null
+  youtubeUrl: string | null
 }
 
 const empty = {
   name: '', type: '', country: 'IN', state: '', district: '',
   ccimVerified: false, ayushCertified: false, panchakarma: false, nabh: false,
   profile: '', contact: '', address: '', latitude: '', longitude: '',
+  websiteUrl: '', linkedinUrl: '', facebookUrl: '', instagramUrl: '', twitterUrl: '', youtubeUrl: '',
 }
 
 export default function HospitalsAdminPage() {
@@ -59,6 +67,12 @@ export default function HospitalsAdminPage() {
       profile: h.profile ?? '', contact: h.contact ?? '', address: h.address ?? '',
       latitude: h.latitude == null ? '' : String(h.latitude),
       longitude: h.longitude == null ? '' : String(h.longitude),
+      websiteUrl:   h.websiteUrl   ?? '',
+      linkedinUrl:  h.linkedinUrl  ?? '',
+      facebookUrl:  h.facebookUrl  ?? '',
+      instagramUrl: h.instagramUrl ?? '',
+      twitterUrl:   h.twitterUrl   ?? '',
+      youtubeUrl:   h.youtubeUrl   ?? '',
     })
     setShowForm(true)
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -150,6 +164,29 @@ export default function HospitalsAdminPage() {
           <Field label="Profile / description">
             <textarea rows={3} className={inputClass} value={form.profile} onChange={(e) => setForm({ ...form, profile: e.target.value })} />
           </Field>
+
+          <div className="pt-2 border-t">
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">Social links <span className="font-normal text-gray-400 text-xs">— all optional</span></h3>
+            <SocialLinksField
+              values={{
+                websiteUrl:   form.websiteUrl,
+                linkedinUrl:  form.linkedinUrl,
+                facebookUrl:  form.facebookUrl,
+                instagramUrl: form.instagramUrl,
+                twitterUrl:   form.twitterUrl,
+                youtubeUrl:   form.youtubeUrl,
+              }}
+              onChange={(s: SocialLinks) => setForm({
+                ...form,
+                websiteUrl:   s.websiteUrl   ?? '',
+                linkedinUrl:  s.linkedinUrl  ?? '',
+                facebookUrl:  s.facebookUrl  ?? '',
+                instagramUrl: s.instagramUrl ?? '',
+                twitterUrl:   s.twitterUrl   ?? '',
+                youtubeUrl:   s.youtubeUrl   ?? '',
+              })}
+            />
+          </div>
         </EntityFormShell>
       )}
 

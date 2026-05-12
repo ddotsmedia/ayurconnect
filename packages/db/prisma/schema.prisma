@@ -159,6 +159,14 @@ model Doctor {
   consultationFee    Int?     // INR
   contact            String?
   address            String?
+  // ─── Social links (added 2026-05-12). Optional URLs; validated as http(s)
+  // at the API layer. WhatsApp handle derives from `contact` (E.164 → wa.me).
+  websiteUrl         String?
+  linkedinUrl        String?
+  facebookUrl        String?
+  instagramUrl       String?
+  twitterUrl         String?
+  youtubeUrl         String?
   // ─── Provenance / verification (added 2026-05-10 with import pipeline) ──
   tcmcNumber         String?  @unique // Travancore-Cochin Medical Council registration #
   source             String?  // e.g. 'tcmc', 'kerala-tourism', 'self-register', 'admin', 'csv'
@@ -214,6 +222,13 @@ model Hospital {
   address         String?
   latitude        Float?
   longitude       Float?
+  // ─── Social links (added 2026-05-12). See Doctor model for semantics.
+  websiteUrl      String?
+  linkedinUrl     String?
+  facebookUrl     String?
+  instagramUrl    String?
+  twitterUrl      String?
+  youtubeUrl      String?
   // ─── Provenance / classification (added 2026-05-10 with import pipeline) ──
   classification  String?  // 'olive-leaf' | 'green-leaf' | null (Kerala Tourism's official rating)
   source          String?  // e.g. 'kerala-tourism', 'ism-kerala', 'self-register', 'admin', 'csv'

@@ -8,6 +8,7 @@ import { hospitalLd, breadcrumbLd, ldGraph, clip, SITE_URL } from '../../../lib/
 import { mapsDirectionsUrl, mapsLatLngUrl } from '../../../lib/maps'
 import { getServerSession } from '../../../lib/auth'
 import { ReviewForm } from '../../../components/review-form'
+import { SocialLinksDisplay } from '../../../components/social-links'
 
 type Hospital = {
   id: string
@@ -26,6 +27,12 @@ type Hospital = {
   address: string | null
   latitude: number | null
   longitude: number | null
+  websiteUrl: string | null
+  linkedinUrl: string | null
+  facebookUrl: string | null
+  instagramUrl: string | null
+  twitterUrl: string | null
+  youtubeUrl: string | null
   reviews: Array<{ id: string; rating: number; comment: string | null; createdAt: string; user?: { name?: string | null } | null }>
 }
 
@@ -246,6 +253,24 @@ export default async function HospitalDetailPage({ params }: { params: Promise<{
               </div>
             </dl>
           </div>
+
+          {/* Social links — only shown if hospital filled any; WhatsApp auto-derived from contact phone */}
+          {(h.websiteUrl || h.linkedinUrl || h.facebookUrl || h.instagramUrl || h.twitterUrl || h.youtubeUrl || h.contact) && (
+            <div className="bg-white rounded-card border border-gray-100 p-5">
+              <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Follow / connect</h3>
+              <SocialLinksDisplay
+                links={{
+                  websiteUrl:   h.websiteUrl,
+                  linkedinUrl:  h.linkedinUrl,
+                  facebookUrl:  h.facebookUrl,
+                  instagramUrl: h.instagramUrl,
+                  twitterUrl:   h.twitterUrl,
+                  youtubeUrl:   h.youtubeUrl,
+                }}
+                whatsappPhone={h.contact}
+              />
+            </div>
+          )}
 
           {/* Verification panel */}
           <div className="bg-kerala-50 border border-kerala-100 rounded-card p-4 text-xs text-kerala-900">

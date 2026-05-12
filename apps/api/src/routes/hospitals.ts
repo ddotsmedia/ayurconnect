@@ -3,7 +3,19 @@ import type { FastifyPluginAsync } from 'fastify'
 export const autoPrefix = '/hospitals'
 
 const FLAG_FIELDS = ['ccimVerified', 'ayushCertified', 'panchakarma', 'nabh'] as const
-const STRING_FIELDS = ['name', 'type', 'district', 'state', 'country', 'profile', 'contact', 'address'] as const
+const STRING_FIELDS = [
+  'name', 'type', 'district', 'state', 'country', 'profile', 'contact', 'address',
+  'websiteUrl', 'linkedinUrl', 'facebookUrl', 'instagramUrl', 'twitterUrl', 'youtubeUrl',
+] as const
+const SOCIAL_URL_FIELDS = ['websiteUrl', 'linkedinUrl', 'facebookUrl', 'instagramUrl', 'twitterUrl', 'youtubeUrl'] as const
+
+function normalizeUrl(v: unknown): string | null {
+  if (typeof v !== 'string') return null
+  const s = v.trim()
+  if (!s) return null
+  if (!/^https?:\/\/\S+\.\S+/i.test(s)) return null
+  return s.slice(0, 500)
+}
 
 const hospitals: FastifyPluginAsync = async (fastify) => {
   fastify.get('/', async (request) => {
@@ -65,6 +77,12 @@ const hospitals: FastifyPluginAsync = async (fastify) => {
         address: (body.address as string) || null,
         latitude: body.latitude != null && body.latitude !== '' ? Number(body.latitude) : null,
         longitude: body.longitude != null && body.longitude !== '' ? Number(body.longitude) : null,
+        websiteUrl:   normalizeUrl(body.websiteUrl),
+        linkedinUrl:  normalizeUrl(body.linkedinUrl),
+        facebookUrl:  normalizeUrl(body.facebookUrl),
+        instagramUrl: normalizeUrl(body.instagramUrl),
+        twitterUrl:   normalizeUrl(body.twitterUrl),
+        youtubeUrl:   normalizeUrl(body.youtubeUrl),
       },
     })
   })
@@ -83,6 +101,10 @@ const hospitals: FastifyPluginAsync = async (fastify) => {
       }
       if (k === 'state') {
         data.state = typeof body.state === 'string' && body.state.trim() ? body.state.trim().slice(0, 100) : null
+        continue
+      }
+      if ((SOCIAL_URL_FIELDS as readonly string[]).includes(k)) {
+        data[k] = normalizeUrl(body[k])
         continue
       }
       data[k] = body[k]

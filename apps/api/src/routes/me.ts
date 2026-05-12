@@ -20,6 +20,8 @@ const me: FastifyPluginAsync = async (fastify) => {
             ccimVerified: true, qualification: true, experienceYears: true,
             languages: true, availableDays: true, availableForOnline: true,
             profile: true, bio: true, photoUrl: true,
+            websiteUrl: true, linkedinUrl: true, facebookUrl: true,
+            instagramUrl: true, twitterUrl: true, youtubeUrl: true,
           },
         },
         ownedHospital: {
@@ -28,6 +30,8 @@ const me: FastifyPluginAsync = async (fastify) => {
             ccimVerified: true, ayushCertified: true, panchakarma: true, nabh: true,
             establishedYear: true, services: true, profile: true,
             contact: true, address: true, latitude: true, longitude: true,
+            websiteUrl: true, linkedinUrl: true, facebookUrl: true,
+            instagramUrl: true, twitterUrl: true, youtubeUrl: true,
           },
         },
       },
@@ -172,6 +176,14 @@ const me: FastifyPluginAsync = async (fastify) => {
     const setFloatOrNull = (k: string) => { if (body[k] == null) return; const n = Number(body[k]); if (!Number.isNaN(n)) data[k] = n }
     const setBool = (k: string) => { if (typeof body[k] === 'boolean') data[k] = body[k] }
     const setStrArray = (k: string) => { if (Array.isArray(body[k])) data[k] = (body[k] as unknown[]).filter((v): v is string => typeof v === 'string') }
+    // Social URL: validate http(s) shape, clamp 500 chars, null otherwise.
+    const setUrlOrNull = (k: string) => {
+      if (body[k] === undefined) return
+      if (typeof body[k] !== 'string') { data[k] = null; return }
+      const s = (body[k] as string).trim()
+      if (!s) { data[k] = null; return }
+      data[k] = /^https?:\/\/\S+\.\S+/i.test(s) ? s.slice(0, 500) : null
+    }
 
     setStr('name')
     setStr('type')
@@ -188,6 +200,12 @@ const me: FastifyPluginAsync = async (fastify) => {
     setBool('panchakarma')
     setBool('nabh')
     setStrArray('services')
+    setUrlOrNull('websiteUrl')
+    setUrlOrNull('linkedinUrl')
+    setUrlOrNull('facebookUrl')
+    setUrlOrNull('instagramUrl')
+    setUrlOrNull('twitterUrl')
+    setUrlOrNull('youtubeUrl')
 
     if (Object.keys(data).length === 0) return reply.code(400).send({ error: 'no editable fields' })
 
@@ -207,6 +225,13 @@ const me: FastifyPluginAsync = async (fastify) => {
     const setIntOrNull = (k: string) => { if (body[k] == null) return; const n = Number(body[k]); if (!Number.isNaN(n)) data[k] = n }
     const setBool = (k: string) => { if (typeof body[k] === 'boolean') data[k] = body[k] }
     const setStrArray = (k: string) => { if (Array.isArray(body[k])) data[k] = (body[k] as unknown[]).filter((v): v is string => typeof v === 'string') }
+    const setUrlOrNull = (k: string) => {
+      if (body[k] === undefined) return
+      if (typeof body[k] !== 'string') { data[k] = null; return }
+      const s = (body[k] as string).trim()
+      if (!s) { data[k] = null; return }
+      data[k] = /^https?:\/\/\S+\.\S+/i.test(s) ? s.slice(0, 500) : null
+    }
 
     setStr('name')
     setStr('specialization')
@@ -223,6 +248,12 @@ const me: FastifyPluginAsync = async (fastify) => {
     setBool('availableForOnline')
     setStrArray('languages')
     setStrArray('availableDays')
+    setUrlOrNull('websiteUrl')
+    setUrlOrNull('linkedinUrl')
+    setUrlOrNull('facebookUrl')
+    setUrlOrNull('instagramUrl')
+    setUrlOrNull('twitterUrl')
+    setUrlOrNull('youtubeUrl')
 
     if (Object.keys(data).length === 0) return reply.code(400).send({ error: 'no editable fields' })
 

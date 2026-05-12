@@ -4,8 +4,17 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ShieldCheck, AlertTriangle } from 'lucide-react'
 import { ImageUpload } from '../../../components/image-upload'
+import { SocialLinksField, type SocialLinks } from '../../../components/social-links'
 
-type DoctorOwned = {
+type SocialFields = {
+  websiteUrl: string | null
+  linkedinUrl: string | null
+  facebookUrl: string | null
+  instagramUrl: string | null
+  twitterUrl: string | null
+  youtubeUrl: string | null
+}
+type DoctorOwned = SocialFields & {
   id: string; name: string; specialization: string; district: string;
   qualification: string | null; experienceYears: number | null;
   ccimVerified: boolean;
@@ -13,7 +22,7 @@ type DoctorOwned = {
   availableForOnline: boolean | null; profile: string | null;
   bio: string | null; photoUrl: string | null;
 }
-type HospitalOwned = {
+type HospitalOwned = SocialFields & {
   id: string; name: string; type: string; district: string;
   ccimVerified: boolean; ayushCertified: boolean; panchakarma: boolean; nabh: boolean;
   establishedYear: number | null; services: string[] | null;
@@ -180,6 +189,12 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
     profile: doctor.profile ?? '',
     bio: doctor.bio ?? '',
     photoUrl: doctor.photoUrl ?? '',
+    websiteUrl:   doctor.websiteUrl   ?? '',
+    linkedinUrl:  doctor.linkedinUrl  ?? '',
+    facebookUrl:  doctor.facebookUrl  ?? '',
+    instagramUrl: doctor.instagramUrl ?? '',
+    twitterUrl:   doctor.twitterUrl   ?? '',
+    youtubeUrl:   doctor.youtubeUrl   ?? '',
   })
   const [saving, setSaving] = useState(false)
   const [err, setErr] = useState<string | null>(null)
@@ -206,6 +221,12 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
         profile: d.profile,
         bio: d.bio,
         photoUrl: d.photoUrl,
+        websiteUrl:   d.websiteUrl,
+        linkedinUrl:  d.linkedinUrl,
+        facebookUrl:  d.facebookUrl,
+        instagramUrl: d.instagramUrl,
+        twitterUrl:   d.twitterUrl,
+        youtubeUrl:   d.youtubeUrl,
       }
       const res = await fetch('/api/me/doctor', {
         method: 'PATCH',
@@ -259,6 +280,29 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
         Available for online consultations
       </label>
 
+      <div className="pt-3 border-t border-gray-100">
+        <span className="block text-sm font-semibold text-gray-700 mb-2">Social links <span className="font-normal text-gray-400 text-xs">— all optional</span></span>
+        <SocialLinksField
+          values={{
+            websiteUrl:   d.websiteUrl,
+            linkedinUrl:  d.linkedinUrl,
+            facebookUrl:  d.facebookUrl,
+            instagramUrl: d.instagramUrl,
+            twitterUrl:   d.twitterUrl,
+            youtubeUrl:   d.youtubeUrl,
+          }}
+          onChange={(s: SocialLinks) => setD({
+            ...d,
+            websiteUrl:   s.websiteUrl   ?? '',
+            linkedinUrl:  s.linkedinUrl  ?? '',
+            facebookUrl:  s.facebookUrl  ?? '',
+            instagramUrl: s.instagramUrl ?? '',
+            twitterUrl:   s.twitterUrl   ?? '',
+            youtubeUrl:   s.youtubeUrl   ?? '',
+          })}
+        />
+      </div>
+
       {err && <p className="text-sm text-red-600">{err}</p>}
       {ok  && <p className="text-sm text-kerala-700">Doctor profile saved ✓</p>}
 
@@ -293,6 +337,12 @@ function HospitalEditForm({ hospital, onSaved }: { hospital: HospitalOwned; onSa
     ayushCertified: hospital.ayushCertified,
     panchakarma: hospital.panchakarma,
     nabh: hospital.nabh,
+    websiteUrl:   hospital.websiteUrl   ?? '',
+    linkedinUrl:  hospital.linkedinUrl  ?? '',
+    facebookUrl:  hospital.facebookUrl  ?? '',
+    instagramUrl: hospital.instagramUrl ?? '',
+    twitterUrl:   hospital.twitterUrl   ?? '',
+    youtubeUrl:   hospital.youtubeUrl   ?? '',
   })
   const [saving, setSaving] = useState(false)
   const [err, setErr] = useState<string | null>(null)
@@ -307,6 +357,12 @@ function HospitalEditForm({ hospital, onSaved }: { hospital: HospitalOwned; onSa
         services: h.services.split(',').map((s) => s.trim()).filter(Boolean),
         profile: h.profile, contact: h.contact, address: h.address,
         ayushCertified: h.ayushCertified, panchakarma: h.panchakarma, nabh: h.nabh,
+        websiteUrl:   h.websiteUrl,
+        linkedinUrl:  h.linkedinUrl,
+        facebookUrl:  h.facebookUrl,
+        instagramUrl: h.instagramUrl,
+        twitterUrl:   h.twitterUrl,
+        youtubeUrl:   h.youtubeUrl,
       }
       const res = await fetch('/api/me/hospital', {
         method: 'PATCH', credentials: 'include',
@@ -353,6 +409,29 @@ function HospitalEditForm({ hospital, onSaved }: { hospital: HospitalOwned; onSa
         <label className="flex items-center gap-2 px-3 py-2 border rounded-md text-sm cursor-pointer hover:bg-gray-50">
           <input type="checkbox" checked={h.nabh} onChange={(e) => setH({ ...h, nabh: e.target.checked })} /> NABH
         </label>
+      </div>
+
+      <div className="pt-3 border-t border-gray-100">
+        <span className="block text-sm font-semibold text-gray-700 mb-2">Social links <span className="font-normal text-gray-400 text-xs">— all optional</span></span>
+        <SocialLinksField
+          values={{
+            websiteUrl:   h.websiteUrl,
+            linkedinUrl:  h.linkedinUrl,
+            facebookUrl:  h.facebookUrl,
+            instagramUrl: h.instagramUrl,
+            twitterUrl:   h.twitterUrl,
+            youtubeUrl:   h.youtubeUrl,
+          }}
+          onChange={(s: SocialLinks) => setH({
+            ...h,
+            websiteUrl:   s.websiteUrl   ?? '',
+            linkedinUrl:  s.linkedinUrl  ?? '',
+            facebookUrl:  s.facebookUrl  ?? '',
+            instagramUrl: s.instagramUrl ?? '',
+            twitterUrl:   s.twitterUrl   ?? '',
+            youtubeUrl:   s.youtubeUrl   ?? '',
+          })}
+        />
       </div>
 
       {err && <p className="text-sm text-red-600">{err}</p>}
