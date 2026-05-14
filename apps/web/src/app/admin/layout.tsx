@@ -18,6 +18,7 @@ const NAV: Array<{ href: string; label: string; group?: string }> = [
   { href: '/admin/health-tips',   label: 'Health tips',       group: 'content' },
   { href: '/admin/health-videos', label: 'Health videos',     group: 'content' },
   { href: '/admin/testimonials',  label: 'Stories of Healing', group: 'content' },
+  { href: '/admin/amai',          label: 'AMAI microsite',    group: 'content' },
   { href: '/admin/forum',     label: 'Forum',     group: 'moderation' },
   { href: '/admin/reviews',   label: 'Reviews',   group: 'moderation' },
   { href: '/admin/leads',     label: 'Leads / Enquiries', group: 'moderation' },

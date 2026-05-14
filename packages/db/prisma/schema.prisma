@@ -1456,3 +1456,75 @@ model DrugInteraction {
   @@index([componentB])
   @@index([severity, status])
 }
+
+// ─── AMAI one-page microsite ─────────────────────────────────────────────
+// Ayurveda Medical Association of India. A single editable page at /amai,
+// content sourced from ayurveda-amai.org. Singleton: one row keyed by
+// slug="amai". All prose lives on AmaiPage; the repeating lists (office
+// bearers, milestones, vision/values/strategic-issues) are child rows so
+// the admin can add/remove/reorder them. The admin PUT does a full
+// transactional replace of the children — see apps/api/src/routes/amai.ts.
+model AmaiPage {
+  id               String   @id @default(cuid())
+  slug             String   @unique @default("amai")
+  orgName          String   @default("Ayurveda Medical Association of India")
+  shortName        String   @default("AMAI")
+  tagline          String   @default("")
+  heroImageUrl     String?
+  logoUrl          String?
+  // Prose sections (plain text, newline-separated paragraphs)
+  mission          String   @default("")
+  aboutText        String   @default("")
+  foundedInfo      String   @default("")
+  strategicNote    String   @default("")
+  membershipInfo   String   @default("")
+  // Contact
+  contactAddress   String   @default("")
+  contactPhone     String   @default("")
+  contactEmail     String   @default("")
+  websiteUrl       String   @default("")
+  registrationInfo String   @default("")
+  copyrightText    String   @default("")
+  published        Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  officeBearers    AmaiOfficeBearer[]
+  milestones       AmaiMilestone[]
+  listItems        AmaiListItem[]
+}
+
+model AmaiOfficeBearer {
+  id        String   @id @default(cuid())
+  pageId    String
+  name      String
+  position  String
+  category  String   @default("executive") // executive | secretary | women | apta | other
+  photoUrl  String?
+  sortOrder Int      @default(0)
+  page      AmaiPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, sortOrder])
+}
+
+model AmaiMilestone {
+  id          String   @id @default(cuid())
+  pageId      String
+  year        String   // string, so ranges like "1985-1995" are allowed
+  description String
+  sortOrder   Int      @default(0)
+  page        AmaiPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, sortOrder])
+}
+
+model AmaiListItem {
+  id        String   @id @default(cuid())
+  pageId    String
+  section   String   // vision | core_value | strategic_issue | activity | committee
+  text      String
+  sortOrder Int      @default(0)
+  page      AmaiPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, section, sortOrder])
+}

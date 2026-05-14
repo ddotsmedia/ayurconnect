@@ -61,6 +61,7 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
       { href: '/about/investors',          label: 'Investor Relations' },
       { href: '/research',                 label: 'Clinical Research' },
       { href: '/knowledge',                label: 'Knowledge Hub' },
+      { href: '/amai',                     label: 'Ayurveda Medical Association of India' },
     ],
   },
   {
