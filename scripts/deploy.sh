@@ -134,13 +134,19 @@ $SEED && SEED_BLOCK='echo "▶ seed"; pnpm --filter @ayurconnect/db db:seed 2>&1
 
 BUILD_BLOCK=""
 if ! $SKIP_BUILD; then
+  # Raise Node's heap ceiling for the build. `next build` on this app (~126
+  # routes) intermittently exhausted the default heap on the VPS and exited 1
+  # — no kernel OOM (it's Node's own limit), so nothing in dmesg, and it
+  # passed on retry. 8 GB is safe: the box has 15 GB RAM + 8 GB swap.
+  # web build keeps a longer tail so a real failure is actually diagnosable.
   BUILD_BLOCK='
+export NODE_OPTIONS="--max-old-space-size=8192"
 echo "▶ build packages/db"
 pnpm --filter @ayurconnect/db build 2>&1 | tail -2
 echo "▶ build apps/api"
 pnpm --filter api build 2>&1 | tail -2
 echo "▶ build apps/web"
-pnpm --filter @ayurconnect/web build 2>&1 | tail -3'
+pnpm --filter @ayurconnect/web build 2>&1 | tail -30'
 fi
 
 REMOTE_SCRIPT=$(cat <<EOF
