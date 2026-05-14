@@ -32,7 +32,7 @@ function initialsOf(s: NonNullable<NavbarSession>): string {
 type NavChildLink = { href: string; label: string }
 type NavItem =
   | { kind: 'mega';  href: string; label: string }
-  | { kind: 'link';  href: string; label: string }
+  | { kind: 'link';  href: string; label: string; iconSrc?: string }
   | { kind: 'group'; key: string; label: string; children: NavChildLink[] }
 
 export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
@@ -77,7 +77,7 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
         { href: '/colleges', label: tr.nav.colleges },
       ],
     },
-    { kind: 'link',  href: '/amai',                 label: 'AMAI' },
+    { kind: 'link',  href: '/amai',                 label: 'AMAI', iconSrc: '/amai-logo.svg' },
   ]
 
   useEffect(() => {
@@ -212,8 +212,12 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="px-3 py-2 text-sm text-gray-700 hover:text-kerala-700 transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-2 text-sm text-gray-700 hover:text-kerala-700 transition-colors"
                   >
+                    {link.iconSrc && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={link.iconSrc} alt="" aria-hidden className="h-5 w-auto" />
+                    )}
                     {link.label}
                   </Link>
                 )
@@ -335,13 +339,18 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
               {NAV_LINKS.map((link) => {
                 // mega + plain link → flat row
                 if (link.kind === 'mega' || link.kind === 'link') {
+                  const iconSrc = link.kind === 'link' ? link.iconSrc : undefined
                   return (
                     <Link
-                      key={link.kind === 'mega' ? link.href : link.href}
+                      key={link.href}
                       href={link.href}
-                      className="block px-3 py-2.5 rounded text-gray-800 hover:bg-kerala-50"
+                      className="flex items-center gap-2 px-3 py-2.5 rounded text-gray-800 hover:bg-kerala-50"
                       onClick={() => setMobileOpen(false)}
                     >
+                      {iconSrc && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={iconSrc} alt="" aria-hidden className="h-5 w-auto" />
+                      )}
                       {link.label}
                     </Link>
                   )
