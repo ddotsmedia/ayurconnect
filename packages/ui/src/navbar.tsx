@@ -77,6 +77,7 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
         { href: '/colleges', label: tr.nav.colleges },
       ],
     },
+    { kind: 'link',  href: '/amai',                 label: 'AMAI' },
   ]
 
   useEffect(() => {
