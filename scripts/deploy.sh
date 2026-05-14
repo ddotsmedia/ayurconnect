@@ -144,7 +144,7 @@ pnpm --filter @ayurconnect/web build 2>&1 | tail -3'
 fi
 
 REMOTE_SCRIPT=$(cat <<EOF
-set -e
+set -eo pipefail
 cd $DEPLOY_DIR
 
 echo "▶ install (skipped if lockfile unchanged)"
