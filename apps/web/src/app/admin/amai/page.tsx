@@ -13,6 +13,8 @@ import { Field, inputClass } from '../../../components/admin/entity-form-shell'
 type Bearer    = { name: string; position: string; category: string; photoUrl: string }
 type Milestone = { year: string; description: string }
 type ListKey   = 'vision' | 'core_value' | 'strategic_issue' | 'activity' | 'committee'
+type SocialLink = { platform: string; url: string }
+type OtherLink  = { label: string; url: string }
 
 type PageScalars = {
   orgName: string; shortName: string; tagline: string
@@ -42,6 +44,16 @@ const BEARER_CATEGORIES = [
   { value: 'other',     label: 'Other' },
 ]
 
+const SOCIAL_PLATFORMS = [
+  { value: 'facebook',  label: 'Facebook' },
+  { value: 'instagram', label: 'Instagram' },
+  { value: 'youtube',   label: 'YouTube' },
+  { value: 'twitter',   label: 'Twitter / X' },
+  { value: 'linkedin',  label: 'LinkedIn' },
+  { value: 'whatsapp',  label: 'WhatsApp' },
+  { value: 'telegram',  label: 'Telegram' },
+]
+
 const LIST_META: Array<{ key: ListKey; label: string; placeholder: string }> = [
   { key: 'vision',           label: 'Vision points',     placeholder: 'e.g. Unity of Ayurvedic Physicians' },
   { key: 'core_value',       label: 'Core values',       placeholder: 'e.g. Integrity and Ethical Behavior' },
@@ -66,6 +78,8 @@ export default function AmaiAdminPage() {
   const [bearers, setBearers] = useState<Bearer[]>([])
   const [milestones, setMilestones] = useState<Milestone[]>([])
   const [lists, setLists]     = useState<Record<ListKey, string[]>>(emptyLists())
+  const [social, setSocial]   = useState<SocialLink[]>([])
+  const [otherLinks, setOtherLinks] = useState<OtherLink[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving]   = useState(false)
   const [error, setError]     = useState<string | null>(null)
@@ -79,6 +93,7 @@ export default function AmaiAdminPage() {
         officeBearers: Array<Partial<Bearer>>
         milestones: Array<Partial<Milestone>>
         listItems: Array<{ section: string; text: string }>
+        links: Array<{ category: string; label: string; url: string }>
       }>('/amai')
       setPage({ ...EMPTY_PAGE, ...(data.page ?? {}) })
       setBearers((data.officeBearers ?? []).map((b) => ({
@@ -93,6 +108,13 @@ export default function AmaiAdminPage() {
         if (it.section in grouped) grouped[it.section as ListKey].push(it.text)
       }
       setLists(grouped)
+      const soc: SocialLink[] = []
+      const oth: OtherLink[] = []
+      for (const l of data.links ?? []) {
+        if (l.category === 'social') soc.push({ platform: l.label, url: l.url })
+        else oth.push({ label: l.label, url: l.url })
+      }
+      setSocial(soc); setOtherLinks(oth)
     } catch (e) { setError(String(e)) } finally { setLoading(false) }
   }
   useEffect(() => { load() }, [])
@@ -103,11 +125,20 @@ export default function AmaiAdminPage() {
       const listItems = LIST_META.flatMap(({ key }) =>
         lists[key].map((text) => ({ section: key, text })).filter((l) => l.text.trim()),
       )
+      const links = [
+        ...social
+          .filter((s) => s.platform && s.url.trim())
+          .map((s) => ({ category: 'social', label: s.platform, url: s.url.trim() })),
+        ...otherLinks
+          .filter((o) => o.label.trim() && o.url.trim())
+          .map((o) => ({ category: 'other', label: o.label.trim(), url: o.url.trim() })),
+      ]
       await adminApi.put('/amai', {
         page,
         officeBearers: bearers.filter((b) => b.name.trim() && b.position.trim()),
         milestones: milestones.filter((m) => m.year.trim() && m.description.trim()),
         listItems,
+        links,
       })
       setSavedAt(new Date().toLocaleTimeString())
       await load()
@@ -221,6 +252,54 @@ export default function AmaiAdminPage() {
               placeholder="© 2026 Ayurveda Medical Association of India. All rights reserved." />
           </Field>
         </div>
+      </section>
+
+      {/* ── Social media links ───────────────────────────────────────── */}
+      <section className="bg-white border rounded-lg p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold text-lg">Social media links <span className="text-gray-400 text-sm font-normal">({social.length})</span></h2>
+          <button type="button" onClick={() => setSocial([...social, { platform: 'facebook', url: '' }])}
+            className="text-xs px-3 py-1.5 border rounded hover:bg-gray-50">+ Add social link</button>
+        </div>
+        {social.length === 0 && <p className="text-sm text-gray-400">No social links yet.</p>}
+        {social.map((s, i) => (
+          <div key={i} className="grid grid-cols-1 md:grid-cols-[180px_1fr_auto] gap-2 items-start">
+            <select className={inputClass} value={s.platform}
+              onChange={(e) => setSocial(social.map((x, j) => j === i ? { ...x, platform: e.target.value } : x))}>
+              {SOCIAL_PLATFORMS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
+            </select>
+            <input className={inputClass} placeholder="https://… profile URL" value={s.url}
+              onChange={(e) => setSocial(social.map((x, j) => j === i ? { ...x, url: e.target.value } : x))} />
+            <div className="flex gap-1">
+              <button type="button" onClick={() => setSocial(move(social, i, -1))} className="px-2 py-1 text-xs border rounded hover:bg-gray-50">↑</button>
+              <button type="button" onClick={() => setSocial(move(social, i, 1))} className="px-2 py-1 text-xs border rounded hover:bg-gray-50">↓</button>
+              <button type="button" onClick={() => setSocial(social.filter((_, j) => j !== i))} className="px-2 py-1 text-xs border rounded text-red-600 hover:bg-red-50">✕</button>
+            </div>
+          </div>
+        ))}
+      </section>
+
+      {/* ── Other links ──────────────────────────────────────────────── */}
+      <section className="bg-white border rounded-lg p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="font-semibold text-lg">Other links <span className="text-gray-400 text-sm font-normal">({otherLinks.length})</span></h2>
+          <button type="button" onClick={() => setOtherLinks([...otherLinks, { label: '', url: '' }])}
+            className="text-xs px-3 py-1.5 border rounded hover:bg-gray-50">+ Add link</button>
+        </div>
+        {otherLinks.length === 0 && <p className="text-sm text-gray-400">No other links yet — e.g. AMAI Academy, AMA Research Foundation.</p>}
+        {otherLinks.map((l, i) => (
+          <div key={i} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-2 items-start">
+            <input className={inputClass} placeholder="Label (e.g. AMAI Academy)" value={l.label}
+              onChange={(e) => setOtherLinks(otherLinks.map((x, j) => j === i ? { ...x, label: e.target.value } : x))} />
+            <input className={inputClass} placeholder="https://…" value={l.url}
+              onChange={(e) => setOtherLinks(otherLinks.map((x, j) => j === i ? { ...x, url: e.target.value } : x))} />
+            <div className="flex gap-1">
+              <button type="button" onClick={() => setOtherLinks(move(otherLinks, i, -1))} className="px-2 py-1 text-xs border rounded hover:bg-gray-50">↑</button>
+              <button type="button" onClick={() => setOtherLinks(move(otherLinks, i, 1))} className="px-2 py-1 text-xs border rounded hover:bg-gray-50">↓</button>
+              <button type="button" onClick={() => setOtherLinks(otherLinks.filter((_, j) => j !== i))} className="px-2 py-1 text-xs border rounded text-red-600 hover:bg-red-50">✕</button>
+            </div>
+          </div>
+        ))}
       </section>
 
       {/* ── Office bearers ───────────────────────────────────────────── */}

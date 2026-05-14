@@ -4,6 +4,8 @@ import { GradientHero } from '@ayurconnect/ui'
 import {
   Target, Eye, Gem, Milestone as MilestoneIcon, Scale, Users,
   CalendarDays, Network, IdCard, Mail, Phone, MapPin, Globe,
+  Facebook, Instagram, Youtube, Linkedin, MessageCircle, Send,
+  ExternalLink, Link2,
 } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
 import { abs } from '../../lib/seo'
@@ -14,6 +16,7 @@ import { abs } from '../../lib/seo'
 type Bearer    = { id: string; name: string; position: string; category: string; photoUrl: string | null }
 type Milestone = { id: string; year: string; description: string }
 type ListItem  = { id: string; section: string; text: string }
+type AmaiLink  = { id: string; category: string; label: string; url: string }
 type PageData = {
   page: {
     orgName: string; shortName: string; tagline: string
@@ -27,6 +30,20 @@ type PageData = {
   officeBearers: Bearer[]
   milestones: Milestone[]
   listItems: ListItem[]
+  links: AmaiLink[]
+}
+
+const SOCIAL_ICON: Record<string, typeof Facebook> = {
+  facebook:  Facebook,
+  instagram: Instagram,
+  youtube:   Youtube,
+  linkedin:  Linkedin,
+  whatsapp:  MessageCircle,
+  telegram:  Send,
+}
+const SOCIAL_LABEL: Record<string, string> = {
+  facebook: 'Facebook', instagram: 'Instagram', youtube: 'YouTube',
+  twitter: 'Twitter / X', linkedin: 'LinkedIn', whatsapp: 'WhatsApp', telegram: 'Telegram',
 }
 
 const BEARER_GROUPS: Array<{ key: string; label: string }> = [
@@ -76,8 +93,10 @@ function Paragraphs({ text, className = '' }: { text: string; className?: string
 export default async function AmaiPage() {
   const data = await getAmai()
   if (!data || !data.page || !data.page.published) notFound()
-  const { page, officeBearers, milestones, listItems } = data
+  const { page, officeBearers, milestones, listItems, links } = data
 
+  const socialLinks = (links ?? []).filter((l) => l.category === 'social')
+  const otherLinks  = (links ?? []).filter((l) => l.category === 'other')
   const bySection = (s: string) => listItems.filter((l) => l.section === s)
   const vision = bySection('vision')
   const coreValues = bySection('core_value')
@@ -116,6 +135,25 @@ export default async function AmaiPage() {
           <h1 className="font-serif text-4xl md:text-5xl leading-tight">{page.orgName}</h1>
           {page.tagline && <p className="mt-4 text-lg text-white/85">{page.tagline}</p>}
           {page.mission && <p className="mt-3 text-white/70">{page.mission}</p>}
+          {socialLinks.length > 0 && (
+            <div className="flex items-center gap-3 mt-6">
+              {socialLinks.map((s) => {
+                const Icon = SOCIAL_ICON[s.label]
+                return (
+                  <a
+                    key={s.id}
+                    href={s.url}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    aria-label={SOCIAL_LABEL[s.label] ?? s.label}
+                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors text-sm font-bold"
+                  >
+                    {Icon ? <Icon className="w-4 h-4" /> : s.label === 'twitter' ? '𝕏' : <Globe className="w-4 h-4" />}
+                  </a>
+                )
+              })}
+            </div>
+          )}
         </div>
       </GradientHero>
 
@@ -286,6 +324,29 @@ export default async function AmaiPage() {
               <IdCard className="w-6 h-6" /> Membership
             </h2>
             <Paragraphs text={page.membershipInfo} className="text-gray-700" />
+          </section>
+        )}
+
+        {/* ── Related links ─────────────────────────────────────────── */}
+        {otherLinks.length > 0 && (
+          <section>
+            <h2 className="font-serif text-3xl text-kerala-800 inline-flex items-center gap-2 mb-5">
+              <Link2 className="w-7 h-7" /> Related Links
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {otherLinks.map((l) => (
+                <a
+                  key={l.id}
+                  href={l.url}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="flex items-center justify-between gap-3 bg-white border border-gray-100 rounded-card p-4 shadow-card hover:border-kerala-300 hover:shadow-cardLg transition-all group"
+                >
+                  <span className="font-medium text-ink group-hover:text-kerala-700">{l.label}</span>
+                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-kerala-600 flex-shrink-0" />
+                </a>
+              ))}
+            </div>
           </section>
         )}
 

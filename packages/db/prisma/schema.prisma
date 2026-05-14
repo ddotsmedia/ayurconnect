@@ -1492,6 +1492,7 @@ model AmaiPage {
   officeBearers    AmaiOfficeBearer[]
   milestones       AmaiMilestone[]
   listItems        AmaiListItem[]
+  links            AmaiLink[]
 }
 
 model AmaiOfficeBearer {
@@ -1527,4 +1528,21 @@ model AmaiListItem {
   page      AmaiPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
 
   @@index([pageId, section, sortOrder])
+}
+
+// Social-media handles + arbitrary related links for the AMAI page.
+// category="social": `label` holds the platform key (facebook | instagram |
+// youtube | twitter | linkedin | whatsapp | telegram) which the public page
+// maps to an icon. category="other": `label` is free-text display text
+// (e.g. "AMAI Academy", "AMA Research Foundation").
+model AmaiLink {
+  id        String   @id @default(cuid())
+  pageId    String
+  category  String   @default("other") // social | other
+  label     String
+  url       String
+  sortOrder Int      @default(0)
+  page      AmaiPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@index([pageId, category, sortOrder])
 }

@@ -22,6 +22,8 @@ const SCALAR_FIELDS = [
 const NULLABLE_URL_FIELDS = ['heroImageUrl', 'logoUrl'] as const
 const LIST_SECTIONS = ['vision', 'core_value', 'strategic_issue', 'activity', 'committee']
 const BEARER_CATEGORIES = ['executive', 'secretary', 'women', 'apta', 'other']
+const LINK_CATEGORIES = ['social', 'other']
+const SOCIAL_PLATFORMS = ['facebook', 'instagram', 'youtube', 'twitter', 'linkedin', 'whatsapp', 'telegram']
 
 function str(v: unknown, max = 5000): string {
   return typeof v === 'string' ? v.trim().slice(0, max) : ''
@@ -36,6 +38,7 @@ const amai: FastifyPluginAsync = async (fastify) => {
         officeBearers: { orderBy: { sortOrder: 'asc' } },
         milestones:    { orderBy: { sortOrder: 'asc' } },
         listItems:     { orderBy: [{ section: 'asc' }, { sortOrder: 'asc' }] },
+        links:         { orderBy: [{ category: 'asc' }, { sortOrder: 'asc' }] },
       },
     })
     if (!page) {
@@ -45,10 +48,11 @@ const amai: FastifyPluginAsync = async (fastify) => {
         officeBearers: [],
         milestones: [],
         listItems: [],
+        links: [],
       }
     }
-    const { officeBearers, milestones, listItems, ...scalars } = page
-    return { page: scalars, officeBearers, milestones, listItems }
+    const { officeBearers, milestones, listItems, links, ...scalars } = page
+    return { page: scalars, officeBearers, milestones, listItems, links }
   })
 
   // ── Admin full-replace ─────────────────────────────────────────────────
@@ -108,6 +112,29 @@ const amai: FastifyPluginAsync = async (fastify) => {
       })
       .filter((l): l is NonNullable<typeof l> => l !== null)
 
+    // links — social handles + other links; sortOrder scoped per-category.
+    const linksIn = Array.isArray(body.links) ? body.links : []
+    const linkCounters: Record<string, number> = {}
+    const links = linksIn
+      .map((l) => {
+        const row = l as Record<string, unknown>
+        const category = LINK_CATEGORIES.includes(String(row.category)) ? String(row.category) : 'other'
+        const url = str(row.url, 1000)
+        if (!url) return null
+        // social: label is the platform key (validated); other: free-text label.
+        let label = str(row.label, 200)
+        if (category === 'social') {
+          label = label.toLowerCase()
+          if (!SOCIAL_PLATFORMS.includes(label)) return null
+        } else if (!label) {
+          return null
+        }
+        const sortOrder = linkCounters[category] ?? 0
+        linkCounters[category] = sortOrder + 1
+        return { category, label, url, sortOrder }
+      })
+      .filter((l): l is NonNullable<typeof l> => l !== null)
+
     const saved = await fastify.prisma.$transaction(async (tx) => {
       const page = await tx.amaiPage.upsert({
         where:  { slug: SLUG },
@@ -117,12 +144,15 @@ const amai: FastifyPluginAsync = async (fastify) => {
       await tx.amaiOfficeBearer.deleteMany({ where: { pageId: page.id } })
       await tx.amaiMilestone.deleteMany({ where: { pageId: page.id } })
       await tx.amaiListItem.deleteMany({ where: { pageId: page.id } })
+      await tx.amaiLink.deleteMany({ where: { pageId: page.id } })
       if (bearers.length)
         await tx.amaiOfficeBearer.createMany({ data: bearers.map((b) => ({ ...b, pageId: page.id })) })
       if (milestones.length)
         await tx.amaiMilestone.createMany({ data: milestones.map((m) => ({ ...m, pageId: page.id })) })
       if (listItems.length)
         await tx.amaiListItem.createMany({ data: listItems.map((l) => ({ ...l, pageId: page.id })) })
+      if (links.length)
+        await tx.amaiLink.createMany({ data: links.map((l) => ({ ...l, pageId: page.id })) })
       return page
     })
 
