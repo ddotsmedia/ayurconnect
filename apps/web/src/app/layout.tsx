@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import { Cormorant_Garamond, Inter } from 'next/font/google'
 import { Navbar, Footer, AyurBotWidget, MobileBottomNav, ServiceWorkerRegister, CookieConsent, TopContactBar, type NavbarSession, type FooterSettings } from '@ayurconnect/ui'
 import { getServerSession } from '../lib/auth'
-import { organizationLd, websiteLd, ldGraph, SITE_URL } from '../lib/seo'
+import { organizationLd, websiteLd, ldGraph, SITE_URL, AYURVEDA_KEYWORDS } from '../lib/seo'
 import { API_INTERNAL as API } from '../lib/server-fetch'
 import { PageViewTracker } from '../components/page-view-tracker'
 import './globals.css'
@@ -31,11 +31,9 @@ export const metadata: Metadata = {
     "Find CCIM-verified Ayurveda doctors, classical Panchakarma centres, 150+ medicinal herbs, and AI-assisted health insights — rooted in Kerala, God's Own Country.",
   applicationName: 'AyurConnect',
   authors: [{ name: 'AyurConnect', url: SITE_URL }],
-  keywords: [
-    'Ayurveda', 'Kerala Ayurveda', 'Panchakarma', 'Ayurvedic doctors',
-    'CCIM verified', 'AYUSH', 'BAMS', 'Shirodhara', 'Kayachikitsa',
-    'Ayurvedic herbs', 'Triphala', 'Ashwagandha', 'AyurBot', 'Ayurveda Kerala',
-  ],
+  // Centralised in lib/seo.ts → AYURVEDA_KEYWORDS so per-route metadata can
+  // pull a category-specific subset rather than re-declaring strings.
+  keywords: AYURVEDA_KEYWORDS.all,
   creator: 'AyurConnect',
   publisher: 'AyurConnect',
   metadataBase: new URL(SITE_URL),

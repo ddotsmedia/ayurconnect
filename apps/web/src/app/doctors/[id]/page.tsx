@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { headers as nextHeaders } from 'next/headers'
 import { DoctorCard, type DoctorCardData } from '@ayurconnect/ui'
 import { SocialLinksDisplay } from '../../../components/social-links'
+import { FeaturedArticlesDisplay, FeaturedPostsDisplay, type FeaturedArticle, type FeaturedPost } from '../../../components/featured-content'
 import {
   ShieldCheck, MapPin, Star, Languages, Calendar, Award, Stethoscope,
   Users, Mail, Phone, Share2, Flag, ArrowRight,
@@ -24,6 +25,10 @@ type DoctorDetail = DoctorCardData & {
   instagramUrl?: string | null
   twitterUrl?:   string | null
   youtubeUrl?:   string | null
+  workplace?:    string | null
+  workplaceUrl?: string | null
+  featuredArticles?: FeaturedArticle[] | null
+  featuredPosts?:    FeaturedPost[]    | null
   reviews: Review[]
   averageRating: number | null
   reviewsCount: number
@@ -192,6 +197,20 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
                   {doctor.address && <div className="text-xs text-muted">{doctor.address}</div>}
                 </div>
               </div>
+              {doctor.workplace && (
+                <div className="flex items-start gap-3 bg-white border border-gray-100 rounded-card p-4 shadow-card">
+                  <Stethoscope className="w-5 h-5 text-kerala-700 mt-0.5" />
+                  <div>
+                    <div className="text-xs uppercase tracking-wider text-muted">Practises at</div>
+                    <div className="font-medium text-gray-900">{doctor.workplace}</div>
+                    {doctor.workplaceUrl && (
+                      <a href={doctor.workplaceUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-kerala-700 hover:underline">
+                        Visit clinic →
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
               {(doctor.languages?.length ?? 0) > 0 && (
                 <div className="flex items-start gap-3 bg-white border border-gray-100 rounded-card p-4 shadow-card">
                   <Languages className="w-5 h-5 text-kerala-700 mt-0.5" />
@@ -232,6 +251,22 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
             </div>
           </section>
 
+          {Array.isArray(doctor.featuredArticles) && doctor.featuredArticles.length > 0 && (
+            <section>
+              <h2 className="text-2xl text-kerala-700 mb-4">Health articles + writing</h2>
+              <div className="bg-white border border-gray-100 rounded-card p-5 shadow-card">
+                <FeaturedArticlesDisplay items={doctor.featuredArticles} />
+              </div>
+            </section>
+          )}
+
+          {Array.isArray(doctor.featuredPosts) && doctor.featuredPosts.length > 0 && (
+            <section>
+              <h2 className="text-2xl text-kerala-700 mb-4">Featured social posts</h2>
+              <FeaturedPostsDisplay items={doctor.featuredPosts} />
+            </section>
+          )}
+
           <section>
             <h2 className="text-2xl text-kerala-700 mb-4">Patient reviews</h2>
             <div className="mb-5">
@@ -266,13 +301,13 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
             <h3 className="font-serif text-xl text-kerala-700">Book a consultation</h3>
             <p className="text-sm text-muted mt-1">Schedule a video or in-person visit.</p>
             <Link
-              href={`/sign-in?next=/doctors/${doctor.id}`}
+              href={`/book/${doctor.id}`}
               className="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md text-sm"
             >
               Book Now <ArrowRight className="w-4 h-4" />
             </Link>
             <p className="text-[11px] text-subtle mt-2 leading-relaxed">
-              Booking flow opens in Phase 3 (Telehealth). Sign up now to be notified.
+              You&apos;ll be asked to sign in if you&apos;re not already. Both video and in-person visits are supported.
             </p>
           </div>
 

@@ -16,6 +16,8 @@ const ALLOWED_KINDS = new Set([
   'marketplace_vendor',  // /marketplace vendor inquiry form
   'academy',             // /academy course interest form
   'product_waitlist',    // /products/{hms,saas,mobile} waitlist form
+  'wellness_plan',       // /wellness-plans founding-member interest
+  'second_opinion',      // /second-opinion intake form
 ])
 
 // Naive in-process rate-limit: 5 submissions / 10 min / IP. Process-local, so

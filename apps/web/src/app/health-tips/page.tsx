@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { GradientHero } from '@ayurconnect/ui'
 import { Sparkles } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
+import { AYURVEDA_KEYWORDS } from '../../lib/seo'
 
 type Tip = {
   id: string
@@ -56,6 +57,11 @@ async function fetchTips(params: SP): Promise<Tip[]> {
 export const metadata = {
   title: 'Daily Ayurveda Health Tips — Dosha + Seasonal Guidance | AyurConnect',
   description: 'Bite-sized classical Ayurveda guidance: Dinacharya, Ritucharya, Vata/Pitta/Kapha balance, herb suggestions. Sourced from Charaka Samhita and Ashtanga Hridayam.',
+  keywords: [
+    ...AYURVEDA_KEYWORDS.concepts,
+    ...AYURVEDA_KEYWORDS.conditions,
+    ...AYURVEDA_KEYWORDS.brand,
+  ],
 }
 
 export default async function HealthTipsPage({ searchParams }: { searchParams: Promise<SP> }) {

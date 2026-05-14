@@ -69,7 +69,7 @@ export default function ArticlesAdminPage() {
           <p className="text-gray-600 mt-1">{items.length} loaded</p>
         </div>
         {!showForm && (
-          <button onClick={() => { setEditingId(null); setForm({ ...empty }); setShowForm(true) }} className="px-4 py-2 bg-green-700 text-white rounded text-sm hover:bg-green-800">
+          <button onClick={() => { setEditingId(null); setForm({ ...empty }); setShowForm(true) }} className="px-4 py-2 bg-kerala-700 text-white rounded text-sm hover:bg-kerala-800">
             + New article
           </button>
         )}
@@ -127,7 +127,7 @@ export default function ArticlesAdminPage() {
                 <td className="px-4 py-2.5 text-xs text-gray-500">{a.source ?? '—'}</td>
                 <td className="px-4 py-2.5 text-xs uppercase">{a.language}</td>
                 <td className="px-4 py-2.5 text-right space-x-3">
-                  <button onClick={() => startEdit(a)} className="text-green-700 hover:underline text-xs">Edit</button>
+                  <button onClick={() => startEdit(a)} className="text-kerala-700 hover:underline text-xs">Edit</button>
                   <button onClick={() => remove(a.id, a.title)} className="text-red-600 hover:underline text-xs">Delete</button>
                 </td>
               </tr>

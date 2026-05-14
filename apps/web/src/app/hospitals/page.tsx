@@ -3,6 +3,8 @@ import { GradientHero } from '@ayurconnect/ui'
 import { ShieldCheck, MapPin, Phone, Award } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
 import { HospitalFilterBar } from './_filter-bar'
+import { CountryPills, type CountryCount } from '../../components/country-pills'
+import { AYURVEDA_KEYWORDS } from '../../lib/seo'
 
 type Hospital = {
   id: string
@@ -39,9 +41,23 @@ async function fetchHospitals(params: URLSearchParams): Promise<Hospital[]> {
   } catch { return [] }
 }
 
+async function fetchHospitalCountries(): Promise<CountryCount[]> {
+  try {
+    const res = await fetch(`${API}/hospitals/countries`, { cache: 'no-store' })
+    if (!res.ok) return []
+    return (await res.json()) as CountryCount[]
+  } catch { return [] }
+}
+
 export const metadata = {
   title: 'Ayurveda Hospitals & Wellness Centres | AyurConnect',
   description: 'CCIM-verified, AYUSH-certified Ayurveda hospitals, Panchakarma centres, and wellness resorts. Filter by country, state, and district.',
+  keywords: [
+    ...AYURVEDA_KEYWORDS.primary,
+    ...AYURVEDA_KEYWORDS.treatments,
+    ...AYURVEDA_KEYWORDS.geographic,
+    ...AYURVEDA_KEYWORDS.signals,
+  ],
 }
 
 type SearchParams = {
@@ -64,7 +80,7 @@ export default async function HospitalsPage({ searchParams }: { searchParams: Pr
   if (sp.verified) apiParams.set('verified', sp.verified)
   if (sp.q)        apiParams.set('q',        sp.q)
 
-  const hospitals = await fetchHospitals(apiParams)
+  const [hospitals, countries] = await Promise.all([fetchHospitals(apiParams), fetchHospitalCountries()])
   const totalFilters = Array.from(apiParams.keys()).filter((k) => k !== 'country' || apiParams.get('country') !== 'IN').length
 
   return (
@@ -80,6 +96,15 @@ export default async function HospitalsPage({ searchParams }: { searchParams: Pr
       </GradientHero>
 
       <div className="container mx-auto px-4 py-12">
+        {/* Country pills — always-visible distribution so users don't have to
+            open the country dropdown to see which countries we cover. */}
+        <CountryPills
+          countries={countries}
+          currentCountry={sp.country}
+          basePath="/hospitals"
+          preserveParams={sp as Record<string, string | undefined>}
+        />
+
         <HospitalFilterBar
           initialCountry={sp.country ?? 'IN'}
           initialState={sp.state ?? ''}

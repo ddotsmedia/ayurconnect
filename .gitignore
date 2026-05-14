@@ -38,4 +38,7 @@ secrets/
 scripts/.deploy-key
 scripts/.deploy-key.pub
 cookies.txt
-.claude/settings.local.json
+.claude/
+
+# Office temp/lock files
+~$*

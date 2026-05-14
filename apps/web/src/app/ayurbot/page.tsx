@@ -137,10 +137,11 @@ export default function AyurBotPage() {
       }
 
       if (!acc) replaceLast({ role: 'bot', content: '(no response)' })
-    } catch {
+    } catch (err) {
+      const reason = err instanceof Error ? err.message : 'unknown'
       setMessages((cur) => {
         const list = [...cur[mode]]
-        if (list.length > 0) list[list.length - 1] = { role: 'error', content: '⚠️ Network error reaching AyurBot.' }
+        if (list.length > 0) list[list.length - 1] = { role: 'error', content: `⚠️ Couldn't reach AyurBot (${reason}). Please retry in a moment.` }
         return { ...cur, [mode]: list }
       })
     } finally {

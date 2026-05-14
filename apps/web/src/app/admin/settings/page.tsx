@@ -141,7 +141,7 @@ export default function AdminSettingsPage() {
 
       <div className="flex items-center justify-end gap-3 sticky bottom-0 bg-cream/80 backdrop-blur py-3">
         {savedAt && <span className="text-xs text-green-700 inline-flex items-center gap-1"><Sparkles className="w-3 h-3" /> Saved at {savedAt} — changes are live within a minute (cache TTL).</span>}
-        <button type="submit" disabled={saving} className="inline-flex items-center gap-1.5 px-5 py-2 bg-green-700 text-white rounded-md font-semibold hover:bg-green-800 disabled:opacity-50 text-sm">
+        <button type="submit" disabled={saving} className="inline-flex items-center gap-1.5 px-5 py-2 bg-kerala-700 text-white rounded-md font-semibold hover:bg-kerala-800 disabled:opacity-50 text-sm">
           {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
           Save settings
         </button>

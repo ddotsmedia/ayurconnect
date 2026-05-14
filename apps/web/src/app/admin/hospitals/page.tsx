@@ -47,6 +47,7 @@ export default function HospitalsAdminPage() {
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   async function load() {
@@ -79,17 +80,20 @@ export default function HospitalsAdminPage() {
   }
 
   async function save(e: React.FormEvent) {
-    e.preventDefault(); setSaving(true)
+    e.preventDefault(); setSaving(true); setSaveError(null)
     try {
       if (editingId) await adminApi.patch(`/hospitals/${editingId}`, form)
       else await adminApi.post('/hospitals', form)
       setShowForm(false); await load()
-    } catch (err) { alert(String(err)) } finally { setSaving(false) }
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : String(err))
+    } finally { setSaving(false) }
   }
 
   async function remove(id: string, name: string) {
     if (!confirm(`Delete hospital "${name}"?`)) return
-    try { await adminApi.del(`/hospitals/${id}`); await load() } catch (e) { alert(String(e)) }
+    try { await adminApi.del(`/hospitals/${id}`); await load() }
+    catch (e) { setError(e instanceof Error ? e.message : String(e)) }
   }
 
   const flag = (k: keyof typeof empty, label: string) => (
@@ -107,7 +111,7 @@ export default function HospitalsAdminPage() {
           <p className="text-gray-600 mt-1">{items.length} total</p>
         </div>
         {!showForm && (
-          <button onClick={() => { setEditingId(null); setForm({ ...empty }); setShowForm(true) }} className="px-4 py-2 bg-green-700 text-white rounded text-sm hover:bg-green-800">
+          <button onClick={() => { setEditingId(null); setForm({ ...empty }); setShowForm(true) }} className="px-4 py-2 bg-kerala-700 text-white rounded text-sm hover:bg-kerala-800">
             + New hospital
           </button>
         )}
@@ -117,6 +121,11 @@ export default function HospitalsAdminPage() {
 
       {showForm && (
         <EntityFormShell title="hospital" isEditing={!!editingId} onSubmit={save} onCancel={() => setShowForm(false)} saving={saving}>
+          {saveError && (
+            <div className="p-3 rounded bg-red-50 border border-red-200 text-red-800 text-sm mb-3" role="alert">
+              <strong>Save failed:</strong> {saveError}
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Field label="Name *">
               <input required className={inputClass} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
@@ -219,7 +228,7 @@ export default function HospitalsAdminPage() {
                     .filter(Boolean).join(' · ') || '—'}
                 </td>
                 <td className="px-4 py-2.5 text-right space-x-3">
-                  <button onClick={() => startEdit(h)} className="text-green-700 hover:underline text-xs">Edit</button>
+                  <button onClick={() => startEdit(h)} className="text-kerala-700 hover:underline text-xs">Edit</button>
                   <button onClick={() => remove(h.id, h.name)} className="text-red-600 hover:underline text-xs">Delete</button>
                 </td>
               </tr>

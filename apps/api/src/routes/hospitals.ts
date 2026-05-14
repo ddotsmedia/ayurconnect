@@ -1,4 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify'
+import { logAudit, clientIp } from '../lib/audit.js'
+import { moderate as moderateRecord, completenessScoreHospital } from '../lib/moderation-flow.js'
 
 export const autoPrefix = '/hospitals'
 
@@ -34,12 +36,27 @@ const hospitals: FastifyPluginAsync = async (fastify) => {
       { state:    { contains: q, mode: 'insensitive' } },
     ]
     const take = Math.min(Number(limit) || 100, 500)
+    // Only need ratings for the averaging math in the list view; pulling full
+    // review rows blows up payload + query time as reviews grow.
     return fastify.prisma.hospital.findMany({
       where,
-      include: { reviews: true },
+      include: { reviews: { select: { rating: true } } },
       orderBy: { createdAt: 'desc' },
       take,
     })
+  })
+
+  // GET /hospitals/countries — country breakdown for the directory pills row.
+  // Returns one entry per country that has at least one hospital, sorted by
+  // count desc. Used to render an always-visible country-wise filter strip
+  // at the top of /hospitals so users don't have to open the dropdown.
+  fastify.get('/countries', async () => {
+    const groups = await fastify.prisma.hospital.groupBy({
+      by: ['country'],
+      _count: { _all: true },
+      orderBy: { _count: { country: 'desc' } },
+    })
+    return groups.map((g) => ({ code: g.country, count: g._count._all }))
   })
 
   fastify.get('/:id', async (request, reply) => {
@@ -117,9 +134,90 @@ const hospitals: FastifyPluginAsync = async (fastify) => {
     return fastify.prisma.hospital.update({ where: { id }, data })
   })
 
+  // ─── Moderation endpoints (Phase 9) — mirrors doctors.ts ──
+  for (const action of ['approve', 'decline', 'request-info', 'flag', 'note', 'reset'] as const) {
+    fastify.post(`/:id/${action}`, { preHandler: fastify.requireAdmin }, async (request, reply) => {
+      const { id } = request.params as { id: string }
+      const body = (request.body ?? {}) as { reason?: string; note?: string }
+      if ((action === 'decline' || action === 'request-info' || action === 'flag') && !body.reason?.trim()) {
+        return reply.code(400).send({ error: `${action} requires a reason` })
+      }
+      if (action === 'note' && !body.note?.trim()) {
+        return reply.code(400).send({ error: 'note text required' })
+      }
+      const result = await moderateRecord(fastify, 'hospital', id, action, {
+        adminSession: request.session! as never,
+        reason:       body.reason?.trim() ?? null,
+        note:         body.note?.trim() ?? null,
+        request,
+      })
+      if (result.ok === false) return reply.code(result.status).send({ error: result.error })
+      return result.record
+    })
+  }
+
+  // Admin queue with provenance + owner + completeness.
+  fastify.get('/_admin/queue', { preHandler: fastify.requireAdmin }, async (request) => {
+    const { status = 'pending', q } = request.query as Record<string, string>
+    const where: Record<string, unknown> = {}
+    if (status === 'all') {
+      // no filter
+    } else if (status) {
+      where.moderationStatus = status
+    }
+    if (q) where.OR = [
+      { name:     { contains: q, mode: 'insensitive' } },
+      { type:     { contains: q, mode: 'insensitive' } },
+      { district: { contains: q, mode: 'insensitive' } },
+    ]
+    const items = await fastify.prisma.hospital.findMany({
+      where,
+      orderBy: [{ moderationStatus: 'asc' }, { createdAt: 'asc' }],
+      take:    100,
+      include: {
+        ownedBy:        { select: { id: true, email: true, name: true, phone: true, createdAt: true, role: true } },
+        lastReviewedBy: { select: { id: true, name: true, email: true } },
+      },
+    })
+    return {
+      hospitals: items.map((h) => ({ ...h, completeness: completenessScoreHospital(h as unknown as Record<string, unknown>) })),
+      count:     items.length,
+    }
+  })
+
+  // Admin-only counts widget — pending/needs-info/flagged across both entities.
+  fastify.get('/_admin/queue-counts', { preHandler: fastify.requireAdmin }, async () => {
+    const [docPending, docNeeds, docFlagged, hosPending, hosNeeds, hosFlagged] = await Promise.all([
+      fastify.prisma.doctor.count({   where: { moderationStatus: 'pending' } }),
+      fastify.prisma.doctor.count({   where: { moderationStatus: 'needs-info' } }),
+      fastify.prisma.doctor.count({   where: { moderationStatus: 'flagged' } }),
+      fastify.prisma.hospital.count({ where: { moderationStatus: 'pending' } }),
+      fastify.prisma.hospital.count({ where: { moderationStatus: 'needs-info' } }),
+      fastify.prisma.hospital.count({ where: { moderationStatus: 'flagged' } }),
+    ])
+    return {
+      doctors:   { pending: docPending, needsInfo: docNeeds, flagged: docFlagged, total: docPending + docNeeds + docFlagged },
+      hospitals: { pending: hosPending, needsInfo: hosNeeds, flagged: hosFlagged, total: hosPending + hosNeeds + hosFlagged },
+    }
+  })
+
   fastify.delete('/:id', { preHandler: fastify.requireAdmin }, async (request, reply) => {
     const { id } = request.params as { id: string }
+    const before = await fastify.prisma.hospital.findUnique({
+      where: { id },
+      select: { id: true, name: true, type: true, country: true, district: true, ccimVerified: true },
+    })
     await fastify.prisma.hospital.delete({ where: { id } })
+    if (before) {
+      void logAudit(fastify, {
+        actorId:    request.session!.user.id,
+        action:     'delete',
+        targetType: 'Hospital',
+        targetId:   id,
+        before:     before as unknown as Record<string, unknown>,
+        ip:         clientIp(request),
+      })
+    }
     return reply.code(204).send()
   })
 }

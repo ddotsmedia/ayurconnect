@@ -36,7 +36,7 @@ export function EntityFormShell({
           >Cancel</button>
           <button
             type="submit"
-            className="px-3 py-1.5 text-sm bg-green-700 text-white rounded hover:bg-green-800 disabled:opacity-50"
+            className="px-3 py-1.5 text-sm bg-kerala-700 text-white rounded hover:bg-kerala-800 disabled:opacity-50"
             disabled={saving}
           >{saving ? 'Saving…' : isEditing ? 'Save changes' : 'Create'}</button>
         </div>

@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { GradientHero } from '@ayurconnect/ui'
 import { Briefcase, MapPin, Calendar } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
+import { WhatsAppAlertsForm } from './_whatsapp-alerts-form'
+import { jobPostingLd, breadcrumbLd, ldGraph } from '../../lib/seo'
 
 type Job = {
   id: string
@@ -40,8 +42,30 @@ export const metadata = {
 export default async function JobsPage() {
   const jobs = await fetchJobs()
 
+  // One JobPosting node per job — Google Jobs reads these and may surface
+  // them in the Google Jobs box at the top of SERPs. Each job links back to
+  // /jobs#<id> via the @id field; the visible <article> below uses the same
+  // anchor so the schema-rendered-content match passes validation.
+  const jsonLd = ldGraph(
+    breadcrumbLd([
+      { name: 'Home', url: '/' },
+      { name: 'Ayurveda Jobs', url: '/jobs' },
+    ]),
+    ...jobs.map((j) => jobPostingLd({
+      id:          j.id,
+      title:       j.title,
+      description: j.description,
+      type:        j.type,
+      district:    j.district,
+      salary:      j.salary,
+      createdAt:   j.createdAt,
+      employerName: j.user?.name ?? null,
+    })),
+  )
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <GradientHero variant="jobs" size="md">
         <div className="max-w-3xl">
           <span className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur rounded-full text-xs text-white/90 border border-white/20 mb-4">
@@ -70,7 +94,7 @@ export default async function JobsPage() {
             {jobs.map((j) => {
               const tone = TYPE_TONE[j.type] ?? { label: j.type, bg: 'bg-gray-100', text: 'text-gray-700' }
               return (
-                <article key={j.id} className="bg-white rounded-card border border-gray-100 shadow-card hover:shadow-cardLg transition-shadow p-5 flex flex-col">
+                <article key={j.id} id={j.id} className="bg-white rounded-card border border-gray-100 shadow-card hover:shadow-cardLg transition-shadow p-5 flex flex-col">
                   <div className="flex items-center gap-2 text-[11px] mb-2">
                     <span className={`${tone.bg} ${tone.text} px-2 py-0.5 rounded-full font-medium`}>{tone.label}</span>
                     <span className="text-subtle ml-auto"><Calendar className="w-3 h-3 inline mr-0.5" /> {new Date(j.createdAt).toLocaleDateString()}</span>
@@ -93,7 +117,9 @@ export default async function JobsPage() {
           </div>
         )}
 
-        <div className="mt-10 p-5 rounded-card bg-rose-50 border border-rose-100 max-w-2xl mx-auto text-center">
+        <WhatsAppAlertsForm />
+
+        <div className="mt-6 p-5 rounded-card bg-rose-50 border border-rose-100 max-w-2xl mx-auto text-center">
           <p className="font-serif text-xl text-rose-900">🌍 Gulf & International Roles</p>
           <p className="text-sm text-rose-800 mt-2">
             UAE, Qatar, Oman, Saudi, UK, US openings posted as we get them.

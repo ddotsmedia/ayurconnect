@@ -87,7 +87,7 @@ export function CountrySelect({ value, onChange, placeholder = 'Select country',
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search by name, code, or dial code…"
-              className="w-full pl-7 pr-2 py-2 text-sm focus:outline-none"
+              className="w-full pl-7 pr-2 py-2 text-base sm:text-sm focus:outline-none"
             />
           </div>
           <ul role="listbox" className="overflow-y-auto">

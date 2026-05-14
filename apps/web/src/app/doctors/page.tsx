@@ -4,6 +4,8 @@ import { DoctorCard, GradientHero, type DoctorCardData } from '@ayurconnect/ui'
 import { X } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
 import { DoctorFilterSidebar } from './_filter-sidebar'
+import { CountryPills, type CountryCount } from '../../components/country-pills'
+import { AYURVEDA_KEYWORDS } from '../../lib/seo'
 
 type SearchParams = { [key: string]: string | undefined }
 
@@ -28,14 +30,28 @@ async function fetchDoctors(params: SearchParams): Promise<DoctorListResponse> {
   }
 }
 
+async function fetchDoctorCountries(): Promise<CountryCount[]> {
+  try {
+    const res = await fetch(`${API}/doctors/countries`, { cache: 'no-store' })
+    if (!res.ok) return []
+    return (await res.json()) as CountryCount[]
+  } catch { return [] }
+}
+
 export const metadata = {
   title: 'Find Ayurveda Doctors in Kerala — CCIM Verified | AyurConnect',
   description: '500+ CCIM-verified Ayurveda doctors across all 14 Kerala districts. Filter by district, specialization, language, and availability.',
+  keywords: [
+    ...AYURVEDA_KEYWORDS.primary,
+    ...AYURVEDA_KEYWORDS.specialisations,
+    ...AYURVEDA_KEYWORDS.geographic,
+    ...AYURVEDA_KEYWORDS.signals,
+  ],
 }
 
 export default async function DoctorsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const sp = await searchParams
-  const data = await fetchDoctors(sp)
+  const [data, countries] = await Promise.all([fetchDoctors(sp), fetchDoctorCountries()])
   const { doctors, pagination } = data
 
   const activeFilters: Array<{ key: keyof SearchParams; label: string; value: string }> = []
@@ -66,7 +82,18 @@ export default async function DoctorsPage({ searchParams }: { searchParams: Prom
         </div>
       </GradientHero>
 
-      <div className="container mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
+      <div className="container mx-auto px-4 pt-8">
+        {/* Country pills — always-visible breakdown so users see the cross-country
+            distribution at a glance instead of opening the dropdown. */}
+        <CountryPills
+          countries={countries}
+          currentCountry={sp.country}
+          basePath="/doctors"
+          preserveParams={sp as Record<string, string | undefined>}
+        />
+      </div>
+
+      <div className="container mx-auto px-4 pb-10 grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
         {/* SIDEBAR — country + state + district + specialization + language + sort filters.
             Now a client component so it can use CountrySelect / StateSelect dropdowns
             with country-dependent state options. URL stays in sync — sharing /doctors?country=AE

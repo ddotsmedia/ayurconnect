@@ -2,11 +2,18 @@ import Link from 'next/link'
 import { GradientHero } from '@ayurconnect/ui'
 import { ChevronRight, Clock, IndianRupee } from 'lucide-react'
 import { CONDITIONS } from './_data/conditions'
+import { AYURVEDA_KEYWORDS } from '../../lib/seo'
 
 export const metadata = {
   title: 'Specialised Ayurvedic Treatments — Kerala | AyurConnect',
   description: 'Evidence-informed Ayurvedic treatment guides for PCOS, arthritis, stress, diabetes, weight management, and chronic skin disease. Find a CCIM-verified Kerala specialist.',
   alternates: { canonical: '/treatments' },
+  keywords: [
+    ...AYURVEDA_KEYWORDS.primary,
+    ...AYURVEDA_KEYWORDS.conditions,
+    ...AYURVEDA_KEYWORDS.treatments,
+    ...AYURVEDA_KEYWORDS.signals,
+  ],
 }
 
 const ORDER = ['pcos', 'arthritis', 'stress-anxiety', 'diabetes', 'weight-management', 'skin-care']

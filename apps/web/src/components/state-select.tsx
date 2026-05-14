@@ -26,7 +26,7 @@ export function StateSelect({ country, value, onChange, className = '', required
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}
-        className={`w-full border rounded-md px-3 py-2 text-sm bg-white ${className}`}
+        className={`w-full border rounded-md px-3 py-2 text-base sm:text-sm bg-white ${className}`}
       >
         <option value="">{placeholder} —</option>
         {states.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -40,7 +40,7 @@ export function StateSelect({ country, value, onChange, className = '', required
       onChange={(e) => onChange(e.target.value)}
       required={required}
       placeholder={placeholder}
-      className={`w-full border rounded-md px-3 py-2 text-sm ${className}`}
+      className={`w-full border rounded-md px-3 py-2 text-base sm:text-sm ${className}`}
     />
   )
 }

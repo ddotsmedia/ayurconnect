@@ -1,8 +1,19 @@
 import type { FastifyPluginAsync } from 'fastify'
+import { logAudit, clientIp } from '../lib/audit.js'
 
 export const autoPrefix = '/admin'
 
-const VALID_ROLES = ['USER', 'DOCTOR', 'THERAPIST', 'ADMIN'] as const
+// Must match the role values written elsewhere (me.ts, schema docs, doctors
+// verify flow). Missing entries here silently 400 on legitimate role changes.
+const VALID_ROLES = [
+  'USER',
+  'DOCTOR_PENDING',
+  'DOCTOR',
+  'HOSPITAL_PENDING',
+  'HOSPITAL',
+  'THERAPIST',
+  'ADMIN',
+] as const
 type Role = typeof VALID_ROLES[number]
 
 const admin: FastifyPluginAsync = async (fastify) => {
@@ -70,11 +81,26 @@ const admin: FastifyPluginAsync = async (fastify) => {
     if (Object.keys(data).length === 0) {
       return reply.code(400).send({ error: 'no updatable fields supplied' })
     }
+    // Snapshot before for audit log if role is changing.
+    const before = role !== undefined
+      ? await fastify.prisma.user.findUnique({ where: { id }, select: { role: true, name: true, email: true } })
+      : null
     const user = await fastify.prisma.user.update({
       where: { id },
       data,
       select: { id: true, email: true, name: true, role: true, updatedAt: true },
     })
+    if (before && role !== undefined && before.role !== role) {
+      void logAudit(fastify, {
+        actorId:    request.session!.user.id,
+        action:     'role-change',
+        targetType: 'User',
+        targetId:   id,
+        before:     { role: before.role, email: before.email },
+        after:      { role: user.role },
+        ip:         clientIp(request),
+      })
+    }
     return user
   })
 
@@ -83,7 +109,21 @@ const admin: FastifyPluginAsync = async (fastify) => {
     if (id === request.session!.user.id) {
       return reply.code(400).send({ error: 'cannot delete yourself' })
     }
+    const before = await fastify.prisma.user.findUnique({
+      where: { id },
+      select: { id: true, email: true, name: true, role: true },
+    })
     await fastify.prisma.user.delete({ where: { id } })
+    if (before) {
+      void logAudit(fastify, {
+        actorId:    request.session!.user.id,
+        action:     'delete',
+        targetType: 'User',
+        targetId:   id,
+        before:     before as unknown as Record<string, unknown>,
+        ip:         clientIp(request),
+      })
+    }
     return reply.code(204).send()
   })
 }

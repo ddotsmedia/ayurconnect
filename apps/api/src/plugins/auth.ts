@@ -77,6 +77,27 @@ export default fp(async (fastify) => {
   }) as unknown as AuthInstance
   fastify.decorate('auth', auth)
 
+  // Soft-attach session on every request that carries a cookie. Per-route
+  // guards (requireSession, requireAdmin, requireDrRead, requireDrWrite) then
+  // do the actual 401/403. Single source of truth — new modules can read
+  // req.session without wiring per-plugin preHandlers.
+  fastify.addHook('onRequest', async (req: FastifyRequest) => {
+    if (req.session) return
+    if (!req.headers.cookie) return  // short-circuit anonymous public traffic
+    const headers = new Headers()
+    for (const [k, v] of Object.entries(req.headers)) {
+      if (Array.isArray(v)) headers.set(k, v.join(','))
+      else if (typeof v === 'string') headers.set(k, v)
+    }
+    try {
+      const sess = await auth.api.getSession({ headers })
+      if (sess) req.session = sess as unknown as AuthSession
+    } catch (err) {
+      // Bad/expired cookie — leave req.session undefined; route guards 401.
+      fastify.log.debug({ err }, 'auth: soft-attach failed')
+    }
+  })
+
   fastify.decorate('requireSession', async (req: FastifyRequest, reply: FastifyReply) => {
     const headers = new Headers()
     for (const [k, v] of Object.entries(req.headers)) {

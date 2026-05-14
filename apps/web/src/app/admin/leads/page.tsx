@@ -77,7 +77,8 @@ export default function LeadsKanbanPage() {
       if (adminsResp.admins) setAdmins(adminsResp.admins)
     } catch (e) { setError(String(e)) } finally { setLoading(false) }
   }
-  useEffect(() => { load() /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [kindFilter])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { load() }, [kindFilter])
 
   async function patchLead(id: string, patch: Partial<{ stage: Stage; assignedToId: string | null; followUpAt: string | null }>) {
     try {
@@ -145,7 +146,7 @@ export default function LeadsKanbanPage() {
           placeholder="Search name/email/subject…"
           className="border rounded px-2 py-1.5 text-sm flex-1 min-w-48"
         />
-        <button onClick={load} className="px-3 py-1.5 bg-green-700 text-white rounded text-sm hover:bg-green-800">Search</button>
+        <button onClick={load} className="px-3 py-1.5 bg-kerala-700 text-white rounded text-sm hover:bg-kerala-800">Search</button>
       </div>
 
       {error && <div className="p-3 rounded bg-red-50 text-red-800 text-sm">{error}</div>}
@@ -328,7 +329,7 @@ function LeadDrawer({ lead, admins, onClose, onPatch, onAddNote, onDelete }: {
           {/* Actions */}
           <div className="flex gap-2 flex-wrap">
             <a href={`mailto:${lead.email}?subject=Re:%20${encodeURIComponent(lead.subject ?? 'Your AyurConnect enquiry')}`}
-               className="px-4 py-2 bg-green-700 text-white rounded text-sm hover:bg-green-800">
+               className="px-4 py-2 bg-kerala-700 text-white rounded text-sm hover:bg-kerala-800">
               Reply by email →
             </a>
             {lead.phone && (
@@ -348,7 +349,7 @@ function LeadDrawer({ lead, admins, onClose, onPatch, onAddNote, onDelete }: {
               className="mb-3 flex gap-2"
             >
               <input value={noteText} onChange={(e) => setNoteText(e.target.value)} placeholder="Add a note…" className="flex-1 border rounded px-2 py-1.5 text-sm" />
-              <button type="submit" className="px-3 py-1.5 bg-green-700 text-white rounded text-sm hover:bg-green-800">Add</button>
+              <button type="submit" className="px-3 py-1.5 bg-kerala-700 text-white rounded text-sm hover:bg-kerala-800">Add</button>
             </form>
             <div className="space-y-2">
               {notes.length === 0 && <p className="text-xs text-gray-500 italic">No activity yet.</p>}

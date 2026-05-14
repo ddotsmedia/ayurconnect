@@ -13,4 +13,13 @@ export default {
       { source: '/api/:path*', destination: 'http://localhost:4100/:path*' },
     ]
   },
+  async redirects() {
+    return [
+      // SEO referenced /blog throughout the strategy doc; we shipped /articles
+      // earlier as the public knowledge route. Permanent redirect so any
+      // backlink to /blog or /blog/<slug> lands on the live page.
+      { source: '/blog',          destination: '/articles',       permanent: true },
+      { source: '/blog/:slug',    destination: '/articles/:slug', permanent: true },
+    ]
+  },
 }

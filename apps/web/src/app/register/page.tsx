@@ -53,26 +53,26 @@ const ROLES = [
 
 export default function RegisterLandingPage() {
   return (
-    <div className="min-h-screen bg-cream py-16">
+    <div className="min-h-screen bg-cream py-8 sm:py-16">
       <div className="container mx-auto px-4 max-w-5xl">
-        <header className="text-center mb-10">
-          <h1 className="font-serif text-4xl md:text-5xl text-kerala-700">Join AyurConnect</h1>
-          <p className="mt-3 text-muted max-w-xl mx-auto">
+        <header className="text-center mb-6 sm:mb-10">
+          <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl text-kerala-700">Join AyurConnect</h1>
+          <p className="mt-3 text-sm sm:text-base text-muted max-w-xl mx-auto px-2">
             Choose how you&apos;d like to use AyurConnect. You can always change later — but each role gets the right tools from day one.
           </p>
-          <p className="mt-4 text-sm text-gray-500">
+          <p className="mt-3 sm:mt-4 text-sm text-gray-500">
             Already have an account? <Link href="/sign-in" className="text-kerala-700 font-medium hover:underline">Sign in</Link>.
           </p>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">
           {ROLES.map((r) => {
             const Icon = r.icon
             return (
               <Link
                 key={r.href}
                 href={r.href}
-                className="group bg-white rounded-card border border-gray-100 shadow-card hover:shadow-cardLg p-6 flex flex-col transition-shadow"
+                className="group bg-white rounded-card border border-gray-100 shadow-card hover:shadow-cardLg p-5 sm:p-6 flex flex-col transition-shadow"
               >
                 <span className={`w-12 h-12 rounded-full ring-4 inline-flex items-center justify-center mb-4 ${r.color}`}>
                   <Icon className="w-6 h-6" />

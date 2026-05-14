@@ -22,6 +22,8 @@ const me: FastifyPluginAsync = async (fastify) => {
             profile: true, bio: true, photoUrl: true,
             websiteUrl: true, linkedinUrl: true, facebookUrl: true,
             instagramUrl: true, twitterUrl: true, youtubeUrl: true,
+            workplace: true, workplaceUrl: true,
+            featuredArticles: true, featuredPosts: true,
           },
         },
         ownedHospital: {
@@ -87,10 +89,14 @@ const me: FastifyPluginAsync = async (fastify) => {
 
     const body = request.body as Record<string, unknown>
     const name           = String(body.name ?? '').trim()
-    const specialization = String(body.specialization ?? '').trim()
+    // Specialization is optional at registration — many BAMS graduates don't yet
+    // have a CCIM-recognised PG specialty and were getting stuck here. Default to
+    // "General" so the public profile renders sensibly; they can refine later.
+    const specRaw        = String(body.specialization ?? '').trim()
+    const specialization = specRaw || 'General'
     const district       = String(body.district ?? '').trim()
-    if (!name || !specialization || !district) {
-      return reply.code(400).send({ error: 'name, specialization, district required' })
+    if (!name || !district) {
+      return reply.code(400).send({ error: 'name, district required' })
     }
     const country = typeof body.country === 'string' && /^[A-Z]{2}$/.test(body.country) ? body.country : 'IN'
     const state   = typeof body.state === 'string' && body.state.trim() ? body.state.trim().slice(0, 100) : null
@@ -234,7 +240,11 @@ const me: FastifyPluginAsync = async (fastify) => {
     }
 
     setStr('name')
-    setStr('specialization')
+    // Specialization is optional UX-wise but the column is NOT NULL — coerce
+    // a blank submission to "General" rather than rejecting or storing ''.
+    if (typeof body.specialization === 'string') {
+      data.specialization = (body.specialization as string).trim() || 'General'
+    }
     setStr('district')
     setStr('country')
     setStrOrNull('state')
@@ -254,6 +264,52 @@ const me: FastifyPluginAsync = async (fastify) => {
     setUrlOrNull('instagramUrl')
     setUrlOrNull('twitterUrl')
     setUrlOrNull('youtubeUrl')
+    // Phase 11: practice + media presence
+    if (body.workplace !== undefined) {
+      data.workplace = typeof body.workplace === 'string' && body.workplace.trim() ? body.workplace.trim().slice(0, 200) : null
+    }
+    setUrlOrNull('workplaceUrl')
+    // featuredArticles / featuredPosts come in as JSON arrays from the form.
+    // Validate item-by-item; drop invalid entries silently rather than 400.
+    const POST_PLATFORMS = ['twitter', 'instagram', 'youtube', 'facebook', 'linkedin', 'tiktok', 'other']
+    const isHttpUrl = (s: unknown): s is string => typeof s === 'string' && /^https?:\/\/\S+\.\S+/i.test(s.trim())
+    if (body.featuredArticles !== undefined) {
+      if (!Array.isArray(body.featuredArticles)) {
+        data.featuredArticles = null
+      } else {
+        const cleaned = (body.featuredArticles as unknown[]).slice(0, 10).flatMap((raw) => {
+          if (!raw || typeof raw !== 'object') return []
+          const r = raw as Record<string, unknown>
+          const title = typeof r.title === 'string' ? r.title.trim().slice(0, 250) : ''
+          if (!title || !isHttpUrl(r.url)) return []
+          return [{
+            title,
+            url: (r.url as string).trim().slice(0, 500),
+            source: typeof r.source === 'string' && r.source.trim() ? r.source.trim().slice(0, 120) : null,
+            year:   typeof r.year   === 'number' && r.year > 1900 && r.year < 2200 ? Math.floor(r.year) : null,
+          }]
+        })
+        data.featuredArticles = cleaned.length > 0 ? cleaned : null
+      }
+    }
+    if (body.featuredPosts !== undefined) {
+      if (!Array.isArray(body.featuredPosts)) {
+        data.featuredPosts = null
+      } else {
+        const cleaned = (body.featuredPosts as unknown[]).slice(0, 10).flatMap((raw) => {
+          if (!raw || typeof raw !== 'object') return []
+          const r = raw as Record<string, unknown>
+          if (!isHttpUrl(r.url)) return []
+          const platform = typeof r.platform === 'string' && POST_PLATFORMS.includes(r.platform) ? r.platform : 'other'
+          return [{
+            platform,
+            url: (r.url as string).trim().slice(0, 500),
+            caption: typeof r.caption === 'string' && r.caption.trim() ? r.caption.trim().slice(0, 400) : null,
+          }]
+        })
+        data.featuredPosts = cleaned.length > 0 ? cleaned : null
+      }
+    }
 
     if (Object.keys(data).length === 0) return reply.code(400).send({ error: 'no editable fields' })
 

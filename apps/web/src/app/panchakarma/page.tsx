@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { GradientHero } from '@ayurconnect/ui'
 import { Droplets, Wind, Flame, Leaf, Heart, ShieldCheck, MapPin } from 'lucide-react'
+import { AYURVEDA_KEYWORDS } from '../../lib/seo'
 
 const PROCEDURES = [
   {
@@ -69,6 +70,12 @@ const PHASES = [
 export const metadata = {
   title: 'Panchakarma — The 5 Classical Ayurveda Detox Procedures Explained | AyurConnect',
   description: 'Comprehensive guide to Vamana, Virechana, Basti, Nasya, and Raktamokshana. Indications, contraindications, sequence, and how to find a CCIM-certified Panchakarma centre in Kerala.',
+  keywords: [
+    ...AYURVEDA_KEYWORDS.treatments,
+    ...AYURVEDA_KEYWORDS.concepts,
+    ...AYURVEDA_KEYWORDS.geographic,
+    ...AYURVEDA_KEYWORDS.signals,
+  ],
 }
 
 export default function PanchakarmaPage() {

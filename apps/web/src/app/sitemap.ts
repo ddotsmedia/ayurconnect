@@ -15,6 +15,7 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/health-tips',    priority: 0.7, changeFrequency: 'weekly'  },
   { path: '/panchakarma',    priority: 0.7, changeFrequency: 'monthly' },
   { path: '/articles',       priority: 0.7, changeFrequency: 'weekly'  },
+  { path: '/videos',         priority: 0.75, changeFrequency: 'weekly' },
   { path: '/research',                 priority: 0.7, changeFrequency: 'monthly' },
   { path: '/about',                    priority: 0.6, changeFrequency: 'monthly' },
   { path: '/about/leadership',         priority: 0.5, changeFrequency: 'monthly' },
@@ -30,6 +31,18 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/tourism',        priority: 0.6, changeFrequency: 'monthly' },
   { path: '/ayurbot',        priority: 0.5, changeFrequency: 'monthly' },
   { path: '/online-consultation', priority: 0.9, changeFrequency: 'weekly' },
+  // UAE city landing pages — high-intent SEO targets for diaspora keywords.
+  { path: '/dubai/ayurveda-doctors',     priority: 0.85, changeFrequency: 'weekly' },
+  { path: '/abu-dhabi/ayurveda-doctors', priority: 0.85, changeFrequency: 'weekly' },
+  { path: '/sharjah/ayurveda-doctors',   priority: 0.85, changeFrequency: 'weekly' },
+  { path: '/wellness-plans',             priority: 0.75, changeFrequency: 'monthly' },
+  // Phase-8 SEO surfaces.
+  { path: '/qa',                  priority: 0.9,  changeFrequency: 'daily'   },
+  { path: '/qa/ask',              priority: 0.6,  changeFrequency: 'monthly' },
+  { path: '/programs',            priority: 0.85, changeFrequency: 'weekly'  },
+  { path: '/formulary',           priority: 0.85, changeFrequency: 'weekly'  },
+  { path: '/doctor-match',        priority: 0.8,  changeFrequency: 'monthly' },
+  { path: '/second-opinion',      priority: 0.75, changeFrequency: 'monthly' },
   { path: '/prakriti-quiz',  priority: 0.85, changeFrequency: 'monthly' },
   { path: '/wellness-check', priority: 0.85, changeFrequency: 'monthly' },
   { path: '/diet-planner',   priority: 0.8,  changeFrequency: 'monthly' },
@@ -88,13 +101,32 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: s.priority,
   }))
 
-  const [doctors, hospitals, herbs, articles, healthTips, forum] = await Promise.all([
-    fetchIds('/doctors?limit=500',     'doctors'),
+  const [doctors, hospitals, herbs, articles, healthTips, forum, qa, programs, formulations, videos] = await Promise.all([
+    fetchIds('/doctors?limit=500',          'doctors'),
     fetchIds('/hospitals?limit=500'),
-    fetchIds('/herbs?limit=1000',      'herbs'),
-    fetchIds('/articles?limit=500',    'articles'),
-    fetchIds('/health-tips?limit=500', 'tips'),
-    fetchIds('/forum?limit=500',       'posts'),
+    fetchIds('/herbs?limit=1000',           'herbs'),
+    fetchIds('/articles?limit=500',         'articles'),
+    fetchIds('/health-tips?limit=500',      'tips'),
+    fetchIds('/forum?limit=500',            'posts'),
+    fetchIds('/qa?limit=500',               'questions'),
+    fetchIds('/programs?limit=100',         'programs'),
+    fetchIds('/formulations?limit=500',     'formulations'),
+    fetchIds('/videos?limit=500',           'videos'),
+  ])
+  // Dynamic Q&A / programs / formulations use `slug` (not id) for canonical
+  // URLs. Re-pull slugs separately since fetchIds() only grabs ids.
+  async function fetchSlugs(path: string, key: string): Promise<string[]> {
+    try {
+      const res = await fetch(`${API_INTERNAL}${path}`, { next: { revalidate: 3600 } })
+      if (!res.ok) return []
+      const data = await res.json() as Record<string, Array<{ slug?: string | null }>>
+      return (data[key] ?? []).map((x) => x.slug).filter((s): s is string => !!s)
+    } catch { return [] }
+  }
+  const [qaSlugs, programSlugs, formulationSlugs] = await Promise.all([
+    fetchSlugs('/qa?limit=500',           'questions'),
+    fetchSlugs('/programs?limit=100',     'programs'),
+    fetchSlugs('/formulations?limit=500', 'formulations'),
   ])
 
   const dynamic = (prefix: string, items: Array<{ id: string; updatedAt?: string }>, priority: number): MetadataRoute.Sitemap =>
@@ -105,6 +137,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority,
     }))
 
+  // Note: qa/programs/formulations are indexed by their `slug` field (not
+  // id), so we reuse the slug arrays fetched above rather than dynamic().
+  const dynamicBySlug = (prefix: string, slugs: string[], priority: number): MetadataRoute.Sitemap =>
+    slugs.map((slug) => ({
+      url: `${BASE}${prefix}/${slug}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority,
+    }))
+
+  // Mark the qa variable as used (it's a parallel-fetch byproduct).
+  void qa; void programs; void formulations
+
   return [
     ...staticEntries,
     ...dynamic('/doctors', doctors, 0.7),
@@ -113,5 +158,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...dynamic('/articles', articles, 0.5),
     ...dynamic('/health-tips', healthTips, 0.5),
     ...dynamic('/forum', forum, 0.4),
+    ...dynamic('/videos', videos, 0.6),
+    ...dynamicBySlug('/qa',         qaSlugs,         0.6),
+    ...dynamicBySlug('/programs',   programSlugs,    0.8),
+    ...dynamicBySlug('/formulary',  formulationSlugs, 0.7),
   ]
 }

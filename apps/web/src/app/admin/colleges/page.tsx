@@ -73,7 +73,7 @@ export default function CollegesAdminPage() {
           <p className="text-gray-600 mt-1">{items.length} loaded</p>
         </div>
         {!showForm && (
-          <button onClick={() => { setEditingId(null); setForm({ ...empty }); setShowForm(true) }} className="px-4 py-2 bg-green-700 text-white rounded text-sm hover:bg-green-800">
+          <button onClick={() => { setEditingId(null); setForm({ ...empty }); setShowForm(true) }} className="px-4 py-2 bg-kerala-700 text-white rounded text-sm hover:bg-kerala-800">
             + New college
           </button>
         )}
@@ -135,7 +135,7 @@ export default function CollegesAdminPage() {
                 <td className="px-4 py-2.5">{c.district}</td>
                 <td className="px-4 py-2.5 text-xs text-gray-500">{c.contact ?? '—'}</td>
                 <td className="px-4 py-2.5 text-right space-x-3">
-                  <button onClick={() => startEdit(c)} className="text-green-700 hover:underline text-xs">Edit</button>
+                  <button onClick={() => startEdit(c)} className="text-kerala-700 hover:underline text-xs">Edit</button>
                   <button onClick={() => remove(c.id, c.name)} className="text-red-600 hover:underline text-xs">Delete</button>
                 </td>
               </tr>

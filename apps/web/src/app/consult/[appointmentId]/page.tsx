@@ -75,7 +75,8 @@ export default function ConsultationPage({ params }: { params: Promise<{ appoint
       else setMode('lobby')
     } catch (e) { setErrorKind('fetch-failed'); setErrorDetail(String(e)) } finally { setLoading(false) }
   }
-  useEffect(() => { load() /* eslint-disable-next-line */ }, [appointmentId])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { load() }, [appointmentId])
 
   // Cleanup preview stream on unmount or mode change
   useEffect(() => {

@@ -68,7 +68,7 @@ export default function ForumAdminPage() {
                 {p.comments.length > 0 && (
                   <button
                     onClick={() => setExpanded((x) => (x === p.id ? null : p.id))}
-                    className="text-xs text-green-700 hover:underline mt-2"
+                    className="text-xs text-kerala-700 hover:underline mt-2"
                   >
                     {expanded === p.id ? 'hide' : 'show'} comments
                   </button>

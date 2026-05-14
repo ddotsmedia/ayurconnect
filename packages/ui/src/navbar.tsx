@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { Menu, X, ChevronDown, LayoutDashboard, Shield, LogOut, User } from 'lucide-react'
+import { Menu, X, ChevronDown, LayoutDashboard, Shield, LogOut, User, Stethoscope } from 'lucide-react'
 import { cn } from './lib/utils'
 import { LangToggle } from './lang-toggle'
 import { t, type Lang } from './i18n'
@@ -55,11 +55,17 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
     {
       kind: 'group', key: 'learn', label: tr.nav.learn,
       children: [
-        { href: '/treatments',  label: tr.nav.treatments },
-        { href: '/herbs',       label: tr.nav.herbs },
-        { href: '/ayurbot',     label: tr.nav.ayurbot },
-        { href: '/health-tips', label: tr.nav.healthTips },
-        { href: '/articles',    label: tr.nav.articles },
+        { href: '/qa',           label: 'Ayurveda Q&A' },
+        { href: '/programs',     label: 'Wellness Programs' },
+        { href: '/formulary',    label: 'Medicines Reference' },
+        { href: '/doctor-match', label: 'AI Doctor Match' },
+        { href: '/triage',       label: 'Symptom Checker' },
+        { href: '/treatments',   label: tr.nav.treatments },
+        { href: '/herbs',        label: tr.nav.herbs },
+        { href: '/ayurbot',      label: tr.nav.ayurbot },
+        { href: '/health-tips',  label: tr.nav.healthTips },
+        { href: '/articles',     label: tr.nav.articles },
+        { href: '/videos',       label: 'Health Videos' },
       ],
     },
     {
@@ -253,6 +259,11 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                       <Link href="/dashboard/profile" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-kerala-50 hover:text-kerala-700">
                         <User className="w-4 h-4" /> Edit profile
                       </Link>
+                      {['DOCTOR', 'DOCTOR_PENDING', 'ADMIN'].includes(session.user.role) && (
+                        <Link href="/dr" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-kerala-50 hover:text-kerala-700">
+                          <Stethoscope className="w-4 h-4" /> Doctor Hub
+                        </Link>
+                      )}
                       {session.user.role === 'ADMIN' && (
                         <Link href="/admin" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-kerala-50 hover:text-kerala-700">
                           <Shield className="w-4 h-4" /> Admin panel
@@ -367,6 +378,11 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                   <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded text-gray-800 hover:bg-kerala-50">
                     <LayoutDashboard className="w-4 h-4" /> Dashboard
                   </Link>
+                  {['DOCTOR', 'DOCTOR_PENDING', 'ADMIN'].includes(session.user.role) && (
+                    <Link href="/dr" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded text-gray-800 hover:bg-kerala-50">
+                      <Stethoscope className="w-4 h-4" /> Doctor Hub
+                    </Link>
+                  )}
                   {session.user.role === 'ADMIN' && (
                     <Link href="/admin" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded text-gray-800 hover:bg-kerala-50">
                       <Shield className="w-4 h-4" /> Admin panel

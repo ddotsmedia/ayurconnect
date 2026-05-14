@@ -69,38 +69,67 @@ const app = fp(async (fastify, opts: AppOptions) => {
       fastify.log.warn({ err }, 'journal-summary cron: failed to start (non-fatal)')
     }
 
-    // Embed any herbs missing a vector (one-time on first boot after migration,
-    // then no-op on subsequent boots). Free Gemini quota easily covers 145 herbs.
+    // Embed any herbs / research papers missing a vector (one-time on first
+    // boot after migration, then no-op on subsequent boots). Free Gemini
+    // quota easily covers ~145 herbs + ~50 papers.
     try {
       const { embedTexts, toVectorLiteral, embeddingsEnabled } = await import('./lib/embeddings.js')
       if (!embeddingsEnabled()) {
         fastify.log.info('embeddings: GOOGLE_API_KEY not set, skipping')
         return
       }
-      const missing = await fastify.prisma.$queryRaw<Array<{ id: string; name: string; sanskrit: string | null; english: string | null; malayalam: string | null; rasa: string | null; virya: string | null; description: string | null; uses: string | null }>>`
+
+      // ── Herbs ──
+      const missingHerbs = await fastify.prisma.$queryRaw<Array<{ id: string; name: string; sanskrit: string | null; english: string | null; malayalam: string | null; rasa: string | null; virya: string | null; description: string | null; uses: string | null }>>`
         SELECT id, name, sanskrit, english, malayalam, rasa, virya, description, uses
         FROM "Herb" WHERE embedding IS NULL`
-      if (missing.length === 0) {
+      if (missingHerbs.length > 0) {
+        fastify.log.info({ count: missingHerbs.length }, 'embeddings: indexing herbs missing vectors')
+        const texts = missingHerbs.map((h) => [
+          h.name, h.sanskrit, h.english, h.malayalam,
+          h.rasa ? `Rasa: ${h.rasa}` : '',
+          h.virya ? `Virya: ${h.virya}` : '',
+          h.description ?? '',
+          h.uses ? `Uses: ${h.uses}` : '',
+        ].filter(Boolean).join('. '))
+        const vectors = await embedTexts(texts, 4)
+        let ok = 0
+        for (let i = 0; i < missingHerbs.length; i++) {
+          const v = vectors[i]
+          if (!v) continue
+          await fastify.prisma.$executeRawUnsafe(`UPDATE "Herb" SET embedding = $1::vector WHERE id = $2`, toVectorLiteral(v), missingHerbs[i].id)
+          ok++
+        }
+        fastify.log.info({ embedded: ok, total: missingHerbs.length }, 'embeddings: herbs indexed')
+      } else {
         fastify.log.info('embeddings: all herbs indexed')
-        return
       }
-      fastify.log.info({ count: missing.length }, 'embeddings: indexing herbs missing vectors')
-      const texts = missing.map((h) => [
-        h.name, h.sanskrit, h.english, h.malayalam,
-        h.rasa ? `Rasa: ${h.rasa}` : '',
-        h.virya ? `Virya: ${h.virya}` : '',
-        h.description ?? '',
-        h.uses ? `Uses: ${h.uses}` : '',
-      ].filter(Boolean).join('. '))
-      const vectors = await embedTexts(texts, 4)
-      let ok = 0
-      for (let i = 0; i < missing.length; i++) {
-        const v = vectors[i]
-        if (!v) continue
-        await fastify.prisma.$executeRawUnsafe(`UPDATE "Herb" SET embedding = $1::vector WHERE id = $2`, toVectorLiteral(v), missing[i].id)
-        ok++
+
+      // ── Research papers ──
+      const missingPapers = await fastify.prisma.$queryRaw<Array<{ id: string; title: string; abstract: string; conditions: string[]; doshas: string[]; studyType: string | null }>>`
+        SELECT id, title, abstract, conditions, doshas, "studyType"
+        FROM "ResearchPaper" WHERE embedding IS NULL`
+      if (missingPapers.length > 0) {
+        fastify.log.info({ count: missingPapers.length }, 'embeddings: indexing research papers missing vectors')
+        const texts = missingPapers.map((p) => [
+          p.title,
+          p.abstract,
+          p.conditions.length ? `Conditions: ${p.conditions.join(', ')}` : '',
+          p.doshas.length     ? `Doshas: ${p.doshas.join(', ')}`         : '',
+          p.studyType         ? `Study type: ${p.studyType}`             : '',
+        ].filter(Boolean).join('. '))
+        const vectors = await embedTexts(texts, 4)
+        let ok = 0
+        for (let i = 0; i < missingPapers.length; i++) {
+          const v = vectors[i]
+          if (!v) continue
+          await fastify.prisma.$executeRawUnsafe(`UPDATE "ResearchPaper" SET embedding = $1::vector WHERE id = $2`, toVectorLiteral(v), missingPapers[i].id)
+          ok++
+        }
+        fastify.log.info({ embedded: ok, total: missingPapers.length }, 'embeddings: research papers indexed')
+      } else {
+        fastify.log.info('embeddings: all research papers indexed')
       }
-      fastify.log.info({ embedded: ok, total: missing.length }, 'embeddings: bootstrap complete')
     } catch (err) {
       fastify.log.warn({ err }, 'embeddings: bootstrap failed (semantic search will be empty)')
     }

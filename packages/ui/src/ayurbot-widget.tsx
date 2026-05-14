@@ -94,8 +94,13 @@ export function AyurBotWidget() {
       if (!errored && !acc) {
         setMessages((m) => { const next = [...m]; if (next[botIndex]) next[botIndex] = { role: 'bot', content: '(no response)' }; return next })
       }
-    } catch {
-      setMessages((m) => { const next = [...m]; if (next[botIndex]) next[botIndex] = { role: 'error', content: '⚠️ Network error reaching AyurBot.' }; return next })
+    } catch (err) {
+      // Only true network failures (fetch threw) end up here — protocol errors
+      // come through the SSE 'error' event and are handled above with a
+      // friendlier message. Include the actual reason so users / ops can tell
+      // a CORS/DNS issue from a transient Cloudflare 5xx.
+      const reason = err instanceof Error ? err.message : 'unknown'
+      setMessages((m) => { const next = [...m]; if (next[botIndex]) next[botIndex] = { role: 'error', content: `⚠️ Couldn't reach AyurBot (${reason}). Please retry in a moment.` }; return next })
     } finally {
       setBusy(false)
     }

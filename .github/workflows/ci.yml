@@ -1,0 +1,128 @@
+name: ci
+
+# Runs on every PR + push to main. Catches type regressions before they ship.
+# Smoke tests run in a separate job that boots the full stack — they're slower
+# but catch what typecheck can't (runtime auth bugs, broken redirects, etc.).
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: prisma generate
+        run: pnpm --filter @ayurconnect/db exec prisma generate
+
+      - name: typecheck api
+        run: pnpm --filter api exec tsc --noEmit
+
+      - name: typecheck web
+        run: pnpm --filter @ayurconnect/web exec tsc --noEmit
+
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: typecheck
+    # The smoke job needs Postgres + Redis + a built web/api stack. Skip on
+    # forks until secrets are available; enable on PRs from collaborators.
+    if: github.event.pull_request.head.repo.full_name == github.repository || github.event_name == 'push'
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: ayur
+          POSTGRES_PASSWORD: ayur
+          POSTGRES_DB: ayurconnect
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U ayur" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+
+    env:
+      DATABASE_URL:      postgresql://ayur:ayur@localhost:5432/ayurconnect
+      REDIS_URL:         redis://localhost:6379
+      BETTER_AUTH_SECRET: ci-smoke-secret-do-not-use-in-prod
+      BETTER_AUTH_URL:   http://localhost:4100
+      INTERNAL_API_URL:  http://localhost:4100
+      NEXT_PUBLIC_API_URL: http://localhost:4100
+      CORS_ORIGIN:       http://localhost:3100
+      NODE_ENV:          test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8.15.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: install playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: prisma migrate
+        run: pnpm --filter @ayurconnect/db exec prisma migrate deploy
+
+      - name: build
+        run: pnpm build
+
+      - name: start api
+        run: pnpm --filter api exec node dist/server.js &
+        env:
+          PORT: 4100
+
+      - name: start web
+        run: pnpm --filter @ayurconnect/web exec next start -p 3100 &
+
+      - name: wait for stack
+        run: |
+          for i in {1..30}; do
+            curl -fsS http://localhost:4100/health > /dev/null && \
+            curl -fsS http://localhost:3100         > /dev/null && exit 0
+            sleep 2
+          done
+          echo "stack did not come up"; exit 1
+
+      - name: playwright smoke
+        run: pnpm exec playwright test
+
+      - name: upload report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7

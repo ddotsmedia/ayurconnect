@@ -140,7 +140,7 @@ export default function AdminImportPage() {
           Import doctors or clinics from CSV, or load the built-in curated list of well-known
           Kerala Ayurveda hospitals (compiled from publicly published sources). All imported rows
           start as <code className="px-1.5 py-0.5 bg-gray-100 rounded text-[11px]">ccimVerified=false</code> —
-          flip them via <a href="/admin/verify" className="text-green-700 hover:underline">CCIM queue</a> after manual cross-check.
+          flip them via <a href="/admin/verify" className="text-kerala-700 hover:underline">CCIM queue</a> after manual cross-check.
         </p>
       </header>
 
@@ -154,7 +154,7 @@ export default function AdminImportPage() {
                 key={t}
                 onClick={() => setType(t)}
                 className={type === t
-                  ? 'px-3 py-1.5 text-sm font-semibold rounded-md bg-green-700 text-white'
+                  ? 'px-3 py-1.5 text-sm font-semibold rounded-md bg-kerala-700 text-white'
                   : 'px-3 py-1.5 text-sm rounded-md bg-gray-100 text-gray-700 hover:bg-gray-200'}
               >{t}</button>
             ))}
@@ -165,7 +165,7 @@ export default function AdminImportPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <label className="flex flex-col gap-2 p-4 border-2 border-dashed border-gray-300 rounded-md hover:border-green-600 cursor-pointer transition-colors">
+          <label className="flex flex-col gap-2 p-4 border-2 border-dashed border-gray-300 rounded-md hover:border-kerala-600 cursor-pointer transition-colors">
             <span className="inline-flex items-center gap-2 text-sm font-semibold text-gray-700">
               <Upload className="w-4 h-4" /> Upload CSV file
             </span>
@@ -210,7 +210,7 @@ export default function AdminImportPage() {
               <button
                 onClick={() => commit(false)}
                 disabled={busy}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-md bg-green-700 text-white hover:bg-green-800 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-semibold rounded-md bg-kerala-700 text-white hover:bg-kerala-800 disabled:opacity-50"
               >
                 <Upload className="w-4 h-4" /> Commit import
               </button>

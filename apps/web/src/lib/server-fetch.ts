@@ -7,3 +7,15 @@ export const API_INTERNAL =
   process.env.INTERNAL_API_URL ??
   process.env.NEXT_PUBLIC_API_URL ??
   'http://localhost:4100'
+
+// Structured logger for server-side fetch failures. Use this instead of a
+// bare `} catch {` so we can see when graceful-degradation fallbacks fire.
+// The label is the loader name; err is whatever the catch caught.
+//
+// Wired to console.warn for now; swap with Sentry / pino when error tracking
+// is wired up (see apps/api error logging for the analogous server-side hook).
+export function logServerFetchError(label: string, err: unknown, extra?: Record<string, unknown>): void {
+  const msg = err instanceof Error ? err.message : String(err)
+  // eslint-disable-next-line no-console
+  console.warn(`[server-fetch] ${label} failed: ${msg}`, extra ?? {})
+}

@@ -59,6 +59,20 @@ const route: FastifyPluginAsync = async (fastify) => {
     if (!body.doctorId || !body.dateTime || !body.type) {
       return reply.code(400).send({ error: 'doctorId, dateTime, type required' })
     }
+    // Validate dateTime: must be a real ISO date and must be in the future
+    // (allow 1min grace for clock skew). Rejecting bad input here stops garbage
+    // ("yesterday", "abc", or a 1970-epoch zero) before it hits the DB.
+    const dt = new Date(String(body.dateTime))
+    if (isNaN(dt.getTime())) {
+      return reply.code(400).send({ error: 'dateTime must be a valid ISO timestamp' })
+    }
+    if (dt.getTime() < Date.now() - 60_000) {
+      return reply.code(400).send({ error: 'dateTime must be in the future' })
+    }
+    // Cap at 2 years out — anything further is almost certainly a typo / abuse.
+    if (dt.getTime() > Date.now() + 2 * 365 * 86400 * 1000) {
+      return reply.code(400).send({ error: 'dateTime is too far in the future' })
+    }
     // Sanity: doctor exists
     const doctor = await fastify.prisma.doctor.findUnique({ where: { id: String(body.doctorId) } })
     if (!doctor) return reply.code(404).send({ error: 'doctor not found' })
@@ -75,7 +89,7 @@ const route: FastifyPluginAsync = async (fastify) => {
       data: {
         userId: sess.user.id,
         doctorId: String(body.doctorId),
-        dateTime: new Date(String(body.dateTime)),
+        dateTime: dt,
         type: String(body.type),
         chiefComplaint: body.chiefComplaint ? String(body.chiefComplaint) : null,
         duration: body.duration ? String(body.duration) : null,

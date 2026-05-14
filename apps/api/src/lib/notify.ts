@@ -59,9 +59,14 @@ export type NotificationType =
   | 'appointment-review-prompt'
   | 'review-received'
   | 'doctor-verified'
+  | 'doctor-declined'
+  | 'doctor-needs-info'
   | 'hospital-verified'
+  | 'hospital-declined'
+  | 'hospital-needs-info'
   | 'forum-reply'
   | 'journal-weekly-summary'
+  | 'prescription-issued'
   | 'system'
 
 export type CreateNotifyInput = {

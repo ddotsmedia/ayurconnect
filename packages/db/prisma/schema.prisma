@@ -41,6 +41,34 @@ model User {
   notifications Notification[]
   journal       JournalEntry[]
   assignedLeads Lead[]        @relation("LeadAssignee")
+  // Phase-7 health platform additions (2026-05-12)
+  family           FamilyMember[]
+  vitals           HealthMetric[]
+  prescriptions    Prescription[]   @relation("PrescriptionPatient")
+  authoredRxs      Prescription[]   @relation("PrescriptionDoctor")
+  rpmRulesForMe    RpmAlertRule[]   @relation("RpmRulePatient")
+  rpmRulesByMe     RpmAlertRule[]   @relation("RpmRuleDoctor")
+  rpmAlerts        RpmAlert[]
+  // Phase-8 (2026-05-13) — inspired by iCliniq + Qura + Ayushakti
+  authoredAnswers  DoctorAnswer[]
+  publicQuestions  PublicQuestion[]
+  programEnrollments ProgramEnrollment[]
+  // Phase-9 (2026-05-13) — admin moderation back-relations
+  moderatedDoctors   Doctor[]   @relation("DoctorModerator")
+  moderatedHospitals Hospital[] @relation("HospitalModerator")
+  // Phase-10 (2026-05-14) — Doctor Knowledge Hub
+  authoredCases       ClinicalCase[]
+  caseComments        CaseComment[]
+  caseUpvotes         CaseUpvote[]
+  paperBookmarks      ResearchPaperBookmark[]
+  paperAnnotations    ResearchPaperAnnotation[]
+  webinarsAsSpeaker   Webinar[]                  @relation("WebinarSpeaker")
+  webinarRegistrations WebinarRegistration[]
+  journalSubscriptions JournalSubscription[]
+  authoredProtocols   ClinicalProtocol[]
+  protocolComments    ProtocolComment[]
+  conferenceRSVPs     ConferenceRSVP[]
+  cmeCredits          CmeCredit[]
 }
 
 // ─── Patient health journal (added 2026-05-10) ────────────────────────────
@@ -167,11 +195,35 @@ model Doctor {
   instagramUrl       String?
   twitterUrl         String?
   youtubeUrl         String?
+  // ─── Practice + media presence (added 2026-05-13, Phase 11) ─────────────
+  // `workplace` = current clinic / hospital affiliation (free text; distinct
+  // from `address` which is a postal location). Used for the "where I practise"
+  // line on the public profile.
+  workplace          String?
+  workplaceUrl       String?   // optional link to that clinic / hospital
+  // `featuredArticles` — array of { title, url, source?, year? } showcasing
+  // articles the doctor authored, contributed to, or curates. Max 10 items
+  // enforced at API layer.
+  featuredArticles   Json?
+  // `featuredPosts` — array of { platform, url, caption? } highlighting
+  // specific social posts (different from the platform homepage URLs above).
+  featuredPosts      Json?
   // ─── Provenance / verification (added 2026-05-10 with import pipeline) ──
   tcmcNumber         String?  @unique // Travancore-Cochin Medical Council registration #
   source             String?  // e.g. 'tcmc', 'kerala-tourism', 'self-register', 'admin', 'csv'
   sourceUrl          String?  // URL of the public listing this record came from
   importedAt         DateTime?
+  // ─── Moderation (added 2026-05-13, Phase 9) ─────────────────────────────
+  // `ccimVerified` is the public-facing verified flag. `moderationStatus`
+  // is the admin-internal queue state — 'pending' (default for unverified
+  // records), 'approved' (ccimVerified flipped true), 'declined' (rejected
+  // with reason), 'needs-info' (admin asked submitter for more), 'flagged'
+  // (suspicious, second review needed).
+  moderationStatus    String   @default("pending")
+  moderationReason    String?  // admin's decline/needs-info reason (sent to submitter)
+  moderationNotes     Json?    // internal admin comments: [{ at, byAdminId, byAdminName, kind, text }]
+  lastReviewedAt      DateTime?
+  lastReviewedById    String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -180,6 +232,23 @@ model Doctor {
   ownedBy      User?         @relation("OwnedDoctor")
   savedBy      SavedDoctor[]
   slots        DoctorSlot[]
+  lastReviewedBy User?       @relation("DoctorModerator", fields: [lastReviewedById], references: [id], onDelete: SetNull)
+
+  // Videos this doctor appears in (admin-curated YouTube embeds, /videos).
+  healthVideos   HealthVideo[] @relation("DoctorVideos")
+
+  // Index for queue sorting: oldest pending first.
+  @@index([moderationStatus, createdAt])
+
+  // Indexes for directory filtering. The `country` filter is a strict equality
+  // (ISO-2), state/district/specialization are case-insensitive `contains`
+  // queries, so a btree index helps the typical prefix case + WHERE country=…
+  // narrows the set first.
+  @@index([country, state])
+  @@index([state])
+  @@index([district])
+  @@index([specialization])
+  @@index([ccimVerified, createdAt])
 }
 
 // Concrete bookable time slots. Doctors create them; patients pick one when
@@ -234,12 +303,26 @@ model Hospital {
   source          String?  // e.g. 'kerala-tourism', 'ism-kerala', 'self-register', 'admin', 'csv'
   sourceUrl       String?
   importedAt      DateTime?
+  // ─── Moderation (added 2026-05-13, Phase 9) ─── mirrors Doctor model ──
+  moderationStatus    String   @default("pending")  // 'pending'|'approved'|'declined'|'needs-info'|'flagged'
+  moderationReason    String?
+  moderationNotes     Json?
+  lastReviewedAt      DateTime?
+  lastReviewedById    String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   reviews      Review[]
   appointments Appointment[]
   ownedBy      User?         @relation("OwnedHospital")
+  lastReviewedBy User?       @relation("HospitalModerator", fields: [lastReviewedById], references: [id], onDelete: SetNull)
+
+  // Indexes mirror Doctor for the same directory filter patterns.
+  @@index([country, state])
+  @@index([state])
+  @@index([district])
+  @@index([type])
+  @@index([moderationStatus, createdAt])
 }
 
 model Review {
@@ -277,6 +360,9 @@ model Post {
 
   @@index([userId])
   @@index([category])
+  // Covers ORDER BY createdAt DESC with optional category filter (forum lists).
+  @@index([category, createdAt])
+  @@index([createdAt])
 }
 
 model Upvote {
@@ -461,6 +547,9 @@ model Appointment {
   @@index([doctorId])
   @@index([status])
   @@index([dateTime])
+  // Covers the appointment-reminder cron's WHERE (status, dateTime range,
+  // reminded24hAt IS NULL) — runs every 15min, was scanning the whole table.
+  @@index([status, dateTime])
 }
 
 model KnowledgeArticle {
@@ -525,6 +614,58 @@ model HealthTip {
   @@index([season])
 }
 
+// Curated YouTube health-education videos. Admin pastes a YouTube URL and
+// the route handler extracts `youtubeId` + builds a default thumbnail URL.
+// Public list at /videos, detail at /videos/[id]. The embed uses
+// youtube-nocookie.com so we don't drop YouTube cookies until the user
+// presses play (better Core Web Vitals + GDPR posture).
+model HealthVideo {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  youtubeUrl  String                 // canonical paste-in URL
+  youtubeId   String                 // 11-char video id parsed from url
+  thumbnailUrl String?               // override; else derived from youtubeId
+  category    String?                // panchakarma | yoga | herbs | lifestyle | qa | research
+  speaker     String?                // doctor / channel name (free text)
+  speakerDoctorId String?            // optional FK to platform doctor
+  duration    String?                // e.g. "12:34"
+  language    String   @default("en")
+  tags        String[] @default([])
+  published   Boolean  @default(true)
+  featured    Boolean  @default(false)
+  sortOrder   Int      @default(0)
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  speakerDoctor Doctor? @relation("DoctorVideos", fields: [speakerDoctorId], references: [id], onDelete: SetNull)
+
+  @@index([published, featured, sortOrder])
+  @@index([category, published])
+  @@index([speakerDoctorId])
+}
+
+// Homepage "Stories of Healing" testimonials. Admin-curated, not user-submitted
+// (real patient reviews live on Doctor profiles via the Review model). Each row
+// renders as one card in section 9 of /. Order is controlled by `sortOrder`
+// ascending; ties broken by createdAt desc.
+model Testimonial {
+  id        String   @id @default(cuid())
+  name      String                 // e.g. "Anita M."
+  condition String?                // e.g. "Chronic migraine"
+  initials  String?                // auto-derived from name if null
+  stars     Int      @default(5)   // 1-5
+  quote     String                 // the testimonial body
+  imageUrl  String?                // optional patient photo (S3/MinIO)
+  published Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([published, sortOrder])
+}
+
 // ─── Lead capture (added 2026-05-11) ────────────────────────────────────
 // Generic inquiries from public lead-capture pages: cost estimator,
 // contact form, partnership/franchise enquiries. Admin reviews + replies
@@ -552,7 +693,9 @@ model Lead {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  assignedTo   User?    @relation("LeadAssignee", fields: [assignedToId], references: [id])
+  // SetNull so deleting an admin user doesn't fail the delete (Prisma default
+  // is Restrict, which would force re-assigning every lead first).
+  assignedTo   User?    @relation("LeadAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
 
   @@index([kind, status, createdAt])
   @@index([stage, createdAt])
@@ -600,6 +743,154 @@ model DietPlan {
   @@index([createdAt])
 }
 
+// ─── Family members (added 2026-05-12, Phase 7) ──────────────────────────
+// Sub-profiles a primary account holder manages — common for Indian families
+// where one phone number tracks parents/spouse/children health. Each member
+// has their own dosha + medical context but no login of their own.
+model FamilyMember {
+  id           String   @id @default(cuid())
+  userId       String   // primary account holder
+  name         String
+  relation     String   // 'spouse' | 'parent' | 'child' | 'sibling' | 'self' | 'other'
+  dob          DateTime? @db.Date
+  gender       String?   // 'female' | 'male' | 'other'
+  prakriti     String?   // 'vata' | 'pitta' | 'kapha' | combos
+  conditions   String[] @default([]) // chronic conditions or allergies
+  notes        String?
+  avatarColor  String?   // hex/tailwind shade for the initials avatar
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vitals       HealthMetric[]
+
+  @@index([userId, createdAt])
+}
+
+// ─── Health metrics / vitals (added 2026-05-12, Phase 7) ─────────────────
+// One row per measurement. `source` distinguishes manual self-entry from
+// future wearable pushes. `familyMemberId` is optional so a metric can be
+// scoped to a sub-profile instead of the primary user. Keep this generic —
+// not one column per metric — so we can ingest new ones (HRV, SpO2, glucose,
+// blood pressure pair, weight, temperature) without schema churn.
+model HealthMetric {
+  id              String   @id @default(cuid())
+  userId          String   // primary account holder (always set; even family member metrics roll up to a user)
+  familyMemberId  String?  // null = self; else scoped to a family member
+  kind            String   // 'bp_systolic' | 'bp_diastolic' | 'hr' | 'weight_kg' | 'glucose_mg_dl' | 'temp_c' | 'spo2' | 'sleep_hours' | 'steps' | 'hrv_ms'
+  value           Float
+  unit            String?  // optional override; we standardise kinds to SI in display
+  recordedAt      DateTime @default(now())
+  source          String   @default("manual") // 'manual' | 'apple_health' | 'google_fit' | 'fitbit' | 'omron_bp' | 'doctor_entry'
+  notes           String?
+  createdAt       DateTime @default(now())
+
+  user            User           @relation(fields: [userId],         references: [id], onDelete: Cascade)
+  familyMember    FamilyMember?  @relation(fields: [familyMemberId], references: [id], onDelete: SetNull)
+
+  @@index([userId, kind, recordedAt])
+  @@index([userId, recordedAt])
+  @@index([familyMemberId, kind, recordedAt])
+}
+// FK relation on FamilyMember side declared inline because Prisma needs an
+// explicit relation field; we don't expose it as a getter because metrics
+// scoped to a family member are queried via userId anyway.
+
+// ─── Structured prescriptions (added 2026-05-12, Phase 7) ────────────────
+// Replaces the free-text `prescription` string on Appointment. Each Rx has
+// 1..N items; an Rx may be linked to an Appointment (most common) or stand
+// alone (doctor adds a renewal). Items capture dose + frequency + duration
+// + special instructions Ayurveda-style ("anupana: warm water").
+model Prescription {
+  id             String   @id @default(cuid())
+  patientId      String   // User id
+  doctorId       String   // User id (the prescribing doctor's user account)
+  appointmentId  String?  // links back to the consultation if applicable
+  issuedAt       DateTime @default(now())
+  validUntil     DateTime? // optional expiry (most prescriptions are point-in-time)
+  diagnosis      String?
+  advice         String?  // dietary advice, lifestyle, dinacharya
+  followUpAfterWeeks Int?
+  status         String   @default("active") // 'active' | 'completed' | 'cancelled'
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  patient        User                 @relation("PrescriptionPatient", fields: [patientId], references: [id], onDelete: Cascade)
+  doctor         User                 @relation("PrescriptionDoctor",  fields: [doctorId],  references: [id], onDelete: Cascade)
+  items          PrescriptionItem[]
+
+  @@index([patientId, issuedAt])
+  @@index([doctorId, issuedAt])
+  @@index([appointmentId])
+}
+
+model PrescriptionItem {
+  id              String   @id @default(cuid())
+  prescriptionId  String
+  // Either a free-form medication name (classical formulation like "Yogaraj Guggulu")
+  // or a herb reference for native herbs in our DB.
+  medication      String
+  herbId          String?  // optional link to Herb table
+  dose            String   // "1 tablet" / "5 ml" / "1 tsp"
+  frequency       String   // "twice daily" / "every 6 hours" / "after meals"
+  duration        String?  // "for 30 days" / "until follow-up"
+  anupana         String?  // vehicle: "warm water" / "honey" / "milk" — Ayurveda-specific
+  instructions    String?  // free-text additional notes
+  position        Int      @default(0) // ordering in the prescription
+
+  prescription    Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+
+  @@index([prescriptionId, position])
+}
+
+// ─── Remote Patient Monitoring (added 2026-05-12, Phase 7) ───────────────
+// Doctor defines a rule on a specific patient — "alert me when BP systolic
+// > 140 for 3 readings in 7 days". When new HealthMetric rows are inserted,
+// a worker (later) evaluates rules and creates RpmAlert rows.
+//
+// MVP scope: simple threshold-per-metric rules. No streak/rolling-window
+// logic yet — that's tracked in `windowDays` + `consecutiveCount` but the
+// evaluator can start with single-reading triggers.
+model RpmAlertRule {
+  id               String   @id @default(cuid())
+  patientId        String
+  doctorId         String
+  kind             String   // HealthMetric.kind (e.g. 'bp_systolic')
+  operator         String   // 'gt' | 'lt' | 'gte' | 'lte' | 'between'
+  threshold        Float
+  threshold2       Float?   // upper bound when operator='between'
+  windowDays       Int      @default(1)   // look back N days
+  consecutiveCount Int      @default(1)   // require this many readings to satisfy
+  active           Boolean  @default(true)
+  label            String?  // doctor-friendly name e.g. "High BP — alert"
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  patient          User     @relation("RpmRulePatient", fields: [patientId], references: [id], onDelete: Cascade)
+  doctor           User     @relation("RpmRuleDoctor",  fields: [doctorId],  references: [id], onDelete: Cascade)
+  alerts           RpmAlert[]
+
+  @@index([patientId, active])
+  @@index([doctorId, active])
+}
+
+model RpmAlert {
+  id           String   @id @default(cuid())
+  ruleId       String
+  patientId    String
+  kind         String   // mirror of rule.kind for query convenience
+  value        Float    // the triggering value
+  acknowledged Boolean  @default(false)
+  acknowledgedAt DateTime?
+  createdAt    DateTime @default(now())
+
+  rule         RpmAlertRule @relation(fields: [ruleId],    references: [id], onDelete: Cascade)
+  patient      User         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId, acknowledged, createdAt])
+  @@index([ruleId, createdAt])
+}
+
 // ---------- AyurBot RAG (Phase 4) ----------
 // Vector column added via raw SQL in migration after CREATE EXTENSION vector.
 model KnowledgeChunk {
@@ -611,4 +902,557 @@ model KnowledgeChunk {
   createdAt DateTime @default(now())
 
   @@index([source])
+}
+
+// ─── Public Q&A library (added 2026-05-13, Phase 8) ──────────────────────
+// Inspired by iCliniq's medical Q&A — patients post anonymous questions,
+// CCIM-verified doctors answer publicly. Answers become evergreen SEO content
+// for long-tail symptom + treatment queries.
+//
+// `userId` on PublicQuestion is null for anonymous; non-null when a signed-in
+// user posts (so they can edit/delete their own). Approval queue uses
+// `status` so admins moderate before publishing publicly.
+model PublicQuestion {
+  id            String   @id @default(cuid())
+  userId        String?  // null = anonymous
+  // Patient context — kept lightweight; not full medical history.
+  authorName    String?  // display name; defaults to "Anonymous"
+  age           Int?
+  gender        String?  // 'female' | 'male' | 'other'
+  country       String?  // ISO-2
+  title         String
+  body          String   // the actual question
+  category      String   // 'panchakarma' | 'womens-health' | 'stress' | 'diabetes' | 'skin' | 'pediatric' | 'general'
+  language      String   @default("en")
+  // Moderation
+  status        String   @default("pending") // 'pending' | 'approved' | 'rejected' | 'spam'
+  // Engagement
+  viewCount     Int      @default(0)
+  // SEO
+  slug          String?  @unique  // generated on approval, e.g. "what-is-the-best-ayurveda-for-pcos-q-cmar123"
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  answers       DoctorAnswer[]
+
+  @@index([status, category, createdAt])
+  @@index([status, createdAt])
+  @@index([userId])
+}
+
+model DoctorAnswer {
+  id              String   @id @default(cuid())
+  questionId      String
+  doctorUserId    String   // the answering doctor's User id (must have role=DOCTOR or ADMIN)
+  body            String
+  // Featured answers float to the top of the question page.
+  featured        Boolean  @default(false)
+  helpfulCount    Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  question        PublicQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  doctor          User           @relation(fields: [doctorUserId], references: [id], onDelete: Cascade)
+
+  @@index([questionId, featured, createdAt])
+  @@index([doctorUserId, createdAt])
+}
+
+// ─── Wellness programs (added 2026-05-13, Phase 8) ───────────────────────
+// Multi-week guided journeys (Ayushakti-style). Each program has N daily
+// "steps" — a mix of dietary protocols, meditations, journaling prompts,
+// exercise, medication reminders. Patients enroll and check in daily.
+model WellnessProgram {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  name          String
+  tagline       String
+  description   String
+  durationDays  Int
+  // Categorisation
+  category      String   // 'stress' | 'pcos' | 'diabetes' | 'detox' | 'arthritis' | 'sleep' | 'weight' | 'karkidaka' | 'general'
+  dosha         String?  // primary dosha addressed; null = general
+  difficulty    String   @default("beginner") // 'beginner' | 'intermediate' | 'advanced'
+  // Pricing
+  priceInr      Int      @default(0)  // 0 = free
+  // Display
+  heroEmoji     String?
+  heroColor     String?  // hex / tailwind tint
+  // Status
+  published     Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  days          ProgramDay[]
+  enrollments   ProgramEnrollment[]
+
+  @@index([category, published])
+  @@index([published, createdAt])
+}
+
+model ProgramDay {
+  id            String   @id @default(cuid())
+  programId     String
+  dayNumber     Int      // 1..durationDays
+  title         String
+  // Each day has a checklist of actions the patient ticks off.
+  actions       Json     // array of { kind: 'diet'|'meditation'|'medication'|'exercise'|'journal', text: string, durationMin?: int }
+  notes         String?  // doctor's notes for this day
+
+  program       WellnessProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@unique([programId, dayNumber])
+  @@index([programId, dayNumber])
+}
+
+model ProgramEnrollment {
+  id            String   @id @default(cuid())
+  userId        String
+  programId     String
+  startedAt     DateTime @default(now())
+  completedAt   DateTime?
+  currentDay    Int      @default(1)
+  // Completed day numbers — array of ints to keep schema simple.
+  completedDays Int[]    @default([])
+  status        String   @default("active") // 'active' | 'completed' | 'paused' | 'abandoned'
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  program       WellnessProgram  @relation(fields: [programId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, programId])
+  @@index([userId, status])
+  @@index([programId, status])
+}
+
+// ─── Classical Ayurveda formulary (added 2026-05-13, Phase 8) ────────────
+// Catalog of classical medicines doctors commonly prescribe. Distinct from
+// the Herb encyclopedia (raw herbs / single ingredients) — Formulations are
+// finished compound medicines like Yogaraj Guggulu, Triphala Choornam,
+// Ashwagandharishta. NirogStreet-style B2B reference + patient-facing SEO.
+model AyurvedaFormulation {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  name            String   // 'Yogaraj Guggulu'
+  sanskritName    String?
+  malayalamName   String?
+  // Classical classification
+  classicalText   String?  // 'Sharangadhara Samhita' | 'Charaka Samhita' | ...
+  category        String   // 'guggulu' | 'choornam' | 'kashaya' | 'arishtam' | 'asava' | 'taila' | 'ghritam' | 'lehyam' | 'vati' | 'rasa'
+  // Composition + indications
+  ingredients     String[] @default([])
+  primaryUses     String[] @default([])
+  doshaImpact     String?  // 'vata-pacifying' | 'pitta-pacifying' | 'kapha-pacifying' | 'tridosha'
+  // Practical
+  typicalDose     String?  // '500mg twice daily after meals'
+  anupanaCommon   String?  // 'warm water'
+  contraindications String?
+  sideEffects     String?
+  availability    String?  // 'widely available' | 'specialty stores' | 'prescription only'
+  // Common brand makers (text only — we don't endorse)
+  manufacturers   String[] @default([])  // ['Kottakkal', 'AVN', 'Vaidyaratnam', 'Pankajakasthuri']
+  // SEO
+  description     String?  // longer free-text overview
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([category])
+  @@index([slug])
+}
+
+// ─── Audit log for admin mutations (added 2026-05-12) ─────────────────────
+// Writes one row per destructive admin action — delete a doctor, change a
+// user's role, hard-delete a lead, etc. Cheap insurance against "who did
+// this?" questions. `actorId` is the admin user (always set; admin routes are
+// gated); `targetType + targetId` identifies the affected entity; `before`
+// captures the row state pre-mutation (for delete + role-change diffs).
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String   // admin user who performed the action
+  action     String   // 'delete' | 'role-change' | 'ccim-verify' | ...
+  targetType String   // 'Doctor' | 'Hospital' | 'User' | 'Lead' | ...
+  targetId   String
+  before     Json?    // snapshot of relevant fields before the change
+  after      Json?    // snapshot after (for non-delete actions)
+  reason     String?  // optional human note (e.g. "duplicate of <other-id>")
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  @@index([actorId, createdAt])
+  @@index([targetType, targetId])
+  @@index([action, createdAt])
+  @@index([createdAt])
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+// Phase-10 (2026-05-14) — Doctor Knowledge Hub
+// All models gated to role IN ('DOCTOR', 'DOCTOR_PENDING', 'ADMIN') at the
+// API layer. Schema stays open so admin moderation works.
+// ═════════════════════════════════════════════════════════════════════════
+
+// ─── Clinical case discussions ───────────────────────────────────────────
+// Structured Ashtavidha-style case sharing — different from /forum which
+// is free-form. Cases are anonymised (no patient names; relative dates
+// only). Admin moderation before publication.
+model ClinicalCase {
+  id                  String   @id @default(cuid())
+  authorId            String   // doctor User id
+  title               String
+  // Ashtavidha Pariksha (8-fold examination) + modern clinical fields
+  chiefComplaint      String
+  presentingHistory   String   // history of presenting illness, lifestyle, family hx
+  prakriti            String?  // 'vata' | 'pitta' | 'kapha' | combos
+  vikriti             String?
+  ashtavidhaJson      Json?    // structured 8-fold exam: { nadi, mootra, mala, jihva, shabda, sparsha, drik, akriti }
+  // Diagnosis
+  ayurvedicDiagnosis  String
+  modernDiagnosis     String?  // ICD-10 / lay term equivalent
+  // Treatment plan
+  protocolJson        Json     // [{ phase, weeks, formulations[], procedures[], diet, lifestyle, anupana }]
+  // Outcome
+  outcomeAtFollowUp   String?  // 'remission' | 'major-improvement' | 'partial' | 'no-change' | 'worsened'
+  outcomeDetail       String?
+  durationMonths      Int?
+  doctorNotes         String?  // reflections, what worked / what didn't
+  // Specialty + condition for filtering
+  specialty           String   // 'kayachikitsa' | 'panchakarma' | 'prasuti-tantra' | ...
+  condition           String   // free-text condition tag
+  tags                String[] @default([])
+  // Citations to ResearchPaper rows or external DOIs
+  citations           Json?    // [{ kind: 'paper'|'external', paperId?, doi?, title?, url? }]
+  // Moderation
+  status              String   @default("draft") // 'draft' | 'pending' | 'published' | 'rejected'
+  rejectionReason     String?
+  publishedAt         DateTime?
+  // Engagement
+  viewCount           Int      @default(0)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  author              User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments            CaseComment[]
+  upvotes             CaseUpvote[]
+
+  @@index([status, publishedAt])
+  @@index([specialty, status])
+  @@index([authorId, createdAt])
+}
+
+model CaseComment {
+  id        String   @id @default(cuid())
+  caseId    String
+  authorId  String
+  body      String
+  // Comments can cite papers / protocols too.
+  citations Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  case      ClinicalCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  author    User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([caseId, createdAt])
+  @@index([authorId])
+}
+
+model CaseUpvote {
+  id        String   @id @default(cuid())
+  caseId    String
+  userId    String
+  createdAt DateTime @default(now())
+
+  case      ClinicalCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([caseId, userId])
+  @@index([caseId])
+}
+
+// ─── Research papers ─────────────────────────────────────────────────────
+// Curated peer-reviewed Ayurveda research. v1 manually seeded; v2 PubMed sync.
+model ResearchPaper {
+  id            String   @id @default(cuid())
+  title         String
+  authors       String[]
+  journal       String
+  year          Int
+  doi           String?  @unique
+  pubmedId      String?  @unique
+  abstract      String
+  // Tagging for filter facets
+  conditions    String[] @default([])  // e.g. 'arthritis', 'anxiety', 'diabetes'
+  doshas        String[] @default([])  // 'vata' | 'pitta' | 'kapha'
+  studyType     String?  // 'RCT' | 'case-series' | 'systematic-review' | 'observational' | 'in-vitro' | 'animal' | 'case-report' | 'review'
+  sampleSize    Int?
+  url           String?  // canonical URL to the paper
+  pdfUrl        String?
+  // pgvector embedding column (768 dims, Gemini text-embedding-001). Added via
+  // raw SQL in 20260514120000_research_paper_embedding since Prisma can't type
+  // the `vector` column. Populated by the apps/api/src/app.ts onReady embed
+  // loop. Indexed with HNSW for fast cosine search; powers the AI Research
+  // Assistant's semantic retrieval (see routes/dr-ai-research.ts).
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  bookmarks     ResearchPaperBookmark[]
+  annotations   ResearchPaperAnnotation[]
+
+  @@index([year])
+  @@index([studyType, year])
+}
+
+model ResearchPaperBookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  paperId   String
+  createdAt DateTime @default(now())
+
+  user      User          @relation(fields: [userId],  references: [id], onDelete: Cascade)
+  paper     ResearchPaper @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, paperId])
+  @@index([userId, createdAt])
+}
+
+model ResearchPaperAnnotation {
+  id        String   @id @default(cuid())
+  userId    String   // private notes per doctor
+  paperId   String
+  body      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User          @relation(fields: [userId],  references: [id], onDelete: Cascade)
+  paper     ResearchPaper @relation(fields: [paperId], references: [id], onDelete: Cascade)
+
+  @@index([userId, paperId])
+}
+
+// ─── Webinars (CME) ──────────────────────────────────────────────────────
+model Webinar {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  description     String
+  speakerName     String   // free-text speaker bio
+  speakerUserId   String?  // optional link if the speaker is a platform user
+  scheduledFor    DateTime
+  durationMin     Int      @default(60)
+  cmeCredits      Float    @default(1)
+  status          String   @default("upcoming")  // 'upcoming' | 'live' | 'completed' | 'cancelled'
+  // Delivery
+  videoRoomUrl    String?  // Daily.co room URL once it's live
+  recordingUrl    String?  // YouTube/Vimeo embed for replay
+  thumbnailUrl    String?
+  // Materials
+  slidesUrl       String?
+  resources       Json?    // [{ title, url, kind: 'paper'|'protocol'|'slide' }]
+  // Topic
+  specialty       String?
+  topics          String[] @default([])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  speaker         User?    @relation("WebinarSpeaker", fields: [speakerUserId], references: [id], onDelete: SetNull)
+  registrations   WebinarRegistration[]
+
+  @@index([status, scheduledFor])
+  @@index([scheduledFor])
+}
+
+model WebinarRegistration {
+  id                  String   @id @default(cuid())
+  userId              String
+  webinarId           String
+  registeredAt        DateTime @default(now())
+  attended            Boolean  @default(false)
+  attendedAt          DateTime?
+  certificateIssuedAt DateTime?
+  certificateId       String?  @unique // short id for verification page
+
+  user      User    @relation(fields: [userId],    references: [id], onDelete: Cascade)
+  webinar   Webinar @relation(fields: [webinarId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, webinarId])
+  @@index([webinarId, attended])
+}
+
+// ─── Journal database ────────────────────────────────────────────────────
+model Journal {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  shortName       String?  // 'JAIM', 'AYU', 'JRAS'
+  issn            String?
+  publisher       String?
+  scope           String?  // 1-2 paragraph description
+  url             String?  // homepage
+  latestIssueUrl  String?  // admin updates periodically
+  latestIssueAt   DateTime?
+  sampleArticles  Json?    // [{ title, doi, url, year }]
+  language        String   @default("en")
+  openAccess      Boolean  @default(false)
+  impactFactor    Float?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  subscriptions   JournalSubscription[]
+
+  @@index([title])
+}
+
+model JournalSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  journalId String
+  createdAt DateTime @default(now())
+
+  user      User    @relation(fields: [userId],    references: [id], onDelete: Cascade)
+  journal   Journal @relation(fields: [journalId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, journalId])
+  @@index([userId])
+}
+
+// ─── Clinical protocols ──────────────────────────────────────────────────
+// Community-contributed treatment protocols. Different from WellnessProgram
+// (patient-facing) — these are clinical, cite literature, list contraindications.
+model ClinicalProtocol {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  condition       String   // primary indication
+  doshas          String[] @default([])
+  // Body
+  summary         String
+  rationale       String   // why this protocol works (Ayurvedic + modern explanation)
+  phasesJson      Json     // [{ phase, durationDays, items: [{ kind, name, dose, frequency, anupana, instructions }] }]
+  contraindications String?
+  expectedDuration String?  // e.g. "3 months"
+  expectedOutcome String?
+  // References
+  citations       Json?    // [{ paperId?, doi?, title, url }]
+  // Authorship + moderation
+  authorId        String
+  status          String   @default("draft")  // 'draft' | 'under-review' | 'published' | 'rejected'
+  reviewerNotes   String?
+  publishedAt     DateTime?
+  // Engagement
+  viewCount       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  author          User                @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments        ProtocolComment[]
+
+  @@index([status, publishedAt])
+  @@index([condition, status])
+  @@index([authorId])
+}
+
+model ProtocolComment {
+  id          String   @id @default(cuid())
+  protocolId  String
+  authorId    String
+  body        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  protocol    ClinicalProtocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+  author      User             @relation(fields: [authorId],   references: [id], onDelete: Cascade)
+
+  @@index([protocolId, createdAt])
+  @@index([authorId])
+}
+
+// ─── Conferences calendar ────────────────────────────────────────────────
+model Conference {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  startDate       DateTime
+  endDate         DateTime?
+  location        String
+  mode            String   @default("in-person")  // 'in-person' | 'virtual' | 'hybrid'
+  organizer       String
+  description     String?
+  registrationUrl String?
+  abstractDeadline DateTime?
+  topics          String[] @default([])
+  status          String   @default("upcoming")  // 'upcoming' | 'completed' | 'cancelled'
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  rsvps           ConferenceRSVP[]
+
+  @@index([status, startDate])
+  @@index([startDate])
+}
+
+model ConferenceRSVP {
+  id           String   @id @default(cuid())
+  userId       String
+  conferenceId String
+  status       String   @default("attending")  // 'attending' | 'interested'
+  createdAt    DateTime @default(now())
+
+  user         User       @relation(fields: [userId],       references: [id], onDelete: Cascade)
+  conference   Conference @relation(fields: [conferenceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, conferenceId])
+  @@index([conferenceId])
+}
+
+// ─── CME credit ledger ───────────────────────────────────────────────────
+// Records every credit-earning activity. Source = the entity that granted
+// the credit (webinar, case publication, protocol publication). Aggregates
+// rolled up per doctor for the /dr dashboard.
+model CmeCredit {
+  id          String   @id @default(cuid())
+  userId      String   // the doctor earning the credit
+  source      String   // 'webinar' | 'case-published' | 'protocol-published' | 'manual'
+  sourceRefId String?  // entity id (webinar id, case id, etc.)
+  credits     Float
+  description String   // 'Attended: Panchakarma in chronic pain — Dr Menon'
+  earnedAt    DateTime @default(now())
+  // Issuing chain — for verification page
+  certificateId String? @unique
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, earnedAt])
+  @@index([source, sourceRefId])
+}
+
+// ─── Drug interactions ───────────────────────────────────────────────────
+// Pairs of (Ayurvedic formulation × allopathic medicine OR Ayurvedic × Ayurvedic)
+// with known clinical interactions. Seeded from common pairs; doctors can
+// propose additions for admin review.
+model DrugInteraction {
+  id              String   @id @default(cuid())
+  // Component A — usually Ayurvedic. Either freetext or linked to a Formulation.
+  componentA      String
+  formulationAId  String?
+  // Component B — can be allopathic medicine name OR another Ayurvedic.
+  componentB      String
+  componentBKind  String   @default("allopathic")  // 'allopathic' | 'ayurvedic' | 'food' | 'lifestyle'
+  formulationBId  String?
+  // Interaction details
+  severity        String   // 'minor' | 'moderate' | 'major' | 'contraindicated'
+  mechanism       String?  // pharmacological mechanism
+  clinicalEffect  String   // what actually happens to the patient
+  recommendation  String   // 'avoid combination' / 'monitor INR weekly' / 'space 2 hours apart'
+  evidenceLevel   String?  // 'case-report' | 'observational' | 'RCT' | 'theoretical'
+  citations       Json?    // [{ doi?, title, url, paperId? }]
+  // Moderation
+  status          String   @default("published")  // 'draft' | 'under-review' | 'published'
+  contributedById String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([componentA])
+  @@index([componentB])
+  @@index([severity, status])
 }

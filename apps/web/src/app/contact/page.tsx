@@ -71,8 +71,8 @@ export default function ContactPage() {
 
       {/* Direct contact channels — visible above the form so users with simple
           enquiries don't have to scroll/fill the form. */}
-      <section className="container mx-auto px-4 pt-10 max-w-3xl">
-        <div className="grid sm:grid-cols-2 gap-3">
+      <section className="container mx-auto px-4 pt-10 max-w-4xl">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
           <a
             href="tel:+971509379212"
             className="flex items-center gap-3 p-4 bg-white rounded-card border border-gray-100 hover:border-kerala-300 transition-colors group"
@@ -83,6 +83,22 @@ export default function ContactPage() {
             <div>
               <div className="text-xs uppercase tracking-wider text-gold-600 font-semibold">Call us</div>
               <div className="text-base font-semibold text-ink mt-0.5 tabular-nums">+971 50 937 9212</div>
+            </div>
+          </a>
+          <a
+            href="https://wa.me/971554485169?text=Hi%2C%20please%20connect%20me%20with%20an%20Ayurveda%20doctor%20for%20online%20consultation."
+            target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-3 p-4 bg-emerald-50 rounded-card border border-emerald-200 hover:border-emerald-400 transition-colors group"
+          >
+            <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center flex-shrink-0">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" aria-hidden="true">
+                <path d="M19.05 4.91A10 10 0 0 0 4.49 18.5L3 22l3.6-.94a10 10 0 0 0 12.45-12.4 10 10 0 0 0-2-3.75ZM12.04 20.13a8.16 8.16 0 0 1-4.16-1.13l-.3-.18-2.13.56.57-2.08-.2-.32a8.16 8.16 0 1 1 6.22 3.15Zm4.71-5.85c-.26-.13-1.52-.75-1.76-.84-.24-.08-.42-.13-.59.13-.18.26-.67.84-.82 1.01-.15.18-.3.2-.56.07-.26-.13-1.08-.4-2.06-1.27a7.85 7.85 0 0 1-1.43-1.77c-.15-.26-.02-.4.11-.53.12-.12.26-.31.39-.46.13-.15.18-.26.26-.44.09-.18.04-.33-.02-.46-.07-.13-.59-1.42-.8-1.94-.21-.51-.43-.45-.59-.45h-.5a.97.97 0 0 0-.71.33c-.24.27-.92.9-.92 2.2 0 1.3.95 2.56 1.08 2.74.13.18 1.86 2.84 4.5 3.98 1.55.67 2.15.73 2.93.61.47-.07 1.52-.62 1.74-1.22.22-.6.22-1.12.16-1.22-.07-.1-.24-.16-.5-.29Z"/>
+              </svg>
+            </div>
+            <div>
+              <div className="text-xs uppercase tracking-wider text-emerald-700 font-semibold">Connect to a doctor</div>
+              <div className="text-base font-semibold text-emerald-900 mt-0.5 tabular-nums">+971 55 448 5169</div>
+              <div className="text-[10px] text-emerald-700/80 mt-0.5">Concierge — we match you to an Ayurveda doctor</div>
             </div>
           </a>
           <a

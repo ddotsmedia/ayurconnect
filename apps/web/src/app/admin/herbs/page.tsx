@@ -76,7 +76,7 @@ export default function HerbsAdminPage() {
           <p className="text-gray-600 mt-1">{items.length} loaded</p>
         </div>
         {!showForm && (
-          <button onClick={() => { setEditingId(null); setForm({ ...empty }); setShowForm(true) }} className="px-4 py-2 bg-green-700 text-white rounded text-sm hover:bg-green-800">
+          <button onClick={() => { setEditingId(null); setForm({ ...empty }); setShowForm(true) }} className="px-4 py-2 bg-kerala-700 text-white rounded text-sm hover:bg-kerala-800">
             + New herb
           </button>
         )}
@@ -146,7 +146,7 @@ export default function HerbsAdminPage() {
                 <td className="px-4 py-2.5 text-xs">{h.rasa || '—'}</td>
                 <td className="px-4 py-2.5 text-xs">{h.virya || '—'}</td>
                 <td className="px-4 py-2.5 text-right space-x-3">
-                  <button onClick={() => startEdit(h)} className="text-green-700 hover:underline text-xs">Edit</button>
+                  <button onClick={() => startEdit(h)} className="text-kerala-700 hover:underline text-xs">Edit</button>
                   <button onClick={() => remove(h.id, h.name)} className="text-red-600 hover:underline text-xs">Delete</button>
                 </td>
               </tr>

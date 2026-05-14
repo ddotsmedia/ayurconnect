@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ShieldCheck, AlertTriangle } from 'lucide-react'
 import { ImageUpload } from '../../../components/image-upload'
 import { SocialLinksField, type SocialLinks } from '../../../components/social-links'
+import { FeaturedArticlesField, FeaturedPostsField, type FeaturedArticle, type FeaturedPost } from '../../../components/featured-content'
 
 type SocialFields = {
   websiteUrl: string | null
@@ -21,6 +22,9 @@ type DoctorOwned = SocialFields & {
   languages: string[] | null; availableDays: string[] | null;
   availableForOnline: boolean | null; profile: string | null;
   bio: string | null; photoUrl: string | null;
+  workplace: string | null; workplaceUrl: string | null;
+  featuredArticles: FeaturedArticle[] | null;
+  featuredPosts: FeaturedPost[] | null;
 }
 type HospitalOwned = SocialFields & {
   id: string; name: string; type: string; district: string;
@@ -195,6 +199,10 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
     instagramUrl: doctor.instagramUrl ?? '',
     twitterUrl:   doctor.twitterUrl   ?? '',
     youtubeUrl:   doctor.youtubeUrl   ?? '',
+    workplace:    doctor.workplace    ?? '',
+    workplaceUrl: doctor.workplaceUrl ?? '',
+    featuredArticles: (Array.isArray(doctor.featuredArticles) ? doctor.featuredArticles : []) as FeaturedArticle[],
+    featuredPosts:    (Array.isArray(doctor.featuredPosts)    ? doctor.featuredPosts    : []) as FeaturedPost[],
   })
   const [saving, setSaving] = useState(false)
   const [err, setErr] = useState<string | null>(null)
@@ -227,6 +235,10 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
         instagramUrl: d.instagramUrl,
         twitterUrl:   d.twitterUrl,
         youtubeUrl:   d.youtubeUrl,
+        workplace:    d.workplace,
+        workplaceUrl: d.workplaceUrl,
+        featuredArticles: d.featuredArticles,
+        featuredPosts:    d.featuredPosts,
       }
       const res = await fetch('/api/me/doctor', {
         method: 'PATCH',
@@ -301,6 +313,28 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
             youtubeUrl:   s.youtubeUrl   ?? '',
           })}
         />
+      </div>
+
+      <div className="pt-3 border-t border-gray-100">
+        <span className="block text-sm font-semibold text-gray-700 mb-2">Current workplace <span className="font-normal text-gray-400 text-xs">— shown on your public profile</span></span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <Field label="Clinic / hospital name">
+            <input value={d.workplace} onChange={(e) => setD({ ...d, workplace: e.target.value })} placeholder="e.g. Kottakkal Arya Vaidya Sala, Dubai branch" className="w-full border rounded-md px-3 py-2 text-sm" />
+          </Field>
+          <Field label="Workplace URL">
+            <input value={d.workplaceUrl} onChange={(e) => setD({ ...d, workplaceUrl: e.target.value })} placeholder="https://..." className="w-full border rounded-md px-3 py-2 text-sm" />
+          </Field>
+        </div>
+      </div>
+
+      <div className="pt-3 border-t border-gray-100">
+        <span className="block text-sm font-semibold text-gray-700 mb-2">Featured health articles <span className="font-normal text-gray-400 text-xs">— up to 10, shown on your public profile</span></span>
+        <FeaturedArticlesField values={d.featuredArticles} onChange={(next) => setD({ ...d, featuredArticles: next })} />
+      </div>
+
+      <div className="pt-3 border-t border-gray-100">
+        <span className="block text-sm font-semibold text-gray-700 mb-2">Featured social posts <span className="font-normal text-gray-400 text-xs">— up to 10</span></span>
+        <FeaturedPostsField values={d.featuredPosts} onChange={(next) => setD({ ...d, featuredPosts: next })} />
       </div>
 
       {err && <p className="text-sm text-red-600">{err}</p>}

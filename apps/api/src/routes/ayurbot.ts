@@ -1,7 +1,45 @@
-import type { FastifyPluginAsync } from 'fastify'
+import type { FastifyPluginAsync, FastifyRequest, FastifyReply, FastifyInstance } from 'fastify'
 import { chat, chatStream, pickProvider } from '../lib/llm.js'
 
 export const autoPrefix = '/ayurbot'
+
+// Build a personalization snippet to append to the system prompt when a user
+// is signed in. Pulls dosha + recent journal symptoms + last assessment date.
+// Kept short on purpose — long context = slow response + higher token cost.
+// Falls open: if anything fails we just use the anonymous prompt.
+async function personalContext(fastify: FastifyInstance, userId: string | null | undefined): Promise<string> {
+  if (!userId) return ''
+  try {
+    const [user, journal, assessment] = await Promise.all([
+      fastify.prisma.user.findUnique({ where: { id: userId }, select: { name: true, prakriti: true, country: true } }),
+      fastify.prisma.journalEntry.findMany({
+        where: { userId, date: { gte: new Date(Date.now() - 14 * 86400 * 1000) } },
+        select: { date: true, symptoms: true, mood: true, doshaFeel: true },
+        orderBy: { date: 'desc' },
+        take: 14,
+      }),
+      fastify.prisma.prakritiAssessment.findFirst({
+        where: { userId },
+        select: { dominant: true, vata: true, pitta: true, kapha: true, createdAt: true },
+        orderBy: { createdAt: 'desc' },
+      }),
+    ])
+    if (!user) return ''
+    const lines: string[] = []
+    const dosha = user.prakriti ?? assessment?.dominant ?? null
+    if (dosha) lines.push(`The user's known Prakriti (Ayurvedic constitution) is: ${dosha}. Tailor recommendations to balance this dosha.`)
+    if (journal.length > 0) {
+      const symptoms = Array.from(new Set(journal.flatMap((j) => j.symptoms))).slice(0, 8)
+      if (symptoms.length > 0) lines.push(`Recent reported symptoms (last 14 days): ${symptoms.join(', ')}.`)
+      const recentDosha = journal.find((j) => j.doshaFeel)?.doshaFeel
+      if (recentDosha) lines.push(`Recently the user has been feeling ${recentDosha}-imbalanced.`)
+    }
+    if (lines.length === 0) return ''
+    return '\n\n--- PERSONALIZATION (signed-in user) ---\n' + lines.join(' ') + '\n--- END PERSONALIZATION ---'
+  } catch {
+    return ''
+  }
+}
 
 const SYSTEM_PROMPTS = {
   default: 'You are AyurBot, an AI assistant specializing in Ayurveda. Provide helpful, accurate information about Ayurvedic medicine, herbs, treatments, and wellness practices. Always include a disclaimer that this is not medical advice and to consult a qualified Ayurvedic practitioner.',
@@ -11,6 +49,39 @@ const SYSTEM_PROMPTS = {
 } as const
 
 type PromptType = keyof typeof SYSTEM_PROMPTS
+
+// Public AyurBot endpoints hit paid LLM providers (Claude/Gemini/Groq).
+// Without throttling, anyone can drain credits with a curl loop. Cap per-IP
+// to RL_MAX requests per RL_WINDOW_SECONDS using a Redis counter (auto-expires).
+// Falls open on Redis errors so a Redis hiccup doesn't take chat offline.
+const RL_WINDOW_SECONDS = 60
+const RL_MAX = 10  // 10 chats / minute / IP — generous for humans, tight for scripts
+
+async function rateLimitOk(
+  fastify: { redis: { incr: (k: string) => Promise<number>; expire: (k: string, s: number) => Promise<number> }; log: { warn: (m: object, s: string) => void } },
+  req: FastifyRequest,
+  reply: FastifyReply,
+  bucket: string,
+): Promise<boolean> {
+  const ip = (req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim() || req.ip || 'unknown'
+  const key = `rl:ayurbot:${bucket}:${ip}`
+  try {
+    const count = await fastify.redis.incr(key)
+    if (count === 1) await fastify.redis.expire(key, RL_WINDOW_SECONDS)
+    if (count > RL_MAX) {
+      reply.code(429).send({
+        error: `Too many AyurBot requests. Limit is ${RL_MAX}/min — please wait a minute.`,
+        code: 'rate-limited',
+      })
+      return false
+    }
+    return true
+  } catch (err) {
+    // Redis down — log and fall open (don't break chat for the whole site).
+    fastify.log.warn({ err, ip }, 'ayurbot rate-limit check failed (allowing through)')
+    return true
+  }
+}
 
 const ayurbot: FastifyPluginAsync = async (fastify) => {
   // Public health check — which provider is active and is it usable?
@@ -25,11 +96,18 @@ const ayurbot: FastifyPluginAsync = async (fastify) => {
   })
 
   fastify.post('/chat', async (request, reply) => {
+    if (!(await rateLimitOk(fastify, request, reply, 'chat'))) return
     const { message, type } = request.body as { message?: string; type?: PromptType }
     if (!message || typeof message !== 'string' || !message.trim()) {
       return reply.code(400).send({ error: 'message required', code: 'bad-input' })
     }
-    const system = SYSTEM_PROMPTS[type ?? 'default'] ?? SYSTEM_PROMPTS.default
+    // Cap incoming message — Claude's token budget is real money.
+    if (message.length > 4000) {
+      return reply.code(400).send({ error: 'message too long (max 4000 chars)', code: 'bad-input' })
+    }
+    const basePrompt = SYSTEM_PROMPTS[type ?? 'default'] ?? SYSTEM_PROMPTS.default
+    const ctx = await personalContext(fastify, request.session?.user.id)
+    const system = basePrompt + ctx
 
     const result = await chat({ system, message })
     if (result.ok === true) {
@@ -63,11 +141,17 @@ const ayurbot: FastifyPluginAsync = async (fastify) => {
   // GET so EventSource works (POST works too via fetch+ReadableStream readers).
   // Query: ?message=...&type=default|prakriti|herb|symptom
   fastify.get('/chat-stream', async (request, reply) => {
+    if (!(await rateLimitOk(fastify, request, reply, 'stream'))) return
     const { message, type } = request.query as { message?: string; type?: PromptType }
     if (!message || typeof message !== 'string' || !message.trim()) {
       return reply.code(400).send({ error: 'message required' })
     }
-    const system = SYSTEM_PROMPTS[type ?? 'default'] ?? SYSTEM_PROMPTS.default
+    if (message.length > 4000) {
+      return reply.code(400).send({ error: 'message too long (max 4000 chars)' })
+    }
+    const basePrompt = SYSTEM_PROMPTS[type ?? 'default'] ?? SYSTEM_PROMPTS.default
+    const ctx = await personalContext(fastify, request.session?.user.id)
+    const system = basePrompt + ctx
 
     reply.raw.writeHead(200, {
       'content-type': 'text/event-stream; charset=utf-8',

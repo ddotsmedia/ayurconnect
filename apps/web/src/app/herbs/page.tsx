@@ -3,6 +3,7 @@ import { GradientHero } from '@ayurconnect/ui'
 import { Leaf, BookOpen } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
 import { SemanticHerbSearch } from '../../components/semantic-herb-search'
+import { AYURVEDA_KEYWORDS } from '../../lib/seo'
 
 type Herb = {
   id: string
@@ -35,6 +36,11 @@ async function fetchHerbs(): Promise<Herb[]> {
 export const metadata = {
   title: 'Kerala Ayurvedic Herb Database — 1000+ Medicinal Plants | AyurConnect',
   description: 'Comprehensive Ayurvedic herb encyclopedia: Sanskrit, Malayalam, English names, Rasa-Guna-Virya-Vipaka properties, classical uses. Sourced from Charaka Samhita and the Western Ghats.',
+  keywords: [
+    ...AYURVEDA_KEYWORDS.herbs,
+    ...AYURVEDA_KEYWORDS.concepts,
+    ...AYURVEDA_KEYWORDS.brand,
+  ],
 }
 
 export default async function HerbsPage() {

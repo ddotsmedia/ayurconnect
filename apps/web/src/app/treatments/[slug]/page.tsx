@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { GradientHero } from '@ayurconnect/ui'
 import { ShieldCheck, Leaf, Clock, IndianRupee, ChevronRight, AlertTriangle } from 'lucide-react'
 import { CONDITIONS, CONDITION_SLUGS, type Condition } from '../_data/conditions'
+import { medicalConditionLd, faqLd, breadcrumbLd, ldGraph } from '../../../lib/seo'
 
 export function generateStaticParams() {
   return CONDITION_SLUGS.map((slug) => ({ slug }))
@@ -29,8 +30,28 @@ export default async function TreatmentPage({ params }: Params) {
   const doctorHref = `/doctors?specialization=${encodeURIComponent(c.specializations[0] ?? '')}`
   const hospitalHref = `/hospitals${c.hospitalServices?.length ? `?service=${encodeURIComponent(c.hospitalServices[0])}` : ''}`
 
+  const jsonLd = ldGraph(
+    medicalConditionLd({
+      slug: c.slug,
+      name: c.name,
+      alternateName: c.sanskrit,
+      description: c.overview,
+      symptoms: c.symptoms,
+      treatments: [...c.treatmentPillars.map((p) => p.title), ...c.procedures],
+      herbs: c.herbs,
+    }),
+    faqLd(c.faq),
+    breadcrumbLd([
+      { name: 'Home',        url: '/' },
+      { name: 'Treatments',  url: '/treatments' },
+      { name: c.name,        url: `/treatments/${c.slug}` },
+    ]),
+  )
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
       <GradientHero variant="green" size="lg">
         <div className="max-w-4xl mx-auto">
           <Link href="/treatments" className="text-sm text-white/70 hover:text-white inline-flex items-center gap-1 mb-4">

@@ -7,12 +7,12 @@ type User = {
   id: string
   email: string
   name: string | null
-  role: 'USER' | 'DOCTOR' | 'THERAPIST' | 'ADMIN'
+  role: 'USER' | 'DOCTOR_PENDING' | 'DOCTOR' | 'HOSPITAL_PENDING' | 'HOSPITAL' | 'THERAPIST' | 'ADMIN'
   emailVerified: boolean
   createdAt: string
 }
 
-const ROLES: User['role'][] = ['USER', 'DOCTOR', 'THERAPIST', 'ADMIN']
+const ROLES: User['role'][] = ['USER', 'DOCTOR_PENDING', 'DOCTOR', 'HOSPITAL_PENDING', 'HOSPITAL', 'THERAPIST', 'ADMIN']
 
 export default function UsersAdminPage() {
   const [users, setUsers] = useState<User[]>([])
@@ -78,7 +78,7 @@ export default function UsersAdminPage() {
             placeholder="Search email or name…"
             className="border rounded px-3 py-1.5 text-sm w-72"
           />
-          <button className="px-3 py-1.5 bg-green-700 text-white rounded text-sm hover:bg-green-800">Search</button>
+          <button className="px-3 py-1.5 bg-kerala-700 text-white rounded text-sm hover:bg-kerala-800">Search</button>
         </form>
       </header>
 

@@ -114,7 +114,7 @@ export function PhoneInput({ value, onChange, defaultCountry = 'IN', className =
           <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
         </button>
         {open && (
-          <div className="absolute z-50 left-0 mt-1 w-72 bg-white border border-gray-100 rounded-card shadow-cardLg overflow-hidden max-h-72 flex flex-col">
+          <div className="absolute z-50 left-0 mt-1 w-72 max-w-[calc(100vw-2rem)] bg-white border border-gray-100 rounded-card shadow-cardLg overflow-hidden max-h-72 flex flex-col">
             <div className="relative border-b border-gray-100">
               <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
               <input
@@ -122,7 +122,7 @@ export function PhoneInput({ value, onChange, defaultCountry = 'IN', className =
                 autoFocus
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Search…"
-                className="w-full pl-7 pr-2 py-2 text-sm focus:outline-none"
+                className="w-full pl-7 pr-2 py-2 text-base sm:text-sm focus:outline-none"
               />
             </div>
             <ul className="overflow-y-auto">
@@ -152,7 +152,7 @@ export function PhoneInput({ value, onChange, defaultCountry = 'IN', className =
         placeholder={placeholder}
         inputMode="numeric"
         pattern="[0-9 ]*"
-        className="flex-1 border border-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-kerala-700"
+        className="flex-1 min-w-0 border border-gray-200 rounded-md px-3 py-2 text-base sm:text-sm focus:outline-none focus:ring-1 focus:ring-kerala-700"
       />
     </div>
   )

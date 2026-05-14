@@ -73,9 +73,16 @@ const forum: FastifyPluginAsync = async (fastify) => {
   })
 
   fastify.post('/posts', { preHandler: fastify.requireSession }, async (request, reply) => {
-    const { title, content, category, language = 'en' } = request.body as Record<string, string>
-    if (!title || !content || !category) {
+    const { title: rawTitle, content: rawContent, category, language = 'en' } = request.body as Record<string, string>
+    if (!rawTitle || !rawContent || !category) {
       return reply.code(400).send({ error: 'title, content, category required' })
+    }
+    // Length caps so a 10MB post can't slip through. Title is single-line, body is
+    // long-form but bounded; both are trimmed and length-checked before moderation.
+    const title   = rawTitle.trim().slice(0, 500)
+    const content = rawContent.trim().slice(0, 20000)
+    if (!title || !content) {
+      return reply.code(400).send({ error: 'title and content must be non-empty after trimming' })
     }
     const userId = request.session!.user.id
 
@@ -99,8 +106,10 @@ const forum: FastifyPluginAsync = async (fastify) => {
 
   fastify.post('/posts/:id/comments', { preHandler: fastify.requireSession }, async (request, reply) => {
     const { id } = request.params as { id: string }
-    const { content } = request.body as { content?: string }
-    if (!content) return reply.code(400).send({ error: 'content required' })
+    const { content: rawContent } = request.body as { content?: string }
+    if (!rawContent) return reply.code(400).send({ error: 'content required' })
+    const content = rawContent.trim().slice(0, 4000)
+    if (!content) return reply.code(400).send({ error: 'content must be non-empty after trimming' })
     const userId = request.session!.user.id
 
     // AI moderation

@@ -3,9 +3,11 @@ import { headers as nextHeaders } from 'next/headers'
 import { DoctorCard, LeafPattern, LogoMark, t, readLangFromCookieHeader, type DoctorCardData } from '@ayurconnect/ui'
 import {
   Search, Stethoscope, Building2, Bot, MessageSquare, Briefcase, Leaf, Plane,
-  GraduationCap, ShieldCheck, Video, Sparkles, Users, MapPin, Lock, Star, ArrowRight,
+  GraduationCap, ShieldCheck, Video, Sparkles, Users, MapPin, Lock, Star, ArrowRight, ChevronRight,
 } from 'lucide-react'
-import { API_INTERNAL as API } from '../lib/server-fetch'
+import { API_INTERNAL as API, logServerFetchError } from '../lib/server-fetch'
+import { PersonalizedWelcome } from '../components/personalized-welcome'
+import { medicalBusinessLd, faqLd, ldGraph } from '../lib/seo'
 
 const DISTRICTS = [
   'Thiruvananthapuram', 'Kollam', 'Pathanamthitta', 'Alappuzha', 'Kottayam',
@@ -15,14 +17,14 @@ const DISTRICTS = [
 const SPECS = ['Panchakarma', 'Kayachikitsa', 'Prasuti Tantra', 'Kaumarbhritya', 'Shalya', 'Shalakya', 'Manasika', 'Rasashastra']
 
 const SERVICES = [
-  { href: '/doctors',   icon: Stethoscope,    title: 'Doctor Directory',   color: 'bg-kerala-50 text-kerala-700',  desc: 'CCIM-verified Ayurveda doctors across all 14 Kerala districts.' },
-  { href: '/ayurbot',   icon: Bot,            title: 'AyurBot AI',         color: 'bg-purple-50 text-purple-700', desc: 'Claude-powered Ayurveda assistant — 24/7, free.' },
-  { href: '/hospitals', icon: Building2,      title: 'Hospitals',          color: 'bg-blue-50 text-blue-700',     desc: 'Govt + private + Panchakarma centres + AYUSH-certified.' },
-  { href: '/herbs',     icon: Leaf,           title: 'Herb Database',      color: 'bg-emerald-50 text-emerald-700', desc: '1000+ Kerala medicinal herbs — Sanskrit, Malayalam, uses.' },
-  { href: '/forum',     icon: MessageSquare,  title: 'Community Forum',    color: 'bg-orange-50 text-orange-700', desc: 'Doctor + patient discussions on cases, herbs, treatments.' },
-  { href: '/jobs',      icon: Briefcase,      title: 'Ayurveda Jobs',      color: 'bg-rose-50 text-rose-700',     desc: 'Kerala\'s largest Ayurveda jobs board (incl. govt + Gulf).' },
-  { href: '/tourism',   icon: Plane,          title: 'Medical Tourism',    color: 'bg-teal-50 text-teal-700',     desc: 'International patients — Kerala Panchakarma packages.' },
-  { href: '/colleges',  icon: GraduationCap,  title: 'Medical Colleges',   color: 'bg-indigo-50 text-indigo-700', desc: 'CCIM-affiliated BAMS / MD / PhD colleges in Kerala.' },
+  { href: '/doctors',       icon: Stethoscope,    title: 'Doctor Directory',     color: 'bg-kerala-50 text-kerala-700',   desc: 'CCIM-verified Ayurveda doctors across all 14 Kerala districts.' },
+  { href: '/doctor-match',  icon: Sparkles,       title: 'AI Doctor Match',      color: 'bg-amber-50 text-amber-700',     desc: '30-second quiz → ranked specialists matched to your concern, language, budget.' },
+  { href: '/qa',            icon: MessageSquare,  title: 'Ayurveda Q&A',         color: 'bg-blue-50 text-blue-700',       desc: 'Free anonymous patient Q&A answered by CCIM-verified doctors within 48 hours.' },
+  { href: '/programs',      icon: Sparkles,       title: 'Wellness Programs',    color: 'bg-fuchsia-50 text-fuchsia-700', desc: 'Guided multi-week journeys — 21-day stress reset, 6-week PCOS, Karkidaka Chikitsa.' },
+  { href: '/formulary',     icon: Leaf,           title: 'Ayurveda Formulary',   color: 'bg-emerald-50 text-emerald-700', desc: 'Classical compound medicines reference — Yogaraj Guggulu, Triphala, and more.' },
+  { href: '/ayurbot',       icon: Bot,            title: 'AyurBot AI',           color: 'bg-purple-50 text-purple-700',   desc: 'Personalised Ayurveda assistant — knows your Prakriti + journal context.' },
+  { href: '/second-opinion', icon: ShieldCheck,   title: 'Second Opinion',       color: 'bg-rose-50 text-rose-700',       desc: 'Senior CCIM specialists review your case independently. Reply in 72 hours.' },
+  { href: '/hospitals',     icon: Building2,      title: 'Hospitals',            color: 'bg-blue-50 text-blue-700',       desc: 'Govt + private + Panchakarma centres + AYUSH-certified.' },
 ]
 
 const TREATMENTS = [
@@ -41,11 +43,52 @@ const WHY = [
   { icon: Lock,        title: 'Safe & Private', desc: 'End-to-end encrypted consultations and health data.' },
 ]
 
-const TESTIMONIALS = [
-  { name: 'Anita M.', condition: 'Chronic migraine',  initials: 'AM', stars: 5, quote: '15 years of weekly migraines, gone after 21 days of Karkidaka Chikitsa under Dr. Kumar. AyurConnect made finding the right doctor effortless.' },
-  { name: 'James W.', condition: 'Visited from UK',  initials: 'JW', stars: 5, quote: 'Booked a 14-day Panchakarma at a Kochi centre. Authentic, classical, no spa-tourism nonsense. Came back transformed.' },
-  { name: 'Priya S.', condition: 'PCOS, infertility', initials: 'PS', stars: 5, quote: 'Conceived after 4 months under Dr. Krishnan\'s care. Years of failed modern treatments behind me. Forever grateful.' },
+// FAQs surfaced on the homepage. These are simultaneously rendered as a
+// <details> accordion (for users) and injected as FAQPage JSON-LD (for SERP
+// rich snippets) — Google requires the visible content match the schema.
+const HOME_FAQ: Array<{ q: string; a: string }> = [
+  {
+    q: 'What is AyurConnect?',
+    a: 'AyurConnect is an online platform that connects patients worldwide with CCIM-verified Ayurvedic doctors from Kerala for personalized consultations, classical Panchakarma referrals, and herbal wellness guidance.',
+  },
+  {
+    q: 'Are the doctors on AyurConnect certified?',
+    a: 'Yes. Every doctor on AyurConnect is cross-checked against the Central Council of Indian Medicine (CCIM) register and holds BAMS or MD (Ayurveda) credentials before their profile goes live.',
+  },
+  {
+    q: 'How do I book an online Ayurvedic consultation?',
+    a: 'Browse the doctor directory or take the 30-second AI Doctor Match quiz, pick a specialist, and book a video slot. Consultations run on a secure video room — no app install required.',
+  },
+  {
+    q: 'Can I get an Ayurvedic consultation from outside India?',
+    a: 'Yes. We serve patients across the UAE, GCC, US, UK, Europe, and Southeast Asia. Doctors take video consultations in English, Malayalam, Hindi, Tamil, and Arabic. You can also message the WhatsApp concierge to be connected to a doctor.',
+  },
+  {
+    q: 'What conditions does Ayurveda treat well?',
+    a: 'Ayurveda has strong evidence-informed protocols for PCOS / PCOD, thyroid imbalance, type-2 diabetes, chronic stress and insomnia, skin disorders, digestive issues, joint pain, and post-illness rejuvenation. Browse /treatments for condition-specific pages.',
+  },
+  {
+    q: 'Is AyurConnect free to use?',
+    a: 'Joining as a patient is free. You only pay the doctor for the consultation slot you book — pricing is set by each doctor and visible on their profile. AyurBot AI and the Q&A community are free forever.',
+  },
 ]
+
+const HOME_SERVICES_CATALOG = [
+  'Online Ayurvedic Consultation',
+  'AI Doctor Match',
+  'Classical Panchakarma Referral',
+  'Herbal Formulary Reference',
+  'Second Opinion from Senior Specialists',
+  'Wellness Programs',
+  'Ayurveda Q&A',
+  'AyurBot AI Assistant',
+]
+
+// Admin-managed at /admin/testimonials. No hardcoded fallback: if the table
+// is empty (admin deleted everything) or the API is unreachable, show nothing
+// rather than phantom rows that look identical to the seeded data and make it
+// appear that delete didn't work.
+type TestimonialItem = { id?: string; name: string; condition: string | null; initials: string | null; stars: number; quote: string }
 
 type Tip = { id: string; title: string; content: string; dosha: string; season?: string | null }
 type DoctorWithMeta = DoctorCardData
@@ -64,10 +107,30 @@ async function getFeaturedDoctors(): Promise<DoctorWithMeta[]> {
       headers: { cookie },
       cache: 'no-store',
     })
-    if (!res.ok) return []
+    if (!res.ok) {
+      logServerFetchError('getFeaturedDoctors', `HTTP ${res.status}`)
+      return []
+    }
     const data = (await res.json()) as { doctors: DoctorWithMeta[] }
     return data.doctors ?? []
-  } catch {
+  } catch (err) {
+    logServerFetchError('getFeaturedDoctors', err)
+    return []
+  }
+}
+
+async function getTestimonials(): Promise<TestimonialItem[]> {
+  // no-store so admin save / delete reflects on next page load.
+  try {
+    const res = await fetch(`${API}/testimonials?limit=12`, { cache: 'no-store' })
+    if (!res.ok) {
+      logServerFetchError('getTestimonials', `HTTP ${res.status}`)
+      return []
+    }
+    const data = (await res.json()) as { testimonials: TestimonialItem[] }
+    return Array.isArray(data.testimonials) ? data.testimonials : []
+  } catch (err) {
+    logServerFetchError('getTestimonials', err)
     return []
   }
 }
@@ -75,25 +138,40 @@ async function getFeaturedDoctors(): Promise<DoctorWithMeta[]> {
 async function getHealthTips(): Promise<Tip[]> {
   try {
     const res = await fetch(`${API}/health-tips?limit=3`, { cache: 'no-store' })
-    if (!res.ok) return []
+    if (!res.ok) {
+      logServerFetchError('getHealthTips', `HTTP ${res.status}`)
+      return []
+    }
     const data = (await res.json()) as { tips: Tip[] }
     return data.tips ?? []
-  } catch {
+  } catch (err) {
+    logServerFetchError('getHealthTips', err)
     return []
   }
 }
 
 export default async function HomePage() {
-  const [featuredDoctors, healthTips, hdrs] = await Promise.all([
+  const [featuredDoctors, healthTips, testimonials, hdrs] = await Promise.all([
     getFeaturedDoctors(),
     getHealthTips(),
+    getTestimonials(),
     nextHeaders(),
   ])
   const lang = readLangFromCookieHeader(hdrs.get('cookie'))
   const tr = t(lang)
 
+  const homeJsonLd = ldGraph(
+    medicalBusinessLd(HOME_SERVICES_CATALOG),
+    faqLd(HOME_FAQ),
+  )
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(homeJsonLd) }} />
+
+      {/* 0. Personalized welcome — renders nothing for anonymous visitors. */}
+      <PersonalizedWelcome />
+
       {/* 1. HERO — cinematic, with leaf-pattern overlay + faint logo watermark */}
       <section className="relative overflow-hidden bg-hero-green text-white">
         <LeafPattern color="#5fc063" opacity={0.08} tile={70} />
@@ -297,12 +375,13 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 9. TESTIMONIALS */}
+      {/* 9. TESTIMONIALS — hide the whole section when admin has none published. */}
+      {testimonials.length > 0 && (
       <section className="container mx-auto px-4 py-20">
         <SectionHeader eyebrow="Outcomes" title="Stories of Healing" subtitle="Real patients. Real outcomes." />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {TESTIMONIALS.map((t) => (
-            <article key={t.name} className="relative bg-white p-7 rounded-card border border-gray-100 shadow-card hover:shadow-cardLg transition-shadow">
+          {testimonials.map((t) => (
+            <article key={t.id ?? t.name} className="relative bg-white p-7 rounded-card border border-gray-100 shadow-card hover:shadow-cardLg transition-shadow">
               <span aria-hidden className="absolute top-4 right-5 text-7xl font-serif text-kerala-100 leading-none select-none">&ldquo;</span>
               <div className="relative">
                 <div className="flex items-center gap-0.5 text-gold-400 mb-3">
@@ -310,15 +389,34 @@ export default async function HomePage() {
                 </div>
                 <blockquote className="text-gray-700 leading-relaxed text-[15px]">&ldquo;{t.quote}&rdquo;</blockquote>
                 <div className="flex items-center gap-3 mt-5 pt-5 border-t border-gray-100">
-                  <span className="w-10 h-10 rounded-full bg-kerala-700 text-white text-sm font-semibold flex items-center justify-center">{t.initials}</span>
+                  <span className="w-10 h-10 rounded-full bg-kerala-700 text-white text-sm font-semibold flex items-center justify-center">{t.initials ?? t.name.split(/\s+/).slice(0,2).map((s) => s.charAt(0).toUpperCase()).join('')}</span>
                   <div>
                     <div className="font-semibold text-gray-900 text-sm">{t.name}</div>
-                    <div className="text-xs text-muted">{t.condition}</div>
+                    {t.condition && <div className="text-xs text-muted">{t.condition}</div>}
                   </div>
                 </div>
               </div>
             </article>
           ))}
+        </div>
+      </section>
+      )}
+
+      {/* 9.5 FAQ — must mirror the FAQPage JSON-LD emitted at the top of the page. */}
+      <section className="bg-cream py-16">
+        <div className="container mx-auto px-4 max-w-3xl">
+          <SectionHeader eyebrow="FAQ" title="Frequently asked questions" subtitle="Quick answers about consultations, verification, and how AyurConnect works." />
+          <div className="space-y-3">
+            {HOME_FAQ.map((f) => (
+              <details key={f.q} className="group bg-white p-5 rounded-card border border-gray-100 shadow-card">
+                <summary className="cursor-pointer list-none flex items-start justify-between gap-3">
+                  <h3 className="font-semibold text-ink text-[15px]">{f.q}</h3>
+                  <ChevronRight className="w-4 h-4 text-gray-400 group-open:rotate-90 transition-transform flex-shrink-0 mt-1" />
+                </summary>
+                <p className="text-gray-700 leading-relaxed mt-3 text-sm">{f.a}</p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 

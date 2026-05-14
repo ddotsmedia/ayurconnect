@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { headers as nextHeaders } from 'next/headers'
 import { Heart, Calendar, MessageSquare, Stethoscope, ShieldCheck } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
+import { HealthTrends } from './_health-trends'
 
 type MeResponse = {
   user: {
@@ -85,6 +86,9 @@ export default async function DashboardOverview() {
           </div>
         </section>
       )}
+
+      {/* Health trends — only renders if patient has any vitals or journal data */}
+      {!isDoctor && <HealthTrends />}
 
       {/* Upcoming appointments */}
       {me.upcomingAppts.length > 0 && (

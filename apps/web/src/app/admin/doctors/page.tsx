@@ -7,6 +7,7 @@ import { ImageUpload } from '../../../components/image-upload'
 import { CountrySelect } from '../../../components/country-select'
 import { StateSelect } from '../../../components/state-select'
 import { SocialLinksField, type SocialLinks } from '../../../components/social-links'
+import { FeaturedArticlesField, FeaturedPostsField, type FeaturedArticle, type FeaturedPost } from '../../../components/featured-content'
 
 const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 const COMMON_LANGUAGES = ['Malayalam', 'English', 'Tamil', 'Hindi', 'Arabic', 'Kannada', 'Tulu']
@@ -35,6 +36,10 @@ type Doctor = {
   instagramUrl: string | null
   twitterUrl: string | null
   youtubeUrl: string | null
+  workplace: string | null
+  workplaceUrl: string | null
+  featuredArticles: FeaturedArticle[] | null
+  featuredPosts: FeaturedPost[] | null
   createdAt: string
 }
 
@@ -46,6 +51,9 @@ const empty = {
   availableDays: [] as string[], availableForOnline: true,
   profile: '', bio: '', contact: '', address: '',
   websiteUrl: '', linkedinUrl: '', facebookUrl: '', instagramUrl: '', twitterUrl: '', youtubeUrl: '',
+  workplace: '', workplaceUrl: '',
+  featuredArticles: [] as FeaturedArticle[],
+  featuredPosts:    [] as FeaturedPost[],
 }
 
 type DoctorListResponse = { doctors: Doctor[]; pagination: { total: number } }
@@ -57,6 +65,7 @@ export default function DoctorsAdminPage() {
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   async function load() {
@@ -88,6 +97,10 @@ export default function DoctorsAdminPage() {
       instagramUrl: d.instagramUrl ?? '',
       twitterUrl:   d.twitterUrl   ?? '',
       youtubeUrl:   d.youtubeUrl   ?? '',
+      workplace:    d.workplace    ?? '',
+      workplaceUrl: d.workplaceUrl ?? '',
+      featuredArticles: Array.isArray(d.featuredArticles) ? d.featuredArticles : [],
+      featuredPosts:    Array.isArray(d.featuredPosts)    ? d.featuredPosts    : [],
     })
     setShowForm(true)
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -105,7 +118,7 @@ export default function DoctorsAdminPage() {
   }
 
   async function save(e: React.FormEvent) {
-    e.preventDefault(); setSaving(true)
+    e.preventDefault(); setSaving(true); setSaveError(null)
     try {
       const payload = {
         ...form,
@@ -114,12 +127,16 @@ export default function DoctorsAdminPage() {
       if (editingId) await adminApi.patch(`/doctors/${editingId}`, payload)
       else await adminApi.post('/doctors', payload)
       setShowForm(false); await load()
-    } catch (err) { alert(String(err)) } finally { setSaving(false) }
+    } catch (err) {
+      // Keep the form open so the admin doesn't lose their input.
+      setSaveError(err instanceof Error ? err.message : String(err))
+    } finally { setSaving(false) }
   }
 
   async function remove(id: string, name: string) {
     if (!confirm(`Delete doctor "${name}"?`)) return
-    try { await adminApi.del(`/doctors/${id}`); await load() } catch (e) { alert(String(e)) }
+    try { await adminApi.del(`/doctors/${id}`); await load() }
+    catch (e) { setError(e instanceof Error ? e.message : String(e)) }
   }
 
   return (
@@ -130,7 +147,7 @@ export default function DoctorsAdminPage() {
           <p className="text-gray-600 mt-1">{items.length} total</p>
         </div>
         {!showForm && (
-          <button onClick={startNew} className="px-4 py-2 bg-green-700 text-white rounded text-sm hover:bg-green-800">+ New doctor</button>
+          <button onClick={startNew} className="px-4 py-2 bg-kerala-700 text-white rounded text-sm hover:bg-kerala-800">+ New doctor</button>
         )}
       </header>
 
@@ -138,6 +155,11 @@ export default function DoctorsAdminPage() {
 
       {showForm && (
         <EntityFormShell title="doctor" isEditing={!!editingId} onSubmit={save} onCancel={() => setShowForm(false)} saving={saving}>
+          {saveError && (
+            <div className="p-3 rounded bg-red-50 border border-red-200 text-red-800 text-sm mb-3" role="alert">
+              <strong>Save failed:</strong> {saveError}
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <Field label="Name *">
               <input required className={inputClass} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
@@ -190,7 +212,7 @@ export default function DoctorsAdminPage() {
                     key={d}
                     onClick={() => toggleDay(d)}
                     className={on
-                      ? 'px-3 py-1.5 rounded-md bg-green-700 text-white text-xs font-medium'
+                      ? 'px-3 py-1.5 rounded-md bg-kerala-700 text-white text-xs font-medium'
                       : 'px-3 py-1.5 rounded-md bg-white border border-gray-200 text-gray-600 text-xs hover:bg-gray-50'}
                   >
                     {d}
@@ -219,6 +241,18 @@ export default function DoctorsAdminPage() {
           </Field>
 
           <div className="pt-2 border-t">
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">Current practice / workplace <span className="font-normal text-gray-400 text-xs">— optional</span></h3>
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-3">
+              <Field label="Workplace name">
+                <input className={inputClass} value={form.workplace} onChange={(e) => setForm({ ...form, workplace: e.target.value })} placeholder="e.g. Kottakkal Arya Vaidya Sala, Dubai branch" />
+              </Field>
+              <Field label="Workplace URL">
+                <input className={inputClass} value={form.workplaceUrl} onChange={(e) => setForm({ ...form, workplaceUrl: e.target.value })} placeholder="https://..." />
+              </Field>
+            </div>
+          </div>
+
+          <div className="pt-2 border-t">
             <h3 className="text-sm font-semibold text-gray-700 mb-2">Social links <span className="font-normal text-gray-400 text-xs">— all optional</span></h3>
             <SocialLinksField
               values={{
@@ -238,6 +272,22 @@ export default function DoctorsAdminPage() {
                 twitterUrl:   s.twitterUrl   ?? '',
                 youtubeUrl:   s.youtubeUrl   ?? '',
               })}
+            />
+          </div>
+
+          <div className="pt-2 border-t">
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">Featured health articles <span className="font-normal text-gray-400 text-xs">— up to 10</span></h3>
+            <FeaturedArticlesField
+              values={form.featuredArticles}
+              onChange={(next) => setForm({ ...form, featuredArticles: next })}
+            />
+          </div>
+
+          <div className="pt-2 border-t">
+            <h3 className="text-sm font-semibold text-gray-700 mb-2">Featured social posts <span className="font-normal text-gray-400 text-xs">— up to 10</span></h3>
+            <FeaturedPostsField
+              values={form.featuredPosts}
+              onChange={(next) => setForm({ ...form, featuredPosts: next })}
             />
           </div>
         </EntityFormShell>
@@ -271,7 +321,7 @@ export default function DoctorsAdminPage() {
                 <td className="px-4 py-2.5">{d.experienceYears ?? '—'}</td>
                 <td className="px-4 py-2.5">{d.ccimVerified ? '✓' : '—'}</td>
                 <td className="px-4 py-2.5 text-right space-x-3">
-                  <button onClick={() => startEdit(d)} className="text-green-700 hover:underline text-xs">Edit</button>
+                  <button onClick={() => startEdit(d)} className="text-kerala-700 hover:underline text-xs">Edit</button>
                   <button onClick={() => remove(d.id, d.name)} className="text-red-600 hover:underline text-xs">Delete</button>
                 </td>
               </tr>
