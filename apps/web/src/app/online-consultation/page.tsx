@@ -4,7 +4,7 @@ import {
   Video, ShieldCheck, Clock, MessageSquare, Stethoscope, Globe2, FileText,
   Smartphone, Pill, CheckCircle2, ChevronRight, AlertCircle, Languages, Lock,
   Heart, Brain, Baby, Activity, Sparkles, Droplet, Bone, Flower2, Users, Building2,
-  Phone, MessageCircle, Camera, Wifi, Coffee, ClipboardCheck, IndianRupee, Star,
+  Phone, MessageCircle, Camera, Wifi, Coffee, ClipboardCheck, Star,
   PlaneLanding, BadgeCheck, RefreshCw, MapPin, Headphones,
 } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
@@ -68,8 +68,7 @@ const HEALTH_CONCERNS = [
 ]
 
 // ─── CONSULTATION MODES ──────────────────────────────────────────────────
-// 3 modes per Practo / Amwell / Teladoc convention. Pricing shown as
-// "starts from" ranges; doctors set their own actual fees.
+// 3 modes per Practo / Amwell / Teladoc convention.
 const CONSULT_MODES = [
   {
     id: 'video',
@@ -82,7 +81,6 @@ const CONSULT_MODES = [
       'Pulse-by-proxy and tongue inspection visually',
       '30–45 min first visit, 15–25 min follow-up',
     ],
-    priceFrom: '₹500',
     cta: { label: 'Book a video visit', href: '/doctors?online=true' },
     badge: 'Most chosen',
   },
@@ -97,7 +95,6 @@ const CONSULT_MODES = [
       'Ideal for elderly patients or shy first calls',
       '15–25 min typical duration',
     ],
-    priceFrom: '₹300',
     cta: { label: 'Book an audio call', href: '/doctors?online=true' },
     badge: null,
   },
@@ -112,7 +109,6 @@ const CONSULT_MODES = [
       'Doctor replies with treatment plan + Rx',
       'Best for refills, doubts, second opinions',
     ],
-    priceFrom: '₹200',
     cta: { label: 'Notify me when ready', href: '/wellness-plans#interest' },
     badge: 'Coming soon',
   },
@@ -216,11 +212,10 @@ const STORIES = [
   },
 ]
 
-// ─── PRICING & POLICIES ──────────────────────────────────────────────────
+// ─── POLICIES ────────────────────────────────────────────────────────────
 const POLICIES = [
-  { icon: IndianRupee, title: 'Transparent doctor-set fees', body: 'Each doctor displays their consultation rate on their profile. Fees range from ₹300 (audio follow-up) to ₹1500 (extended first visit). AyurConnect charges zero platform fee.' },
-  { icon: BadgeCheck,  title: 'Free first consultation*',     body: 'Many doctors offer a free 10-minute orientation call to discuss your case before formal booking. Look for the "Free intro" badge on profiles.' },
-  { icon: RefreshCw,   title: 'Free reschedule + refund',     body: 'Reschedule up to 4 hours before the slot at no charge. Full refund if the doctor cancels, or if a verified technical failure prevents the call.' },
+  { icon: BadgeCheck,  title: 'Free first consultation',      body: 'Many doctors offer a free 10-minute orientation call to discuss your case before formal booking. Look for the "Free intro" badge on profiles.' },
+  { icon: RefreshCw,   title: 'Free reschedule',              body: 'Reschedule up to 4 hours before the slot at no charge. If the doctor cancels, or if a verified technical failure prevents the call, you keep your slot or pick a new one.' },
   { icon: Headphones,  title: 'Care coordinator support',     body: 'Not sure which doctor to pick? Reply to your booking email or WhatsApp +971 50 937 9212 — we\'ll help match you within an hour during business hours (IST 9-6).' },
 ]
 
@@ -246,11 +241,10 @@ const WHEN_IN_PERSON = [
 const FAQS = [
   {
     q: 'Can I just request a doctor connection on WhatsApp instead of browsing the site?',
-    a: 'Yes. WhatsApp our concierge on +971 55 448 5169 with your concern and preferred language — we\'ll match you to a CCIM-verified doctor and either set up the consultation booking or have the doctor reach out to you directly, usually within an hour during IST business hours. This is a free service; no platform fee. The number is the AyurConnect concierge, not any single doctor\'s line.',
+    a: 'Yes. WhatsApp our concierge on +971 55 448 5169 with your concern and preferred language — we\'ll match you to a CCIM-verified doctor and either set up the consultation booking or have the doctor reach out to you directly, usually within an hour during IST business hours. The number is the AyurConnect concierge, not any single doctor\'s line.',
   },
   { q: 'How long is an online consultation?', a: 'Typical first visit: 30–45 minutes. Follow-ups: 15–25 minutes. Time isn\'t metered — the doctor stays on the call as long as your case needs.' },
-  { q: 'How much does it cost?', a: 'Doctors set their own fees, shown clearly on each profile. Audio follow-ups start around ₹300; video first visits ₹500–₹1500 depending on the doctor\'s seniority. AyurConnect charges no platform fee.' },
-  { q: 'Is there a free first consultation?', a: 'Some doctors offer a free 10-minute orientation call — look for the "Free intro" tag on profiles. The Wellness subscription includes paid first visits in the bundle.' },
+  { q: 'Is there a free first consultation?', a: 'Some doctors offer a free 10-minute orientation call — look for the "Free intro" tag on profiles.' },
   { q: 'What if my video / audio fails mid-call?', a: 'The Daily.co room auto-reconnects. If issues persist, the doctor can fall back to a phone call. Free reschedule is also offered for verified technical failures.' },
   { q: 'Will I get a prescription?', a: 'Yes — post-call, the doctor enters a structured prescription + treatment plan + follow-up note that appears in your dashboard immediately. An email summary is also sent.' },
   { q: 'Can I share lab reports?', a: 'Yes. During the call, use screen-share to show reports, imaging, or photos. You can also email them via the platform after the call.' },
@@ -446,10 +440,6 @@ export default async function OnlineConsultationPage() {
                   <Icon className="w-8 h-8 text-kerala-700 mb-3" />
                   <h3 className="font-serif text-xl text-ink">{m.title}</h3>
                   <p className="text-sm text-muted mt-1 min-h-[2.5rem]">{m.pitch}</p>
-                  <div className="mt-3 flex items-baseline gap-1">
-                    <span className="text-xs text-gray-500">from</span>
-                    <span className="font-serif text-2xl text-kerala-800">{m.priceFrom}</span>
-                  </div>
                   <ul className="mt-4 space-y-1.5 text-sm flex-1">
                     {m.features.map((f) => (
                       <li key={f} className="flex items-start gap-2">
@@ -654,11 +644,11 @@ export default async function OnlineConsultationPage() {
         </div>
       </section>
 
-      {/* PRICING & POLICIES */}
+      {/* POLICIES */}
       <section className="container mx-auto px-4 py-14 max-w-6xl">
         <header className="text-center mb-10">
-          <h2 className="font-serif text-2xl md:text-3xl text-kerala-700">Fees, reschedules, refunds — no surprises</h2>
-          <p className="text-muted mt-2">Honest pricing and customer-friendly policies.</p>
+          <h2 className="font-serif text-2xl md:text-3xl text-kerala-700">Reschedules &amp; support — no surprises</h2>
+          <p className="text-muted mt-2">Customer-friendly policies.</p>
         </header>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {POLICIES.map((p) => {
