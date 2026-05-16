@@ -83,8 +83,11 @@ export default function TreatmentsIndex() {
             an initial video consult.
           </p>
           <div className="flex flex-wrap justify-center gap-3">
-            <Link href="/doctors" className="inline-flex items-center gap-2 px-5 py-2.5 bg-kerala-600 hover:bg-kerala-700 text-white rounded-md font-semibold">
-              Browse doctors <ChevronRight className="w-4 h-4" />
+            <Link href="/conditions" className="inline-flex items-center gap-2 px-5 py-2.5 bg-kerala-600 hover:bg-kerala-700 text-white rounded-md font-semibold">
+              Conditions library <ChevronRight className="w-4 h-4" />
+            </Link>
+            <Link href="/doctors" className="inline-flex items-center gap-2 px-5 py-2.5 border-2 border-kerala-600 text-kerala-700 hover:bg-kerala-50 rounded-md font-semibold">
+              Browse doctors
             </Link>
             <Link href="/triage" className="inline-flex items-center gap-2 px-5 py-2.5 border-2 border-kerala-600 text-kerala-700 hover:bg-kerala-50 rounded-md font-semibold">
               AI symptom check

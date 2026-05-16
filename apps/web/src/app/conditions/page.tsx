@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { GradientHero } from '@ayurconnect/ui'
 import { ChevronRight, Stethoscope } from 'lucide-react'
 import { CONDITIONS } from './_data/conditions'
+import { breadcrumbLd } from '@/lib/seo'
 
 export const metadata = {
   title: 'Ayurvedic Treatment by Condition — AyurConnect',
@@ -25,8 +26,14 @@ export default function ConditionsIndex() {
     return acc
   }, {})
 
+  const ld = breadcrumbLd([
+    { name: 'Home',       url: '/' },
+    { name: 'Conditions', url: '/conditions' },
+  ])
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
       <GradientHero variant="green" size="md">
         <div className="max-w-3xl mx-auto text-center">
           <span className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur rounded-full text-xs text-white/90 border border-white/20 mb-5">

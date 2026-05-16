@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { GradientHero } from '@ayurconnect/ui'
 import { Briefcase, MapPin, Clock, Heart, Code, Users, Stethoscope, Megaphone, Mail, ArrowRight } from 'lucide-react'
+import { breadcrumbLd } from '@/lib/seo'
 
 export const metadata = {
   title: 'Careers — Build Kerala\'s Ayurveda Future with AyurConnect',
@@ -91,8 +92,14 @@ const ROLES = [
 ]
 
 export default function CareersPage() {
+  const ld = breadcrumbLd([
+    { name: 'Home',    url: '/' },
+    { name: 'Careers', url: '/careers' },
+  ])
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
       <GradientHero variant="green" size="md">
         <div className="max-w-3xl mx-auto text-center">
           <span className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur rounded-full text-xs text-white/90 border border-white/20 mb-5">

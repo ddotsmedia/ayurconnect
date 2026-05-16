@@ -3,7 +3,7 @@ import { headers as nextHeaders } from 'next/headers'
 import { DoctorCard, LeafPattern, LogoMark, t, readLangFromCookieHeader, type DoctorCardData } from '@ayurconnect/ui'
 import {
   Search, Stethoscope, Building2, Bot, MessageSquare, Briefcase, Leaf, Plane,
-  GraduationCap, ShieldCheck, Video, Sparkles, Users, MapPin, Lock, Star, ArrowRight, ChevronRight,
+  GraduationCap, ShieldCheck, Video, Sparkles, Users, MapPin, Lock, Star, ArrowRight, ChevronRight, BookOpen,
 } from 'lucide-react'
 import { API_INTERNAL as API, logServerFetchError } from '../lib/server-fetch'
 import { PersonalizedWelcome } from '../components/personalized-welcome'
@@ -19,6 +19,7 @@ const SPECS = ['Panchakarma', 'Kayachikitsa', 'Prasuti Tantra', 'Kaumarbhritya',
 const SERVICES = [
   { href: '/doctors',       icon: Stethoscope,    title: 'Doctor Directory',     color: 'bg-kerala-50 text-kerala-700',   desc: 'verified Ayurveda doctors across all 14 Kerala districts.' },
   { href: '/doctor-match',  icon: Sparkles,       title: 'AI Doctor Match',      color: 'bg-amber-50 text-amber-700',     desc: '30-second quiz → ranked specialists matched to your concern, language, budget.' },
+  { href: '/conditions',    icon: BookOpen,       title: 'Conditions Library',   color: 'bg-teal-50 text-teal-700',       desc: 'Ayurvedic treatment guides for PCOS, arthritis, diabetes, migraine, IBS, and more — classical understanding + verified specialists.' },
   { href: '/qa',            icon: MessageSquare,  title: 'Ayurveda Q&A',         color: 'bg-blue-50 text-blue-700',       desc: 'Free anonymous patient Q&A answered by verified doctors within 48 hours.' },
   { href: '/programs',      icon: Sparkles,       title: 'Wellness Programs',    color: 'bg-fuchsia-50 text-fuchsia-700', desc: 'Guided multi-week journeys — 21-day stress reset, 6-week PCOS, Karkidaka Chikitsa.' },
   { href: '/formulary',     icon: Leaf,           title: 'Ayurveda Formulary',   color: 'bg-emerald-50 text-emerald-700', desc: 'Classical compound medicines reference — Yogaraj Guggulu, Triphala, and more.' },

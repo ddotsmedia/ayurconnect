@@ -4,6 +4,7 @@ import { CONDITION_SLUGS } from './treatments/_data/conditions'
 import { PRODUCT_SLUGS } from './products/_data/products'
 import { CASE_STUDY_SLUGS } from './case-studies/_data/cases'
 import { CONDITIONS as SEO_CONDITIONS } from './conditions/_data/conditions'
+import { CITIES as SEO_CITIES } from './conditions/_data/cities'
 
 const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ayurconnect.com'
 
@@ -172,5 +173,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly' as const,
       priority: 0.8,
     })),
+    // /conditions/[slug]/[city] — programmatic long-tail (condition x geo).
+    ...SEO_CONDITIONS.flatMap((c) =>
+      SEO_CITIES.map((ci) => ({
+        url: `${BASE}/conditions/${c.slug}/${ci.slug}`,
+        lastModified: now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.7,
+      })),
+    ),
   ]
 }

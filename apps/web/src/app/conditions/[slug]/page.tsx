@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { GradientHero } from '@ayurconnect/ui'
 import { Stethoscope, BookOpen, Sprout, AlertTriangle, ChevronRight, ArrowLeft } from 'lucide-react'
 import { CONDITIONS, getCondition } from '../_data/conditions'
+import { breadcrumbLd, ldGraph } from '@/lib/seo'
 
 export function generateStaticParams() {
   return CONDITIONS.map((c) => ({ slug: c.slug }))
@@ -28,14 +29,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 // MedicalCondition schema.org structured data — helps Google understand
 // the page as a clinical reference, not generic content marketing.
-function medicalConditionLd(c: ReturnType<typeof getCondition>) {
-  if (!c) return null
+function conditionMedLd(c: NonNullable<ReturnType<typeof getCondition>>) {
   return {
     '@context': 'https://schema.org',
     '@type':    'MedicalCondition',
+    '@id':      `https://ayurconnect.com/conditions/${c.slug}`,
     name:       c.title,
     alternateName: c.sanskrit,
     description: c.ogSummary,
+    url:        `https://ayurconnect.com/conditions/${c.slug}`,
+    relevantSpecialty: { '@type': 'MedicalSpecialty', name: 'Ayurveda' },
     possibleTreatment: c.formulations.map((f) => ({
       '@type': 'MedicalTherapy',
       name:    f.name,
@@ -49,16 +52,22 @@ export default async function ConditionPage({ params }: { params: Promise<{ slug
   const c = getCondition(slug)
   if (!c) notFound()
 
-  const ld = medicalConditionLd(c)
+  // Combined JSON-LD: BreadcrumbList + MedicalCondition. One <script> tag.
+  const ld = ldGraph(
+    breadcrumbLd([
+      { name: 'Home',       url: '/' },
+      { name: 'Conditions', url: '/conditions' },
+      { name: c.title,      url: `/conditions/${c.slug}` },
+    ]),
+    conditionMedLd(c),
+  )
 
   return (
     <>
-      {ld && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
-        />
-      )}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }}
+      />
 
       <GradientHero variant="green" size="md">
         <div className="max-w-3xl mx-auto text-center">
