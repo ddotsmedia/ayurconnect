@@ -241,7 +241,7 @@ Modern Ayurvedic clinicians use structured questionnaires (validated forms exist
 
 **Stability of Prakriti.** Modern Indian Ayurveda research has explored whether Prakriti correlates with measurable biological markers. Studies at AIIA + CCRAS have found correlations with HRV patterns, basal metabolic rate, lipid profiles, and even some genetic polymorphisms. The literature is preliminary but consistent — Prakriti is not arbitrary; it reflects real biological differences.
 
-**Take the AyurConnect Prakriti quiz** at /prakriti-quiz for a 2-minute structured self-assessment. For clinical-grade determination, book a consultation with one of our CCIM-verified doctors who can perform the full Dasha-vidha examination.
+**Take the AyurConnect Prakriti quiz** at /prakriti-quiz for a 2-minute structured self-assessment. For clinical-grade determination, book a consultation with one of our verified doctors who can perform the full Dasha-vidha examination.
 
 For canonical reading: Charaka Samhita Vimanasthana 8 ("Roganīka-vimāna") and Sushruta Sharirasthana 4 ("Garbhāvakranti") are the source chapters.`,
   },
@@ -747,7 +747,7 @@ For canonical reading, see Charaka Samhita Sutrasthana 21 ("Ashtaninditiya") and
 
 For canonical reading: Charaka Samhita Sharirasthana 8 ("Jātisutriya") and Sushruta Sharirasthana 10 ("Garbhini-Vyākaraniya"). The Ministry of AYUSH publishes a free booklet "Prasuti Tantra: Ayurvedic Guidance for Mothers" (2019, available at ayush.gov.in).
 
-**For 1-on-1 pregnancy care** with a CCIM-verified Prasuti Tantra specialist, book a consultation at /doctors?specialization=Prasuti%20Tantra.`,
+**For 1-on-1 pregnancy care** with a verified Prasuti Tantra specialist, book a consultation at /doctors?specialization=Prasuti%20Tantra.`,
   },
 
   {

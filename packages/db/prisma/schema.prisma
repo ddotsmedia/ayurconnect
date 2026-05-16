@@ -237,6 +237,10 @@ model Doctor {
   // Videos this doctor appears in (admin-curated YouTube embeds, /videos).
   healthVideos   HealthVideo[] @relation("DoctorVideos")
 
+  // Doctor-to-doctor referrals (2026-05-16).
+  referralsSent     DoctorReferral[] @relation("DoctorReferralFrom")
+  referralsReceived DoctorReferral[] @relation("DoctorReferralTo")
+
   // Index for queue sorting: oldest pending first.
   @@index([moderationStatus, createdAt])
 
@@ -906,7 +910,7 @@ model KnowledgeChunk {
 
 // ─── Public Q&A library (added 2026-05-13, Phase 8) ──────────────────────
 // Inspired by iCliniq's medical Q&A — patients post anonymous questions,
-// CCIM-verified doctors answer publicly. Answers become evergreen SEO content
+// verified doctors answer publicly. Answers become evergreen SEO content
 // for long-tail symptom + treatment queries.
 //
 // `userId` on PublicQuestion is null for anonymous; non-null when a signed-in
@@ -1134,10 +1138,46 @@ model ClinicalCase {
   author              User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments            CaseComment[]
   upvotes             CaseUpvote[]
+  referrals           DoctorReferral[] @relation("DoctorReferralCase")
 
   @@index([status, publishedAt])
   @@index([specialty, status])
   @@index([authorId, createdAt])
+}
+
+// ─── Doctor-to-doctor referrals (2026-05-16) ─────────────────────────────
+// When a doctor recognizes a case is outside their specialty, they refer the
+// patient to another verified doctor. Tracked separately from Appointment so
+// it can surface as an "inbox" in the doctor hub before any booking happens.
+// Schema added via raw SQL in 20260516000000_doctor_referrals; declared here
+// so Prisma client typing covers it.
+model DoctorReferral {
+  id             String   @id @default(cuid())
+  fromDoctorId   String
+  toDoctorId     String
+  patientName    String
+  patientEmail   String?
+  patientPhone   String?
+  patientAge     Int?
+  specialty      String?
+  condition      String?
+  reason         String
+  urgency        String   @default("routine")  // 'routine' | 'soon' | 'urgent'
+  caseId         String?
+  status         String   @default("pending")  // 'pending' | 'accepted' | 'declined' | 'completed'
+  responseNote   String?
+  respondedAt    DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  fromDoctor     Doctor        @relation("DoctorReferralFrom", fields: [fromDoctorId], references: [id], onDelete: Cascade)
+  toDoctor       Doctor        @relation("DoctorReferralTo",   fields: [toDoctorId],   references: [id], onDelete: Cascade)
+  case           ClinicalCase? @relation("DoctorReferralCase", fields: [caseId],       references: [id], onDelete: SetNull)
+
+  @@index([toDoctorId,   createdAt])
+  @@index([fromDoctorId, createdAt])
+  @@index([status])
 }
 
 model CaseComment {
