@@ -76,7 +76,7 @@ export function DoctorCard({ doctor, className }: { doctor: DoctorCardData; clas
         </div>
         {doctor.ccimVerified && (
           <span className="flex items-center gap-1 text-[10px] font-medium text-kerala-700 bg-kerala-50 px-2 py-1 rounded-full whitespace-nowrap">
-            <ShieldCheck className="w-3 h-3" /> CCIM
+            <ShieldCheck className="w-3 h-3" /> Verified
           </span>
         )}
       </div>

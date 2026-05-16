@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "AyurConnect — Kerala's #1 Ayurveda Platform",
     short_name: 'AyurConnect',
-    description: 'CCIM-verified Ayurveda doctors, classical Panchakarma centres, 150+ herbs, AyurBot AI.',
+    description: 'verified Ayurveda doctors, classical Panchakarma centres, 150+ herbs, AyurBot AI.',
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',

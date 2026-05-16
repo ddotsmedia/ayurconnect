@@ -6,7 +6,7 @@ const CFG: CityConfig = {
   countryCode: 'AE',
   countryName: 'United Arab Emirates',
   licenseAuthority: 'DOH',
-  intro: 'CCIM-verified Kerala Ayurveda doctors offering video consultation to patients across Abu Dhabi and Al Ain. Classical Ayurvedic care, English / Malayalam / Hindi / Arabic, DOH-aware practitioners.',
+  intro: 'verified Kerala Ayurveda doctors offering video consultation to patients across Abu Dhabi and Al Ain. Classical Ayurvedic care, English / Malayalam / Hindi / Arabic, DOH-aware practitioners.',
   whyHere: [
     {
       title: 'Classical lineage from Kerala',
@@ -30,7 +30,7 @@ const CFG: CityConfig = {
     },
     {
       title: 'WhatsApp concierge',
-      body: 'Message +971 55 448 5169 with your concern and language preference; our concierge matches you to a CCIM-verified doctor and sets up the consultation within an hour during IST business hours. The number is staffed by AyurConnect (not a single doctor\'s line).',
+      body: 'Message +971 55 448 5169 with your concern and language preference; our concierge matches you to a verified doctor and sets up the consultation within an hour during IST business hours. The number is staffed by AyurConnect (not a single doctor\'s line).',
     },
   ],
   treatments: [
@@ -41,7 +41,7 @@ const CFG: CityConfig = {
   faq: [
     {
       q: 'Is AyurConnect a DOH-licensed clinic in Abu Dhabi?',
-      a: 'No — AyurConnect is a platform connecting Abu Dhabi patients with CCIM-registered Kerala Ayurveda doctors via video consultation. For in-person treatment within Abu Dhabi (procedures like Pizhichil or Shirodhara), you\'d visit a DOH-licensed clinic such as Herbal Park or Kottakkal Abu Dhabi. We complement these with online clinical care.',
+      a: 'No — AyurConnect is a platform connecting Abu Dhabi patients with verified Kerala Ayurveda doctors via video consultation. For in-person treatment within Abu Dhabi (procedures like Pizhichil or Shirodhara), you\'d visit a DOH-licensed clinic such as Herbal Park or Kottakkal Abu Dhabi. We complement these with online clinical care.',
     },
     {
       q: 'Will the doctor understand my Abu Dhabi context?',

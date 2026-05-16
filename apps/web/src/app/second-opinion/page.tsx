@@ -3,8 +3,8 @@ import { FileSearch, ShieldCheck, Clock, ChevronRight } from 'lucide-react'
 import { SecondOpinionForm } from './_form'
 
 export const metadata = {
-  title: 'Ayurveda Second Opinion — From CCIM-Verified Specialists | AyurConnect',
-  description: 'Get an independent Ayurvedic second opinion on your diagnosis or treatment plan. Senior CCIM-verified specialists review your case within 72 hours.',
+  title: 'Ayurveda Second Opinion — From Verified Specialists | AyurConnect',
+  description: 'Get an independent Ayurvedic second opinion on your diagnosis or treatment plan. Senior verified specialists review your case within 72 hours.',
   alternates: { canonical: '/second-opinion' },
 }
 
@@ -18,7 +18,7 @@ export default function SecondOpinionPage() {
           </span>
           <h1 className="font-serif text-4xl md:text-5xl text-white leading-tight">Get an Ayurvedic second opinion</h1>
           <p className="mt-4 text-white/80">
-            Already seeing a doctor? Get an independent review of your diagnosis or treatment plan from a senior CCIM-verified
+            Already seeing a doctor? Get an independent review of your diagnosis or treatment plan from a senior verified
             Ayurvedic specialist. Useful before starting Panchakarma, surgery alternatives, or chronic disease protocols.
           </p>
         </div>
@@ -29,7 +29,7 @@ export default function SecondOpinionPage() {
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
           {[
             { icon: FileSearch,  title: 'Submit your case', body: 'Share your symptoms, current diagnosis, treatment plan, and any reports. Takes 5 minutes.' },
-            { icon: ShieldCheck, title: 'Senior review',    body: 'A senior CCIM specialist (15+ years experience) reviews independently — no commercial conflict.' },
+            { icon: ShieldCheck, title: 'Senior review',    body: 'A senior verified specialist (15+ years experience) reviews independently — no commercial conflict.' },
             { icon: Clock,       title: 'Reply in 72h',     body: 'Written second-opinion summary delivered by email within 72 hours. Followed by optional video consult.' },
           ].map((s) => {
             const Icon = s.icon

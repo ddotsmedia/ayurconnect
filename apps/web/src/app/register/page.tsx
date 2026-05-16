@@ -14,7 +14,7 @@ const ROLES = [
     title: 'I am a Patient',
     color: 'bg-kerala-50 text-kerala-700 ring-kerala-200',
     perks: [
-      'Book consultations with CCIM-verified doctors',
+      'Book consultations with verified doctors',
       'Save favourite doctors, track appointments',
       'Free AyurBot AI for daily health questions',
       'Patient forum + Health Tips',
@@ -27,13 +27,13 @@ const ROLES = [
     title: 'I am a Doctor',
     color: 'bg-amber-50 text-amber-700 ring-amber-200',
     perks: [
-      'Get a public doctor profile (post CCIM verification)',
+      'Get a public doctor profile (post verification)',
       'Manage availability, fees, languages, photo',
       'Receive online + in-person bookings',
       'Doctor-only forum, case discussions',
     ],
     cta: 'Sign up as a doctor',
-    badge: 'CCIM verification required',
+    badge: 'verification required',
   },
   {
     href: '/register/hospital',
@@ -47,7 +47,7 @@ const ROLES = [
       'Appear in public hospital directory',
     ],
     cta: 'Register a hospital',
-    badge: 'AYUSH/CCIM verification required',
+    badge: 'AYUSH/verification required',
   },
 ] as const
 

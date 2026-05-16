@@ -145,7 +145,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
         <section className="mt-10 p-6 rounded-card bg-amber-50 border border-amber-100">
           <p className="text-sm text-amber-900 leading-relaxed">
             <strong>Important:</strong> This program is an educational framework. Medications listed are common classical
-            formulations — do not start them without consulting a CCIM-verified Ayurvedic doctor first. The protocol works
+            formulations — do not start them without consulting a verified Ayurvedic doctor first. The protocol works
             best when paired with a 1-on-1 consultation to confirm it fits your Prakriti and current medications.
             <Link href="/online-consultation" className="text-amber-700 hover:underline ml-1">Book a consultation →</Link>
           </p>

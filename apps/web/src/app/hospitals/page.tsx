@@ -51,7 +51,7 @@ async function fetchHospitalCountries(): Promise<CountryCount[]> {
 
 export const metadata = {
   title: 'Ayurveda Hospitals & Wellness Centres | AyurConnect',
-  description: 'CCIM-verified, AYUSH-certified Ayurveda hospitals, Panchakarma centres, and wellness resorts. Filter by country, state, and district.',
+  description: 'verified, AYUSH-certified Ayurveda hospitals, Panchakarma centres, and wellness resorts. Filter by country, state, and district.',
   keywords: [
     ...AYURVEDA_KEYWORDS.primary,
     ...AYURVEDA_KEYWORDS.treatments,

@@ -1,5 +1,5 @@
 // Patient case studies — composite narratives drawn from real clinical
-// patterns observed at Kerala CCIM-registered centres. Names + identifying
+// patterns observed at Kerala verified centres. Names + identifying
 // details changed; specific clinical particulars verified by the AyurConnect
 // clinical advisory board for plausibility and educational value.
 //

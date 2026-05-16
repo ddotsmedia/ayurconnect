@@ -25,7 +25,7 @@ const STEPS = [
     n: '3',
     icon: ShieldCheck,
     title: 'Public listing',
-    detail: 'Approved profiles get a CCIM-verified badge with the registration number visible on the public profile. Patients can independently re-verify on ccim.gov.in via a deep link.',
+    detail: 'Approved profiles get a verified badge with the registration number visible on the public profile. Patients can independently re-verify on ccim.gov.in via a deep link.',
   },
   {
     n: '4',

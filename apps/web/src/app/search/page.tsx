@@ -34,7 +34,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
   const title = q ? `Search: ${q.slice(0, 50)}` : 'Search AyurConnect'
   return {
     title,
-    description: clip(`Search across CCIM-verified Kerala Ayurveda doctors, hospitals, ${q ? `for "${q}"` : '150+ herbs and articles'}.`),
+    description: clip(`Search across verified Kerala Ayurveda doctors, hospitals, ${q ? `for "${q}"` : '150+ herbs and articles'}.`),
     alternates: { canonical: `/search${q ? `?q=${encodeURIComponent(q)}` : ''}` },
     robots: { index: false, follow: true },
   }

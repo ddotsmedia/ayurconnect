@@ -6,7 +6,7 @@ import { API_INTERNAL } from '@/lib/server-fetch'
 
 export const metadata = {
   title: 'Ayurveda Knowledge Hub — Treatments, Herbs, Research | AyurConnect',
-  description: 'A single index of everything we know — specialised treatments, the 150+ herb database, classical research citations, health tips, dosha guides, and AI tools. Curated by CCIM-verified practitioners.',
+  description: 'A single index of everything we know — specialised treatments, the 150+ herb database, classical research citations, health tips, dosha guides, and AI tools. Curated by verified practitioners.',
   alternates: { canonical: '/knowledge' },
 }
 
@@ -52,7 +52,7 @@ export default async function KnowledgePage() {
           </h1>
           <p className="mt-5 text-lg text-white/80">
             Specialised treatments, 150+ herbs with classical citations, research evidence, AI tools,
-            health tips — curated by CCIM-verified practitioners, structured for actually finding things.
+            health tips — curated by verified practitioners, structured for actually finding things.
           </p>
           <Link href="/search" className="mt-7 inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 hover:bg-white/20 backdrop-blur border border-white/20 text-white rounded-md font-semibold">
             <Search className="w-4 h-4" /> Search everything

@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     template: '%s | AyurConnect',
   },
   description:
-    "Find CCIM-verified Ayurveda doctors, classical Panchakarma centres, 150+ medicinal herbs, and AI-assisted health insights — rooted in Kerala, God's Own Country.",
+    "Find verified Ayurveda doctors, classical Panchakarma centres, 150+ medicinal herbs, and AI-assisted health insights — rooted in Kerala, God's Own Country.",
   applicationName: 'AyurConnect',
   authors: [{ name: 'AyurConnect', url: SITE_URL }],
   // Centralised in lib/seo.ts → AYURVEDA_KEYWORDS so per-route metadata can
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: 'AyurConnect',
     title: "AyurConnect — Kerala's #1 Ayurveda Platform",
-    description: 'CCIM-verified doctors, classical Panchakarma centres, herb encyclopedia, AyurBot AI.',
+    description: 'verified doctors, classical Panchakarma centres, herb encyclopedia, AyurBot AI.',
   },
   twitter: { card: 'summary_large_image', title: 'AyurConnect', description: "Kerala's Ayurveda platform", site: '@ayurconnect' },
   alternates: {

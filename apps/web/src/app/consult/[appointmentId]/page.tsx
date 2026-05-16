@@ -693,7 +693,7 @@ function ConsultationErrorState({ kind, detail, appointmentId }: { kind: 'not-fo
           <div className="space-y-3">
             <div className="p-4 bg-white rounded-card border border-gray-100">
               <h3 className="font-semibold text-sm text-kerala-700">1 · You haven&apos;t booked a consultation yet</h3>
-              <p className="text-sm text-gray-700 mt-1.5">Find a CCIM-verified doctor and book a video appointment — the consultation link arrives in your appointments dashboard.</p>
+              <p className="text-sm text-gray-700 mt-1.5">Find a verified doctor and book a video appointment — the consultation link arrives in your appointments dashboard.</p>
               <Link href="/doctors" className="mt-3 inline-flex items-center gap-1.5 text-sm text-kerala-700 hover:underline font-semibold">
                 Browse doctors →
               </Link>

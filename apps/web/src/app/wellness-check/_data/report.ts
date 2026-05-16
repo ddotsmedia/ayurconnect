@@ -65,7 +65,7 @@ const TIER_REPORTS: Record<string, AxisReport> = {
     ayurvedicLens: 'Early Vata aggravation in the Manovaha-srotas. Sattva is being clouded by Rajas (over-activation). Manageable with daily practices.',
     recommendations: {
       lifestyle: ['Establish strict sleep + wake times', 'Daily 20-min walk in nature', 'Breath work twice daily — Nadi Shodhana 10 minutes', 'Reduce caffeine after 12pm', 'Phone off 1 hour before bed'],
-      ayurvedic: ['Daily Abhyanga with warm sesame oil — 10 min before shower', 'Padabhyanga (foot massage) at bedtime', 'Weekly Shirodhara at a CCIM-verified centre if possible'],
+      ayurvedic: ['Daily Abhyanga with warm sesame oil — 10 min before shower', 'Padabhyanga (foot massage) at bedtime', 'Weekly Shirodhara at a verified centre if possible'],
       herbs: ['Ashwagandha — 500 mg twice daily', 'Brahmi — 250 mg twice daily', 'Saraswatarishtam — 15 ml twice daily after meals'],
       whenToSeekHelp: 'If you don\'t see improvement in 6 weeks of consistent practice, book a consultation with a BAMS doctor or counsellor.',
     },
@@ -91,7 +91,7 @@ const TIER_REPORTS: Record<string, AxisReport> = {
       lifestyle: ['Reduce work commitments — at least 2 weeks off if possible', 'Daily contact with a trusted person', 'No alcohol, no late nights, no caffeine excess'],
       ayurvedic: ['CCIM consultation within 1 week', 'Likely candidate for 21-day residential Panchakarma', 'Daily supervised practices once enrolled'],
       herbs: ['Do NOT self-prescribe at this level — work with a BAMS doctor on Brahmi, Ashwagandha, Jatamansi, Tagara dosing'],
-      whenToSeekHelp: 'Immediately. Both a CCIM-registered Vaidya AND a licensed mental-health professional. If you have thoughts of self-harm, call iCall (+91 9152987821) or your local emergency line right now.',
+      whenToSeekHelp: 'Immediately. Both a verified Vaidya AND a licensed mental-health professional. If you have thoughts of self-harm, call iCall (+91 9152987821) or your local emergency line right now.',
     },
   },
 
@@ -141,7 +141,7 @@ const TIER_REPORTS: Record<string, AxisReport> = {
       lifestyle: ['Stop work immediately if at all possible', 'Daily contact with a healthcare professional', 'No exercise beyond walking until energy returns'],
       ayurvedic: ['Urgent BAMS / MD consultation', '21-day residential Panchakarma strongly recommended', 'Full Brmhana protocol with Snehapana + Pizhichil + Shirodhara'],
       herbs: ['Strictly doctor-prescribed only at this level'],
-      whenToSeekHelp: 'Today. See both a CCIM-registered Vaidya and a GP. Rule out thyroid, anaemia, vitamin D + B12 deficiency, depression.',
+      whenToSeekHelp: 'Today. See both a verified Vaidya and a GP. Rule out thyroid, anaemia, vitamin D + B12 deficiency, depression.',
     },
   },
 
@@ -189,7 +189,7 @@ const TIER_REPORTS: Record<string, AxisReport> = {
     ayurvedicLens: 'Late-stage Prameha / Sthaulya. Classical Apatarpana (depleting) therapy under physician supervision. Never self-Shodhana at this risk level.',
     recommendations: {
       lifestyle: ['GP consultation this week — full lab work-up', 'Build to daily 45-min activity once cleared', 'Strict whole-food diet — work with a dietitian'],
-      ayurvedic: ['Integrated care with both a GP and a CCIM-registered BAMS specialising in Madhumeha', 'Residential Lekhana / Sthaulya protocol after baseline labs', 'Long-term Rasayana phase'],
+      ayurvedic: ['Integrated care with both a GP and a verified BAMS specialising in Madhumeha', 'Residential Lekhana / Sthaulya protocol after baseline labs', 'Long-term Rasayana phase'],
       herbs: ['Doctor-only at this level — Vasant Kusumakar Ras and others require monitoring'],
       whenToSeekHelp: 'This week. Both GP and BAMS. Don\'t skip either.',
     },

@@ -145,12 +145,12 @@ export default async function QADetailPage({ params }: { params: Promise<{ slug:
         {q.answers.length === 0 ? (
           <section className="text-center py-12 bg-white border border-gray-100 rounded-card">
             <MessageCircleQuestion className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-            <p className="text-muted">Awaiting answer from a CCIM-verified doctor — typically within 48 hours.</p>
+            <p className="text-muted">Awaiting answer from a verified doctor — typically within 48 hours.</p>
           </section>
         ) : (
           <section>
             <h2 className="text-xs uppercase tracking-wider font-semibold text-gray-400 mb-3">
-              {q.answers.length} answer{q.answers.length === 1 ? '' : 's'} from CCIM-verified doctors
+              {q.answers.length} answer{q.answers.length === 1 ? '' : 's'} from verified doctors
             </h2>
             <div className="space-y-4">
               {q.answers.map((a, idx) => (

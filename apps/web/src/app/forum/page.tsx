@@ -33,7 +33,7 @@ async function fetchPosts(): Promise<Post[]> {
 
 export const metadata = {
   title: 'AyurConnect Community Forum — Doctors & Patients',
-  description: 'Discussions on classical Ayurveda cases, herbs, treatments, and patient questions. CCIM-verified doctors and patients from across Kerala.',
+  description: 'Discussions on classical Ayurveda cases, herbs, treatments, and patient questions. verified doctors and patients from across Kerala.',
 }
 
 export default async function ForumPage() {
@@ -49,7 +49,7 @@ export default async function ForumPage() {
           <h1 className="text-3xl md:text-5xl text-white">Community Forum</h1>
           <p className="text-white/70 mt-3">
             Case discussions, research notes, herb questions, patient stories.
-            CCIM-verified doctors and patients, all on one platform.
+            verified doctors and patients, all on one platform.
           </p>
           <Link href="/forum/new" className="inline-block mt-5 px-5 py-2 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md text-sm">
             + New post
@@ -73,7 +73,7 @@ export default async function ForumPage() {
               })}
             </ul>
             <div className="mt-6 p-3 rounded-card bg-kerala-50 border border-kerala-100 text-xs text-kerala-800 leading-relaxed">
-              <strong>Doctors only?</strong> CCIM-verified practitioners get a verified badge and access to the doctor-discussion channel.
+              <strong>Doctors only?</strong> verified practitioners get a verified badge and access to the doctor-discussion channel.
             </div>
           </aside>
 

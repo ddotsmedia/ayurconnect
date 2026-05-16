@@ -121,7 +121,7 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
                 <h1 className="font-serif text-3xl md:text-5xl">{doctor.name}</h1>
                 {doctor.ccimVerified && (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gold-500 text-white rounded-full text-xs font-semibold">
-                    <ShieldCheck className="w-3.5 h-3.5" /> CCIM Verified
+                    <ShieldCheck className="w-3.5 h-3.5" /> Verified
                   </span>
                 )}
               </div>
@@ -314,7 +314,7 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
           {doctor.ccimVerified && (
             <div className="bg-kerala-50 border border-kerala-100 rounded-card p-5">
               <div className="flex items-center gap-2 text-kerala-700 font-semibold text-sm">
-                <ShieldCheck className="w-4 h-4" /> CCIM Verified
+                <ShieldCheck className="w-4 h-4" /> Verified
               </div>
               <p className="text-xs text-gray-700 mt-2 leading-relaxed">
                 Cross-checked against the Central Council of Indian Medicine register. Practice license, qualification, and registration are all valid as of last verification.

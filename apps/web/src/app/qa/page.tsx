@@ -52,8 +52,8 @@ async function fetchCategories(): Promise<CategoryFacet[]> {
 }
 
 export const metadata = {
-  title: 'Ayurveda Q&A — Free Answers from CCIM Verified Doctors | AyurConnect',
-  description: 'Ask any Ayurveda question — answered free by CCIM-verified Kerala doctors. Browse thousands of patient questions on PCOS, diabetes, joint pain, skin, stress, and more.',
+  title: 'Ayurveda Q&A — Free Answers from Verified Doctors | AyurConnect',
+  description: 'Ask any Ayurveda question — answered free by verified Kerala doctors. Browse thousands of patient questions on PCOS, diabetes, joint pain, skin, stress, and more.',
   alternates: { canonical: '/qa' },
 }
 
@@ -164,7 +164,7 @@ export default async function QAIndexPage({ searchParams }: { searchParams: Prom
         <div className="mt-10 p-6 rounded-card bg-kerala-50 border border-kerala-100 text-center">
           <h3 className="font-serif text-xl text-kerala-800">Have your own question?</h3>
           <p className="text-sm text-kerala-900/80 mt-2 max-w-xl mx-auto">
-            Free to ask. CCIM-verified doctors review submissions and publish answers within 48 hours. Your name stays anonymous.
+            Free to ask. verified doctors review submissions and publish answers within 48 hours. Your name stays anonymous.
           </p>
           <Link href="/qa/ask" className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-kerala-700 hover:bg-kerala-800 text-white rounded-md text-sm font-semibold">
             Ask a question <ChevronRight className="w-4 h-4" />

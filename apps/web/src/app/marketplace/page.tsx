@@ -126,7 +126,7 @@ export default function MarketplacePage() {
             certifications and product reputation. We do not currently process payments — &ldquo;Inquire&rdquo;
             connects you to AyurConnect to discuss the product and recommend a verified vendor. Direct
             checkout, vendor portal, reviews, and shipping integration are coming in a later phase.
-            Always consult a CCIM-registered practitioner before starting internal classical medicine.
+            Always consult a verified practitioner before starting internal classical medicine.
           </div>
         </div>
       </section>

@@ -39,8 +39,8 @@ async function fetchDoctorCountries(): Promise<CountryCount[]> {
 }
 
 export const metadata = {
-  title: 'Find Ayurveda Doctors in Kerala — CCIM Verified | AyurConnect',
-  description: '500+ CCIM-verified Ayurveda doctors across all 14 Kerala districts. Filter by district, specialization, language, and availability.',
+  title: 'Find Ayurveda Doctors in Kerala — Verified | AyurConnect',
+  description: '500+ verified Ayurveda doctors across all 14 Kerala districts. Filter by district, specialization, language, and availability.',
   keywords: [
     ...AYURVEDA_KEYWORDS.primary,
     ...AYURVEDA_KEYWORDS.specialisations,
@@ -61,7 +61,7 @@ export default async function DoctorsPage({ searchParams }: { searchParams: Prom
   if (sp.specialization)  activeFilters.push({ key: 'specialization',  label: 'Specialization',   value: sp.specialization })
   if (sp.language)        activeFilters.push({ key: 'language',        label: 'Language',         value: sp.language })
   if (sp.q)               activeFilters.push({ key: 'q',               label: 'Search',           value: sp.q })
-  if (sp.verified === 'true') activeFilters.push({ key: 'verified',    label: 'CCIM verified',    value: 'yes' })
+  if (sp.verified === 'true') activeFilters.push({ key: 'verified',    label: 'verified',    value: 'yes' })
   if (sp.online === 'true')   activeFilters.push({ key: 'online',      label: 'Online available', value: 'yes' })
 
   const buildHref = (overrides: Partial<SearchParams>) => {
@@ -78,7 +78,7 @@ export default async function DoctorsPage({ searchParams }: { searchParams: Prom
       <GradientHero variant="green" size="md">
         <div className="max-w-3xl">
           <h1 className="text-3xl md:text-5xl text-white">Find an Ayurveda Doctor</h1>
-          <p className="text-white/70 mt-3">CCIM-verified practitioners across Kerala. Filter by district, specialization, language and availability.</p>
+          <p className="text-white/70 mt-3">verified practitioners across Kerala. Filter by district, specialization, language and availability.</p>
         </div>
       </GradientHero>
 

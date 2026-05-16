@@ -118,9 +118,9 @@ export async function moderate(
         await createNotification(fastify, {
           userId: owner.id,
           type:   kind === 'doctor' ? 'doctor-verified' : 'hospital-verified',
-          title:  kind === 'doctor' ? '🎉 Your CCIM verification is approved' : '🎉 Your hospital verification is approved',
+          title:  kind === 'doctor' ? '🎉 Your verification is approved' : '🎉 Your hospital verification is approved',
           body:   kind === 'doctor'
-            ? 'Your doctor profile is now publicly visible with the CCIM-verified badge.'
+            ? 'Your doctor profile is now publicly visible with the verified badge.'
             : 'Your hospital profile is now publicly visible with the verified badge.',
           link:   kind === 'doctor' ? `/doctors/${recordId}` : `/hospitals/${recordId}`,
         }).catch(() => null)
@@ -141,7 +141,7 @@ export async function moderate(
           title:  `Verification needs more information about your ${display}`,
           body:   opts.reason
             ? `Admin asks: ${opts.reason}. Please update your profile or reply to info@ayurconnect.com.`
-            : 'Please add more details to your profile (qualifications, CCIM number, photo).',
+            : 'Please add more details to your profile (qualifications, registration number, photo).',
           link:   baseLink,
         }).catch(() => null)
       }

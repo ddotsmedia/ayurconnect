@@ -48,7 +48,7 @@ async function fetchCategories(): Promise<Category[]> {
 
 export const metadata = {
   title: 'Ayurveda Articles — Classical Texts, Research, Seasonal Health | AyurConnect',
-  description: 'Curated Ayurveda reading: Charaka Samhita and Ashtanga Hridayam excerpts, PubMed research, seasonal regimens (Ritucharya), and lifestyle guidance from CCIM-verified practitioners.',
+  description: 'Curated Ayurveda reading: Charaka Samhita and Ashtanga Hridayam excerpts, PubMed research, seasonal regimens (Ritucharya), and lifestyle guidance from verified practitioners.',
   alternates: { canonical: '/articles' },
 }
 

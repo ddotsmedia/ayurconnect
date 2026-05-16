@@ -22,7 +22,7 @@ type Video = {
 
 export const metadata = {
   title: 'Ayurveda Health Videos — Curated YouTube Library | AyurConnect',
-  description: 'Curated YouTube videos on Panchakarma, yoga, herbs, lifestyle, and classical Ayurveda — vetted for accuracy by CCIM-verified doctors. Free, ad-supported on YouTube.',
+  description: 'Curated YouTube videos on Panchakarma, yoga, herbs, lifestyle, and classical Ayurveda — vetted for accuracy by verified doctors. Free, ad-supported on YouTube.',
   alternates: { canonical: '/videos' },
   keywords: [
     ...AYURVEDA_KEYWORDS.primary,
@@ -88,7 +88,7 @@ export default async function VideosListPage({ searchParams }: { searchParams: P
           </span>
           <h1 className="font-serif text-4xl md:text-5xl text-white">Ayurveda Health Videos</h1>
           <p className="mt-4 text-lg text-white/85">
-            Panchakarma demonstrations, doctor Q&amp;A, classical recipes, yoga sequences — hand-picked by CCIM-verified doctors and grouped by topic.
+            Panchakarma demonstrations, doctor Q&amp;A, classical recipes, yoga sequences — hand-picked by verified doctors and grouped by topic.
           </p>
         </div>
       </GradientHero>

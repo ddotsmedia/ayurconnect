@@ -142,7 +142,7 @@ export default async function FormulationDetailPage({ params }: { params: Promis
             <div>
               <h3 className="font-semibold text-amber-900 mb-1">Don\&apos;t self-prescribe</h3>
               <p className="text-sm text-amber-900/85 leading-relaxed">
-                Classical formulations interact with each other and with allopathic medicines. Dose adjustments depend on age, weight, Prakriti, current medications, and pregnancy/lactation status. Always consult a CCIM-verified doctor before starting.
+                Classical formulations interact with each other and with allopathic medicines. Dose adjustments depend on age, weight, Prakriti, current medications, and pregnancy/lactation status. Always consult a verified doctor before starting.
               </p>
             </div>
           </div>
@@ -152,7 +152,7 @@ export default async function FormulationDetailPage({ params }: { params: Promis
           <Stethoscope className="w-10 h-10 text-kerala-700 mx-auto mb-2" />
           <h3 className="font-serif text-xl text-kerala-800">Want to know if {f.name.split(' ')[0]} is right for you?</h3>
           <p className="text-sm text-kerala-900/80 mt-2 max-w-xl mx-auto">
-            Book a 30-minute video consultation with a CCIM-verified doctor. They\&apos;ll check your Prakriti, current medications, and prescribe the right protocol.
+            Book a 30-minute video consultation with a verified doctor. They\&apos;ll check your Prakriti, current medications, and prescribe the right protocol.
           </p>
           <Link href="/online-consultation" className="mt-4 inline-flex items-center gap-2 px-5 py-2.5 bg-kerala-700 hover:bg-kerala-800 text-white rounded-md text-sm font-semibold">
             Book a consultation <ChevronRight className="w-4 h-4" />

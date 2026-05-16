@@ -100,7 +100,7 @@ async function retrieveCandidates(fastify: FastifyInstance, query: string, limit
   return { items: keyword, mode: 'keyword' }
 }
 
-const SYSTEM_PROMPT_BASE = `You are a research librarian for Ayurveda doctors. The user is a CCIM-verified Ayurvedic practitioner asking you to summarise the published research on a specific clinical question.
+const SYSTEM_PROMPT_BASE = `You are a research librarian for Ayurveda doctors. The user is a verified Ayurvedic practitioner asking you to summarise the published research on a specific clinical question.
 
 STRICT RULES:
 1. Only cite papers that are listed in the CANDIDATE PAPERS section below. Do NOT invent citations or reference papers not in that list.

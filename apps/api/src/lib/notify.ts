@@ -67,6 +67,8 @@ export type NotificationType =
   | 'forum-reply'
   | 'journal-weekly-summary'
   | 'prescription-issued'
+  | 'doctor-referral'
+  | 'doctor-referral-response'
   | 'system'
 
 export type CreateNotifyInput = {

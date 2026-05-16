@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { headers as nextHeaders } from 'next/headers'
-import { FileText, BookOpen, Video, MessageSquare, Award, ArrowRight, Calendar, Library } from 'lucide-react'
+import { FileText, BookOpen, Video, MessageSquare, Award, ArrowRight, Calendar, Library, Share2 } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
 
 type Stats = {
@@ -88,6 +88,7 @@ export default async function DrPortalHome() {
           <SurfaceCard href="/dr/cme"           icon={Video}      title="CME webinars"     body="Earn platform-issued CME credit certificates." />
           <SurfaceCard href="/dr/protocols"     icon={Library}    title="Clinical protocols" body="Community-contributed peer-reviewed protocols." />
           <SurfaceCard href="/dr/interactions"  icon={Award}      title="Drug interactions" body="Ayurveda-allopathic interaction checker." />
+          <SurfaceCard href="/dr/referrals"     icon={Share2}     title="Referrals"        body="Refer patients to colleagues whose specialty is a better fit. Tracked inbox both ways." badge="New" />
         </div>
       </section>
 

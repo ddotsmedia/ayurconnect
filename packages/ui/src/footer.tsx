@@ -105,7 +105,7 @@ export function Footer({ settings = {} }: { settings?: FooterSettings } = {}) {
               <LogoCircular size={120} className="block group-hover:opacity-95 transition-opacity" />
             </Link>
             <p className="mt-5 text-sm text-white/70 leading-relaxed">
-              {tagline}. Verified CCIM doctors, classical Panchakarma centres, 150+ medicinal herbs,
+              {tagline}. Verified Ayurveda doctors, classical Panchakarma centres, 150+ medicinal herbs,
               AI-assisted health insights — rooted in God&apos;s Own Country.
             </p>
             {/* Contact bits — only render keys that admin has filled */}
@@ -165,13 +165,13 @@ export function Footer({ settings = {} }: { settings?: FooterSettings } = {}) {
             <ShieldCheck className="w-5 h-5 flex-shrink-0 text-gold-400 mt-0.5" />
             <p>
               <strong className="text-white">Medical disclaimer:</strong> AyurConnect connects
-              you with CCIM-verified Ayurvedic professionals. Information on this site is for
+              you with verified Ayurvedic professionals. Information on this site is for
               educational purposes only and is not a substitute for diagnosis or treatment by a
               qualified BAMS / MD Ayurveda practitioner.
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <span className="px-3 py-1.5 bg-white/10 rounded-full text-xs font-medium">CCIM Verified</span>
+            <span className="px-3 py-1.5 bg-white/10 rounded-full text-xs font-medium">Verified</span>
             <span className="px-3 py-1.5 bg-white/10 rounded-full text-xs font-medium">AYUSH Aligned</span>
           </div>
         </div>

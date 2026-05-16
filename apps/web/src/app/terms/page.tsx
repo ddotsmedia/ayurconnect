@@ -19,7 +19,7 @@ export default function TermsPage() {
       </Section>
 
       <Section title="2. The service">
-        <p>AyurConnect is a directory and information platform for Ayurveda. We connect users with CCIM-verified Ayurvedic practitioners, AYUSH-certified hospitals, and surface classical herb &amp; treatment information.</p>
+        <p>AyurConnect is a directory and information platform for Ayurveda. We connect users with verified Ayurvedic practitioners, AYUSH-certified hospitals, and surface classical herb &amp; treatment information.</p>
         <p>We are <strong>not a medical provider</strong>. Doctors and hospitals listed on the Platform are independent professionals; their advice and treatment are between them and the patient.</p>
       </Section>
 

@@ -225,7 +225,7 @@ export default function DoctorsAdminPage() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2 pt-2 border-t">
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={form.ccimVerified} onChange={(e) => setForm({ ...form, ccimVerified: e.target.checked })} />
-              <span className="text-sm font-medium">CCIM Verified</span>
+              <span className="text-sm font-medium">Verified</span>
             </label>
             <label className="flex items-center gap-2">
               <input type="checkbox" checked={form.availableForOnline} onChange={(e) => setForm({ ...form, availableForOnline: e.target.checked })} />
@@ -301,7 +301,7 @@ export default function DoctorsAdminPage() {
               <th className="px-4 py-2.5">Specialization</th>
               <th className="px-4 py-2.5">Location</th>
               <th className="px-4 py-2.5">Exp</th>
-              <th className="px-4 py-2.5">CCIM</th>
+              <th className="px-4 py-2.5">Verified</th>
               <th className="px-4 py-2.5 text-right">Actions</th>
             </tr>
           </thead>

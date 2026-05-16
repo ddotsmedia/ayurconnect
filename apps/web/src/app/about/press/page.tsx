@@ -11,7 +11,7 @@ export const metadata = {
 const FACTS = [
   { label: 'Founded',                  value: '2024' },
   { label: 'Headquarters',             value: 'Kerala, India' },
-  { label: 'CCIM-verified doctors',    value: '500+' },
+  { label: 'verified doctors',    value: '500+' },
   { label: 'Hospitals & wellness centres', value: '200+' },
   { label: 'Herb database',            value: '150+ medicinal herbs with classical citations' },
   { label: 'Languages',                value: 'English + Malayalam (Arabic + Hindi planned)' },
@@ -110,7 +110,7 @@ export default function PressPage() {
         <ul className="space-y-2 text-gray-700">
           {[
             'Kerala medical tourism — how it actually works, who comes, what it costs, what to look out for',
-            'CCIM verification — what makes a "qualified" Ayurvedic doctor in 2026',
+            'verification — what makes a "qualified" Ayurvedic doctor in 2026',
             'Where modern evidence supports classical Ayurveda (and where it doesn\'t)',
             'The wellness-industry problem: how to tell genuine Ayurveda from luxury spa marketing',
             'Postpartum care (Sutika Paricharya) — Kerala\'s 45-day protocol and why diaspora families return for it',

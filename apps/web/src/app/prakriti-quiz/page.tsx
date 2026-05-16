@@ -168,7 +168,7 @@ export default function PrakritiQuizPage() {
         <section className="bg-kerala-700 py-14 text-white">
           <div className="container mx-auto px-4 max-w-3xl text-center">
             <h2 className="font-serif text-3xl">Next steps</h2>
-            <p className="mt-4 text-white/85">Want a personalised diet plan based on your dosha? Or speak to a CCIM-verified Vaidya for a proper Nadi-Pariksha?</p>
+            <p className="mt-4 text-white/85">Want a personalised diet plan based on your dosha? Or speak to a verified Vaidya for a proper Nadi-Pariksha?</p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
               <Link href={`/diet-planner?dosha=${report.key}`} className="inline-flex items-center gap-2 px-6 py-3 bg-gold-500 hover:bg-gold-600 text-white rounded-md font-semibold">
                 Get AI diet plan <ChevronRight className="w-4 h-4" />

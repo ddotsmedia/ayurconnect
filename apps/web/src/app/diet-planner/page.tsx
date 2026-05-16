@@ -205,7 +205,7 @@ export default function DietPlannerPage() {
             <button type="submit" disabled={busy} className="w-full py-3 bg-kerala-600 hover:bg-kerala-700 disabled:opacity-50 text-white rounded-md font-semibold flex items-center justify-center gap-2">
               {busy ? <><Loader2 className="w-4 h-4 animate-spin" /> Generating your plan…</> : <>Generate my 7-day plan <ChevronRight className="w-4 h-4" /></>}
             </button>
-            <p className="text-xs text-center text-gray-500">Free. Powered by an Ayurveda-trained AI. Always consult a CCIM-verified Vaidya before changing your diet for clinical conditions.</p>
+            <p className="text-xs text-center text-gray-500">Free. Powered by an Ayurveda-trained AI. Always consult a verified Vaidya before changing your diet for clinical conditions.</p>
           </form>
         </section>
       )}
@@ -294,7 +294,7 @@ export default function DietPlannerPage() {
               <p>
                 <strong>Note:</strong> AI-generated guidance for healthy adults. If you have diabetes,
                 chronic kidney disease, food allergies, are pregnant or breastfeeding, or take regular
-                medication, consult a CCIM-verified Vaidya or registered dietitian before following this
+                medication, consult a verified Vaidya or registered dietitian before following this
                 plan. This tool is educational, not clinical.
               </p>
             </div>

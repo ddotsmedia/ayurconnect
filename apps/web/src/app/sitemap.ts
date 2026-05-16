@@ -3,6 +3,7 @@ import { API_INTERNAL } from '@/lib/server-fetch'
 import { CONDITION_SLUGS } from './treatments/_data/conditions'
 import { PRODUCT_SLUGS } from './products/_data/products'
 import { CASE_STUDY_SLUGS } from './case-studies/_data/cases'
+import { CONDITIONS as SEO_CONDITIONS } from './conditions/_data/conditions'
 
 const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ayurconnect.com'
 
@@ -48,6 +49,8 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/diet-planner',   priority: 0.8,  changeFrequency: 'monthly' },
   { path: '/knowledge',      priority: 0.75, changeFrequency: 'weekly'  },
   { path: '/case-studies',   priority: 0.75, changeFrequency: 'monthly' },
+  { path: '/conditions',     priority: 0.85, changeFrequency: 'monthly' },
+  { path: '/careers',        priority: 0.5,  changeFrequency: 'weekly'  },
   { path: '/marketplace',    priority: 0.75, changeFrequency: 'weekly'  },
   { path: '/academy',        priority: 0.7,  changeFrequency: 'monthly' },
   { path: '/roi-calculator', priority: 0.6,  changeFrequency: 'monthly' },
@@ -162,5 +165,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...dynamicBySlug('/qa',         qaSlugs,         0.6),
     ...dynamicBySlug('/programs',   programSlugs,    0.8),
     ...dynamicBySlug('/formulary',  formulationSlugs, 0.7),
+    // /conditions/[slug] — high-intent SEO landing pages.
+    ...SEO_CONDITIONS.map((c) => ({
+      url: `${BASE}/conditions/${c.slug}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.8,
+    })),
   ]
 }

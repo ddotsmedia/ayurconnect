@@ -58,7 +58,7 @@ export default function DoctorRegisterPage() {
             <Stethoscope className="w-6 h-6" />
           </span>
           <h1 className="font-serif text-2xl sm:text-3xl text-kerala-700 mt-3">Sign up — Doctor</h1>
-          <p className="text-sm text-muted mt-1 px-2">Get a public profile after CCIM verification.</p>
+          <p className="text-sm text-muted mt-1 px-2">Get a public profile after verification.</p>
         </header>
 
         <div className="bg-amber-50 border border-amber-200 rounded-md p-3 mb-4 sm:mb-5 text-xs sm:text-sm text-amber-900 flex gap-2">

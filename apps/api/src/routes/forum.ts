@@ -164,7 +164,7 @@ const forum: FastifyPluginAsync = async (fastify) => {
   })
 
   fastify.get('/categories', async () => [
-    { id: 'doctor-discussion', name: 'Doctor Discussions', description: 'CCIM-verified doctors only' },
+    { id: 'doctor-discussion', name: 'Doctor Discussions', description: 'verified doctors only' },
     { id: 'patient-forum', name: 'Patient Forum', description: 'Patient experiences and questions' },
     { id: 'webinar', name: 'Webinars & Events', description: 'Ayurveda webinars and events' },
     { id: 'research', name: 'Research & Studies', description: 'Latest Ayurveda research' },

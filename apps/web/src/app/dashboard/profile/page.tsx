@@ -257,8 +257,8 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
       <h2 className="text-xl text-kerala-700 flex items-center gap-2">
         Doctor profile
         {doctor.ccimVerified
-          ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-kerala-700 bg-kerala-50 px-2 py-1 rounded-full"><ShieldCheck className="w-3 h-3" /> CCIM Verified</span>
-          : <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-1 rounded-full">Awaiting CCIM verification</span>}
+          ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-kerala-700 bg-kerala-50 px-2 py-1 rounded-full"><ShieldCheck className="w-3 h-3" /> Verified</span>
+          : <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-1 rounded-full">Awaiting verification</span>}
       </h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

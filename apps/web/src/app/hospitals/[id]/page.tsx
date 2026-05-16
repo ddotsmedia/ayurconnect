@@ -121,7 +121,7 @@ export default async function HospitalDetailPage({ params }: { params: Promise<{
             <div className="flex flex-wrap items-center gap-2 mb-2">
               {h.ccimVerified && (
                 <span className="inline-flex items-center gap-1 px-3 py-1 bg-gold-500 text-white rounded-full text-xs font-semibold">
-                  <ShieldCheck className="w-3 h-3" /> CCIM Verified
+                  <ShieldCheck className="w-3 h-3" /> Verified
                 </span>
               )}
               {h.classification === 'olive-leaf' && (

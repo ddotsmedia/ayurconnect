@@ -57,7 +57,7 @@ export default fp(async (fastify) => {
             <div style="font-family:system-ui,sans-serif;max-width:480px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px">
               <h1 style="font-family:Georgia,serif;color:#155724;margin:0 0 12px">Welcome to AyurConnect 🌿</h1>
               <p>Hi ${user.name ?? 'there'},</p>
-              <p>Click below to verify <strong>${user.email}</strong> and start booking consultations with CCIM-verified Kerala doctors.</p>
+              <p>Click below to verify <strong>${user.email}</strong> and start booking consultations with verified Kerala doctors.</p>
               <p style="margin:20px 0">
                 <a href="${url}" style="display:inline-block;padding:12px 20px;background:#1b5e20;color:white;text-decoration:none;border-radius:8px;font-weight:600">Verify email</a>
               </p>

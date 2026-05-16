@@ -106,7 +106,7 @@ const KW = {
   ],
   // Trust signals + adjacent terms patients search for.
   signals: [
-    'CCIM verified', 'BAMS doctor', 'MD ayurveda', 'AYUSH ministry', 'AYUSH certified',
+    'verified', 'BAMS doctor', 'MD ayurveda', 'AYUSH ministry', 'AYUSH certified',
     'AYUSH approved', 'CCRAS', 'NIA jaipur', 'NABH ayurveda', 'evidence based ayurveda',
     'classical ayurveda', 'authentic ayurveda', 'ayurveda research', 'traditional indian medicine',
     'integrative medicine', 'holistic medicine', 'alternative medicine',
@@ -173,7 +173,7 @@ export function organizationLd() {
       { '@type': 'City', name: 'Abu Dhabi' },
       { '@type': 'City', name: 'Sharjah' },
     ],
-    description: `${SITE_TAGLINE} — CCIM-verified doctors, classical Panchakarma centres, herb encyclopedia, AyurBot AI. Online consultations across UAE, GCC, US, UK, and Europe.`,
+    description: `${SITE_TAGLINE} — verified doctors, classical Panchakarma centres, herb encyclopedia, AyurBot AI. Online consultations across UAE, GCC, US, UK, and Europe.`,
     contactPoint: [
       {
         '@type': 'ContactPoint',
@@ -458,7 +458,7 @@ export function medicalBusinessLd(services: string[]) {
     '@id': `${SITE_URL}#business`,
     name: SITE_NAME,
     url: SITE_URL,
-    description: 'Online platform connecting patients with CCIM-verified Ayurvedic doctors for personalized consultations, classical Panchakarma, and herbal wellness guidance.',
+    description: 'Online platform connecting patients with verified Ayurvedic doctors for personalized consultations, classical Panchakarma, and herbal wellness guidance.',
     medicalSpecialty: 'Ayurvedic Medicine',
     parentOrganization: { '@id': `${SITE_URL}#org` },
     hasOfferCatalog: {

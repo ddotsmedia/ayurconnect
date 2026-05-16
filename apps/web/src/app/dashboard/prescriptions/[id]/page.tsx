@@ -151,7 +151,7 @@ export default function PrescriptionDetailPage() {
                 </p>
               )}
               {rx.doctor.ownedDoctor?.ccimVerified && (
-                <p className="text-xs text-kerala-700 mt-1">✓ CCIM Verified</p>
+                <p className="text-xs text-kerala-700 mt-1">✓ Verified</p>
               )}
             </div>
             <div className="text-right text-xs text-gray-500">

@@ -70,7 +70,7 @@ export default function DoctorMatchPage() {
           </span>
           <h1 className="font-serif text-4xl md:text-5xl text-white leading-tight">Find your perfect Ayurveda doctor</h1>
           <p className="mt-4 text-white/80">
-            Tell us what you&apos;re facing — we&apos;ll rank the right CCIM-verified specialists by specialty, language, and availability.
+            Tell us what you&apos;re facing — we&apos;ll rank the right verified specialists by specialty, language, and availability.
             Takes 30 seconds, free, no signup.
           </p>
         </div>
@@ -174,7 +174,7 @@ export default function DoctorMatchPage() {
         {step === 'loading' && (
           <div className="text-center py-16">
             <Loader2 className="w-10 h-10 text-kerala-700 mx-auto animate-spin" />
-            <p className="text-muted mt-4">Matching against {/* count populated server-side */} CCIM-verified doctors…</p>
+            <p className="text-muted mt-4">Matching against {/* count populated server-side */} verified doctors…</p>
           </div>
         )}
 
@@ -185,7 +185,7 @@ export default function DoctorMatchPage() {
                 <h2 className="font-serif text-2xl text-kerala-700">
                   {result.matches.length} doctor{result.matches.length === 1 ? '' : 's'} matched
                 </h2>
-                <p className="text-sm text-muted mt-1">Ranked by specialty fit, language match, and CCIM verification.</p>
+                <p className="text-sm text-muted mt-1">Ranked by specialty fit, language match, and verification.</p>
               </div>
               <button onClick={() => setStep('quiz')} className="text-sm text-kerala-700 hover:underline">← Refine search</button>
             </div>
@@ -197,7 +197,7 @@ export default function DoctorMatchPage() {
                     <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 bg-gold-100 text-gold-900 rounded-full font-bold">
                       #{idx + 1} match · score {m.score}
                     </span>
-                    {m.doctor.ccimVerified && <span className="text-[10px] text-kerala-700">✓ CCIM</span>}
+                    {m.doctor.ccimVerified && <span className="text-[10px] text-kerala-700">✓ Verified</span>}
                   </div>
                   <DoctorCard doctor={m.doctor} />
                   {m.reasons.length > 0 && (

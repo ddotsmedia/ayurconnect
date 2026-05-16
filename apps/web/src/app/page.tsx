@@ -17,13 +17,13 @@ const DISTRICTS = [
 const SPECS = ['Panchakarma', 'Kayachikitsa', 'Prasuti Tantra', 'Kaumarbhritya', 'Shalya', 'Shalakya', 'Manasika', 'Rasashastra']
 
 const SERVICES = [
-  { href: '/doctors',       icon: Stethoscope,    title: 'Doctor Directory',     color: 'bg-kerala-50 text-kerala-700',   desc: 'CCIM-verified Ayurveda doctors across all 14 Kerala districts.' },
+  { href: '/doctors',       icon: Stethoscope,    title: 'Doctor Directory',     color: 'bg-kerala-50 text-kerala-700',   desc: 'verified Ayurveda doctors across all 14 Kerala districts.' },
   { href: '/doctor-match',  icon: Sparkles,       title: 'AI Doctor Match',      color: 'bg-amber-50 text-amber-700',     desc: '30-second quiz → ranked specialists matched to your concern, language, budget.' },
-  { href: '/qa',            icon: MessageSquare,  title: 'Ayurveda Q&A',         color: 'bg-blue-50 text-blue-700',       desc: 'Free anonymous patient Q&A answered by CCIM-verified doctors within 48 hours.' },
+  { href: '/qa',            icon: MessageSquare,  title: 'Ayurveda Q&A',         color: 'bg-blue-50 text-blue-700',       desc: 'Free anonymous patient Q&A answered by verified doctors within 48 hours.' },
   { href: '/programs',      icon: Sparkles,       title: 'Wellness Programs',    color: 'bg-fuchsia-50 text-fuchsia-700', desc: 'Guided multi-week journeys — 21-day stress reset, 6-week PCOS, Karkidaka Chikitsa.' },
   { href: '/formulary',     icon: Leaf,           title: 'Ayurveda Formulary',   color: 'bg-emerald-50 text-emerald-700', desc: 'Classical compound medicines reference — Yogaraj Guggulu, Triphala, and more.' },
   { href: '/ayurbot',       icon: Bot,            title: 'AyurBot AI',           color: 'bg-purple-50 text-purple-700',   desc: 'Personalised Ayurveda assistant — knows your Prakriti + journal context.' },
-  { href: '/second-opinion', icon: ShieldCheck,   title: 'Second Opinion',       color: 'bg-rose-50 text-rose-700',       desc: 'Senior CCIM specialists review your case independently. Reply in 72 hours.' },
+  { href: '/second-opinion', icon: ShieldCheck,   title: 'Second Opinion',       color: 'bg-rose-50 text-rose-700',       desc: 'Senior verified specialists review your case independently. Reply in 72 hours.' },
   { href: '/hospitals',     icon: Building2,      title: 'Hospitals',            color: 'bg-blue-50 text-blue-700',       desc: 'Govt + private + Panchakarma centres + AYUSH-certified.' },
 ]
 
@@ -35,10 +35,10 @@ const TREATMENTS = [
 ]
 
 const WHY = [
-  { icon: ShieldCheck, title: 'CCIM Verified', desc: 'Every doctor cross-checked against the Central Council of Indian Medicine register.' },
+  { icon: ShieldCheck, title: 'Verified', desc: 'Every doctor cross-checked against the Central Council of Indian Medicine register.' },
   { icon: Video,       title: 'Video Consultations', desc: 'Connect with Kerala doctors from anywhere in the world.' },
   { icon: Sparkles,    title: 'AI-Powered',  desc: 'AyurBot drafts personalised health insights in seconds, free.' },
-  { icon: Users,       title: 'Transparency', desc: 'Public reviews, qualifications, and CCIM numbers — nothing hidden.' },
+  { icon: Users,       title: 'Transparency', desc: 'Public reviews, qualifications, and registration numbers — nothing hidden.' },
   { icon: MapPin,      title: 'Kerala Expertise', desc: 'Heritage practitioners trained in classical Kerala traditions.' },
   { icon: Lock,        title: 'Safe & Private', desc: 'End-to-end encrypted consultations and health data.' },
 ]
@@ -49,7 +49,7 @@ const WHY = [
 const HOME_FAQ: Array<{ q: string; a: string }> = [
   {
     q: 'What is AyurConnect?',
-    a: 'AyurConnect is an online platform that connects patients worldwide with CCIM-verified Ayurvedic doctors from Kerala for personalized consultations, classical Panchakarma referrals, and herbal wellness guidance.',
+    a: 'AyurConnect is an online platform that connects patients worldwide with verified Ayurvedic doctors from Kerala for personalized consultations, classical Panchakarma referrals, and herbal wellness guidance.',
   },
   {
     q: 'Are the doctors on AyurConnect certified?',
@@ -237,7 +237,7 @@ export default async function HomePage() {
         <div className="relative container mx-auto px-4 py-14">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { num: '500+',  label: 'Verified Doctors',  sub: 'CCIM cross-checked' },
+              { num: '500+',  label: 'Verified Doctors',  sub: 'Credentials checked' },
               { num: '200+',  label: 'Wellness Centres',  sub: 'AYUSH certified' },
               { num: '150+',  label: 'Medicinal Herbs',   sub: 'Western Ghats' },
               { num: '50K+',  label: 'Consultations',     sub: 'and counting' },
@@ -255,7 +255,7 @@ export default async function HomePage() {
 
       {/* 4. FEATURED DOCTORS */}
       <section className="container mx-auto px-4 py-20">
-        <SectionHeader eyebrow="Practitioners" title="Featured Doctors" subtitle="CCIM-verified practitioners with deep classical training." />
+        <SectionHeader eyebrow="Practitioners" title="Featured Doctors" subtitle="verified practitioners with deep classical training." />
         {featuredDoctors.length === 0 ? (
           <p className="text-center text-muted">No doctors available right now.</p>
         ) : (
@@ -428,7 +428,7 @@ export default async function HomePage() {
             Begin your Ayurveda journey today
           </h2>
           <p className="text-white/75 mt-4 text-lg max-w-xl mx-auto">
-            Free to join. CCIM-verified doctors. No middlemen, no commission cuts. Trusted by 50,000+ patients.
+            Free to join. verified doctors. No middlemen, no commission cuts. Trusted by 50,000+ patients.
           </p>
           <div className="mt-8 flex flex-wrap gap-3 justify-center">
             <Link href="/register" className="inline-flex items-center gap-2 px-7 py-3.5 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md shadow-[0_8px_30px_-6px_rgba(217,119,6,0.5)] transition-all">

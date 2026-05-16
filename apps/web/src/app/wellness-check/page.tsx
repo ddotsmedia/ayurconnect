@@ -181,7 +181,7 @@ export default function WellnessCheckPage() {
         <section className="bg-kerala-700 py-14 text-white">
           <div className="container mx-auto px-4 max-w-3xl text-center">
             <h2 className="font-serif text-3xl">Next steps</h2>
-            <p className="mt-3 text-white/85">Combine this snapshot with a Prakriti analysis and an AI-personalised diet plan, or speak to a CCIM-verified Vaidya for a full assessment.</p>
+            <p className="mt-3 text-white/85">Combine this snapshot with a Prakriti analysis and an AI-personalised diet plan, or speak to a verified Vaidya for a full assessment.</p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <Link href="/prakriti-quiz" className="inline-flex items-center gap-2 px-6 py-3 bg-gold-500 hover:bg-gold-600 text-white rounded-md font-semibold">Take the Prakriti quiz</Link>
               <Link href="/diet-planner" className="inline-flex items-center gap-2 px-6 py-3 border-2 border-white/40 text-white hover:bg-white/10 rounded-md font-semibold">Get a diet plan</Link>

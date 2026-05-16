@@ -16,7 +16,7 @@
 //   +20 if doctor offers online consult (when mode != in-person)
 //   +15 if language match
 //   +10 if country match
-//   +10 if CCIM verified
+//   +10 if verified
 //   +5  per year of experience (capped at +25)
 //   +avg rating * 4 (max 20)
 //   -10 if fee > budget (or 0 if no budget given)
@@ -96,7 +96,7 @@ const route: FastifyPluginAsync = async (fastify) => {
         score += 10; reasons.push(`based in your country`)
       }
 
-      if (d.ccimVerified) { score += 10; reasons.push('CCIM verified') }
+      if (d.ccimVerified) { score += 10; reasons.push('verified') }
 
       if (typeof d.experienceYears === 'number') {
         const xp = Math.min(d.experienceYears, 5) * 5 + Math.max(0, Math.min(d.experienceYears - 5, 4)) * 1

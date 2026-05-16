@@ -105,7 +105,7 @@ export default async function CollegesPage() {
         </section>
 
         <div className="mt-10 text-center text-sm text-muted">
-          Looking for a CCIM-verified practising doctor? <Link href="/doctors" className="text-kerala-700 hover:underline">Browse the directory →</Link>
+          Looking for a verified practising doctor? <Link href="/doctors" className="text-kerala-700 hover:underline">Browse the directory →</Link>
         </div>
       </div>
     </>

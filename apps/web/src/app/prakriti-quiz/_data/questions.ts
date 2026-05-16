@@ -2,7 +2,7 @@
 // Each question offers three responses tagged V (Vata), P (Pitta), K (Kapha).
 //
 // This is a Prakriti screener, not a diagnostic instrument. Final analysis
-// should always come from an in-person Nadi-Pariksha by a CCIM-registered
+// should always come from an in-person Nadi-Pariksha by a verified
 // Vaidya. Quiz outputs include this caveat prominently.
 
 export type Dosha = 'V' | 'P' | 'K'

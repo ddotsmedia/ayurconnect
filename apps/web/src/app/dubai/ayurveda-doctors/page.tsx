@@ -6,11 +6,11 @@ const CFG: CityConfig = {
   countryCode: 'AE',
   countryName: 'United Arab Emirates',
   licenseAuthority: 'DHA',
-  intro: 'CCIM-verified Kerala Ayurveda doctors offering video consultation to patients across Dubai. End-to-end encrypted, prescription emailed within minutes, fluent in English, Malayalam, Hindi and Arabic.',
+  intro: 'verified Kerala Ayurveda doctors offering video consultation to patients across Dubai. End-to-end encrypted, prescription emailed within minutes, fluent in English, Malayalam, Hindi and Arabic.',
   whyHere: [
     {
       title: 'Authentic Kerala lineage',
-      body: 'Every doctor trained in classical Kerala Ayurveda (BAMS, MD-Ayurveda) and CCIM-registered. We cross-check the public register; disciplinary actions trigger de-listing within 48 hours.',
+      body: 'Every doctor trained in classical Kerala Ayurveda (BAMS, MD-Ayurveda) and verified. We cross-check the public register; disciplinary actions trigger de-listing within 48 hours.',
     },
     {
       title: 'Built for the Kerala diaspora',
@@ -30,7 +30,7 @@ const CFG: CityConfig = {
     },
     {
       title: 'Dedicated concierge',
-      body: 'WhatsApp +971 55 448 5169 — message your concern and preferred language, and our concierge matches you to a CCIM-verified doctor and sets up the consultation within an hour. This number is the AyurConnect concierge, not any doctor\'s direct line. Care coordinator on +971 50 937 9212 (IST 9 AM–6 PM).',
+      body: 'WhatsApp +971 55 448 5169 — message your concern and preferred language, and our concierge matches you to a verified doctor and sets up the consultation within an hour. This number is the AyurConnect concierge, not any doctor\'s direct line. Care coordinator on +971 50 937 9212 (IST 9 AM–6 PM).',
     },
   ],
   treatments: [
@@ -41,7 +41,7 @@ const CFG: CityConfig = {
   faq: [
     {
       q: 'Do these Ayurveda doctors have a DHA licence?',
-      a: 'Our listed doctors are CCIM-registered in India, not DHA-licensed in the UAE. DHA licensing is for in-person clinical practice within UAE jurisdiction. For online consultations originating from a doctor based in India, the relevant qualification is their CCIM registration plus state-council registration (which we verify). If you need in-person care in Dubai, look for a DHA-licensed clinic; if you need authentic Kerala-lineage Ayurveda from anywhere, our video consultations work fine.',
+      a: 'Our listed doctors are verified in India, not DHA-licensed in the UAE. DHA licensing is for in-person clinical practice within UAE jurisdiction. For online consultations originating from a doctor based in India, the relevant qualification is their CCIM registration plus state-council registration (which we verify). If you need in-person care in Dubai, look for a DHA-licensed clinic; if you need authentic Kerala-lineage Ayurveda from anywhere, our video consultations work fine.',
     },
     {
       q: 'Will the doctor speak Malayalam?',

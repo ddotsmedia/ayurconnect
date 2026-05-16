@@ -24,7 +24,7 @@ async function fetchPackages(): Promise<Pkg[]> {
 
 export const metadata = {
   title: 'Kerala Medical Tourism — Authentic Panchakarma Packages | AyurConnect',
-  description: "Heal in God's Own Country. Classical Panchakarma rejuvenation, joint healing, stress relief, and Karkidaka Chikitsa packages with CCIM-verified Kerala practitioners.",
+  description: "Heal in God's Own Country. Classical Panchakarma rejuvenation, joint healing, stress relief, and Karkidaka Chikitsa packages with verified Kerala practitioners.",
 }
 
 export default async function TourismPage() {
@@ -42,7 +42,7 @@ export default async function TourismPage() {
           </h1>
           <p className="mt-5 text-lg text-white/80">
             Authentic classical Ayurveda for international and domestic patients.
-            CCIM-verified doctors, AYUSH-certified centres, full board.
+            verified doctors, AYUSH-certified centres, full board.
           </p>
         </div>
       </GradientHero>
@@ -69,7 +69,7 @@ export default async function TourismPage() {
       {/* Packages */}
       <section className="container mx-auto px-4 pb-14">
         <h2 className="text-2xl md:text-3xl text-kerala-700 text-center mb-2">Featured packages</h2>
-        <p className="text-center text-muted mb-8">{packages.length} packages from CCIM-verified centres across Kerala</p>
+        <p className="text-center text-muted mb-8">{packages.length} packages from verified centres across Kerala</p>
 
         {packages.length === 0 ? (
           <div className="text-center py-20 bg-white border border-gray-100 rounded-card">
@@ -129,7 +129,7 @@ export default async function TourismPage() {
       {/* Why Kerala */}
       <section className="container mx-auto px-4 py-14 grid grid-cols-1 md:grid-cols-3 gap-5">
         {[
-          { icon: ShieldCheck, t: 'CCIM-verified doctors', d: 'Every consulting practitioner cross-checked against the Central Council of Indian Medicine register.' },
+          { icon: ShieldCheck, t: 'verified doctors', d: 'Every consulting practitioner cross-checked against the Central Council of Indian Medicine register.' },
           { icon: Plane,        t: 'Visa letter assistance', d: 'We provide medical-tourism invitation letters needed for AYUSH-visa applications.' },
           { icon: MapPin,       t: 'UNESCO biodiversity',    d: "Western Ghats — one of the world's 8 hottest biodiversity hotspots, source of every classical herb." },
         ].map((w) => {

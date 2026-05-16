@@ -108,7 +108,7 @@ export function HospitalFilterBar(props: Props) {
               checked={verified === 'true'}
               onChange={(e) => update({ verified: e.target.checked ? 'true' : null })}
             />
-            CCIM-verified only
+            verified only
           </label>
           {isPending && <span className="text-xs text-muted italic">Updating…</span>}
         </div>

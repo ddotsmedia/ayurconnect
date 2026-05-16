@@ -38,7 +38,7 @@ async function fetchCityDoctors(country: string): Promise<{ doctors: DoctorCardD
 
 export function buildCityMetadata(cfg: CityConfig): Metadata {
   const title = `Ayurveda Doctors in ${cfg.cityName} (${cfg.licenseAuthority} Licensed) | AyurConnect`
-  const description = `Find ${cfg.licenseAuthority}-licensed Kerala Ayurveda doctors in ${cfg.cityName} for online video consultation. CCIM-verified practitioners speaking Malayalam, English, Hindi, and Arabic. Same-week slots, transparent fees.`
+  const description = `Find ${cfg.licenseAuthority}-licensed Kerala Ayurveda doctors in ${cfg.cityName} for online video consultation. verified practitioners speaking Malayalam, English, Hindi, and Arabic. Same-week slots, transparent fees.`
   return {
     title,
     description,
@@ -69,7 +69,7 @@ export default async function CityDoctorsPage({ cfg }: { cfg: CityConfig }) {
       '@type': 'MedicalBusiness',
       '@id': `${SITE_URL}/${cfg.slug}/ayurveda-doctors#service`,
       name: `AyurConnect Ayurveda Consultations — ${cfg.cityName}`,
-      description: `Online Ayurveda consultations available to patients in ${cfg.cityName}, ${cfg.countryName}. CCIM-verified Kerala Ayurveda doctors fluent in Malayalam, English, Hindi, and Arabic.`,
+      description: `Online Ayurveda consultations available to patients in ${cfg.cityName}, ${cfg.countryName}. verified Kerala Ayurveda doctors fluent in Malayalam, English, Hindi, and Arabic.`,
       url: `${SITE_URL}/${cfg.slug}/ayurveda-doctors`,
       areaServed: { '@type': 'City', name: cfg.cityName, addressCountry: cfg.countryCode },
       medicalSpecialty: ['Ayurveda', 'Panchakarma', 'Traditional Indian Medicine'],
@@ -106,7 +106,7 @@ export default async function CityDoctorsPage({ cfg }: { cfg: CityConfig }) {
         <p className="text-base text-gray-800 leading-relaxed">
           <strong>How to find an Ayurveda doctor in {cfg.cityName}?</strong> Most patients in {cfg.cityName} consult
           Kerala-trained Ayurveda practitioners through video calls — every doctor listed on AyurConnect is
-          cross-checked against the Central Council of Indian Medicine (CCIM) register and speaks Malayalam,
+          verified by our team for credentials, qualifications and disciplinary history, and speaks Malayalam,
           English, and Hindi. Local in-person clinics in {cfg.cityName} require a {cfg.licenseAuthority} licence;
           our directory complements them with international-grade video care for diaspora and locals alike.
         </p>
@@ -120,7 +120,7 @@ export default async function CityDoctorsPage({ cfg }: { cfg: CityConfig }) {
               <h2 className="font-serif text-2xl md:text-3xl text-kerala-700">
                 {total > 0 ? `${total} Ayurveda doctor${total === 1 ? '' : 's'} available to ${cfg.cityName}` : `Ayurveda doctors serving ${cfg.cityName}`}
               </h2>
-              <p className="text-muted text-sm mt-1">All CCIM-verified · same-week video slots · prescription delivered to your dashboard.</p>
+              <p className="text-muted text-sm mt-1">All verified · same-week video slots · prescription delivered to your dashboard.</p>
             </div>
             <Link href={`/doctors?country=${cfg.countryCode}&online=true`} className="text-sm text-kerala-700 font-semibold hover:underline inline-flex items-center gap-1">
               See all <ChevronRight className="w-3 h-3" />
@@ -129,7 +129,7 @@ export default async function CityDoctorsPage({ cfg }: { cfg: CityConfig }) {
           {doctors.length === 0 ? (
             <div className="text-center py-12 bg-white border border-gray-100 rounded-card">
               <Stethoscope className="w-10 h-10 text-gray-300 mx-auto mb-3" />
-              <p className="text-muted">No doctors filtered to {cfg.countryName} yet — every CCIM-verified Kerala doctor offers video consultations to {cfg.cityName} patients.</p>
+              <p className="text-muted">No doctors filtered to {cfg.countryName} yet — every verified Kerala doctor offers video consultations to {cfg.cityName} patients.</p>
               <Link href={`/doctors?online=true`} className="inline-flex items-center gap-1 mt-3 text-sm text-kerala-700 font-semibold hover:underline">
                 Browse all online doctors →
               </Link>
@@ -178,7 +178,7 @@ export default async function CityDoctorsPage({ cfg }: { cfg: CityConfig }) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div className="p-4 bg-white border border-gray-100 rounded-card">
             <ShieldCheck className="w-6 h-6 text-kerala-700 mx-auto" />
-            <p className="text-xs text-muted mt-2">CCIM-verified only</p>
+            <p className="text-xs text-muted mt-2">verified only</p>
           </div>
           <div className="p-4 bg-white border border-gray-100 rounded-card">
             <Video className="w-6 h-6 text-kerala-700 mx-auto" />
@@ -215,7 +215,7 @@ export default async function CityDoctorsPage({ cfg }: { cfg: CityConfig }) {
       <section className="bg-kerala-700 py-12 text-white">
         <div className="container mx-auto px-4 max-w-3xl text-center">
           <h2 className="font-serif text-3xl">Ready to consult an Ayurveda doctor in {cfg.cityName}?</h2>
-          <p className="mt-3 text-white/85">CCIM-verified, video-first, prescription emailed within minutes of the consult ending.</p>
+          <p className="mt-3 text-white/85">verified, video-first, prescription emailed within minutes of the consult ending.</p>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
             <Link href={`/doctors?country=${cfg.countryCode}&online=true`} className="inline-flex items-center gap-2 px-6 py-3 bg-gold-500 hover:bg-gold-600 text-white rounded-md font-semibold">
               Find a doctor <ChevronRight className="w-4 h-4" />

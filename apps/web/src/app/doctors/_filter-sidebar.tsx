@@ -126,7 +126,7 @@ export function DoctorFilterSidebar(props: Props) {
       <div className="space-y-2">
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={verified === 'true'} onChange={(e) => update({ verified: e.target.checked ? 'true' : null })} className="w-4 h-4 rounded border-gray-300 accent-kerala-600" />
-          CCIM verified only
+          verified only
         </label>
         <label className="flex items-center gap-2 text-sm">
           <input type="checkbox" checked={online === 'true'} onChange={(e) => update({ online: e.target.checked ? 'true' : null })} className="w-4 h-4 rounded border-gray-300 accent-kerala-600" />

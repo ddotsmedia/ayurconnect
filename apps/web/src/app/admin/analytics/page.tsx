@@ -1,8 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Users, Stethoscope, Building2, Leaf, Calendar, Star, MessageSquare, ShieldAlert, RefreshCw, Loader2 } from 'lucide-react'
+import { Users, Stethoscope, Building2, Leaf, Calendar, Star, MessageSquare, ShieldAlert, RefreshCw, Loader2, TrendingDown } from 'lucide-react'
 import { adminApi } from '../../../lib/admin-api'
+
+type FunnelStep = { step: string; label: string; sessions: number; conversionFromPrev: number | null; conversionFromTop: number | null }
 
 type Analytics = {
   headline: { users: number; doctors: number; hospitals: number; herbs: number; appts: number; reviews: number; posts: number; signups7: number }
@@ -14,6 +16,7 @@ type Analytics = {
   signupsByDay:      Array<{ day: string; count: number }>
   eventsByName:      Array<{ name: string; count: number }>
   topSearches:       Array<{ term: string; count: number }>
+  funnel:            FunnelStep[]
 }
 
 export default function AdminAnalyticsPage() {
@@ -67,6 +70,14 @@ export default function AdminAnalyticsPage() {
         <Counter icon={Star}       label="Reviews"      value={data.headline.reviews}   sub="lifetime" tone="rose" />
         <Counter icon={MessageSquare} label="Forum posts" value={data.headline.posts}   sub="lifetime" tone="purple" />
       </div>
+
+      {/* Conversion funnel — visit → search → view → book → complete */}
+      <Card title="Conversion funnel · last 30 days">
+        <p className="text-xs text-muted -mt-2 mb-3">
+          Distinct sessions per step. Step-over-step % shows where users drop off.
+        </p>
+        <Funnel steps={data.funnel} />
+      </Card>
 
       {/* Charts row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -192,6 +203,48 @@ function PieChart({ slices }: { slices: Array<{ label: string; value: number; co
         ))}
       </ul>
     </div>
+  )
+}
+
+function Funnel({ steps }: { steps: FunnelStep[] }) {
+  if (steps.length === 0 || steps[0].sessions === 0) {
+    return <p className="text-sm text-gray-500">No traffic captured yet — events table is empty. Fire events from the frontend to populate this funnel.</p>
+  }
+  const top = steps[0].sessions
+  return (
+    <ol className="space-y-2">
+      {steps.map((s, i) => {
+        const widthPct = top > 0 ? Math.max(8, (s.sessions / top) * 100) : 0
+        const dropFromPrev = s.conversionFromPrev === null ? null : 1 - s.conversionFromPrev
+        return (
+          <li key={s.step}>
+            <div className="flex items-baseline justify-between text-xs mb-1">
+              <span className="font-medium text-gray-800">
+                <span className="text-gray-400 mr-1">{i + 1}.</span> {s.label}
+              </span>
+              <span className="tabular-nums text-gray-600">
+                {s.sessions.toLocaleString()}
+                {s.conversionFromTop !== null && i > 0 && (
+                  <span className="text-[10px] text-gray-400 ml-2">{(s.conversionFromTop * 100).toFixed(1)}% of top</span>
+                )}
+              </span>
+            </div>
+            <div className="h-7 bg-gray-100 rounded overflow-hidden relative">
+              <div
+                className="h-full bg-gradient-to-r from-kerala-700 to-kerala-500 rounded transition-all"
+                style={{ width: `${widthPct}%` }}
+              />
+            </div>
+            {dropFromPrev !== null && dropFromPrev > 0 && (
+              <div className="text-[10px] text-rose-600 mt-1 inline-flex items-center gap-1">
+                <TrendingDown className="w-3 h-3" />
+                {(dropFromPrev * 100).toFixed(1)}% drop from previous step
+              </div>
+            )}
+          </li>
+        )
+      })}
+    </ol>
   )
 }
 

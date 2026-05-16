@@ -11,7 +11,7 @@ import { detectCountry } from '../../lib/detect-country'
 const TYPES = [
   { value: 'hospital',          label: 'Hospital / chain partnership',     icon: Building2,    desc: 'Multi-location group, AYUSH-graded centre, NABH-accredited hospital — list with us, sponsor verification, or co-create patient pathways.' },
   { value: 'gulf-clinic',       label: 'Gulf / international clinic',      icon: Globe2,       desc: 'GCC, UK, US, Canada, AUS — refer your diaspora patients to vetted Kerala centres; we handle the verification + concierge.' },
-  { value: 'travel-agency',     label: 'Travel agency / DMC',              icon: Handshake,    desc: 'Kerala medical-tourism DMC / inbound operator looking to package CCIM-verified Ayurveda into wellness itineraries.' },
+  { value: 'travel-agency',     label: 'Travel agency / DMC',              icon: Handshake,    desc: 'Kerala medical-tourism DMC / inbound operator looking to package verified Ayurveda into wellness itineraries.' },
   { value: 'corporate-wellness', label: 'Corporate wellness',              icon: Users,        desc: 'Employer / HR — Ayurvedic preventive programmes for executive teams, burnout management, group retreats.' },
   { value: 'college',           label: 'Ayurveda college / institute',     icon: GraduationCap, desc: 'BAMS / MD institutions — placement collaboration, CME content, alumni directory partnership.' },
   { value: 'franchise',         label: 'Franchise / new centre',           icon: Building2,    desc: 'Opening a new Ayurveda centre and want to leverage AyurConnect verification + booking infrastructure.' },

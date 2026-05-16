@@ -71,7 +71,7 @@ export default async function Image({ params }: { params: { id: string } }) {
             {d?.ccimVerified && (
               <div style={{ display: 'flex', marginTop: 24 }}>
                 <span style={{ background: '#d97706', color: 'white', padding: '8px 16px', borderRadius: 999, fontSize: 18, fontWeight: 600 }}>
-                  ✓ CCIM Verified
+                  ✓ Verified
                 </span>
               </div>
             )}

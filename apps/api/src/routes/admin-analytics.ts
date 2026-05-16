@@ -22,6 +22,7 @@ const route: FastifyPluginAsync = async (fastify) => {
       topSearches,
       verificationQueue,
       apptsByStatus,
+      funnelRows,
     ] = await Promise.all([
       // Headline counts
       Promise.all([
@@ -73,7 +74,40 @@ const route: FastifyPluginAsync = async (fastify) => {
 
       // Appointments by status (lifetime)
       fastify.prisma.appointment.groupBy({ by: ['status'], _count: { _all: true } }),
+
+      // Conversion funnel — distinct sessions per step over last 30 days.
+      // Steps: page_view → search → doctor_view → booking_started → booking_completed.
+      // We count distinct sessionId (falls back to userId when session is missing,
+      // and 'anon' for fully-anonymous events with no session/user). This isn't a
+      // perfectly cohort-strict funnel — same session firing step 4 without step 1
+      // is rare in practice — but it gives a useful drop-off picture.
+      fastify.prisma.$queryRaw<Array<{ step: string; sessions: bigint }>>`
+        SELECT name AS step,
+               COUNT(DISTINCT COALESCE("sessionId", "userId", 'anon'))::bigint AS sessions
+        FROM "AnalyticsEvent"
+        WHERE "createdAt" >= ${d30}
+          AND name IN ('page_view', 'search', 'doctor_view', 'booking_started', 'booking_completed')
+        GROUP BY name`,
     ])
+
+    // Build the ordered funnel with counts + step-over-step conversion rates.
+    const funnelMap = new Map(funnelRows.map((r) => [r.step, Number(r.sessions)]))
+    const FUNNEL_STEPS: Array<{ key: string; label: string }> = [
+      { key: 'page_view',         label: 'Visited site'           },
+      { key: 'search',            label: 'Searched'                },
+      { key: 'doctor_view',       label: 'Viewed a doctor profile' },
+      { key: 'booking_started',   label: 'Started booking'         },
+      { key: 'booking_completed', label: 'Completed booking'       },
+    ]
+    const funnel = FUNNEL_STEPS.map((s, i, arr) => {
+      const sessions = funnelMap.get(s.key) ?? 0
+      const prev = i === 0 ? sessions : (funnelMap.get(arr[i - 1].key) ?? 0)
+      const conversionFromPrev = i === 0 || prev === 0 ? null : sessions / prev
+      const conversionFromTop  = i === 0 || (funnelMap.get(arr[0].key) ?? 0) === 0
+        ? null
+        : sessions / (funnelMap.get(arr[0].key) ?? 1)
+      return { step: s.key, label: s.label, sessions, conversionFromPrev, conversionFromTop }
+    })
 
     return {
       headline: counts,
@@ -85,6 +119,7 @@ const route: FastifyPluginAsync = async (fastify) => {
       signupsByDay:       signupsLast30.map((r) => ({ day: r.day.toISOString().slice(0, 10), count: Number(r.count) })),
       eventsByName:       eventsLast30.map((r) => ({ name: r.name, count: r._count._all })).sort((a, b) => b.count - a.count),
       topSearches:        topSearches.map((r) => ({ term: r.term, count: Number(r.count) })),
+      funnel,
     }
   })
 }

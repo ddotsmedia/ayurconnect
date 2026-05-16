@@ -15,7 +15,7 @@ export default function PrivacyPage() {
       </header>
 
       <Section title="1. Who we are">
-        <p>AyurConnect (&ldquo;we&rdquo;, &ldquo;our&rdquo;, &ldquo;the platform&rdquo;) operates ayurconnect.com — a directory of CCIM-verified Ayurvedic doctors, AYUSH-certified hospitals, classical herb information, and AI-assisted health tools. This policy explains what personal information we collect, why, and your rights as a user.</p>
+        <p>AyurConnect (&ldquo;we&rdquo;, &ldquo;our&rdquo;, &ldquo;the platform&rdquo;) operates ayurconnect.com — a directory of verified Ayurvedic doctors, AYUSH-certified hospitals, classical herb information, and AI-assisted health tools. This policy explains what personal information we collect, why, and your rights as a user.</p>
         <p>The platform is operated from Kerala, India and complies with the Digital Personal Data Protection Act, 2023 (DPDP). Where applicable to international users, we honor GDPR principles.</p>
       </Section>
 

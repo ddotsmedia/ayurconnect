@@ -1,5 +1,5 @@
 // Public Q&A library — iCliniq pattern. Patients ask anonymous questions;
-// CCIM-verified doctors answer publicly. Approved Q&As are SEO content.
+// verified doctors answer publicly. Approved Q&As are SEO content.
 //
 // - GET    /qa                  — list approved questions (filter by category, search)
 // - GET    /qa/:slug            — single question with answers

@@ -183,7 +183,7 @@ export default function PanchakarmaPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="p-5 bg-white rounded-card border border-gray-100">
               <ShieldCheck className="w-6 h-6 text-kerala-700 mb-2" />
-              <h3 className="font-semibold text-ink">CCIM-registered consulting doctor</h3>
+              <h3 className="font-semibold text-ink">verified consulting doctor</h3>
               <p className="text-sm text-gray-600 mt-1.5">Not just a therapist. A doctor with Panchakarma training (MD Panchakarma is the gold standard) must supervise every protocol.</p>
             </div>
             <div className="p-5 bg-white rounded-card border border-gray-100">

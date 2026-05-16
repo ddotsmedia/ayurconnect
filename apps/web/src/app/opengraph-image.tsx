@@ -81,7 +81,7 @@ export default async function Image() {
           </div>
         </div>
         <div style={{ marginTop: 40, display: 'flex', gap: 36, fontSize: 22, color: 'rgba(255,255,255,0.85)' }}>
-          <span>500+ CCIM doctors</span>
+          <span>500+ Verified doctors</span>
           <span>•</span>
           <span>150+ herbs</span>
           <span>•</span>

@@ -259,7 +259,7 @@ export default function CostEstimatorPage() {
           ) : (
             <>
               <h2 className="font-serif text-2xl md:text-3xl text-kerala-700 mb-2 text-center">Get 3 matched centre quotes</h2>
-              <p className="text-center text-gray-600 mb-6">Free, no obligation, no commission. We&apos;ll email you 3 CCIM-verified centres matching your estimate.</p>
+              <p className="text-center text-gray-600 mb-6">Free, no obligation, no commission. We&apos;ll email you 3 verified centres matching your estimate.</p>
               <form onSubmit={submitLead} className="bg-white rounded-card border border-gray-100 shadow-card p-6 space-y-4">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>

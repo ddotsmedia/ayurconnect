@@ -11,8 +11,8 @@ import { API_INTERNAL as API } from '../../lib/server-fetch'
 import { faqLd, breadcrumbLd, ldGraph, SITE_URL, AYURVEDA_KEYWORDS } from '../../lib/seo'
 
 export const metadata = {
-  title: 'Online Ayurveda Consultation — Video, Audio & Chat with CCIM-Verified Doctors | AyurConnect',
-  description: 'Book video, audio, or async chat consultations with CCIM-verified Kerala Ayurveda doctors. Same-day slots, free first visit available, NRI-friendly. Digital prescription + treatment plan delivered after the call.',
+  title: 'Online Ayurveda Consultation — Video, Audio & Chat with Verified Doctors | AyurConnect',
+  description: 'Book video, audio, or async chat consultations with verified Kerala Ayurveda doctors. Same-day slots, free first visit available, NRI-friendly. Digital prescription + treatment plan delivered after the call.',
   alternates: { canonical: '/online-consultation' },
   keywords: [
     ...AYURVEDA_KEYWORDS.primary,
@@ -176,7 +176,7 @@ const SPECIALTY_TRACKS = [
 
 // ─── HOW IT WORKS (existing, refined) ────────────────────────────────────
 const HOW_IT_WORKS = [
-  { icon: Stethoscope, title: 'Choose a doctor',  body: 'Filter by specialization, language, country/state. Every listed practitioner is CCIM-registered and re-verified annually.' },
+  { icon: Stethoscope, title: 'Choose a doctor',  body: 'Filter by specialization, language, country/state. Every listed practitioner is verified and re-verified annually.' },
   { icon: Clock,       title: 'Pick a time',      body: 'Open slots from the doctor\'s public schedule. Same-day video appointments are routine.' },
   { icon: FileText,    title: 'Share your intake',body: 'Brief chief complaint + symptom duration captured during booking. The doctor reviews before the call.' },
   { icon: Video,       title: 'Join the call',    body: 'Pre-call lobby tests your camera + mic. The encrypted Daily.co room opens 15 minutes before your slot.' },
@@ -241,7 +241,7 @@ const WHEN_IN_PERSON = [
 const FAQS = [
   {
     q: 'Can I just request a doctor connection on WhatsApp instead of browsing the site?',
-    a: 'Yes. WhatsApp our concierge on +971 55 448 5169 with your concern and preferred language — we\'ll match you to a CCIM-verified doctor and either set up the consultation booking or have the doctor reach out to you directly, usually within an hour during IST business hours. The number is the AyurConnect concierge, not any single doctor\'s line.',
+    a: 'Yes. WhatsApp our concierge on +971 55 448 5169 with your concern and preferred language — we\'ll match you to a verified doctor and either set up the consultation booking or have the doctor reach out to you directly, usually within an hour during IST business hours. The number is the AyurConnect concierge, not any single doctor\'s line.',
   },
   { q: 'How long is an online consultation?', a: 'Typical first visit: 30–45 minutes. Follow-ups: 15–25 minutes. Time isn\'t metered — the doctor stays on the call as long as your case needs.' },
   { q: 'Is there a free first consultation?', a: 'Some doctors offer a free 10-minute orientation call — look for the "Free intro" tag on profiles.' },
@@ -273,7 +273,7 @@ export default async function OnlineConsultationPage() {
       '@type': 'MedicalBusiness',
       '@id': `${SITE_URL}/online-consultation#service`,
       name: 'AyurConnect Online Ayurveda Consultations',
-      description: 'Video, audio, and async text consultations with CCIM-verified Kerala Ayurveda doctors. Available across India, UAE, GCC, US, UK and Europe.',
+      description: 'Video, audio, and async text consultations with verified Kerala Ayurveda doctors. Available across India, UAE, GCC, US, UK and Europe.',
       url: `${SITE_URL}/online-consultation`,
       medicalSpecialty: ['Ayurveda', 'Panchakarma', 'Traditional Indian Medicine'],
       availableService: [
@@ -303,7 +303,7 @@ export default async function OnlineConsultationPage() {
             <Video className="w-3 h-3" /> Online Consultation
           </span>
           <h1 className="font-serif text-4xl md:text-6xl text-white leading-tight">
-            Consult a <span className="text-gold-400">CCIM-verified</span> Kerala Ayurveda doctor — from anywhere
+            Consult a <span className="text-gold-400">verified</span> Kerala Ayurveda doctor — from anywhere
           </h1>
           <p className="mt-5 text-lg text-white/85">
             Video, audio, or async text. End-to-end encrypted. Structured prescription
@@ -325,7 +325,7 @@ export default async function OnlineConsultationPage() {
         <div className="container mx-auto px-4 py-6 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div>
             <div className="font-serif text-3xl text-kerala-700">{totals.verified || '500'}+</div>
-            <div className="text-xs text-muted mt-1">CCIM-verified doctors</div>
+            <div className="text-xs text-muted mt-1">verified doctors</div>
           </div>
           <div>
             <div className="font-serif text-3xl text-kerala-700">8+</div>
@@ -359,7 +359,7 @@ export default async function OnlineConsultationPage() {
               </h2>
               <p className="text-emerald-900/80 mt-2 leading-relaxed">
                 Don&apos;t want to browse profiles? Message our concierge with your concern + preferred language —
-                we&apos;ll match you to a CCIM-verified doctor and set up the consultation, usually within an
+                we&apos;ll match you to a verified doctor and set up the consultation, usually within an
                 hour (IST business hours). Skip the directory browsing entirely.
               </p>
               <p className="text-xs text-emerald-800/70 mt-2 italic">
@@ -474,7 +474,7 @@ export default async function OnlineConsultationPage() {
               <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse" aria-hidden="true" />
               Doctors available this week
             </h2>
-            <p className="text-muted mt-1 text-sm">CCIM-verified practitioners with open online slots.</p>
+            <p className="text-muted mt-1 text-sm">verified practitioners with open online slots.</p>
           </div>
           <Link href="/doctors?online=true" className="inline-flex items-center gap-1 text-sm text-kerala-700 font-semibold hover:underline">
             See all {totals.verified || ''} online doctors <ChevronRight className="w-3 h-3" />
@@ -756,7 +756,7 @@ export default async function OnlineConsultationPage() {
           </header>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {[
-              { icon: ShieldCheck,  title: 'CCIM-verified only',     body: 'Cross-checked against the public CCIM register. Disciplinary actions trigger de-listing within 48 hours.' },
+              { icon: ShieldCheck,  title: 'Verified only',     body: 'Every doctor\'s credentials are checked against the public register. Disciplinary actions trigger de-listing within 48 hours.' },
               { icon: Lock,         title: 'End-to-end encrypted',   body: 'Daily.co video infrastructure with HIPAA-grade compliance. Time-bounded room access — only the assigned patient and doctor can join.' },
               { icon: Languages,    title: 'Multi-language doctors', body: 'Malayalam, English, Hindi, Tamil, Kannada, Arabic. Filter by language on the directory.' },
               { icon: Globe2,       title: 'Open to global patients',body: 'Patients in the Gulf, US, UK, Australia, EU consult Kerala specialists from home. International phone codes + country dropdowns built in.' },

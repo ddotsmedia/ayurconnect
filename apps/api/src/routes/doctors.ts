@@ -259,8 +259,8 @@ const doctors: FastifyPluginAsync = async (fastify) => {
           void createNotification(fastify, {
             userId: owner.id,
             type:   'doctor-verified',
-            title:  '🎉 Your CCIM verification is approved',
-            body:   'Your doctor profile is now publicly visible with the CCIM-verified badge.',
+            title:  '🎉 Your verification is approved',
+            body:   'Your doctor profile is now publicly visible with the verified badge.',
             link:   `/doctors/${id}`,
           })
           // Promote DOCTOR_PENDING → DOCTOR

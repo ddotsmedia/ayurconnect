@@ -53,7 +53,7 @@ export default async function ProgramsIndexPage() {
           <h1 className="font-serif text-4xl md:text-5xl text-white leading-tight">Structured Ayurveda journeys</h1>
           <p className="mt-4 text-white/80">
             Guided multi-week programs with daily check-ins, classical medication protocols, and lifestyle frameworks.
-            Designed in partnership with CCIM-verified doctors. Free.
+            Designed in partnership with verified doctors. Free.
           </p>
         </div>
       </GradientHero>

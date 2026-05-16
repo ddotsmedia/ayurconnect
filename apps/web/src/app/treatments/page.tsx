@@ -6,7 +6,7 @@ import { AYURVEDA_KEYWORDS } from '../../lib/seo'
 
 export const metadata = {
   title: 'Specialised Ayurvedic Treatments — Kerala | AyurConnect',
-  description: 'Evidence-informed Ayurvedic treatment guides for PCOS, arthritis, stress, diabetes, weight management, and chronic skin disease. Find a CCIM-verified Kerala specialist.',
+  description: 'Evidence-informed Ayurvedic treatment guides for PCOS, arthritis, stress, diabetes, weight management, and chronic skin disease. Find a verified Kerala specialist.',
   alternates: { canonical: '/treatments' },
   keywords: [
     ...AYURVEDA_KEYWORDS.primary,
@@ -32,7 +32,7 @@ export default function TreatmentsIndex() {
           <p className="mt-5 text-lg text-white/80">
             Six condition-led Ayurvedic protocols, written by practising Kerala BAMS / MD doctors.
             Each page covers the classical view, the actual procedures, the medicines used, realistic
-            timelines, and how to find a CCIM-verified specialist.
+            timelines, and how to find a verified specialist.
           </p>
         </div>
       </GradientHero>

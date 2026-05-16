@@ -8,7 +8,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getServerSession } from '../../lib/auth'
-import { Home, FileText, BookOpen, Video, Library, FlaskConical, Calendar, Pill, Bot, ShieldCheck, ArrowLeft } from 'lucide-react'
+import { Home, FileText, BookOpen, Video, Library, FlaskConical, Calendar, Pill, Bot, ShieldCheck, ArrowLeft, Share2 } from 'lucide-react'
 
 const NAV = [
   { href: '/dr',              label: 'Hub home',         icon: Home },
@@ -20,6 +20,7 @@ const NAV = [
   { href: '/dr/protocols',    label: 'Protocols',        icon: FlaskConical },
   { href: '/dr/conferences',  label: 'Conferences',      icon: Calendar },
   { href: '/dr/interactions', label: 'Drug interactions', icon: Pill },
+  { href: '/dr/referrals',    label: 'Referrals',        icon: Share2 },
 ]
 
 const ALLOWED_ROLES = ['DOCTOR', 'DOCTOR_PENDING', 'ADMIN']
@@ -37,7 +38,7 @@ export default async function DoctorHubLayout({ children }: { children: React.Re
           <h1 className="font-serif text-2xl text-ink mb-2">The Doctor Hub is for verified practitioners</h1>
           <p className="text-sm text-muted mb-5 leading-relaxed">
             You&apos;re signed in as <strong>{sess.user.email}</strong> with role <code className="px-2 py-0.5 bg-gray-100 rounded text-xs">{sess.user.role}</code>.
-            The Hub is gated to CCIM-verified Ayurveda doctors and admins. If you&apos;re a BAMS doctor, register your profile and submit for CCIM verification.
+            The Hub is gated to verified Ayurveda doctors and admins. If you&apos;re a BAMS doctor, register your profile and submit for verification.
           </p>
           <div className="flex justify-center gap-2 flex-wrap">
             <Link href="/register/doctor" className="px-5 py-2.5 bg-kerala-700 hover:bg-kerala-800 text-white rounded-md text-sm font-semibold">
@@ -84,7 +85,7 @@ export default async function DoctorHubLayout({ children }: { children: React.Re
 
         {isPending && (
           <div className="mb-4 p-3 bg-amber-50 border border-amber-100 rounded text-xs text-amber-900 leading-relaxed">
-            Your CCIM verification is in queue. You have <strong>read access</strong> to the Hub — writes unlock after approval.
+            Your verification is in queue. You have <strong>read access</strong> to the Hub — writes unlock after approval.
           </div>
         )}
 

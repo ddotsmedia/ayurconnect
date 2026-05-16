@@ -2,7 +2,7 @@
 // scoring. One entry per dominant dosha (single + dual + tridoshic).
 //
 // Content is educational, not prescriptive — a screener result is not a
-// replacement for in-person Nadi-Pariksha by a CCIM-registered Vaidya.
+// replacement for in-person Nadi-Pariksha by a verified Vaidya.
 
 export type DoshaReport = {
   key: string

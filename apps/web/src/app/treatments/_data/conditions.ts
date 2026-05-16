@@ -2,7 +2,7 @@
 // content shape — see TreatmentTemplate in ../[slug]/page.tsx.
 //
 // Content is intentionally educational, not prescriptive. Every page lands on
-// a CTA toward a CCIM-verified consultation; we never recommend self-medication.
+// a CTA toward a verified consultation; we never recommend self-medication.
 
 export type Condition = {
   slug: string
@@ -31,7 +31,7 @@ export const CONDITIONS: Record<string, Condition> = {
     sanskrit: 'अर्तव दुष्टि',
     tagline: 'Polycystic Ovary Syndrome — managed at the root, not just the symptoms',
     metaTitle: 'PCOS Ayurvedic Treatment in Kerala | AyurConnect',
-    metaDescription: 'Evidence-informed Ayurvedic management of PCOS / PCOD — Shodhana protocols, herbal formulations, diet & lifestyle. Find CCIM-verified Kerala specialists.',
+    metaDescription: 'Evidence-informed Ayurvedic management of PCOS / PCOD — Shodhana protocols, herbal formulations, diet & lifestyle. Find verified Kerala specialists.',
     overview: 'PCOS affects roughly 1 in 10 women of reproductive age. Conventional management is largely symptomatic (oral contraceptives, metformin, ovulation induction). Ayurveda views PCOS as a multi-system Kapha-Vata disorder with Pitta involvement, and offers a Shodhana (cleansing) → Shamana (palliation) → Rasayana (rejuvenation) sequence aimed at restoring cycle regularity, ovulation, insulin sensitivity, and androgen balance — typically over 3–6 months.',
     symptoms: [
       'Irregular or absent menstrual cycles (Artava Kshaya)',

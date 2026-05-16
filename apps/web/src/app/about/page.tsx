@@ -9,7 +9,7 @@ export const metadata = {
 }
 
 const VALUES = [
-  { icon: ShieldCheck, title: 'CCIM verification first', detail: 'Every listed doctor\'s CCIM registration is checked against the public Central Council of Indian Medicine register before listing — no exceptions, no paid promotions.' },
+  { icon: ShieldCheck, title: 'verification first', detail: 'Every listed doctor\'s CCIM registration is checked against the public Central Council of Indian Medicine register before listing — no exceptions, no paid promotions.' },
   { icon: BookOpen,    title: 'Classical, not commercial', detail: 'Our content cites Charaka, Sushruta, Ashtanga Hridayam — not unsourced wellness marketing. Where modern evidence supports or contradicts a claim, we say so.' },
   { icon: Stethoscope, title: 'Integrative, not isolationist', detail: 'Ayurveda complements modern medicine. We never recommend stopping prescription medication; our doctors coordinate with your existing care team.' },
   { icon: Globe,       title: 'Built for Kerala, written for the world', detail: 'Bilingual ML/EN content, international phone codes, ISO-2 country picker, cost transparency in INR for diaspora and medical-tourism patients.' },
@@ -36,7 +36,7 @@ export default function AboutPage() {
           </h1>
           <p className="mt-5 text-lg text-white/80">
             AyurConnect is the verified directory + knowledge platform for Ayurvedic medicine in Kerala —
-            connecting patients with CCIM-registered doctors, classical Panchakarma centres, and
+            connecting patients with verified doctors, classical Panchakarma centres, and
             evidence-informed treatment guidance. No paid placements, no health-influencer marketing.
           </p>
         </div>
@@ -54,7 +54,7 @@ export default function AboutPage() {
           </p>
           <p>
             AyurConnect was built to fix that — by giving patients a way to find practitioners who are
-            CCIM-registered, by publishing classical content cross-checked against modern evidence,
+            verified, by publishing classical content cross-checked against modern evidence,
             and by being explicit about what Ayurveda is excellent at (chronic joint disease, Panchakarma,
             mental health, dermatology) and what it should not be substituted for (emergency surgery,
             insulin-dependent diabetes, late-stage cancer chemo).

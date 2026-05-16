@@ -6,11 +6,11 @@ const CFG: CityConfig = {
   countryCode: 'AE',
   countryName: 'United Arab Emirates',
   licenseAuthority: 'MOH',
-  intro: 'CCIM-verified Kerala Ayurveda doctors offering video consultations to patients across Sharjah and Ajman. English / Malayalam / Hindi / Arabic. Same-week slots, end-to-end encrypted.',
+  intro: 'verified Kerala Ayurveda doctors offering video consultations to patients across Sharjah and Ajman. English / Malayalam / Hindi / Arabic. Same-week slots, end-to-end encrypted.',
   whyHere: [
     {
       title: 'Authentic Kerala Ayurveda',
-      body: 'Doctors trained in the original classical framework. CCIM-verified, with cross-checked state-council registrations. Not wellness-tourism — clinical Ayurveda.',
+      body: 'Doctors trained in the original classical framework. verified, with cross-checked state-council registrations. Not wellness-tourism — clinical Ayurveda.',
     },
     {
       title: 'Kerala expat community',
@@ -30,7 +30,7 @@ const CFG: CityConfig = {
     },
     {
       title: 'WhatsApp concierge',
-      body: 'Don\'t want to browse profiles? WhatsApp +971 55 448 5169 — share your concern, and our concierge matches you to a CCIM-verified doctor within an hour. This is the AyurConnect concierge number; the matched doctor handles the consultation itself.',
+      body: 'Don\'t want to browse profiles? WhatsApp +971 55 448 5169 — share your concern, and our concierge matches you to a verified doctor within an hour. This is the AyurConnect concierge number; the matched doctor handles the consultation itself.',
     },
   ],
   treatments: [
@@ -41,7 +41,7 @@ const CFG: CityConfig = {
   faq: [
     {
       q: 'Is the doctor licensed in the UAE?',
-      a: 'Doctors on AyurConnect are CCIM-registered in India and licensed by their respective state councils. For online consultations originating from a doctor based in India, this is the relevant qualification. For in-person Ayurvedic care within Sharjah, look for an MOH-UAE licensed clinic such as Kottakkal Sharjah.',
+      a: 'Doctors on AyurConnect are verified in India and licensed by their respective state councils. For online consultations originating from a doctor based in India, this is the relevant qualification. For in-person Ayurvedic care within Sharjah, look for an MOH-UAE licensed clinic such as Kottakkal Sharjah.',
     },
     {
       q: 'What languages do the doctors speak?',

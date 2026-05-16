@@ -72,14 +72,14 @@ const PLANS = [
   {
     id: 'concierge',
     name: 'Concierge',
-    pitch: 'Premium continuous care with a dedicated CCIM doctor.',
+    pitch: 'Premium continuous care with a dedicated verified doctor.',
     price: '₹2,499',
     period: '/month',
     badge: 'White-glove',
     cta: { label: 'Express interest', href: '#interest' },
     features: [
       'Everything in Family Care',
-      'Dedicated CCIM-verified doctor',
+      'Dedicated verified doctor',
       '4 video consults / month',
       'Remote vitals monitoring',
       'Custom Panchakarma planning',
@@ -100,7 +100,7 @@ export default function WellnessPlansPage() {
           <h1 className="text-3xl md:text-5xl text-white">Wellness Plans</h1>
           <p className="text-white/70 mt-3">
             Free plan is forever-free. Paid plans add unlimited AyurBot, vitals analytics,
-            family profiles, and dedicated CCIM doctors.
+            family profiles, and dedicated verified doctors.
           </p>
           <p className="text-white/60 text-sm mt-2 italic">
             Pricing is indicative — paid plans roll out after we gather enough interest.
@@ -175,8 +175,8 @@ export default function WellnessPlansPage() {
             { icon: Activity,      title: 'Vitals + Analytics', desc: 'Track BP, glucose, sleep, weight, HRV. 30-day trends and AI weekly summaries delivered to your inbox.' },
             { icon: Users,         title: 'Family profiles',    desc: 'One subscription covers spouse, parents, kids. Each gets their own Prakriti, conditions, and recommendations.' },
             { icon: FileText,      title: 'Prescription history', desc: 'Every Rx from every doctor in one structured timeline. Print or save PDF anytime.' },
-            { icon: Stethoscope,   title: 'Doctor consultations', desc: 'Concierge plan includes 4 video consults/month with a dedicated CCIM-verified doctor.' },
-            { icon: ShieldCheck,   title: 'CCIM-verified network', desc: 'Every doctor on the paid plans is cross-checked against the Central Council of Indian Medicine register.' },
+            { icon: Stethoscope,   title: 'Doctor consultations', desc: 'Concierge plan includes 4 video consults/month with a dedicated verified doctor.' },
+            { icon: ShieldCheck,   title: 'verified network', desc: 'Every doctor on the paid plans is cross-checked against the Central Council of Indian Medicine register.' },
           ].map((f, i) => {
             const Icon = f.icon
             return (

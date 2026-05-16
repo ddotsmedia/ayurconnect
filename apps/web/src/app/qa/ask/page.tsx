@@ -59,7 +59,7 @@ export default function AskQuestionPage() {
         <CheckCircle2 className="w-16 h-16 text-kerala-600 mx-auto mb-4" />
         <h1 className="font-serif text-3xl text-kerala-800">Question submitted</h1>
         <p className="text-muted mt-3 leading-relaxed">
-          A CCIM-verified doctor will review and answer within 48 hours.
+          A verified doctor will review and answer within 48 hours.
           Approved questions are published anonymously to help other patients searching for the same thing.
         </p>
         <div className="mt-6 flex justify-center gap-3">
@@ -89,7 +89,7 @@ export default function AskQuestionPage() {
           <MessageCircleQuestion className="w-10 h-10 text-kerala-700 mx-auto mb-3" />
           <h1 className="font-serif text-3xl text-ink">Ask an Ayurveda question</h1>
           <p className="text-sm text-muted mt-2 max-w-lg mx-auto">
-            Free. Anonymous publishing. CCIM-verified doctors answer within 48 hours.
+            Free. Anonymous publishing. verified doctors answer within 48 hours.
             For private detailed guidance, <Link href="/online-consultation" className="text-kerala-700 hover:underline">book a video consultation</Link>.
           </p>
         </header>

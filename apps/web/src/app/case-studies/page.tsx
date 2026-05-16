@@ -27,7 +27,7 @@ export default function CaseStudiesIndex() {
             Real <span className="text-gold-400">cases</span>, real outcomes
           </h1>
           <p className="mt-5 text-lg text-white/80">
-            Detailed clinical narratives drawn from CCIM-verified Kerala practitioners. Protocols,
+            Detailed clinical narratives drawn from verified Kerala practitioners. Protocols,
             timelines, and outcomes — including what didn&apos;t work and why. Names and identifying
             details are changed for privacy.
           </p>
@@ -62,7 +62,7 @@ export default function CaseStudiesIndex() {
           <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
           <p>
             <strong>About these cases:</strong> Composite narratives drawn from real clinical
-            patterns observed at Kerala CCIM-registered centres. Names, geographic specifics, and
+            patterns observed at Kerala verified centres. Names, geographic specifics, and
             non-essential details are changed for patient privacy. Clinical particulars (protocols,
             timelines, dosages) are verified by the AyurConnect clinical advisory board.
             Individual outcomes vary; these are illustrative, not guarantees.

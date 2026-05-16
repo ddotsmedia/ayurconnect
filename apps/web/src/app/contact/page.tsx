@@ -175,7 +175,7 @@ export default function ContactPage() {
               <Mail className="w-5 h-5 text-kerala-700 mt-0.5" />
               <div>
                 <h3 className="font-semibold text-ink">Looking for a doctor?</h3>
-                <p className="text-sm text-gray-600 mt-1">Browse the CCIM-verified directory directly — filter by district, specialisation, fee.</p>
+                <p className="text-sm text-gray-600 mt-1">Browse the verified directory directly — filter by district, specialisation, fee.</p>
                 <Link href="/doctors" className="inline-flex items-center gap-1 text-sm text-kerala-700 font-semibold mt-2 hover:underline">Browse doctors <ChevronRight className="w-3 h-3" /></Link>
               </div>
             </div>

@@ -10,6 +10,7 @@
     "typecheck": "pnpm --filter api exec tsc --noEmit && pnpm --filter @ayurconnect/web exec tsc --noEmit",
     "test:e2e": "playwright test",
     "stabilize": "powershell -ExecutionPolicy Bypass -File scripts/stabilize.ps1",
+    "deploy-all": "powershell -ExecutionPolicy Bypass -File scripts/deploy-all.ps1",
     "ship": "bash scripts/deploy.sh",
     "ship:check": "bash scripts/deploy.sh --check",
     "ship:dry": "bash scripts/deploy.sh --dry-run",

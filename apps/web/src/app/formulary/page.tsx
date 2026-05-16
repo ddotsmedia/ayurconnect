@@ -53,7 +53,7 @@ export default async function FormularyIndex({ searchParams }: { searchParams: P
           <h1 className="font-serif text-4xl md:text-5xl text-white leading-tight">Ayurveda medicines reference</h1>
           <p className="mt-4 text-white/80">
             Classical compound formulations doctors commonly prescribe — indications, typical dosage, contraindications, common manufacturers.
-            Not for self-prescription; always consult a CCIM-verified doctor before starting any medicine.
+            Not for self-prescription; always consult a verified doctor before starting any medicine.
           </p>
         </div>
       </GradientHero>
@@ -135,7 +135,7 @@ export default async function FormularyIndex({ searchParams }: { searchParams: P
         <div className="mt-12 p-6 rounded-card bg-amber-50 border border-amber-100">
           <p className="text-sm text-amber-900 leading-relaxed">
             <strong>Educational reference only.</strong> Classical formulations have specific indications, dosages, and contraindications.
-            Self-medication can be harmful, especially with Rasa (mineral) preparations. Always consult a CCIM-verified Ayurvedic doctor
+            Self-medication can be harmful, especially with Rasa (mineral) preparations. Always consult a verified Ayurvedic doctor
             before starting any of these medicines. <Link href="/online-consultation" className="text-amber-700 hover:underline">Book a video consultation →</Link>
           </p>
         </div>

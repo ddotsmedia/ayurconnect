@@ -95,7 +95,7 @@ export default async function TreatmentPage({ params }: Params) {
           <div className="p-5 bg-rose-50 border border-rose-100 rounded-card">
             <ShieldCheck className="w-5 h-5 text-rose-700 mb-2" />
             <div className="text-xs uppercase tracking-wider text-rose-700 font-semibold">Find verified care</div>
-            <p className="text-sm text-gray-700 mt-2">{c.specializations.length} matched specialisation{c.specializations.length !== 1 ? 's' : ''} — all listed doctors are CCIM-verified.</p>
+            <p className="text-sm text-gray-700 mt-2">{c.specializations.length} matched specialisation{c.specializations.length !== 1 ? 's' : ''} — all listed doctors are verified.</p>
             <Link href={doctorHref} className="inline-flex items-center gap-1 text-xs text-rose-700 font-semibold mt-2 hover:underline">
               Browse doctors <ChevronRight className="w-3 h-3" />
             </Link>
@@ -181,7 +181,7 @@ export default async function TreatmentPage({ params }: Params) {
       <section className="bg-kerala-700 py-14 text-white">
         <div className="container mx-auto px-4 max-w-3xl text-center">
           <h2 className="text-3xl md:text-4xl font-serif">Ready to start?</h2>
-          <p className="mt-3 text-white/85">Speak to a CCIM-verified specialist before committing to any protocol. AyurConnect connects you with vetted Kerala practitioners — never paid placements.</p>
+          <p className="mt-3 text-white/85">Speak to a verified specialist before committing to any protocol. AyurConnect connects you with vetted Kerala practitioners — never paid placements.</p>
           <div className="mt-7 flex flex-wrap justify-center gap-3">
             <Link href={doctorHref} className="inline-flex items-center gap-2 px-6 py-3 bg-gold-500 hover:bg-gold-600 text-white rounded-md font-semibold">Find a specialist</Link>
             <Link href={hospitalHref} className="inline-flex items-center gap-2 px-6 py-3 border-2 border-white/40 text-white hover:bg-white/10 rounded-md font-semibold">Browse treatment centres</Link>

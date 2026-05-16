@@ -165,7 +165,7 @@ export default function HospitalsAdminPage() {
             <input className={inputClass} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
           </Field>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 pt-2 border-t">
-            {flag('ccimVerified', 'CCIM Verified')}
+            {flag('ccimVerified', 'Verified')}
             {flag('ayushCertified', 'AYUSH Certified')}
             {flag('panchakarma', 'Panchakarma')}
             {flag('nabh', 'NABH Accredited')}
@@ -224,7 +224,7 @@ export default function HospitalsAdminPage() {
                   {h.country && h.country !== 'IN' && <div className="text-gray-400">{h.country}</div>}
                 </td>
                 <td className="px-4 py-2.5 text-xs text-gray-600">
-                  {[h.ccimVerified && 'CCIM', h.ayushCertified && 'AYUSH', h.panchakarma && 'PK', h.nabh && 'NABH']
+                  {[h.ccimVerified && 'Verified', h.ayushCertified && 'AYUSH', h.panchakarma && 'PK', h.nabh && 'NABH']
                     .filter(Boolean).join(' · ') || '—'}
                 </td>
                 <td className="px-4 py-2.5 text-right space-x-3">

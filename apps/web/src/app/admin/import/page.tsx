@@ -140,7 +140,7 @@ export default function AdminImportPage() {
           Import doctors or clinics from CSV, or load the built-in curated list of well-known
           Kerala Ayurveda hospitals (compiled from publicly published sources). All imported rows
           start as <code className="px-1.5 py-0.5 bg-gray-100 rounded text-[11px]">ccimVerified=false</code> —
-          flip them via <a href="/admin/verify" className="text-kerala-700 hover:underline">CCIM queue</a> after manual cross-check.
+          flip them via <a href="/admin/verify" className="text-kerala-700 hover:underline">Verify queue</a> after manual cross-check.
         </p>
       </header>
 

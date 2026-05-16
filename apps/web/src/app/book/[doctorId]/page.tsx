@@ -88,7 +88,7 @@ export default function BookPage({ params }: { params: Promise<{ doctorId: strin
         <h1 className="text-2xl md:text-4xl text-white">Book consultation with {doctor.name}</h1>
         <div className="mt-2 flex flex-wrap gap-3 text-sm text-white/70">
           <span>{doctor.qualification ?? doctor.specialization} · {doctor.district}</span>
-          {doctor.ccimVerified && <span className="inline-flex items-center gap-1 text-gold-300"><ShieldCheck className="w-3.5 h-3.5" /> CCIM verified</span>}
+          {doctor.ccimVerified && <span className="inline-flex items-center gap-1 text-gold-300"><ShieldCheck className="w-3.5 h-3.5" /> verified</span>}
         </div>
       </GradientHero>
 
