@@ -58,12 +58,21 @@ export const metadata: Metadata = {
     statusBarStyle: 'default',
   },
   formatDetection: { telephone: true, email: true, address: true },
-  // Site-verification placeholders — paste real codes once Search Console / Bing approve.
+  // Site-verification — paste real codes via env vars (no rebuild needed for
+  // a normal Next.js redeploy). NEXT_PUBLIC_* are inlined at build time, so
+  // a deploy is required to pick up new values. Each value is omitted from
+  // the rendered <head> when the env var is empty/unset so we don't emit
+  // empty meta tags (which would fail the GSC check).
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ?? undefined,
-    other: {
-      'msvalidate.01': process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION ?? '',
-    },
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+    yandex: process.env.NEXT_PUBLIC_YANDEX_SITE_VERIFICATION || undefined,
+    other: Object.fromEntries(
+      Object.entries({
+        'msvalidate.01':                 process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION,
+        'p:domain_verify':               process.env.NEXT_PUBLIC_PINTEREST_SITE_VERIFICATION,
+        'facebook-domain-verification':  process.env.NEXT_PUBLIC_FACEBOOK_DOMAIN_VERIFICATION,
+      }).filter((entry): entry is [string, string] => Boolean(entry[1])),
+    ),
   },
   // icon, apple-icon, opengraph-image are picked up automatically from
   // app/icon.svg, app/apple-icon.png (if added), app/opengraph-image.tsx

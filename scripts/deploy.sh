@@ -206,4 +206,15 @@ if $TAIL_LOGS; then
   ssh "$VPS" "pm2 logs ayurconnect-api ayurconnect-web --lines 30"
 fi
 
+# ─── 4. notify search engines (IndexNow → Bing/Yandex/Naver/Seznam/DDG) ────
+# Non-fatal: if IndexNow rejects or the network blips, we still consider the
+# deploy successful (the site is up). Google picks up from /sitemap.xml on
+# its own crawl cycle.
+step "notify search engines (IndexNow)"
+if [ -f "$(dirname "$0")/ping-search-engines.sh" ]; then
+  PING_HOST="$DOMAIN" bash "$(dirname "$0")/ping-search-engines.sh" || note "indexnow ping skipped"
+else
+  note "ping-search-engines.sh not found, skipping"
+fi
+
 step "✓ deploy $BUILD_ID complete  →  https://$DOMAIN/"
