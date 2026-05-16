@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     ...AYURVEDA_KEYWORDS.primary.slice(0, 8),
   ]))
   return {
-    title:       `Ayurvedic Treatment for ${c.title} in ${ci.name} | AyurConnect`,
+    title:       `Ayurvedic Treatment for ${c.title} in ${ci.name}`,
     description: `Authentic Ayurvedic treatment for ${c.title} in ${ci.name}. Classical formulations, ${c.recommendedSpecialty.replace(/-/g, ' ')} specialists, transparent pricing. Verified doctors only.`.slice(0, 155),
     alternates:  { canonical: `/conditions/${c.slug}/${ci.slug}` },
     keywords,

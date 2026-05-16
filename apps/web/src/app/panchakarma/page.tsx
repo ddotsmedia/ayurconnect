@@ -68,7 +68,7 @@ const PHASES = [
 ] as const
 
 export const metadata = {
-  title: 'Panchakarma Treatment — Vamana, Virechana, Basti, Nasya | Kerala + UAE | AyurConnect',
+  title: 'Panchakarma Treatment — Vamana, Virechana, Basti, Nasya · Kerala + UAE',
   description: 'Authentic Panchakarma treatment guide — the 5 classical Ayurveda detox procedures (Vamana, Virechana, Basti, Nasya, Raktamokshana). Find verified Kerala Panchakarma centres and book panchakarma therapy online from UAE.',
   alternates: { canonical: '/panchakarma' },
   keywords: Array.from(new Set([

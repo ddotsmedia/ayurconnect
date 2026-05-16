@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     'AyurConnect', 'AyurConnect Ayurveda', 'classical ayurveda',
   ]))
   return {
-    title:       `${c.title} — Ayurvedic Treatment, Kerala + UAE | AyurConnect`,
+    title:       `${c.title} — Ayurvedic Treatment, Kerala + UAE`,
     description: c.metaDescription,
     alternates:  { canonical: `/conditions/${c.slug}` },
     keywords,

@@ -11,7 +11,7 @@ import { API_INTERNAL as API } from '../../lib/server-fetch'
 import { faqLd, breadcrumbLd, ldGraph, SITE_URL, AYURVEDA_KEYWORDS } from '../../lib/seo'
 
 export const metadata = {
-  title: 'Online Ayurvedic Consultation UAE — Book Kerala Doctors Online | AyurConnect',
+  title: 'Online Ayurvedic Consultation UAE — Book Kerala Doctors Online',
   description: 'Best online ayurvedic consultation in UAE — book verified Kerala Ayurveda doctors via video, audio, or chat. Same-day slots, digital prescriptions, Malayalam · English · Hindi · Arabic. Serving Dubai, Abu Dhabi, Sharjah and globally.',
   alternates: { canonical: '/online-consultation' },
   keywords: Array.from(new Set([

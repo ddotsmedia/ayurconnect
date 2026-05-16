@@ -48,7 +48,7 @@ async function fetchCategories(): Promise<Category[]> {
 }
 
 export const metadata = {
-  title: 'Ayurveda Articles — Benefits, Routines, Herbs, Seasonal Health | AyurConnect',
+  title: 'Ayurveda Articles — Benefits, Routines, Herbs, Seasonal Health',
   description: 'Curated Ayurveda reading: benefits of Ayurveda, daily routine (Dinacharya), best herbs, seasonal wellness (Ritucharya), Ayurveda for immunity + digestion + skincare. Evidence-grounded, written for patients.',
   alternates: { canonical: '/articles' },
   keywords: Array.from(new Set([

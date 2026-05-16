@@ -5,7 +5,7 @@ import { CONDITIONS } from './_data/conditions'
 import { breadcrumbLd, AYURVEDA_KEYWORDS } from '@/lib/seo'
 
 export const metadata = {
-  title: 'Ayurvedic Treatment by Condition — Kerala + UAE | AyurConnect',
+  title: 'Ayurvedic Treatment by Condition — Kerala + UAE',
   description: 'Browse Ayurvedic treatment approaches for PCOS, arthritis, diabetes, migraine, IBS, anxiety, psoriasis, back pain. Classical understanding + verified Kerala doctors. Online consultation across UAE and globally.',
   alternates: { canonical: '/conditions' },
   keywords: Array.from(new Set([

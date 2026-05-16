@@ -37,7 +37,7 @@ async function fetchCityDoctors(country: string): Promise<{ doctors: DoctorCardD
 }
 
 export function buildCityMetadata(cfg: CityConfig): Metadata {
-  const title       = `Ayurvedic Doctor ${cfg.cityName} — Online Ayurveda Consultation | AyurConnect`
+  const title       = `Ayurvedic Doctor ${cfg.cityName} — Online Ayurveda Consultation`
   const description = `Top Ayurvedic doctors in ${cfg.cityName} for online video consultation. Verified Kerala BAMS specialists, classical Panchakarma referral, herbal prescriptions. Malayalam · English · Hindi · Arabic. Book today.`
   const lower       = cfg.cityName.toLowerCase()
   // Tight, high-intent UAE-targeted keyword set per city — gets weighted
