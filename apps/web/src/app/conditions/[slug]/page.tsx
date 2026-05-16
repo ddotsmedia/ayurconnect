@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 import { GradientHero } from '@ayurconnect/ui'
 import { Stethoscope, BookOpen, Sprout, AlertTriangle, ChevronRight, ArrowLeft } from 'lucide-react'
 import { CONDITIONS, getCondition } from '../_data/conditions'
-import { breadcrumbLd, ldGraph } from '@/lib/seo'
+import { breadcrumbLd, ldGraph, AYURVEDA_KEYWORDS } from '@/lib/seo'
 
 export function generateStaticParams() {
   return CONDITIONS.map((c) => ({ slug: c.slug }))
@@ -14,10 +14,31 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const c = getCondition(slug)
   if (!c) return { title: 'Condition not found — AyurConnect' }
+  // Per-condition keyword set: targeted core keywords + a slice of the
+  // relevant category vocabulary. Tighter than the layout 'all' = better
+  // weighting in Bing/Yandex/Baidu.
+  const lowerTitle = c.title.toLowerCase()
+  const keywords = Array.from(new Set([
+    `ayurvedic treatment for ${lowerTitle}`,
+    `ayurveda for ${lowerTitle}`,
+    `${lowerTitle} ayurvedic medicine`,
+    `${lowerTitle} herbal treatment`,
+    `natural treatment for ${lowerTitle}`,
+    `${lowerTitle} kerala ayurveda`,
+    `online ayurvedic consultation for ${lowerTitle}`,
+    `best ayurvedic doctor for ${lowerTitle}`,
+    `${lowerTitle} ayurvedic doctor uae`,
+    ...c.formulations.map((f) => f.name.toLowerCase()),
+    ...(c.sanskrit ? [c.sanskrit.toLowerCase()] : []),
+    ...AYURVEDA_KEYWORDS.primary.slice(0, 12),
+    ...AYURVEDA_KEYWORDS.signals.slice(0, 8),
+    'AyurConnect', 'AyurConnect Ayurveda', 'classical ayurveda',
+  ]))
   return {
-    title:       `${c.title} — Ayurvedic Treatment, Kerala | AyurConnect`,
+    title:       `${c.title} — Ayurvedic Treatment, Kerala + UAE | AyurConnect`,
     description: c.metaDescription,
     alternates:  { canonical: `/conditions/${c.slug}` },
+    keywords,
     openGraph: {
       title:       `${c.title} — Ayurvedic Treatment`,
       description: c.ogSummary,

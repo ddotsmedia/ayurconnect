@@ -11,15 +11,28 @@ import { API_INTERNAL as API } from '../../lib/server-fetch'
 import { faqLd, breadcrumbLd, ldGraph, SITE_URL, AYURVEDA_KEYWORDS } from '../../lib/seo'
 
 export const metadata = {
-  title: 'Online Ayurveda Consultation — Video, Audio & Chat with Verified Doctors | AyurConnect',
-  description: 'Book video, audio, or async chat consultations with verified Kerala Ayurveda doctors. Same-day slots, free first visit available, NRI-friendly. Digital prescription + treatment plan delivered after the call.',
+  title: 'Online Ayurvedic Consultation UAE — Book Kerala Doctors Online | AyurConnect',
+  description: 'Best online ayurvedic consultation in UAE — book verified Kerala Ayurveda doctors via video, audio, or chat. Same-day slots, digital prescriptions, Malayalam · English · Hindi · Arabic. Serving Dubai, Abu Dhabi, Sharjah and globally.',
   alternates: { canonical: '/online-consultation' },
-  keywords: [
+  keywords: Array.from(new Set([
+    // Priority phrases from the user's catalogue
+    'online ayurvedic consultation', 'best online ayurvedic consultation in UAE',
+    'ayurvedic consultation UAE', 'online ayurvedic doctor',
+    'virtual ayurveda consultation', 'video ayurveda consultation',
+    'telehealth ayurveda', 'book ayurvedic consultation online',
+    'ayurveda telemedicine', 'online holistic consultation',
+    'digital wellness platform', 'health consultation online',
+    'ayurvedic doctor dubai', 'ayurvedic doctor abu dhabi',
+    'ayurvedic clinic abu dhabi', 'ayurvedic clinic dubai',
+    'panchakarma UAE', 'kerala ayurveda doctor in UAE',
+    'malayali ayurveda doctor', 'AyurConnect online consultation',
+    'AyurConnect UAE',
+    ...AYURVEDA_KEYWORDS.online,
     ...AYURVEDA_KEYWORDS.primary,
-    ...AYURVEDA_KEYWORDS.geographic,
+    ...AYURVEDA_KEYWORDS.geographic.slice(0, 30),
     ...AYURVEDA_KEYWORDS.signals,
     ...AYURVEDA_KEYWORDS.brand,
-  ],
+  ])),
 }
 
 type DoctorListResponse = {

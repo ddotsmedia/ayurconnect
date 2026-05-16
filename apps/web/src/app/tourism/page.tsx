@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { GradientHero } from '@ayurconnect/ui'
 import { Plane, MapPin, Clock, IndianRupee, ShieldCheck } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
+import { AYURVEDA_KEYWORDS } from '../../lib/seo'
 
 type Pkg = {
   id: string
@@ -25,6 +26,18 @@ async function fetchPackages(): Promise<Pkg[]> {
 export const metadata = {
   title: 'Kerala Medical Tourism — Authentic Panchakarma Packages | AyurConnect',
   description: "Heal in God's Own Country. Classical Panchakarma rejuvenation, joint healing, stress relief, and Karkidaka Chikitsa packages with verified Kerala practitioners.",
+  alternates: { canonical: '/tourism' },
+  keywords: Array.from(new Set([
+    ...AYURVEDA_KEYWORDS.treatments,
+    ...AYURVEDA_KEYWORDS.wellness,
+    'kerala ayurveda tourism', 'kerala panchakarma packages', 'ayurveda retreat kerala',
+    'authentic kerala panchakarma', 'medical tourism kerala', 'ayurveda wellness retreat',
+    'ayurvedic spa kerala', 'panchakarma resort kerala', 'ayurvedic detox kerala',
+    'karkidaka chikitsa', 'monsoon ayurveda kerala', 'ayurveda for foreigners',
+    'panchakarma packages in kerala for foreigners', 'classical ayurveda treatment kerala for UAE patients',
+    'ayurveda holiday kerala', 'wellness retreat india', 'detox retreat kerala',
+    'AyurConnect', 'AyurConnect Kerala', 'verified ayurvedic doctors',
+  ])),
 }
 
 export default async function TourismPage() {

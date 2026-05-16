@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { GradientHero } from '@ayurconnect/ui'
 import { BookOpen, ScrollText, FlaskConical, Leaf, Calendar } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
+import { AYURVEDA_KEYWORDS } from '../../lib/seo'
 
 type Article = {
   id: string
@@ -47,9 +48,19 @@ async function fetchCategories(): Promise<Category[]> {
 }
 
 export const metadata = {
-  title: 'Ayurveda Articles — Classical Texts, Research, Seasonal Health | AyurConnect',
-  description: 'Curated Ayurveda reading: Charaka Samhita and Ashtanga Hridayam excerpts, PubMed research, seasonal regimens (Ritucharya), and lifestyle guidance from verified practitioners.',
+  title: 'Ayurveda Articles — Benefits, Routines, Herbs, Seasonal Health | AyurConnect',
+  description: 'Curated Ayurveda reading: benefits of Ayurveda, daily routine (Dinacharya), best herbs, seasonal wellness (Ritucharya), Ayurveda for immunity + digestion + skincare. Evidence-grounded, written for patients.',
   alternates: { canonical: '/articles' },
+  keywords: Array.from(new Set([
+    ...AYURVEDA_KEYWORDS.blog,
+    ...AYURVEDA_KEYWORDS.wellness.slice(0, 10),
+    ...AYURVEDA_KEYWORDS.concepts.slice(0, 10),
+    'ayurveda articles', 'ayurveda blog', 'ayurvedic knowledge base',
+    'ayurveda research articles', 'classical ayurveda texts',
+    'charaka samhita excerpts', 'ashtanga hridayam articles',
+    'ritucharya seasonal ayurveda', 'dinacharya daily routine',
+    'AyurConnect', 'AyurConnect Ayurveda',
+  ])),
 }
 
 function previewOf(content: string, max = 220): string {

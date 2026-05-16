@@ -12,7 +12,7 @@ import { GradientHero, DoctorCard, type DoctorCardData } from '@ayurconnect/ui'
 import { BookOpen, Sprout, AlertTriangle, ChevronRight, ArrowLeft, MapPin, Stethoscope } from 'lucide-react'
 import { CONDITIONS, getCondition } from '../../_data/conditions'
 import { CITIES, getCity } from '../../_data/cities'
-import { breadcrumbLd, ldGraph } from '@/lib/seo'
+import { breadcrumbLd, ldGraph, AYURVEDA_KEYWORDS } from '@/lib/seo'
 import { API_INTERNAL as API } from '@/lib/server-fetch'
 
 export function generateStaticParams() {
@@ -27,10 +27,32 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug, city: citySlug } = await params
   const c = getCondition(slug); const ci = getCity(citySlug)
   if (!c || !ci) return { title: 'Not found — AyurConnect' }
+  const lowerTitle = c.title.toLowerCase()
+  const lowerCity  = ci.name.toLowerCase()
+  // Compounded condition × city long-tail keyword set — these are the
+  // money phrases ("ayurvedic treatment for PCOS in Kochi") for local SEO.
+  const keywords = Array.from(new Set([
+    `ayurvedic treatment for ${lowerTitle} in ${lowerCity}`,
+    `${lowerTitle} ayurvedic doctor ${lowerCity}`,
+    `best ayurvedic clinic for ${lowerTitle} in ${lowerCity}`,
+    `online ayurvedic consultation for ${lowerTitle} ${lowerCity}`,
+    `ayurveda for ${lowerTitle} ${lowerCity}`,
+    `natural treatment for ${lowerTitle} in ${lowerCity}`,
+    `herbal treatment for ${lowerTitle} ${lowerCity}`,
+    `ayurvedic doctor ${lowerCity}`, `ayurvedic clinic ${lowerCity}`,
+    `panchakarma ${lowerCity}`, `ayurveda ${lowerCity}`,
+    `ayurvedic medicine ${lowerCity}`, `best ayurvedic doctor ${lowerCity}`,
+    'verified ayurvedic doctors', 'kerala ayurveda doctor',
+    `affordable ayurvedic treatment in ${lowerCity}`,
+    `book ayurveda consultation from ${lowerCity}`,
+    `AyurConnect ${ci.name}`, 'AyurConnect', 'AyurConnect Ayurveda',
+    ...AYURVEDA_KEYWORDS.primary.slice(0, 8),
+  ]))
   return {
     title:       `Ayurvedic Treatment for ${c.title} in ${ci.name} | AyurConnect`,
     description: `Authentic Ayurvedic treatment for ${c.title} in ${ci.name}. Classical formulations, ${c.recommendedSpecialty.replace(/-/g, ' ')} specialists, transparent pricing. Verified doctors only.`.slice(0, 155),
     alternates:  { canonical: `/conditions/${c.slug}/${ci.slug}` },
+    keywords,
     openGraph: {
       title:       `Ayurvedic Treatment for ${c.title} in ${ci.name}`,
       description: c.ogSummary,

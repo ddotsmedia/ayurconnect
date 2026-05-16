@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { API_INTERNAL as API, logServerFetchError } from '../lib/server-fetch'
 import { PersonalizedWelcome } from '../components/personalized-welcome'
-import { medicalBusinessLd, faqLd, ldGraph } from '../lib/seo'
+import { medicalBusinessLd, faqLd, ldGraph, AYURVEDA_KEYWORDS } from '../lib/seo'
 
 const DISTRICTS = [
   'Thiruvananthapuram', 'Kollam', 'Pathanamthitta', 'Alappuzha', 'Kottayam',
@@ -149,6 +149,33 @@ async function getHealthTips(): Promise<Tip[]> {
     logServerFetchError('getHealthTips', err)
     return []
   }
+}
+
+// Homepage-specific metadata — tighter than the site-wide layout 'all' keyword
+// dump. These are the priority-1 phrases we want this URL to rank for.
+export const metadata = {
+  title: "AyurConnect — Verified Ayurveda Doctors Online | Kerala + UAE",
+  description: "AyurConnect connects you to verified Kerala Ayurveda doctors via online video consultation. Classical Panchakarma, AyurBot AI, 150+ herbs, 8+ condition guides. Serving India and the UAE diaspora.",
+  alternates: { canonical: '/' },
+  keywords: Array.from(new Set([
+    // Brand — priority 1
+    'AyurConnect', 'AyurConnect UAE', 'AyurConnect Ayurveda',
+    'AyurConnect wellness', 'AyurConnect online consultation',
+    'AyurConnect holistic health', 'AyurConnect ayurvedic clinic',
+    'AyurConnect healthcare platform', 'AyurConnect Kerala',
+    // Top high-intent
+    'ayurvedic consultation UAE', 'online ayurvedic doctor',
+    'best ayurvedic clinic abu dhabi', 'panchakarma treatment UAE',
+    'holistic wellness UAE', 'ayurvedic doctor dubai',
+    'natural healing therapy', 'ayurvedic medicine online',
+    'ayurveda for stress', 'herbal wellness consultation',
+    // Spread the priority categories
+    ...AYURVEDA_KEYWORDS.primary,
+    ...AYURVEDA_KEYWORDS.brand,
+    ...AYURVEDA_KEYWORDS.online.slice(0, 10),
+    ...AYURVEDA_KEYWORDS.geographic.slice(0, 20),
+    ...AYURVEDA_KEYWORDS.signals.slice(0, 10),
+  ])),
 }
 
 export default async function HomePage() {

@@ -68,14 +68,23 @@ const PHASES = [
 ] as const
 
 export const metadata = {
-  title: 'Panchakarma — The 5 Classical Ayurveda Detox Procedures Explained | AyurConnect',
-  description: 'Comprehensive guide to Vamana, Virechana, Basti, Nasya, and Raktamokshana. Indications, contraindications, sequence, and how to find a CCIM-certified Panchakarma centre in Kerala.',
-  keywords: [
+  title: 'Panchakarma Treatment — Vamana, Virechana, Basti, Nasya | Kerala + UAE | AyurConnect',
+  description: 'Authentic Panchakarma treatment guide — the 5 classical Ayurveda detox procedures (Vamana, Virechana, Basti, Nasya, Raktamokshana). Find verified Kerala Panchakarma centres and book panchakarma therapy online from UAE.',
+  alternates: { canonical: '/panchakarma' },
+  keywords: Array.from(new Set([
+    'panchakarma', 'panchakarma treatment', 'panchakarma uae',
+    'panchakarma in kerala', 'authentic kerala panchakarma',
+    'panchakarma consultation online', 'book panchakarma therapy online',
+    'classical panchakarma', 'panchakarma packages in kerala for foreigners',
+    'panchakarma detox', 'ayurvedic detox', 'natural detox',
+    'kerala ayurveda detox', 'panchakarma rejuvenation',
+    'AyurConnect Panchakarma', 'AyurConnect Kerala', 'AyurConnect UAE',
     ...AYURVEDA_KEYWORDS.treatments,
     ...AYURVEDA_KEYWORDS.concepts,
-    ...AYURVEDA_KEYWORDS.geographic,
+    ...AYURVEDA_KEYWORDS.geographic.slice(0, 30),
+    ...AYURVEDA_KEYWORDS.wellness.slice(0, 12),
     ...AYURVEDA_KEYWORDS.signals,
-  ],
+  ])),
 }
 
 export default function PanchakarmaPage() {

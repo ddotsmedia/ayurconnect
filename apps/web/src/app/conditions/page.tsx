@@ -2,12 +2,22 @@ import Link from 'next/link'
 import { GradientHero } from '@ayurconnect/ui'
 import { ChevronRight, Stethoscope } from 'lucide-react'
 import { CONDITIONS } from './_data/conditions'
-import { breadcrumbLd } from '@/lib/seo'
+import { breadcrumbLd, AYURVEDA_KEYWORDS } from '@/lib/seo'
 
 export const metadata = {
-  title: 'Ayurvedic Treatment by Condition — AyurConnect',
-  description: 'Browse Ayurvedic treatment approaches for PCOS, arthritis, diabetes, migraine, IBS, anxiety, psoriasis, back pain. Classical understanding + verified doctor matching.',
+  title: 'Ayurvedic Treatment by Condition — Kerala + UAE | AyurConnect',
+  description: 'Browse Ayurvedic treatment approaches for PCOS, arthritis, diabetes, migraine, IBS, anxiety, psoriasis, back pain. Classical understanding + verified Kerala doctors. Online consultation across UAE and globally.',
   alternates: { canonical: '/conditions' },
+  keywords: Array.from(new Set([
+    ...AYURVEDA_KEYWORDS.conditions,
+    ...AYURVEDA_KEYWORDS.primary,
+    ...AYURVEDA_KEYWORDS.signals,
+    'ayurvedic treatment by condition', 'ayurvedic disease management',
+    'ayurveda for chronic conditions', 'natural treatment for chronic illness',
+    'herbal treatment for stress and anxiety', 'ayurvedic doctor for digestive issues',
+    'best ayurvedic specialists for PCOS', 'ayurvedic doctor for back pain online',
+    'AyurConnect', 'AyurConnect Ayurveda',
+  ])),
 }
 
 const CATEGORIES: Record<string, string> = {

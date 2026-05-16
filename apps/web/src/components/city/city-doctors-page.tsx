@@ -37,11 +37,43 @@ async function fetchCityDoctors(country: string): Promise<{ doctors: DoctorCardD
 }
 
 export function buildCityMetadata(cfg: CityConfig): Metadata {
-  const title = `Ayurveda Doctors in ${cfg.cityName} (${cfg.licenseAuthority} Licensed) | AyurConnect`
-  const description = `Find ${cfg.licenseAuthority}-licensed Kerala Ayurveda doctors in ${cfg.cityName} for online video consultation. verified practitioners speaking Malayalam, English, Hindi, and Arabic. Same-week slots, transparent fees.`
+  const title       = `Ayurvedic Doctor ${cfg.cityName} — Online Ayurveda Consultation | AyurConnect`
+  const description = `Top Ayurvedic doctors in ${cfg.cityName} for online video consultation. Verified Kerala BAMS specialists, classical Panchakarma referral, herbal prescriptions. Malayalam · English · Hindi · Arabic. Book today.`
+  const lower       = cfg.cityName.toLowerCase()
+  // Tight, high-intent UAE-targeted keyword set per city — gets weighted
+  // higher than the layout-level catch-all in Bing/Yandex/Baidu ranking.
+  const keywords = Array.from(new Set([
+    // City-modifier variants (the gold for local SEO)
+    `ayurvedic doctor ${lower}`, `ayurvedic clinic ${lower}`,
+    `ayurveda ${lower}`, `ayurvedic treatment ${lower}`,
+    `ayurvedic consultation ${lower}`, `ayurvedic medicine ${lower}`,
+    `panchakarma ${lower}`, `best ayurvedic doctor ${lower}`,
+    `best ayurvedic clinic ${lower}`, `online ayurvedic doctor ${lower}`,
+    `ayurveda near me ${lower}`, `holistic wellness ${lower}`,
+    `natural medicine ${lower}`, `alternative medicine ${lower}`,
+    // UAE region keywords
+    'ayurveda UAE', 'ayurvedic doctor UAE', 'ayurvedic clinic UAE',
+    'ayurvedic consultation UAE', 'panchakarma UAE',
+    'online ayurvedic doctor UAE', 'ayurvedic medicine UAE',
+    'best ayurvedic clinic UAE', 'kerala ayurveda doctor in UAE',
+    'malayali ayurveda doctor', 'ayurvedic skin treatment near me',
+    // Online consultation language
+    'online ayurvedic consultation', 'virtual ayurveda consultation',
+    'telehealth ayurveda', 'video ayurveda consultation',
+    'book ayurvedic consultation online', 'ayurveda telemedicine',
+    // Long-tail UAE intent
+    `best online ayurvedic consultation in ${cfg.cityName}`,
+    `affordable ayurvedic treatment in ${cfg.cityName}`,
+    `natural healing clinic in ${cfg.cityName}`,
+    `book panchakarma therapy online from ${cfg.cityName}`,
+    // Trust + brand
+    'AyurConnect', `AyurConnect ${cfg.cityName}`, 'AyurConnect UAE',
+    'verified ayurvedic doctors', 'BAMS doctor online', 'MD ayurveda',
+  ]))
   return {
     title,
     description,
+    keywords,
     alternates: { canonical: `/${cfg.slug}/ayurveda-doctors` },
     openGraph: {
       title, description,
@@ -65,15 +97,31 @@ export default async function CityDoctorsPage({ cfg }: { cfg: CityConfig }) {
     ]),
     faqLd(cfg.faq),
     {
+      // MedicalClinic is a more specific subtype of MedicalBusiness and is
+      // eligible for richer SERP features in Google. We keep MedicalBusiness
+      // as an `additionalType` for broader engine coverage.
       '@context': 'https://schema.org',
-      '@type': 'MedicalBusiness',
+      '@type': ['MedicalClinic', 'MedicalBusiness'],
       '@id': `${SITE_URL}/${cfg.slug}/ayurveda-doctors#service`,
       name: `AyurConnect Ayurveda Consultations — ${cfg.cityName}`,
-      description: `Online Ayurveda consultations available to patients in ${cfg.cityName}, ${cfg.countryName}. verified Kerala Ayurveda doctors fluent in Malayalam, English, Hindi, and Arabic.`,
+      description: `Online Ayurveda consultations available to patients in ${cfg.cityName}, ${cfg.countryName}. Verified Kerala Ayurveda doctors fluent in Malayalam, English, Hindi, and Arabic.`,
       url: `${SITE_URL}/${cfg.slug}/ayurveda-doctors`,
       areaServed: { '@type': 'City', name: cfg.cityName, addressCountry: cfg.countryCode },
       medicalSpecialty: ['Ayurveda', 'Panchakarma', 'Traditional Indian Medicine'],
       parentOrganization: { '@id': `${SITE_URL}#org` },
+      priceRange: '₹₹',
+      openingHoursSpecification: {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        opens: '08:00', closes: '22:00',
+      },
+      availableService: [
+        { '@type': 'MedicalProcedure', name: 'Online Ayurvedic Consultation',         procedureType: 'http://schema.org/TherapeuticProcedure' },
+        { '@type': 'MedicalProcedure', name: 'Panchakarma Referral',                  procedureType: 'http://schema.org/TherapeuticProcedure' },
+        { '@type': 'MedicalProcedure', name: 'Herbal Prescription',                   procedureType: 'http://schema.org/TherapeuticProcedure' },
+        { '@type': 'MedicalProcedure', name: 'Dosha (Prakriti) Analysis',             procedureType: 'http://schema.org/DiagnosticProcedure' },
+        { '@type': 'MedicalProcedure', name: 'Ayurvedic Lifestyle and Diet Planning', procedureType: 'http://schema.org/TherapeuticProcedure' },
+      ],
     },
   )
 

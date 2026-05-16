@@ -103,6 +103,13 @@ const KW = {
     'ayurveda gcc', 'ayurveda nri', 'ayurveda london', 'ayurveda usa',
     'kerala ayurveda doctor in uae', 'malayali ayurveda doctor',
     'ayurveda tourism kerala', 'ayurveda retreat kerala',
+    // UAE local intent expansion
+    'ayurvedic clinic abu dhabi', 'ayurvedic doctor dubai', 'ayurveda near me',
+    'best ayurvedic center uae', 'panchakarma uae', 'ayurvedic treatment dubai',
+    'holistic wellness abu dhabi', 'natural medicine uae', 'alternative medicine uae',
+    'ayurvedic medicine dubai', 'ayurvedic consultation uae',
+    'best ayurvedic clinic abu dhabi', 'best ayurvedic doctor dubai',
+    'ayurvedic skin treatment near me',
   ],
   // Trust signals + adjacent terms patients search for.
   signals: [
@@ -113,8 +120,64 @@ const KW = {
   ],
   // Brand + product lines for completeness.
   brand: [
-    'AyurConnect', 'AyurBot', 'AyurBot AI', 'ayurveda app', 'ayurvedic consultation app',
+    'AyurConnect', 'AyurBot', 'AyurBot AI',
+    'ayurveda app', 'ayurvedic consultation app',
     'book ayurveda online', 'find ayurveda doctor near me',
+    // Brand-modifier combinations
+    'AyurConnect UAE', 'AyurConnect Ayurveda', 'AyurConnect wellness',
+    'AyurConnect online consultation', 'AyurConnect holistic health',
+    'AyurConnect ayurvedic clinic', 'AyurConnect healthcare platform',
+    'AyurConnect Dubai', 'AyurConnect Abu Dhabi', 'AyurConnect Kerala',
+  ],
+  // Wellness, lifestyle, preventive health — adjacency intent.
+  wellness: [
+    'wellness consultation', 'holistic wellness', 'natural wellness clinic',
+    'detox therapy', 'herbal wellness', 'preventive healthcare', 'lifestyle medicine',
+    'wellness coaching', 'mind body healing', 'ayurvedic nutrition',
+    'ayurvedic diet plan', 'ayurvedic lifestyle', 'wellness program',
+    'wellness retreat', 'ayurvedic spa', 'ayurvedic rejuvenation',
+    'ayurvedic detox', 'natural detox', 'panchakarma detox',
+    'mind body wellness', 'mental wellness ayurveda',
+  ],
+  // Online + digital service language.
+  online: [
+    'online ayurvedic doctor', 'virtual ayurveda consultation',
+    'book ayurvedic consultation online', 'telehealth ayurveda',
+    'online holistic consultation', 'digital wellness platform',
+    'health consultation online', 'video ayurveda consultation',
+    'online ayurvedic clinic', 'ayurveda telemedicine',
+    'online ayurvedic prescription', 'ayurveda consultation by phone',
+    'home ayurveda consultation', 'remote ayurveda consultation',
+    'ayurvedic health app', 'ayurveda video call',
+  ],
+  // Long-tail, high-intent local queries.
+  longtail: [
+    'best online ayurvedic consultation in UAE',
+    'affordable ayurvedic treatment in dubai',
+    'natural healing clinic in abu dhabi',
+    'book panchakarma therapy online',
+    'herbal treatment for stress and anxiety',
+    'ayurvedic doctor for digestive issues',
+    'holistic wellness services UAE',
+    'online natural medicine consultation',
+    'traditional ayurveda for modern lifestyle',
+    'ayurvedic treatment for chronic conditions',
+    'kerala ayurveda doctor online consultation',
+    'best ayurvedic specialists for PCOS',
+    'ayurvedic doctor for back pain online',
+    'panchakarma packages in kerala for foreigners',
+    'classical ayurveda treatment kerala for UAE patients',
+  ],
+  // Educational / blog content keywords.
+  blog: [
+    'benefits of ayurveda', 'what is panchakarma', 'ayurvedic daily routine',
+    'best herbs in ayurveda', 'ayurveda for immunity', 'natural ways to reduce stress',
+    'ayurvedic diet for weight loss', 'ayurveda vs modern medicine',
+    'how ayurveda improves digestion', 'ayurvedic skincare tips',
+    'holistic healing methods', 'seasonal wellness in ayurveda',
+    'dinacharya routine', 'ritucharya seasonal', 'karkidaka chikitsa monsoon',
+    'ayurvedic morning routine', 'ayurvedic evening routine',
+    'ayurveda for beginners', 'introduction to ayurveda',
   ],
 } as const
 
@@ -124,6 +187,7 @@ export const AYURVEDA_KEYWORDS = {
   all: Array.from(new Set([
     ...KW.primary, ...KW.conditions, ...KW.treatments, ...KW.herbs,
     ...KW.specialisations, ...KW.concepts, ...KW.geographic, ...KW.signals, ...KW.brand,
+    ...KW.wellness, ...KW.online, ...KW.longtail, ...KW.blog,
   ])),
 }
 
@@ -454,13 +518,24 @@ export function faqLd(items: Array<{ q: string; a: string }>) {
 export function medicalBusinessLd(services: string[]) {
   return {
     '@context': 'https://schema.org',
-    '@type': 'MedicalBusiness',
+    // MedicalClinic + MedicalBusiness + HealthAndBeautyBusiness — broadest
+    // accepted typing across Google, Bing, and DuckDuckGo rich-result eligibility.
+    '@type': ['MedicalClinic', 'MedicalBusiness', 'HealthAndBeautyBusiness'],
     '@id': `${SITE_URL}#business`,
     name: SITE_NAME,
     url: SITE_URL,
-    description: 'Online platform connecting patients with verified Ayurvedic doctors for personalized consultations, classical Panchakarma, and herbal wellness guidance.',
-    medicalSpecialty: 'Ayurvedic Medicine',
+    description: 'Online platform connecting patients with verified Ayurvedic doctors for personalized consultations, classical Panchakarma, and herbal wellness guidance. Serving India and the UAE diaspora.',
+    medicalSpecialty: ['Ayurvedic Medicine', 'Panchakarma', 'Traditional Indian Medicine'],
     parentOrganization: { '@id': `${SITE_URL}#org` },
+    areaServed: [
+      { '@type': 'Country',          name: 'India'                },
+      { '@type': 'Country',          name: 'United Arab Emirates' },
+      { '@type': 'AdministrativeArea', name: 'Kerala'             },
+      { '@type': 'City',             name: 'Dubai'                },
+      { '@type': 'City',             name: 'Abu Dhabi'            },
+      { '@type': 'City',             name: 'Sharjah'              },
+    ],
+    priceRange: '₹₹',
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
       name: 'Ayurvedic Services',
