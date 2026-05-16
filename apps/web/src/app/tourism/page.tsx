@@ -24,7 +24,7 @@ async function fetchPackages(): Promise<Pkg[]> {
 }
 
 export const metadata = {
-  title: 'Kerala Medical Tourism — Authentic Panchakarma Packages | AyurConnect',
+  title: 'Kerala Medical Tourism — Authentic Panchakarma Packages',
   description: "Heal in God's Own Country. Classical Panchakarma rejuvenation, joint healing, stress relief, and Karkidaka Chikitsa packages with verified Kerala practitioners.",
   alternates: { canonical: '/tourism' },
   keywords: Array.from(new Set([
