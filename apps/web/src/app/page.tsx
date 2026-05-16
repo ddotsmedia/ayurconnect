@@ -35,7 +35,7 @@ const TREATMENTS = [
 ]
 
 const WHY = [
-  { icon: ShieldCheck, title: 'Verified', desc: 'Every doctor cross-checked against the Central Council of Indian Medicine register.' },
+  { icon: ShieldCheck, title: 'Verified', desc: 'Every doctor\'s credentials and qualifications are verified by our team before their profile goes live.' },
   { icon: Video,       title: 'Video Consultations', desc: 'Connect with Kerala doctors from anywhere in the world.' },
   { icon: Sparkles,    title: 'AI-Powered',  desc: 'AyurBot drafts personalised health insights in seconds, free.' },
   { icon: Users,       title: 'Transparency', desc: 'Public reviews, qualifications, and registration numbers — nothing hidden.' },
@@ -53,7 +53,7 @@ const HOME_FAQ: Array<{ q: string; a: string }> = [
   },
   {
     q: 'Are the doctors on AyurConnect certified?',
-    a: 'Yes. Every doctor on AyurConnect is cross-checked against the Central Council of Indian Medicine (CCIM) register and holds BAMS or MD (Ayurveda) credentials before their profile goes live.',
+    a: 'Yes. Every doctor on AyurConnect holds BAMS or MD (Ayurveda) credentials and is independently verified by our team — covering qualifications, registration, and clinical practice history — before their profile goes live.',
   },
   {
     q: 'How do I book an online Ayurvedic consultation?',
