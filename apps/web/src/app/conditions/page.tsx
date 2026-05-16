@@ -73,7 +73,7 @@ export default function ConditionsIndex() {
           <Stethoscope className="w-10 h-10 text-kerala-700 mx-auto mb-3" />
           <h2 className="font-serif text-2xl text-ink mb-2">Not sure where to start?</h2>
           <p className="text-sm text-gray-700 leading-relaxed mb-5">
-            Take our doctor-match assessment — a few questions about your symptoms and we'll match you with a verified specialist whose practice focuses on your condition.
+            Take our doctor-match assessment — a few questions about your symptoms and we&apos;ll match you with a verified specialist whose practice focuses on your condition.
           </p>
           <Link href="/doctor-match" className="inline-flex items-center gap-2 px-5 py-2.5 bg-kerala-700 hover:bg-kerala-800 text-white rounded text-sm font-semibold">
             Start matching <ChevronRight className="w-4 h-4" />

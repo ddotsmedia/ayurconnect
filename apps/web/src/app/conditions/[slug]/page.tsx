@@ -106,7 +106,7 @@ export default async function ConditionPage({ params }: { params: Promise<{ slug
           <h2 className="font-serif text-2xl text-ink mb-4 inline-flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-kerala-700" /> Classical formulations
           </h2>
-          <p className="text-xs text-muted mb-4">Selected by Ayurvedic Snehana / Shamana criteria. Always under a verified doctor's supervision — these are not over-the-counter recommendations.</p>
+          <p className="text-xs text-muted mb-4">Selected by Ayurvedic Snehana / Shamana criteria. Always under a verified doctor&apos;s supervision — these are not over-the-counter recommendations.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {c.formulations.map((f) => (
               <article key={f.name} className="bg-white border border-gray-100 rounded-card p-4">
@@ -173,7 +173,7 @@ export default async function ConditionPage({ params }: { params: Promise<{ slug
           <Stethoscope className="w-10 h-10 text-amber-300 mx-auto mb-3" />
           <h2 className="font-serif text-2xl mb-2">Find a {c.title} specialist</h2>
           <p className="text-sm text-white/85 leading-relaxed mb-6">
-            We'll match you with a verified BAMS doctor whose practice focuses on {c.recommendedSpecialty.replace(/-/g, ' ')}. Book an online consultation or visit in person across Kerala and UAE.
+            We&apos;ll match you with a verified BAMS doctor whose practice focuses on {c.recommendedSpecialty.replace(/-/g, ' ')}. Book an online consultation or visit in person across Kerala and UAE.
           </p>
           <div className="flex justify-center gap-2 flex-wrap">
             <Link

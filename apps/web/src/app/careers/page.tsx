@@ -146,7 +146,7 @@ export default function CareersPage() {
                   </a>
                 </header>
                 <p className="text-sm text-gray-700 mt-3 leading-relaxed">{r.summary}</p>
-                <h4 className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mt-4 mb-1.5">What we're looking for</h4>
+                <h4 className="text-[10px] uppercase tracking-wider text-gray-400 font-semibold mt-4 mb-1.5">What we&apos;re looking for</h4>
                 <ul className="text-sm text-gray-700 space-y-1 list-disc pl-5">
                   {r.requirements.map((req, i) => <li key={i}>{req}</li>)}
                 </ul>
@@ -158,9 +158,9 @@ export default function CareersPage() {
 
       <section className="container mx-auto px-4 py-14 max-w-3xl text-center">
         <Briefcase className="w-10 h-10 text-kerala-700 mx-auto mb-3" />
-        <h2 className="font-serif text-2xl text-ink mb-2">Don't see your role?</h2>
+        <h2 className="font-serif text-2xl text-ink mb-2">Don&apos;t see your role?</h2>
         <p className="text-sm text-gray-700 leading-relaxed mb-5">
-          We're a small team and we add roles when we know the work is worth a hire. If you've read this page and feel you'd be a great fit somewhere on the team — write to us anyway. Best candidates often beat best timing.
+          We&apos;re a small team and we add roles when we know the work is worth a hire. If you&apos;ve read this page and feel you&apos;d be a great fit somewhere on the team — write to us anyway. Best candidates often beat best timing.
         </p>
         <a
           href="mailto:careers@ayurconnect.com?subject=Speculative%20application"
