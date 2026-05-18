@@ -34,8 +34,8 @@ const drProtocols: FastifyPluginAsync = async (fastify) => {
     return { protocols: items }
   })
 
-  fastify.get('/_admin/queue', async (request, reply) => {
-    if (!request.session || !canModerate(request.session.user.role)) return reply.code(403).send({ error: 'admin only' })
+  fastify.get('/_admin/queue', { preHandler: fastify.requireAdmin }, async (request, reply) => {
+    // (defence-in-depth: preHandler also gates this)
     const items = await fastify.prisma.clinicalProtocol.findMany({
       where:   { status: 'under-review' },
       orderBy: { createdAt: 'asc' },
@@ -94,9 +94,9 @@ const drProtocols: FastifyPluginAsync = async (fastify) => {
     })
   })
 
-  fastify.post('/:slug/publish', async (request, reply) => {
-    if (!request.session || !canModerate(request.session.user.role)) return reply.code(403).send({ error: 'admin only' })
+  fastify.post('/:slug/publish', { preHandler: fastify.requireAdmin }, async (request, reply) => {
     const { slug } = request.params as { slug: string }
+    void reply
     const p = await fastify.prisma.clinicalProtocol.update({
       where: { slug },
       data:  { status: 'published', publishedAt: new Date() },
@@ -111,9 +111,9 @@ const drProtocols: FastifyPluginAsync = async (fastify) => {
     return p
   })
 
-  fastify.post('/:slug/reject', async (request, reply) => {
-    if (!request.session || !canModerate(request.session.user.role)) return reply.code(403).send({ error: 'admin only' })
+  fastify.post('/:slug/reject', { preHandler: fastify.requireAdmin }, async (request, reply) => {
     const { slug } = request.params as { slug: string }
+    void reply
     const { notes } = request.body as { notes?: string }
     return fastify.prisma.clinicalProtocol.update({
       where: { slug },

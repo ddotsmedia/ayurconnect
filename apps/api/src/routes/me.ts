@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify'
+import { rateLimitOk } from '../lib/rate-limit.js'
 
 export const autoPrefix = '/me'
 
@@ -82,6 +83,12 @@ const me: FastifyPluginAsync = async (fastify) => {
   // the user already owns a doctor, returns 409. Sets ccimVerified=false; admin
   // approves later via /admin/verify.
   fastify.post('/promote-to-doctor', async (request, reply) => {
+    // P1-4 hardening: rate-limit self-promotion attempts so a user can't
+    // burn DB rows by spamming the endpoint with slightly different payloads.
+    if (!(await rateLimitOk(fastify, request, reply, {
+      bucket: 'me.promote-to-doctor', windowSec: 86400, max: 3,
+      message: 'Too many promotion attempts — try again tomorrow.',
+    }))) return
     const userId = request.session!.user.id
     const existing = await fastify.prisma.user.findUnique({ where: { id: userId }, select: { doctorId: true, role: true } })
     if (!existing) return reply.code(404).send({ error: 'user not found' })
@@ -128,6 +135,10 @@ const me: FastifyPluginAsync = async (fastify) => {
 
   // ─── Promote-to-Hospital: same flow, for hospital owners/admins ───
   fastify.post('/promote-to-hospital', async (request, reply) => {
+    if (!(await rateLimitOk(fastify, request, reply, {
+      bucket: 'me.promote-to-hospital', windowSec: 86400, max: 3,
+      message: 'Too many promotion attempts — try again tomorrow.',
+    }))) return
     const userId = request.session!.user.id
     const existing = await fastify.prisma.user.findUnique({ where: { id: userId }, select: { hospitalId: true, role: true } })
     if (!existing) return reply.code(404).send({ error: 'user not found' })

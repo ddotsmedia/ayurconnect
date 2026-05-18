@@ -38,4 +38,51 @@ export default {
       { source: '/blog/:slug',    destination: '/articles/:slug', permanent: true },
     ]
   },
+  async headers() {
+    // Security headers from Next.js — nginx also sets the static ones; this
+    // covers any path served directly by Next (e.g. if nginx is bypassed in
+    // a dev/staging env) and adds the dynamic CSP that nginx can't easily
+    // express. Keep these in sync with nginx.conf.
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' },
+          { key: 'X-Content-Type-Options',    value: 'nosniff' },
+          { key: 'X-Frame-Options',           value: 'SAMEORIGIN' },
+          { key: 'Referrer-Policy',           value: 'strict-origin-when-cross-origin' },
+          { key: 'X-DNS-Prefetch-Control',    value: 'on' },
+          {
+            key: 'Permissions-Policy',
+            value:
+              'geolocation=(), microphone=(self), camera=(self), payment=(self), fullscreen=(self), ' +
+              'accelerometer=(), gyroscope=(), magnetometer=(), interest-cohort=()',
+          },
+          {
+            // Content Security Policy — locked-down baseline. Inline scripts
+            // and styles are allowed because Next.js' streaming SSR and
+            // JSON-LD <script> blocks need them. unsafe-eval is required by
+            // some Next.js client bundles in development; production builds
+            // can usually remove it but Next 15 RSC still emits some.
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://*.daily.co https://www.googletagmanager.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "img-src 'self' data: blob: https: http:",
+              "font-src 'self' data: https://fonts.gstatic.com",
+              "connect-src 'self' https: wss:",
+              "frame-src https://*.daily.co https://checkout.razorpay.com https://api.razorpay.com",
+              "media-src 'self' blob: https:",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self' https://checkout.razorpay.com",
+              "frame-ancestors 'self'",
+              'upgrade-insecure-requests',
+            ].join('; '),
+          },
+        ],
+      },
+    ]
+  },
 }

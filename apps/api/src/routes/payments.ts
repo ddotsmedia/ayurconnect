@@ -35,6 +35,12 @@ const route: FastifyPluginAsync = async (fastify) => {
     if (!appt)                            return reply.code(404).send({ error: 'appointment not found' })
     if (appt.userId !== request.session!.user.id) return reply.code(403).send({ error: 'forbidden' })
     if (!appt.fee)                        return reply.code(400).send({ error: 'appointment has no fee' })
+    // P0-2 (2026-05-18 audit): defend against MAX_SAFE_INTEGER / non-integer
+    // fees overflowing the Razorpay amount field. Caps consultation fee at
+    // ₹100,000 — set by admin via /admin/doctors; user inputs never set this.
+    if (!Number.isInteger(appt.fee) || appt.fee <= 0 || appt.fee >= 100_000) {
+      return reply.code(400).send({ error: 'invalid fee on appointment — contact support' })
+    }
 
     const order = await r.orders.create({
       amount: appt.fee * 100, // Razorpay expects paise
@@ -151,9 +157,13 @@ const route: FastifyPluginAsync = async (fastify) => {
         fastify.log.info({ event: event.event }, 'razorpay webhook: ack-only event')
       }
     } catch (err) {
-      // Even if our DB op fails, return 200 to prevent Razorpay's retry storm —
-      // we already verified the event is genuine; we'll reconcile via /order/sync.
-      fastify.log.error({ err, event: event.event }, 'razorpay webhook handler error (acknowledging anyway)')
+      // P1-3 (2026-05-18 audit): previously returned 200 + a comment claiming
+      // we'd reconcile via /order/sync — which did not exist. Result: a DB
+      // blip silently dropped paid-event state. Now: 500 so Razorpay retries.
+      // We've verified the HMAC so retries are safe; idempotency is enforced
+      // by the paymentRef==orderId lookup (no duplicate row will be created).
+      fastify.log.error({ err, event: event.event, orderId }, 'razorpay webhook: DB error — returning 500 for Razorpay retry')
+      return reply.code(500).send({ ok: false, error: 'transient db error; please retry' })
     }
 
     return reply.code(200).send({ ok: true })

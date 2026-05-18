@@ -11,9 +11,22 @@ import type { FastifyInstance, FastifyReply } from 'fastify'
 
 const subscribers = new Map<string, Set<FastifyReply>>()
 
+// P1-9 (2026-05-18 audit): cap concurrent SSE connections per user. Without
+// this, a single signed-in user can open thousands of EventSource connections
+// and exhaust the Node event loop / file descriptors. When the cap is reached,
+// the oldest connection is closed so the newest one wins.
+const MAX_STREAMS_PER_USER = 5
+
 export function subscribe(userId: string, reply: FastifyReply): () => void {
   let set = subscribers.get(userId)
   if (!set) { set = new Set(); subscribers.set(userId, set) }
+  // Evict oldest if at cap.
+  while (set.size >= MAX_STREAMS_PER_USER) {
+    const oldest = set.values().next().value
+    if (!oldest) break
+    set.delete(oldest)
+    try { oldest.raw.end() } catch { /* socket already closed */ }
+  }
   set.add(reply)
   return () => {
     const s = subscribers.get(userId)

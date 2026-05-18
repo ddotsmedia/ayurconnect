@@ -40,8 +40,8 @@ const drCases: FastifyPluginAsync = async (fastify) => {
     return { cases: items, pagination: { page: pageNum, limit: limitNum, total, pages: Math.ceil(total / limitNum) } }
   })
 
-  fastify.get('/_admin/queue', async (request, reply) => {
-    if (!request.session || !canModerate(request.session.user.role)) return reply.code(403).send({ error: 'admin only' })
+  fastify.get('/_admin/queue', { preHandler: fastify.requireAdmin }, async (request, reply) => {
+    // (defence-in-depth: preHandler also gates this — see route options)
     const items = await fastify.prisma.clinicalCase.findMany({
       where:   { status: 'pending' },
       orderBy: { createdAt: 'asc' },
@@ -146,8 +146,8 @@ const drCases: FastifyPluginAsync = async (fastify) => {
   })
 
   // Admin moderation
-  fastify.post('/:id/publish', async (request, reply) => {
-    if (!request.session || !canModerate(request.session.user.role)) return reply.code(403).send({ error: 'admin only' })
+  fastify.post('/:id/publish', { preHandler: fastify.requireAdmin }, async (request, reply) => {
+    // (defence-in-depth: preHandler also gates this — see route options)
     const { id } = request.params as { id: string }
     const c = await fastify.prisma.clinicalCase.update({
       where: { id },
@@ -164,8 +164,8 @@ const drCases: FastifyPluginAsync = async (fastify) => {
     return c
   })
 
-  fastify.post('/:id/reject', async (request, reply) => {
-    if (!request.session || !canModerate(request.session.user.role)) return reply.code(403).send({ error: 'admin only' })
+  fastify.post('/:id/reject', { preHandler: fastify.requireAdmin }, async (request, reply) => {
+    // (defence-in-depth: preHandler also gates this — see route options)
     const { id } = request.params as { id: string }
     const { reason } = request.body as { reason?: string }
     if (!reason?.trim()) return reply.code(400).send({ error: 'reason required' })

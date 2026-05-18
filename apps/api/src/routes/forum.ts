@@ -17,7 +17,7 @@ const forum: FastifyPluginAsync = async (fastify) => {
       fastify.prisma.post.findMany({
         where,
         include: {
-          user: { select: { id: true, name: true, email: true } },
+          user: { select: { id: true, name: true } },
           comments: {
             include: { user: { select: { id: true, name: true } } },
             orderBy: { createdAt: 'desc' },
@@ -41,7 +41,7 @@ const forum: FastifyPluginAsync = async (fastify) => {
     const post = await fastify.prisma.post.findUnique({
       where: { id },
       include: {
-        user: { select: { id: true, name: true, email: true } },
+        user: { select: { id: true, name: true } },  // public forum — never leak email
         comments: {
           include: { user: { select: { id: true, name: true } } },
           orderBy: { createdAt: 'asc' },

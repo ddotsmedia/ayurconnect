@@ -5,10 +5,17 @@ dist
 .next
 out
 
-# env
+# env — never commit real values. Only .env.example is tracked.
 .env
 .env.local
 .env.*.local
+.env.production
+.env.staging
+.env.development
+**/.env
+**/.env.production
+**/.env.local
+**/.env.*.local
 !.env.example
 
 # logs

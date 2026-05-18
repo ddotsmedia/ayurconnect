@@ -1,4 +1,5 @@
 import type { FastifyPluginAsync } from 'fastify'
+import { rateLimitOk } from '../lib/rate-limit.js'
 
 export const autoPrefix = '/leads'
 
@@ -20,24 +21,15 @@ const ALLOWED_KINDS = new Set([
   'second_opinion',      // /second-opinion intake form
 ])
 
-// Naive in-process rate-limit: 5 submissions / 10 min / IP. Process-local, so
-// won't survive PM2 reload and won't sync across instances — acceptable for
-// the volume we expect (marketing page submissions). Upgrade to Redis if we
-// ever cross ~100 submissions/hour.
-const IP_BUCKETS = new Map<string, { count: number; resetAt: number }>()
-const WINDOW_MS  = 10 * 60_000
-const MAX_HITS   = 5
-
-function rateLimit(ip: string): boolean {
-  const now = Date.now()
-  const bucket = IP_BUCKETS.get(ip)
-  if (!bucket || bucket.resetAt < now) {
-    IP_BUCKETS.set(ip, { count: 1, resetAt: now + WINDOW_MS })
-    return true
-  }
-  if (bucket.count >= MAX_HITS) return false
-  bucket.count += 1
-  return true
+// Rate-limit: 5 submissions / 10 min / IP. Backed by Redis via lib/rate-limit
+// so it survives PM2 reload and works across instances (in-process Map version
+// was a memory leak + per-instance bypass — flagged in 2026-05-18 audit).
+const LEADS_RATE = {
+  bucket:    'leads.submit',
+  windowSec: 600,
+  max:       5,
+  by:        'ip' as const,
+  message:   'Too many submissions — try again in a few minutes.',
 }
 
 function trim(v: unknown, max: number): string {
@@ -47,10 +39,7 @@ function trim(v: unknown, max: number): string {
 
 const route: FastifyPluginAsync = async (fastify) => {
   fastify.post('/', async (request, reply) => {
-    const ip = (request.headers['cf-connecting-ip'] as string)
-      ?? (request.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
-      ?? request.ip
-    if (!rateLimit(ip)) return reply.code(429).send({ error: 'too many submissions — try again in a few minutes' })
+    if (!(await rateLimitOk(fastify, request, reply, LEADS_RATE))) return
 
     const body = request.body as Record<string, unknown>
     const kind = trim(body.kind, 40)

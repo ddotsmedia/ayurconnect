@@ -18,6 +18,9 @@ const adminAiSeo: FastifyPluginAsync = async (fastify) => {
     if (!text || typeof text !== 'string' || text.trim().length < 20) {
       return reply.code(400).send({ error: 'text required (min 20 chars)' })
     }
+    if (text.length > 10_000) {  // cap LLM cost — admin endpoint but still bounded
+      return reply.code(400).send({ error: 'text too long (max 10,000 chars)' })
+    }
 
     const system = `You write meta descriptions for SEO. Output exactly ONE description, no quotes, no preamble, no markdown. Constraints:
 - Maximum ${max} characters (hard limit).
@@ -41,6 +44,9 @@ const adminAiSeo: FastifyPluginAsync = async (fastify) => {
     const { text, count = 5 } = request.body as { text?: string; count?: number }
     if (!text || typeof text !== 'string' || text.trim().length < 100) {
       return reply.code(400).send({ error: 'text required (min 100 chars)' })
+    }
+    if (text.length > 10_000) {
+      return reply.code(400).send({ error: 'text too long (max 10,000 chars)' })
     }
 
     const n = Math.max(3, Math.min(count, 10))
@@ -78,6 +84,9 @@ Constraints:
     const { text } = request.body as { text?: string }
     if (!text || typeof text !== 'string' || text.trim().length < 50) {
       return reply.code(400).send({ error: 'text required (min 50 chars)' })
+    }
+    if (text.length > 10_000) {
+      return reply.code(400).send({ error: 'text too long (max 10,000 chars)' })
     }
 
     const system = `Extract 8-12 search keywords / phrases from the content for SEO meta tags. Output ONE comma-separated line, no preamble, no quotes. Mix short and long-tail. Include Ayurveda-specific terms in Sanskrit/English where relevant.`

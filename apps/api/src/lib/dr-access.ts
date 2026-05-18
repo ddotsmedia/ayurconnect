@@ -12,7 +12,13 @@ import type { FastifyRequest, FastifyReply } from 'fastify'
 // onRequest hook that soft-attaches req.session whenever a cookie is present.
 // Per-route guards below do the actual 401/403.
 
-export const READ_ROLES     = ['DOCTOR', 'DOCTOR_PENDING', 'ADMIN'] as const
+// P1-4 (2026-05-18 audit): DOCTOR_PENDING removed from READ_ROLES. Previously
+// anyone could sign up, POST /me/promote-to-doctor (no admin gate), become
+// DOCTOR_PENDING, and read every clinical case + protocol + research paper.
+// Pending doctors now see the upsell page in the web layout until admin
+// approves them via /admin/verify. Existing pending users impacted: the
+// admin will re-verify them through the normal queue flow.
+export const READ_ROLES     = ['DOCTOR', 'ADMIN'] as const
 export const WRITE_ROLES    = ['DOCTOR', 'ADMIN'] as const
 export const MODERATE_ROLES = ['ADMIN'] as const
 

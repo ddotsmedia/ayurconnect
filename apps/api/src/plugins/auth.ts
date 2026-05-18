@@ -35,12 +35,23 @@ export default fp(async (fastify) => {
     .split(',')
     .map((s) => s.trim())
 
+  const isProd  = process.env.NODE_ENV === 'production'
   const auth = betterAuth({
     database: prismaAdapter(fastify.prisma, { provider: 'postgresql' }),
     secret: process.env.BETTER_AUTH_SECRET,
     baseURL,
     basePath: '/auth',
     trustedOrigins: trusted,
+    // Explicit cookie security flags — don't rely on Better Auth defaults
+    // changing across versions. SameSite=Lax is the right trade-off for our
+    // OAuth-style flows and CSRF resistance.
+    advanced: {
+      cookies: {
+        sessionToken: { name: 'better-auth.session_token', sameSite: 'lax' },
+      },
+      useSecureCookies: isProd,
+      crossSubDomainCookies: { enabled: false },
+    },
     emailAndPassword: {
       enabled: true,
       autoSignIn: true,
@@ -110,6 +121,23 @@ export default fp(async (fastify) => {
       return reply
     }
     req.session = sess as unknown as AuthSession
+    // Enforce email verification when email transport is configured. Without
+    // this, an unverified account can immediately consume the signed-in
+    // surface (vitals, reviews, forum, prescriptions, etc.) before owning
+    // the email address. Admins bypass — locked-out admins need to be able
+    // to fix the email-transport configuration.
+    if (
+      emailEnabled()
+      && isProd
+      && req.session.user.role !== 'ADMIN'
+      && (req.session.user as unknown as { emailVerified?: boolean }).emailVerified === false
+    ) {
+      reply.code(403).send({
+        error: 'Please verify your email address before continuing.',
+        code:  'email-not-verified',
+      })
+      return reply
+    }
   })
 
   fastify.decorate('requireAdmin', async (req: FastifyRequest, reply: FastifyReply) => {

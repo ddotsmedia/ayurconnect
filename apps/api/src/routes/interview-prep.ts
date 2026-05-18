@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify'
 import { chat } from '../lib/llm.js'
+import { rateLimitOk, llmHourlyLimit } from '../lib/rate-limit.js'
 
 export const autoPrefix = '/interview-prep'
 
@@ -36,6 +37,7 @@ const route: FastifyPluginAsync = async (fastify) => {
   // POST /interview-prep
   // Body: { jobTitle: string, organization?: string, jobDescription?: string }
   fastify.post('/', async (request, reply) => {
+    if (!(await rateLimitOk(fastify, request, reply, llmHourlyLimit('llm.interview-prep')))) return
     const { jobTitle, organization, jobDescription } = request.body as {
       jobTitle?: string; organization?: string; jobDescription?: string
     }

@@ -56,7 +56,7 @@ const drCme: FastifyPluginAsync = async (fastify) => {
     const [credit, reg] = await Promise.all([
       fastify.prisma.cmeCredit.findUnique({
         where:   { certificateId },
-        include: { user: { select: { id: true, name: true, email: true } } },
+        include: { user: { select: { id: true, name: true } } },  // never expose email on public cert-verify endpoint
       }),
       fastify.prisma.webinarRegistration.findUnique({
         where:   { certificateId },

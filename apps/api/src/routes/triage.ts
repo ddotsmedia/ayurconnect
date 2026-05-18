@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify'
 import { chat } from '../lib/llm.js'
+import { rateLimitOk, llmHourlyLimit } from '../lib/rate-limit.js'
 
 export const autoPrefix = '/triage'
 
@@ -36,10 +37,14 @@ export type TriageResult = {
 const route: FastifyPluginAsync = async (fastify) => {
   // POST /triage — body: { symptoms: string, age?: number, sex?: 'M'|'F'|'O', duration?: string }
   fastify.post('/', async (request, reply) => {
+    if (!(await rateLimitOk(fastify, request, reply, llmHourlyLimit('llm.triage')))) return
     const body = request.body as { symptoms?: string; age?: number; sex?: string; duration?: string }
     const symptoms = (body.symptoms ?? '').trim()
     if (symptoms.length < 15) {
       return reply.code(400).send({ error: 'Please describe your symptoms in at least a sentence (15+ chars).' })
+    }
+    if (symptoms.length > 5000) {
+      return reply.code(400).send({ error: 'Symptoms too long (max 5000 chars).' })
     }
 
     const ctx: string[] = [`Symptoms: ${symptoms}`]

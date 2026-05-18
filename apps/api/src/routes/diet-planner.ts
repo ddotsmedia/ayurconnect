@@ -1,5 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify'
 import { chat } from '../lib/llm.js'
+import { rateLimitOk, llmHourlyLimit } from '../lib/rate-limit.js'
 
 export const autoPrefix = '/diet-planner'
 
@@ -134,6 +135,7 @@ function parsePlan(raw: string): GeneratedPlan | null {
 
 const route: FastifyPluginAsync = async (fastify) => {
   fastify.post('/generate', async (request, reply) => {
+    if (!(await rateLimitOk(fastify, request, reply, llmHourlyLimit('llm.diet-planner')))) return
     const body = request.body as {
       dosha?: string
       season?: string
@@ -211,10 +213,20 @@ const route: FastifyPluginAsync = async (fastify) => {
     return { ok: true, plan, cached: false, id: saved.id, provider: result.provider }
   })
 
-  fastify.get('/:id', async (request, reply) => {
+  // P2-8 (2026-05-18 audit): require auth + ownership. Previously anyone with
+  // a (small) chance of guessing or leaking a CUID could fetch any user's plan
+  // including their dosha + conditions list.
+  fastify.get('/:id', { preHandler: fastify.requireSession }, async (request, reply) => {
     const { id } = request.params as { id: string }
     const plan = await fastify.prisma.dietPlan.findUnique({ where: { id } })
     if (!plan) return reply.code(404).send({ error: 'not found' })
+    const sess = request.session!
+    // Allow the plan owner, or any ADMIN. Anonymous plans (userId=null) are
+    // legacy generated-by-anonymous flow and not personally identifiable on
+    // their own — but only the owner-or-admin gets to retrieve them now.
+    if (plan.userId !== sess.user.id && sess.user.role !== 'ADMIN') {
+      return reply.code(403).send({ error: 'not authorised' })
+    }
     return { plan }
   })
 }

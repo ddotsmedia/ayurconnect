@@ -11,6 +11,23 @@ function deriveInitials(name: string): string {
   return name.trim().split(/\s+/).slice(0, 2).map((s) => s.charAt(0).toUpperCase()).join('')
 }
 
+// Reject javascript:/data:/vbscript: and anything not http(s). The image
+// renders inside <img src> on the public homepage; an admin (or a compromised
+// admin session) could otherwise paste a javascript: URL and land script in
+// every reader's session.
+function safeImageUrl(raw: unknown): string | null {
+  if (typeof raw !== 'string') return null
+  const v = raw.trim()
+  if (!v) return null
+  try {
+    const u = new URL(v)
+    if (u.protocol === 'http:' || u.protocol === 'https:') return v.slice(0, 500)
+    return null
+  } catch {
+    return null
+  }
+}
+
 const testimonials: FastifyPluginAsync = async (fastify) => {
   // Public list — published only, sorted for homepage rendering.
   fastify.get('/', async (request) => {
@@ -60,7 +77,7 @@ const testimonials: FastifyPluginAsync = async (fastify) => {
       initials:  typeof body.initials  === 'string' && body.initials.trim()
                    ? body.initials.trim().slice(0, 4).toUpperCase()
                    : deriveInitials(name),
-      imageUrl:  typeof body.imageUrl  === 'string' ? body.imageUrl.trim() || null : null,
+      imageUrl:  safeImageUrl(body.imageUrl),
     }
     return reply.code(201).send(await fastify.prisma.testimonial.create({ data: data as never }))
   })
@@ -72,8 +89,14 @@ const testimonials: FastifyPluginAsync = async (fastify) => {
     for (const k of FIELDS) {
       if (body[k] !== undefined) {
         const v = body[k]
-        if (typeof v === 'string') data[k] = v.trim() || (k === 'name' || k === 'quote' ? undefined : null)
-        else if (v === null) data[k] = null
+        if (k === 'imageUrl') {
+          // Validate scheme — never accept javascript:/data:/vbscript:.
+          data[k] = safeImageUrl(v)
+        } else if (typeof v === 'string') {
+          data[k] = v.trim() || (k === 'name' || k === 'quote' ? undefined : null)
+        } else if (v === null) {
+          data[k] = null
+        }
       }
     }
     if (body.stars     !== undefined) data.stars     = clampStars(body.stars)

@@ -123,6 +123,29 @@ const prescriptions: FastifyPluginAsync = async (fastify) => {
     const patient = await fastify.prisma.user.findUnique({ where: { id: patientId }, select: { id: true } })
     if (!patient) return reply.code(404).send({ error: 'patient not found' })
 
+    // P0-1 (2026-05-18 audit): enforce a care relationship. Any DOCTOR could
+    // previously POST /prescriptions to an arbitrary userId and inject a
+    // prescription into that user's dashboard. Now we require either:
+    //   (a) the doctor's user.id is the doctorId on a non-cancelled Appointment
+    //       with this patient, OR
+    //   (b) the caller is ADMIN (legitimate admin override during operations).
+    if (sess.user.role !== 'ADMIN') {
+      const link = await fastify.prisma.appointment.findFirst({
+        where: {
+          userId:   patientId,
+          doctorId: sess.user.id,
+          status:   { in: ['confirmed', 'completed'] },
+        },
+        select: { id: true },
+      })
+      if (!link) {
+        return reply.code(403).send({
+          error: 'no care relationship — prescribe only for patients you have a confirmed or completed appointment with',
+          code:  'no-care-relationship',
+        })
+      }
+    }
+
     const v = validateItems(body.items)
     if (v.ok === false) return reply.code(400).send({ error: v.error })
 

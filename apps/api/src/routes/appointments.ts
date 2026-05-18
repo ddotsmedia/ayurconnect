@@ -77,34 +77,46 @@ const route: FastifyPluginAsync = async (fastify) => {
     const doctor = await fastify.prisma.doctor.findUnique({ where: { id: String(body.doctorId) } })
     if (!doctor) return reply.code(404).send({ error: 'doctor not found' })
 
-    // If a slotId is provided, validate it and flip it to booked atomically.
+    // P1-11 (2026-05-18 audit): slot booking is wrapped in a transaction with
+    // a conditional UPDATE — only flip slot.status='open' → 'booked' (the
+    // updateMany returns 0 if a concurrent booking already flipped it).
+    // Then we create the appointment. If the slot update doesn't take, abort
+    // with 409. Eliminates the previous TOCTOU race where two concurrent
+    // bookings both passed the open-check and both created appointments.
     const slotId = body.slotId ? String(body.slotId) : null
-    if (slotId) {
-      const slot = await fastify.prisma.doctorSlot.findUnique({ where: { id: slotId } })
-      if (!slot || slot.doctorId !== doctor.id) return reply.code(404).send({ error: 'slot not found for this doctor' })
-      if (slot.status !== 'open')               return reply.code(409).send({ error: `slot is ${slot.status}` })
-    }
 
-    const appt = await fastify.prisma.appointment.create({
-      data: {
-        userId: sess.user.id,
-        doctorId: String(body.doctorId),
-        dateTime: dt,
-        type: String(body.type),
-        chiefComplaint: body.chiefComplaint ? String(body.chiefComplaint) : null,
-        duration: body.duration ? String(body.duration) : null,
-        notes: body.notes ? String(body.notes) : null,
-        fee: null,
-        paymentStatus: 'free',
-        status: 'scheduled',
-      },
+    const appt = await fastify.prisma.$transaction(async (tx) => {
+      if (slotId) {
+        const slot = await tx.doctorSlot.findUnique({ where: { id: slotId } })
+        if (!slot || slot.doctorId !== doctor.id) throw new Error('SLOT_NOT_FOUND')
+        if (slot.status !== 'open')               throw new Error('SLOT_NOT_OPEN')
+        // Atomic claim: only succeeds if the slot is still open.
+        const claim = await tx.doctorSlot.updateMany({
+          where: { id: slotId, status: 'open' },
+          data:  { status: 'booked' },
+        })
+        if (claim.count === 0) throw new Error('SLOT_NOT_OPEN')
+      }
+      return tx.appointment.create({
+        data: {
+          userId:        sess.user.id,
+          doctorId:      String(body.doctorId),
+          dateTime:      dt,
+          type:          String(body.type),
+          chiefComplaint: body.chiefComplaint ? String(body.chiefComplaint) : null,
+          duration:      body.duration ? String(body.duration) : null,
+          notes:         body.notes ? String(body.notes) : null,
+          fee:           null,
+          paymentStatus: 'free',
+          status:        'scheduled',
+        },
+      })
+    }).catch((err: Error) => {
+      if (err.message === 'SLOT_NOT_FOUND') return { __error: 404, message: 'slot not found for this doctor' } as const
+      if (err.message === 'SLOT_NOT_OPEN')  return { __error: 409, message: 'slot is already booked' } as const
+      throw err
     })
-
-    // Mark the slot as booked (if used)
-    if (slotId) {
-      try { await fastify.prisma.doctorSlot.update({ where: { id: slotId }, data: { status: 'booked' } }) }
-      catch (err) { fastify.log.warn({ err, slotId }, 'failed to flip slot to booked (appointment still created)') }
-    }
+    if ('__error' in appt) return reply.code(appt.__error).send({ error: appt.message })
 
     // ─── Create video room if this is a video consultation ──────────────
     let videoUrl: string | null = null
