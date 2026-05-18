@@ -190,10 +190,12 @@ const route: FastifyPluginAsync = async (fastify) => {
     }
     const plan = parsePlan(result.text)
     if (!plan) {
+      // P2-H1 (2026-05-18 healthcare audit): never log raw LLM output. It
+      // echoes user dosha + condition list (borderline-PHI). Log only the
+      // length so we can correlate to the request id without retaining text.
       fastify.log.warn({
-        rawHead: result.text.slice(0, 300),
-        rawTail: result.text.slice(-300),
-        length: result.text.length,
+        length:   result.text.length,
+        provider: result.provider,
       }, 'diet-planner: failed to parse LLM output')
       return reply.code(502).send({ error: 'AI returned malformed plan — please retry' })
     }

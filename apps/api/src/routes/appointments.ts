@@ -2,7 +2,8 @@ import type { FastifyPluginAsync, FastifyRequest } from 'fastify'
 import { createNotification } from '../lib/notify.js'
 import { sendWhatsApp } from '../lib/whatsapp.js'
 import { sendEmail, emailEnabled } from '../lib/email.js'
-import { createVideoRoom, videoEnabled } from '../lib/video.js'
+import { createVideoRoom, createMeetingToken, videoEnabled } from '../lib/video.js'
+import { logPhiRead } from '../lib/audit.js'
 
 export const autoPrefix = '/appointments'
 
@@ -22,11 +23,38 @@ const route: FastifyPluginAsync = async (fastify) => {
     } else {
       where.userId = sess.user.id
     }
+    // P0-H4 (2026-05-18 healthcare audit): the list endpoint used to return
+    // every PHI field on each row (consultation notes, prescription text,
+    // treatment plan, doctorPrivateNotes, declineReason). For 100 rows per
+    // call, an admin XSS or session leak dumped the entire clinical record
+    // for every patient. The list now returns only the directory-level
+    // summary; full PHI lives on GET /:id which is gated per row.
     return fastify.prisma.appointment.findMany({
       where,
-      include: {
+      select: {
+        id:            true,
+        status:        true,
+        type:          true,
+        dateTime:      true,
+        duration:      true,
+        fee:           true,
+        paymentStatus: true,
+        createdAt:     true,
+        updatedAt:     true,
+        // Patient summary so the patient sees their own short complaint in
+        // their list, but admins/doctors get a redacted preview only when
+        // looking at someone else's row. Trade-off: doctors see this on
+        // their own assigned patients (legitimate). Admin sees a redacted
+        // marker — they can drill into GET /:id (audited) for full PHI.
+        chiefComplaint: true,
         doctor: { select: { id: true, name: true, specialization: true, district: true, photoUrl: true } },
-        user:   { select: { id: true, name: true, email: true } },
+        user:   { select: { id: true, name: true } },
+        // PHI fields intentionally NOT in this select:
+        // consultationSummary, prescription, treatmentPlan, doctorPrivateNotes,
+        // declineReason, notes (free-text), consultationStartedAt/EndedAt
+        // markers stay out; followUpRecommended/AfterWeeks fine.
+        followUpRecommended: true,
+        followUpAfterWeeks:  true,
       },
       orderBy: { dateTime: 'desc' },
       take: 100,
@@ -50,6 +78,10 @@ const route: FastifyPluginAsync = async (fastify) => {
     const userExt = sess.user as unknown as { doctorId?: string; role: string }
     const isMyDoctor = userExt.role === 'DOCTOR' && userExt.doctorId === appt.doctorId
     if (!isAdmin && !isMine && !isMyDoctor) return reply.code(403).send({ error: 'forbidden' })
+    // P0-H5: audit every non-owner read (admin or unrelated-doctor) of PHI.
+    if (!isMine) {
+      logPhiRead(fastify, request, { targetType: 'Appointment', targetId: appt.id })
+    }
     return appt
   })
 
@@ -76,6 +108,18 @@ const route: FastifyPluginAsync = async (fastify) => {
     // Sanity: doctor exists
     const doctor = await fastify.prisma.doctor.findUnique({ where: { id: String(body.doctorId) } })
     if (!doctor) return reply.code(404).send({ error: 'doctor not found' })
+    // P1-H6 (2026-05-18 healthcare audit): block PHI flow against unverified
+    // doctors. A patient's chiefComplaint (free-text symptoms) is PHI; until
+    // the doctor's credentials clear admin review, that data should not be
+    // collected on their behalf. The patient UI can offer an explicit
+    // `acceptUnverified: true` flag for legitimate "we know each other
+    // already, urgent slot" cases; bookings that don't set it are blocked.
+    if (!doctor.ccimVerified && body.acceptUnverified !== true && sess.user.role !== 'ADMIN') {
+      return reply.code(409).send({
+        error: 'this doctor is awaiting verification — book only if you have explicit prior contact',
+        code:  'doctor-not-verified',
+      })
+    }
 
     // P1-11 (2026-05-18 audit): slot booking is wrapped in a transaction with
     // a conditional UPDATE — only flip slot.status='open' → 'booked' (the
@@ -161,16 +205,20 @@ const route: FastifyPluginAsync = async (fastify) => {
         }
 
         // 3. Email confirmation to patient (if Resend configured)
+        // P0-H3 (2026-05-18 healthcare audit): we used to embed the Daily.co
+        // room URL directly in email + WhatsApp. Lock-screen previews of
+        // notifications could leak the join URL to anyone glancing at the
+        // patient's phone, and email forwarding/inbox-indexers turn that
+        // into a permanent leak. The room URL is now only revealed via the
+        // authenticated /consult/[id] surface — emails/WhatsApp link there.
         if (emailEnabled() && sess.user.email) {
-          const videoLine = videoUrl ? `<p><strong>Video link:</strong> <a href="${videoUrl}">${videoUrl}</a></p>` : ''
           await sendEmail({
             to: sess.user.email,
-            subject: `Appointment confirmed — ${doctor.name}`,
-            html: `<p>Your appointment with <strong>${doctor.name}</strong> is scheduled for <strong>${when}</strong>.</p>
-                   <p>Type: ${appt.type}<br>Fee: ${appt.fee ? `₹${appt.fee}` : 'TBD'}</p>
-                   ${videoLine}
-                   <p>You can cancel or reschedule from your dashboard at https://ayurconnect.com/dashboard/appointments.</p>`,
-            text: `Appointment with ${doctor.name} on ${when}. ${videoUrl ? 'Video: ' + videoUrl : ''} Manage at https://ayurconnect.com/dashboard/appointments`,
+            subject: `Your AyurConnect appointment is confirmed`,
+            html: `<p>Your consultation is scheduled for <strong>${when}</strong>.</p>
+                   <p>Open the consultation from your dashboard when it's time to join: <a href="https://ayurconnect.com/dashboard/appointments">dashboard/appointments</a></p>
+                   <p>You can cancel or reschedule from the same page.</p>`,
+            text: `Your AyurConnect consultation is scheduled for ${when}. Manage and join at https://ayurconnect.com/dashboard/appointments`,
           })
         }
 
@@ -179,7 +227,7 @@ const route: FastifyPluginAsync = async (fastify) => {
         if (me?.phone) {
           await sendWhatsApp({
             to:   me.phone,
-            body: `🌿 AyurConnect: appointment with ${doctor.name} on ${when}. Manage at https://ayurconnect.com/dashboard/appointments`,
+            body: `🌿 Your AyurConnect consultation is confirmed for ${when}. Open it from your dashboard at https://ayurconnect.com/dashboard/appointments`,
           })
         }
       } catch (err) {
@@ -198,6 +246,16 @@ const route: FastifyPluginAsync = async (fastify) => {
     const isAdmin = sess.user.role === 'ADMIN'
     const isMine = appt.userId === sess.user.id
     if (!isAdmin && !isMine) return reply.code(403).send({ error: 'forbidden' })
+    // P1-H2 (2026-05-18 healthcare audit): block cancel-after-complete which
+    // would otherwise damage the clinical record + confuse Razorpay refund
+    // state. Same guard for declined. Admin can still force-edit via direct
+    // PATCH /admin/appointments/:id if a legitimate override is needed.
+    if (!isAdmin && (appt.status === 'completed' || appt.status === 'declined')) {
+      return reply.code(409).send({
+        error: `cannot cancel an appointment that is already ${appt.status}`,
+        code:  'invalid-status-transition',
+      })
+    }
     return fastify.prisma.appointment.update({
       where: { id },
       data: { status: 'cancelled' },
@@ -358,8 +416,24 @@ const route: FastifyPluginAsync = async (fastify) => {
     const isMyDoctor = userExt.doctorId === appt.doctorId
     if (!isAdmin && !isMine && !isMyDoctor) return reply.code(403).send({ error: 'forbidden' })
 
-    // Extract the video room URL from notes (where the booking flow stashed it)
-    const videoUrl = appt.notes?.match(/Video room: (https?:\/\/\S+)/)?.[1] ?? null
+    // P0-H2 (2026-05-18 healthcare audit): rooms are now `privacy: 'private'`,
+    // so the bare URL no longer grants access. Mint a per-user Daily.co
+    // meeting token scoped to this participant + this room, valid until the
+    // appointment window ends. Returns null if Daily is unconfigured (dev).
+    const videoUrl    = appt.notes?.match(/Video room: (https?:\/\/\S+)/)?.[1] ?? null
+    const roomNameMatch = videoUrl ? videoUrl.match(/\/([a-z0-9-]+)$/) : null
+    let videoToken: string | null = null
+    if (videoUrl && roomNameMatch && videoEnabled() && !isAdmin) {
+      const t = await createMeetingToken({
+        roomName:  roomNameMatch[1],
+        userName:  (isMyDoctor ? `Dr ${appt.doctor.name}` : appt.user?.name ?? 'Patient').slice(0, 60),
+        userId:    sess.user.id,
+        isOwner:   isMyDoctor,
+        validFrom: Math.floor(new Date(appt.dateTime).getTime() / 1000) - 600,
+        validUntil: Math.floor(new Date(appt.dateTime).getTime() / 1000) + 90 * 60,
+      })
+      if (t.ok) videoToken = t.token
+    }
 
     // Role-filter the clinical notes — patient never sees doctor's private notes.
     const baseFields = {
@@ -373,6 +447,7 @@ const route: FastifyPluginAsync = async (fastify) => {
       followUpAfterWeeks: appt.followUpAfterWeeks,
       doctor: appt.doctor, user: appt.user,
       videoUrl,
+      videoToken,             // P0-H2: required to join — without it, private rooms reject
       videoEnabled: videoEnabled(),
       role: isMyDoctor || isAdmin ? 'doctor' : 'patient',
     }

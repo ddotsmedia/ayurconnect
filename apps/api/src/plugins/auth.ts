@@ -118,6 +118,21 @@ export default fp(async (fastify) => {
     }
   })
 
+  // P1-H4 (2026-05-18 healthcare audit): every response on an authenticated
+  // request gets Cache-Control: no-store, private. Prevents PHI leakage via
+  // intermediate caches (Cloudflare, corporate proxies, school networks). We
+  // attach the header in onSend BEFORE the body is serialised so it survives
+  // route handlers that don't set it themselves. Public endpoints are
+  // unaffected (no session => no header change, public CDN caching works).
+  fastify.addHook('onSend', async (req: FastifyRequest, reply: FastifyReply, payload) => {
+    if (!req.session) return payload
+    // Don't clobber stronger no-cache directives a route already set.
+    if (!reply.getHeader('cache-control')) {
+      reply.header('cache-control', 'no-store, private')
+    }
+    return payload
+  })
+
   fastify.decorate('requireSession', async (req: FastifyRequest, reply: FastifyReply) => {
     const headers = new Headers()
     for (const [k, v] of Object.entries(req.headers)) {

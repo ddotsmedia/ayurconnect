@@ -10,6 +10,7 @@
 
 import type { FastifyPluginAsync } from 'fastify'
 import { createNotification } from '../lib/notify.js'
+import { logPhiRead } from '../lib/audit.js'
 
 export const autoPrefix = '/prescriptions'
 
@@ -107,6 +108,10 @@ const prescriptions: FastifyPluginAsync = async (fastify) => {
     if (rx.patientId !== sess.user.id && rx.doctorId !== sess.user.id && sess.user.role !== 'ADMIN') {
       return reply.code(403).send({ error: 'forbidden' })
     }
+    // P0-H5: audit non-owner reads of prescription PHI.
+    if (rx.patientId !== sess.user.id) {
+      logPhiRead(fastify, request, { targetType: 'Prescription', targetId: rx.id })
+    }
     return rx
   })
 
@@ -119,9 +124,20 @@ const prescriptions: FastifyPluginAsync = async (fastify) => {
     const patientId = cleanStr(body.patientId, 40)
     if (!patientId) return reply.code(400).send({ error: 'patientId required' })
 
-    // Validate the patient actually exists.
-    const patient = await fastify.prisma.user.findUnique({ where: { id: patientId }, select: { id: true } })
+    // Validate the patient actually exists AND has the USER role (P2-H8
+    // 2026-05-18 healthcare audit): a doctor previously could prescribe to
+    // another doctor or admin by passing their id. This created confusing
+    // records and bypassed the patient-side prescription UI assumptions.
+    const patient = await fastify.prisma.user.findUnique({
+      where: { id: patientId }, select: { id: true, role: true },
+    })
     if (!patient) return reply.code(404).send({ error: 'patient not found' })
+    if (patient.role !== 'USER') {
+      return reply.code(400).send({
+        error: 'prescriptions can only be issued to standard patient accounts (role=USER)',
+        code:  'invalid-target-role',
+      })
+    }
 
     // P0-1 (2026-05-18 audit): enforce a care relationship. Any DOCTOR could
     // previously POST /prescriptions to an arbitrary userId and inject a

@@ -17,11 +17,36 @@ function normalisePhone(raw: string): string | null {
 
 const route: FastifyPluginAsync = async (fastify) => {
   // POST /alerts/whatsapp/subscribe
-  // Body: { phone, specialization?, district?, source? }
+  // Body: { phone, consent, specialization?, district?, source? }
+  // P2-H3 (2026-05-18 healthcare audit): require an explicit `consent: true`
+  // flag from the client (UI shows a labelled checkbox), and don't silently
+  // re-activate previously-unsubscribed phones — that user opted out
+  // specifically. They must re-opt-in via a fresh subscription. DPDP Act §6
+  // requires informed, specific consent — auto-reactivation would violate it.
   fastify.post('/subscribe', async (request, reply) => {
-    const body = request.body as { phone?: string; specialization?: string; district?: string; source?: string }
+    const body = request.body as { phone?: string; consent?: boolean; specialization?: string; district?: string; source?: string }
     const phone = normalisePhone(body.phone ?? '')
     if (!phone) return reply.code(400).send({ error: 'invalid phone — please use E.164 (+91…) or 10-digit Indian mobile' })
+    if (body.consent !== true) {
+      return reply.code(400).send({
+        error: 'explicit consent required — please tick the checkbox to receive WhatsApp alerts',
+        code:  'consent-required',
+      })
+    }
+
+    // Block re-activation for previously-unsubscribed numbers — they must
+    // re-opt-in via a fresh subscription record (DPDP §6).
+    const existing = await fastify.prisma.whatsAppAlertSubscription.findUnique({ where: { phone } })
+    if (existing && existing.unsubscribedAt !== null) {
+      return reply.code(409).send({
+        error: 'this phone previously unsubscribed — to re-enable alerts, contact privacy@ayurconnect.com or use a different phone',
+        code:  'previously-unsubscribed',
+      })
+    }
+
+    const xff = (request.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim()
+    const ip  = xff || request.ip || null
+    const ua  = (request.headers['user-agent'] as string | undefined)?.slice(0, 200) || null
 
     const data = {
       phone,
@@ -33,8 +58,21 @@ const route: FastifyPluginAsync = async (fastify) => {
     const sub = await fastify.prisma.whatsAppAlertSubscription.upsert({
       where:  { phone },
       create: { ...data, isActive: true, consentAt: new Date() },
-      update: { ...data, isActive: true, unsubscribedAt: null },
+      update: { ...data, isActive: true },  // unsubscribed branch above; here it's an idempotent re-submit
     })
+
+    // Audit-log the consent capture with IP + UA for the regulator-facing record.
+    void fastify.prisma.auditLog.create({
+      data: {
+        actorId:    sub.id,  // sub id stands in as actor for anonymous opt-in
+        action:     'force-update',
+        targetType: 'Lead',
+        targetId:   sub.id,
+        ip,
+        reason:     `whatsapp-alert consent (ua=${ua ?? 'unknown'})`,
+      },
+    }).catch(() => null)
+
     return { ok: true, subscription: { id: sub.id, phone: sub.phone, specialization: sub.specialization, district: sub.district } }
   })
 

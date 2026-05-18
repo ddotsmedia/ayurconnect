@@ -127,7 +127,9 @@ const drAiResearch: FastifyPluginAsync = async (fastify) => {
     }
 
     const { items: candidates, mode: retrievalMode } = await retrieveCandidates(fastify, question, 5)
-    fastify.log.info({ mode: retrievalMode, hits: candidates.length, question: question.slice(0, 80) }, 'dr-ai-research retrieval')
+    // P2-H2 (2026-05-18 healthcare audit): doctors paste real case
+    // descriptions here — log only metadata, never the question text.
+    fastify.log.info({ mode: retrievalMode, hits: candidates.length, qLen: question.length }, 'dr-ai-research retrieval')
 
     // Build augmented prompt with citation list. If no candidates, the model
     // is instructed to say so (rule 2 above) rather than fabricate.

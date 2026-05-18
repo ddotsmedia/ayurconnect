@@ -40,18 +40,27 @@ export async function createVideoRoom(opts: CreateRoomOpts): Promise<{ ok: true;
   const validUntil = opts.validUntil ?? validFrom + 24 * 60 * 60
 
   try {
+    // P0-H2 (2026-05-18 healthcare audit): rooms are now `privacy: 'private'`.
+    // The bare URL alone no longer grants access — joiners need a Daily.co
+    // meeting token (see `createMeetingToken` below) which is minted per-user
+    // at the moment they open /consult/[appointmentId]. Leaked URLs cannot
+    // be used for surveillance; tokens are scoped to the specific user_name
+    // + room and expire when the room window does.
     const res = await fetch('https://api.daily.co/v1/rooms', {
       method: 'POST',
       headers: { 'authorization': `Bearer ${KEY}`, 'content-type': 'application/json' },
       body: JSON.stringify({
         name: slug,
-        privacy: 'public',
+        privacy: 'private',
         properties: {
           nbf: validFrom,
           exp: validUntil,
           max_participants: opts.maxParticipants ?? 4,
           enable_chat: true,
           enable_screenshare: true,
+          // Recording disabled at room-config level. To enable later, opt in
+          // explicitly + add a recording-consent surface in the patient UI.
+          enable_recording: false,
         },
       }),
     })
@@ -60,6 +69,48 @@ export async function createVideoRoom(opts: CreateRoomOpts): Promise<{ ok: true;
     const url = json.url ?? (DOMAIN ? `https://${DOMAIN}.daily.co/${slug}` : '')
     if (!url) return { ok: false, reason: 'Daily returned no URL' }
     return { ok: true, url, name: slug }
+  } catch (e) {
+    return { ok: false, reason: e instanceof Error ? e.message : String(e) }
+  }
+}
+
+// P0-H2: mint a Daily.co meeting token scoped to a single participant + room.
+// Each call to /consult/[appointmentId] now generates a fresh token; the
+// server is the only place that knows the DAILY_API_KEY.
+//
+// Daily's meeting-token API: https://docs.daily.co/reference/rest-api/meeting-tokens/create-meeting-token
+export type MeetingTokenOpts = {
+  roomName:  string  // the slug we stored when creating the room
+  userName:  string  // human-readable, shown in the participant list
+  userId:    string  // our internal user id — included in the token claims
+  isOwner?:  boolean // doctor gets is_owner=true (can eject, end call)
+  validFrom?: number
+  validUntil?: number
+}
+
+export async function createMeetingToken(opts: MeetingTokenOpts): Promise<{ ok: true; token: string } | { ok: false; reason: string }> {
+  if (!videoEnabled()) return { ok: false, reason: 'video not configured' }
+  try {
+    const res = await fetch('https://api.daily.co/v1/meeting-tokens', {
+      method: 'POST',
+      headers: { 'authorization': `Bearer ${KEY}`, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        properties: {
+          room_name:        opts.roomName,
+          user_name:        opts.userName.slice(0, 60),
+          user_id:          opts.userId,
+          is_owner:         opts.isOwner === true,
+          // Token TTL matches the room window when supplied, otherwise default
+          // to a 2-hour cap so a leaked token can't outlive the appointment.
+          nbf:              opts.validFrom,
+          exp:              opts.validUntil ?? Math.floor(Date.now() / 1000) + 2 * 60 * 60,
+          enable_screenshare: true,
+        },
+      }),
+    })
+    const json = await res.json() as { token?: string; error?: string; info?: string }
+    if (!res.ok || !json.token) return { ok: false, reason: json.error ?? json.info ?? `HTTP ${res.status}` }
+    return { ok: true, token: json.token }
   } catch (e) {
     return { ok: false, reason: e instanceof Error ? e.message : String(e) }
   }

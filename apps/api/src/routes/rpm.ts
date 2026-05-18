@@ -60,8 +60,29 @@ const rpm: FastifyPluginAsync = async (fastify) => {
     }
 
     // Confirm patient exists.
-    const patient = await fastify.prisma.user.findUnique({ where: { id: patientId }, select: { id: true } })
+    const patient = await fastify.prisma.user.findUnique({ where: { id: patientId }, select: { id: true, role: true } })
     if (!patient) return reply.code(404).send({ error: 'patient not found' })
+
+    // P1-H7 (2026-05-18 healthcare audit): require an existing care relationship
+    // before registering an RPM rule that will silently watch the patient's
+    // vitals. Previously any DOCTOR could iterate userIds and farm BP/glucose
+    // alerts on anyone (effective surveillance). Admins bypass for ops.
+    if (sess.user.role !== 'ADMIN') {
+      const link = await fastify.prisma.appointment.findFirst({
+        where: {
+          userId:   patientId,
+          doctorId: sess.user.id,
+          status:   { in: ['confirmed', 'completed'] },
+        },
+        select: { id: true },
+      })
+      if (!link) {
+        return reply.code(403).send({
+          error: 'no care relationship — register RPM rules only for patients you have a confirmed or completed appointment with',
+          code:  'no-care-relationship',
+        })
+      }
+    }
 
     const rule = await fastify.prisma.rpmAlertRule.create({
       data: {
