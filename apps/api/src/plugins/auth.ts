@@ -95,12 +95,21 @@ export default fp(async (fastify) => {
   fastify.addHook('onRequest', async (req: FastifyRequest) => {
     if (req.session) return
     if (!req.headers.cookie) return  // short-circuit anonymous public traffic
-    const headers = new Headers()
-    for (const [k, v] of Object.entries(req.headers)) {
-      if (Array.isArray(v)) headers.set(k, v.join(','))
-      else if (typeof v === 'string') headers.set(k, v)
-    }
     try {
+      // Build the Headers object inside the try block so a malformed header
+      // (e.g. a Chrome cookie containing chars `undici`'s Headers rejects)
+      // doesn't escape and surface as a generic 400. Previously: TypeError
+      // from headers.set bubbled to Fastify's default error handler and got
+      // mapped to a 400, killing /api/videos/admin and other admin GETs for
+      // affected users. Now any header-construction failure is silenced and
+      // the route's normal session-required gate (401) takes over.
+      const headers = new Headers()
+      for (const [k, v] of Object.entries(req.headers)) {
+        try {
+          if (Array.isArray(v)) headers.set(k, v.join(','))
+          else if (typeof v === 'string') headers.set(k, v)
+        } catch { /* per-header failure: skip this one, continue with the rest */ }
+      }
       const sess = await auth.api.getSession({ headers })
       if (sess) req.session = sess as unknown as AuthSession
     } catch (err) {
@@ -112,8 +121,13 @@ export default fp(async (fastify) => {
   fastify.decorate('requireSession', async (req: FastifyRequest, reply: FastifyReply) => {
     const headers = new Headers()
     for (const [k, v] of Object.entries(req.headers)) {
-      if (Array.isArray(v)) headers.set(k, v.join(','))
-      else if (typeof v === 'string') headers.set(k, v)
+      // Per-header try/catch — a single malformed header (HTTP/2 pseudo,
+      // unusual cookie byte, etc.) must not throw out of this function and
+      // get mis-mapped to a 400 by Fastify's default error handler.
+      try {
+        if (Array.isArray(v)) headers.set(k, v.join(','))
+        else if (typeof v === 'string') headers.set(k, v)
+      } catch { /* skip header */ }
     }
     const sess = await auth.api.getSession({ headers })
     if (!sess) {
@@ -161,8 +175,10 @@ export async function forwardToBetterAuth(
   const url = new URL(request.url, baseURL)
   const headers = new Headers()
   for (const [k, v] of Object.entries(request.headers)) {
-    if (Array.isArray(v)) headers.set(k, v.join(','))
-    else if (typeof v === 'string') headers.set(k, v)
+    try {
+      if (Array.isArray(v)) headers.set(k, v.join(','))
+      else if (typeof v === 'string') headers.set(k, v)
+    } catch { /* skip malformed header — see onRequest hook above */ }
   }
   const init: RequestInit = { method: request.method, headers }
   if (!['GET', 'HEAD'].includes(request.method)) {
