@@ -3,7 +3,7 @@ import { Suspense } from 'react'
 import { Cormorant_Garamond, Inter } from 'next/font/google'
 import { Navbar, Footer, AyurBotWidget, MobileBottomNav, ServiceWorkerRegister, CookieConsent, TopContactBar, type NavbarSession, type FooterSettings } from '@ayurconnect/ui'
 import { getServerSession } from '../lib/auth'
-import { organizationLd, websiteLd, ldGraph, SITE_URL, AYURVEDA_KEYWORDS } from '../lib/seo'
+import { organizationLd, websiteLd, speakableLd, siteNavigationLd, ldGraph, SITE_URL, AYURVEDA_KEYWORDS } from '../lib/seo'
 import { API_INTERNAL as API } from '../lib/server-fetch'
 import { PageViewTracker } from '../components/page-view-tracker'
 import './globals.css'
@@ -74,6 +74,53 @@ export const metadata: Metadata = {
       }).filter((entry): entry is [string, string] => Boolean(entry[1])),
     ),
   },
+  // ─── Robots — explicit max preview directives improve SERP appearance ──
+  // Without these Google defaults to truncated snippets and small image
+  // previews; the values below opt in to the largest preview Google allows.
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      'max-snippet': -1,
+      'max-image-preview': 'large',
+      'max-video-preview': -1,
+    },
+  },
+  // ─── Additional <meta> tags ───────────────────────────────────────────
+  other: {
+    // Geo — primary HQ is Kerala; UAE clinic info is per-page via geoMeta().
+    'geo.region':    'IN-KL',
+    'geo.placename': 'Kochi, Kerala, India',
+    'geo.position':  '9.9312;76.2673',
+    'ICBM':          '9.9312, 76.2673',
+    // Dublin Core — picked up by academic and library crawlers.
+    'DC.title':       "AyurConnect — Kerala's #1 Ayurveda Platform",
+    'DC.subject':     'Ayurveda, Panchakarma, Traditional Indian Medicine, AYUSH',
+    'DC.language':    'en-IN',
+    'DC.publisher':   'AyurConnect',
+    'DC.coverage':    'Kerala, India; UAE; GCC; Worldwide',
+    'DC.type':        'Service',
+    // Content rating & audience.
+    'rating':         'general',
+    'audience':       'all',
+    'distribution':   'global',
+    'revisit-after':  '1 days',
+    // Browser address-bar coloration on Android Chrome — also set via Viewport.
+    'msapplication-TileColor': '#155228',
+    'apple-mobile-web-app-status-bar-style': 'black-translucent',
+    // Referrer policy — leak less when users click outbound links.
+    'referrer':       'strict-origin-when-cross-origin',
+    // PWA / web-app capability hints.
+    'mobile-web-app-capable':         'yes',
+    'apple-mobile-web-app-capable':   'yes',
+    'application-name':               'AyurConnect',
+    // Pinterest Rich Pin verification target (also tagged in verification.other).
+    'pinterest-rich-pin':             'true',
+  },
   // icon, apple-icon, opengraph-image are picked up automatically from
   // app/icon.svg, app/apple-icon.png (if added), app/opengraph-image.tsx
 }
@@ -87,7 +134,29 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-const ROOT_JSON_LD = ldGraph(organizationLd(), websiteLd())
+// Primary nav links — emitted as SiteNavigationElement schema so Google can
+// understand the site's information architecture for sitelinks rendering.
+const PRIMARY_NAV = [
+  { name: 'Doctors',              url: '/doctors' },
+  { name: 'Hospitals',            url: '/hospitals' },
+  { name: 'Treatments',           url: '/treatments' },
+  { name: 'Conditions',           url: '/conditions' },
+  { name: 'Herbs',                url: '/herbs' },
+  { name: 'Panchakarma',          url: '/panchakarma' },
+  { name: 'Online Consultation',  url: '/online-consultation' },
+  { name: 'AyurBot AI',           url: '/ayurbot' },
+  { name: 'Q&A',                  url: '/qa' },
+  { name: 'Articles',             url: '/articles' },
+  { name: 'Health Tips',          url: '/health-tips' },
+  { name: 'Tourism',              url: '/tourism' },
+]
+
+const ROOT_JSON_LD = ldGraph(
+  organizationLd(),
+  websiteLd(),
+  speakableLd(['h1', '.lede', '.faq-question', '.faq-answer', '[data-speakable]']),
+  ...siteNavigationLd(PRIMARY_NAV),
+)
 
 async function fetchFooterSettings(): Promise<FooterSettings> {
   try {
@@ -109,6 +178,28 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={`${cormorant.variable} ${inter.variable}`}>
+      <head>
+        {/* DNS hints — pre-resolve to API + CDN before first navigation. */}
+        <link rel="dns-prefetch" href="https://api.ayurconnect.com" />
+        <link rel="preconnect"   href="https://api.ayurconnect.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+
+        {/* Feed + search discovery. Browsers and feed readers auto-detect. */}
+        <link rel="alternate" type="application/rss+xml"  title="AyurConnect — RSS"  href="/feed.xml" />
+        <link rel="alternate" type="application/atom+xml" title="AyurConnect — Atom" href="/atom.xml" />
+        <link rel="search"    type="application/opensearchdescription+xml" title="AyurConnect" href="/opensearch.xml" />
+
+        {/* hreflang — emitted at root for the homepage; per-page metadata
+            (pageMetadata helper) overrides with the correct canonical path. */}
+        <link rel="alternate" hrefLang="en-IN" href={SITE_URL} />
+        <link rel="alternate" hrefLang="ml-IN" href={`${SITE_URL}/?lang=ml`} />
+        <link rel="alternate" hrefLang="x-default" href={SITE_URL} />
+
+        {/* AI training opt-out hint mirrored in HTML (also enforced by robots.ts). */}
+        <meta name="robots" content="max-image-preview:large" />
+        <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+      </head>
       <body className="min-h-screen bg-cream font-sans text-ink">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ROOT_JSON_LD) }} />
         <TopContactBar settings={footerSettings} />

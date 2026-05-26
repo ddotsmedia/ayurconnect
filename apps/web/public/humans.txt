@@ -1,0 +1,31 @@
+/* TEAM */
+Team: AyurConnect
+Site: https://ayurconnect.com
+Location: Kerala, India · Abu Dhabi, UAE
+Languages: English, Malayalam, Hindi, Arabic
+
+/* THANKS */
+Thanks: BAMS / MD (Ayurveda) practitioners across Kerala
+Thanks: Ministry of AYUSH, Government of India
+Thanks: CCRAS — Central Council for Research in Ayurvedic Sciences
+Thanks: NABH-accredited Ayurveda hospitals
+Thanks: AyurBot patient community
+
+/* SITE */
+Last update: 2026
+Standards: HTML5, CSS3, JSON-LD, OpenSearch, Atom 1.0, RSS 2.0
+Components: Next.js 14 App Router, NestJS, Prisma, PostgreSQL, Redis, Socket.io
+Stack: TypeScript end-to-end
+Software: Tailwind CSS, shadcn/ui, Lucide
+Verification: GSC, Bing Webmaster, Yandex, Pinterest, Facebook
+Sitemaps: /sitemap.xml, /news-sitemap.xml
+Feeds: /feed.xml (RSS 2.0), /atom.xml (Atom 1.0)
+
+                                  __  _
+                                 (_ )( )
+   _ _  _    _   _  _ __  _ _    | || |   ___    __    ___   __    ___
+  ( '_`\ ( )_( )( '__)( '_`\  | || | / __) /'_ `\/ __`\/'__`\(___ )
+  | (_) )| (_) || |   | (_) ) | || |( (__ ( (_) | (_) (  ___/(_  _)
+  | ,__/'`\___/'(_)   | ,__/'(___)___)\___) `\__,_)\____/`\____)
+  | |               | |
+  (_)               (_)

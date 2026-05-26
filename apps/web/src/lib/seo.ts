@@ -585,3 +585,516 @@ export function medicalConditionLd(c: {
 export function ldGraph(...nodes: object[]) {
   return { '@context': 'https://schema.org', '@graph': nodes }
 }
+
+// ─── VideoObject — for /videos and embedded explainer videos ─────────────
+// Required by Google: name, description, thumbnailUrl, uploadDate.
+// Adding duration (ISO 8601), contentUrl, embedUrl, and inLanguage lifts
+// eligibility for Video carousel + Key Moments rich results.
+export function videoLd(v: {
+  id: string
+  title: string
+  description: string
+  thumbnailUrl: string
+  uploadDate: string | Date
+  duration?: string | null          // ISO 8601, e.g. PT2M30S
+  contentUrl?: string | null
+  embedUrl?: string | null
+  language?: string | null
+  authorName?: string | null
+  urlPath?: string
+}) {
+  const uploaded = v.uploadDate instanceof Date ? v.uploadDate.toISOString() : v.uploadDate
+  const path = v.urlPath ?? `/videos/${v.id}`
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    '@id': `${SITE_URL}${path}`,
+    name: v.title,
+    description: clip(v.description, 5000),
+    thumbnailUrl: [v.thumbnailUrl],
+    uploadDate: uploaded,
+    duration: v.duration ?? undefined,
+    contentUrl: v.contentUrl ?? undefined,
+    embedUrl: v.embedUrl ?? undefined,
+    inLanguage: v.language ?? 'en',
+    publisher: { '@id': `${SITE_URL}#org` },
+    author: v.authorName ? { '@type': 'Person', name: v.authorName } : undefined,
+    url: `${SITE_URL}${path}`,
+  }
+}
+
+// ─── Course — for /academy and /programs educational tracks ──────────────
+export function courseLd(c: {
+  id: string
+  name: string
+  description: string
+  urlPath: string
+  provider?: string
+  duration?: string | null          // ISO 8601, e.g. P21D
+  language?: string | null
+  free?: boolean
+  price?: number | null
+  currency?: string | null
+  level?: 'Beginner' | 'Intermediate' | 'Advanced' | null
+  startDate?: string | Date | null
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    '@id': `${SITE_URL}${c.urlPath}`,
+    name: c.name,
+    description: clip(c.description, 500),
+    provider: {
+      '@type': 'Organization',
+      name: c.provider ?? SITE_NAME,
+      '@id': `${SITE_URL}#org`,
+    },
+    url: `${SITE_URL}${c.urlPath}`,
+    inLanguage: c.language ?? 'en',
+    educationalLevel: c.level ?? undefined,
+    timeRequired: c.duration ?? undefined,
+    hasCourseInstance: {
+      '@type': 'CourseInstance',
+      courseMode: 'Online',
+      ...(c.startDate
+        ? { startDate: c.startDate instanceof Date ? c.startDate.toISOString() : c.startDate }
+        : {}),
+    },
+    offers: c.price != null
+      ? {
+          '@type': 'Offer',
+          price: c.price,
+          priceCurrency: c.currency ?? 'INR',
+          availability: 'https://schema.org/InStock',
+          url: `${SITE_URL}${c.urlPath}`,
+        }
+      : c.free
+        ? { '@type': 'Offer', price: 0, priceCurrency: c.currency ?? 'INR' }
+        : undefined,
+  }
+}
+
+// ─── Event — for retreats, webinars, on-site Panchakarma camps ───────────
+export function eventLd(e: {
+  id: string
+  name: string
+  description: string
+  startDate: string | Date
+  endDate?: string | Date | null
+  urlPath: string
+  online?: boolean
+  locationName?: string | null
+  locationAddress?: string | null
+  locationCity?: string | null
+  locationCountry?: string | null
+  price?: number | null
+  currency?: string | null
+  capacity?: number | null
+  imageUrl?: string | null
+}) {
+  const start = e.startDate instanceof Date ? e.startDate.toISOString() : e.startDate
+  const end = e.endDate
+    ? (e.endDate instanceof Date ? e.endDate.toISOString() : e.endDate)
+    : undefined
+  const location = e.online
+    ? {
+        '@type': 'VirtualLocation',
+        url: `${SITE_URL}${e.urlPath}`,
+      }
+    : {
+        '@type': 'Place',
+        name: e.locationName ?? 'AyurConnect Centre',
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: e.locationAddress ?? undefined,
+          addressLocality: e.locationCity ?? undefined,
+          addressCountry: e.locationCountry ?? 'IN',
+        },
+      }
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    '@id': `${SITE_URL}${e.urlPath}`,
+    name: e.name,
+    description: clip(e.description, 500),
+    startDate: start,
+    endDate: end,
+    eventAttendanceMode: e.online
+      ? 'https://schema.org/OnlineEventAttendanceMode'
+      : 'https://schema.org/OfflineEventAttendanceMode',
+    eventStatus: 'https://schema.org/EventScheduled',
+    location,
+    url: `${SITE_URL}${e.urlPath}`,
+    image: e.imageUrl ? abs(e.imageUrl) : `${SITE_URL}/opengraph-image`,
+    organizer: { '@id': `${SITE_URL}#org` },
+    offers: e.price != null
+      ? {
+          '@type': 'Offer',
+          price: e.price,
+          priceCurrency: e.currency ?? 'INR',
+          availability: 'https://schema.org/InStock',
+          url: `${SITE_URL}${e.urlPath}`,
+          validFrom: start,
+        }
+      : undefined,
+    maximumAttendeeCapacity: e.capacity ?? undefined,
+  }
+}
+
+// ─── Review — single patient review attached to a doctor / hospital / herb
+export function reviewLd(r: {
+  id: string
+  itemReviewed: { type: 'Physician' | 'Hospital' | 'Substance' | 'Product' | 'MedicalTherapy'; name: string; urlPath: string }
+  ratingValue: number
+  body?: string | null
+  authorName?: string | null
+  datePublished?: string | Date | null
+}) {
+  const date = r.datePublished
+    ? (r.datePublished instanceof Date ? r.datePublished.toISOString() : r.datePublished)
+    : new Date().toISOString()
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Review',
+    '@id': `${SITE_URL}${r.itemReviewed.urlPath}#review-${r.id}`,
+    itemReviewed: {
+      '@type': r.itemReviewed.type,
+      name: r.itemReviewed.name,
+      url: `${SITE_URL}${r.itemReviewed.urlPath}`,
+    },
+    reviewRating: {
+      '@type': 'Rating',
+      ratingValue: r.ratingValue,
+      bestRating: 5,
+      worstRating: 1,
+    },
+    reviewBody: r.body ?? undefined,
+    author: r.authorName ? { '@type': 'Person', name: r.authorName } : undefined,
+    datePublished: date,
+    publisher: { '@id': `${SITE_URL}#org` },
+  }
+}
+
+// ─── Service — for paid platform services (consultation, second opinion) ─
+export function serviceLd(s: {
+  name: string
+  description: string
+  urlPath: string
+  serviceType?: string
+  price?: number | null
+  currency?: string | null
+  duration?: string | null         // ISO 8601, e.g. PT30M
+  areaServed?: string[]
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'MedicalProcedure',
+    '@id': `${SITE_URL}${s.urlPath}`,
+    name: s.name,
+    description: clip(s.description, 500),
+    procedureType: s.serviceType ?? 'Telemedicine',
+    url: `${SITE_URL}${s.urlPath}`,
+    provider: { '@id': `${SITE_URL}#org` },
+    areaServed: s.areaServed?.length
+      ? s.areaServed.map((a) => ({ '@type': 'Country', name: a }))
+      : [
+          { '@type': 'Country', name: 'India' },
+          { '@type': 'Country', name: 'United Arab Emirates' },
+        ],
+    offers: s.price != null
+      ? {
+          '@type': 'Offer',
+          price: s.price,
+          priceCurrency: s.currency ?? 'INR',
+          availability: 'https://schema.org/InStock',
+          url: `${SITE_URL}${s.urlPath}`,
+        }
+      : undefined,
+    estimatedDuration: s.duration ?? undefined,
+  }
+}
+
+// ─── MedicalProcedure — for classical Panchakarma treatments ─────────────
+export function medicalProcedureLd(p: {
+  slug: string
+  name: string
+  alternateName?: string | null
+  description: string
+  procedureType?: string             // e.g. 'Therapeutic', 'Diagnostic'
+  bodyLocation?: string | null
+  indication?: string[] | null       // condition names this treats
+  preparation?: string | null
+  followup?: string | null
+  duration?: string | null
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'MedicalProcedure',
+    '@id': `${SITE_URL}/panchakarma/${p.slug}`,
+    name: p.name,
+    alternateName: p.alternateName ?? undefined,
+    description: clip(p.description, 1000),
+    procedureType: p.procedureType ?? 'Therapeutic',
+    url: `${SITE_URL}/panchakarma/${p.slug}`,
+    bodyLocation: p.bodyLocation ?? undefined,
+    indication: p.indication?.length
+      ? p.indication.map((i) => ({ '@type': 'MedicalIndication', name: i }))
+      : undefined,
+    preparation: p.preparation ?? undefined,
+    followup: p.followup ?? undefined,
+    estimatedDuration: p.duration ?? undefined,
+    performer: { '@id': `${SITE_URL}#org` },
+  }
+}
+
+// ─── HowTo — for procedure pages, diet plans, daily-routine guides ───────
+export function howToLd(h: {
+  name: string
+  description: string
+  urlPath: string
+  steps: Array<{ name: string; text: string; image?: string }>
+  totalTime?: string | null          // ISO 8601
+  supplies?: string[]
+  yield?: string | null
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    '@id': `${SITE_URL}${h.urlPath}`,
+    name: h.name,
+    description: clip(h.description, 500),
+    url: `${SITE_URL}${h.urlPath}`,
+    totalTime: h.totalTime ?? undefined,
+    yield: h.yield ?? undefined,
+    supply: h.supplies?.map((s) => ({ '@type': 'HowToSupply', name: s })),
+    step: h.steps.map((s, i) => ({
+      '@type': 'HowToStep',
+      position: i + 1,
+      name: s.name,
+      text: s.text,
+      image: s.image ? abs(s.image) : undefined,
+    })),
+  }
+}
+
+// ─── LocalBusiness — for /tourism / city landing pages with opening hours
+export function localBusinessLd(b: {
+  id: string
+  name: string
+  description: string
+  urlPath: string
+  city: string
+  region?: string | null
+  country?: string | null
+  streetAddress?: string | null
+  postalCode?: string | null
+  telephone?: string | null
+  latitude?: number | null
+  longitude?: number | null
+  priceRange?: string
+  openingHours?: Array<{ days: string[]; opens: string; closes: string }>
+  aggregateRating?: { ratingValue: number; reviewCount: number } | null
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': ['MedicalClinic', 'LocalBusiness'],
+    '@id': `${SITE_URL}${b.urlPath}#business`,
+    name: b.name,
+    description: clip(b.description, 500),
+    url: `${SITE_URL}${b.urlPath}`,
+    image: `${SITE_URL}/opengraph-image`,
+    telephone: b.telephone ?? undefined,
+    priceRange: b.priceRange ?? '₹₹',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: b.streetAddress ?? undefined,
+      addressLocality: b.city,
+      addressRegion: b.region ?? undefined,
+      postalCode: b.postalCode ?? undefined,
+      addressCountry: b.country ?? 'IN',
+    },
+    geo: b.latitude != null && b.longitude != null
+      ? { '@type': 'GeoCoordinates', latitude: b.latitude, longitude: b.longitude }
+      : undefined,
+    openingHoursSpecification: b.openingHours?.map((h) => ({
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: h.days,
+      opens: h.opens,
+      closes: h.closes,
+    })),
+    aggregateRating: b.aggregateRating
+      ? {
+          '@type': 'AggregateRating',
+          ratingValue: b.aggregateRating.ratingValue,
+          reviewCount: b.aggregateRating.reviewCount,
+          bestRating: 5,
+          worstRating: 1,
+        }
+      : undefined,
+    parentOrganization: { '@id': `${SITE_URL}#org` },
+  }
+}
+
+// ─── SiteNavigationElement — helps Google understand primary nav links ───
+export function siteNavigationLd(items: Array<{ name: string; url: string }>) {
+  return items.map((it, i) => ({
+    '@context': 'https://schema.org',
+    '@type': 'SiteNavigationElement',
+    position: i + 1,
+    name: it.name,
+    url: abs(it.url),
+  }))
+}
+
+// ─── Speakable — marks content that voice assistants should read aloud ───
+// Used on the root layout to opt the FAQ + lede paragraph into Google
+// Assistant's "search results read aloud" feature.
+export function speakableLd(cssSelectors: string[] = ['h1', '.lede', '.faq-question', '.faq-answer']) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': `${SITE_URL}#speakable`,
+    url: SITE_URL,
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: cssSelectors,
+    },
+  }
+}
+
+// ─── ImageObject — for hero/feature images we want indexed in Google Images
+export function imageObjectLd(i: {
+  url: string
+  caption?: string
+  width?: number
+  height?: number
+  license?: string
+  creditText?: string
+}) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ImageObject',
+    contentUrl: abs(i.url),
+    url: abs(i.url),
+    caption: i.caption,
+    width: i.width,
+    height: i.height,
+    license: i.license,
+    creditText: i.creditText ?? SITE_NAME,
+    creator: { '@id': `${SITE_URL}#org` },
+    copyrightNotice: `© ${new Date().getFullYear()} ${SITE_NAME}`,
+  }
+}
+
+// ─── ItemList — for grouping doctor / hospital cards into a SERP carousel ─
+export function itemListLd(items: Array<{ name: string; url: string }>, name?: string) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: name ?? 'AyurConnect items',
+    numberOfItems: items.length,
+    itemListElement: items.map((it, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: it.name,
+      url: abs(it.url),
+    })),
+  }
+}
+
+// ─── Centralised page metadata helper ────────────────────────────────────
+// Use in any page.tsx's exported `metadata` so every page emits consistent
+// canonical, OG, Twitter, robots, and language alternates without copy-paste.
+//
+// Example:
+//   export const metadata = pageMetadata({
+//     title: 'Find an Ayurveda Doctor',
+//     description: '500+ verified doctors across Kerala…',
+//     path: '/doctors',
+//     keywords: AYURVEDA_KEYWORDS.primary,
+//   })
+export function pageMetadata(opts: {
+  title: string
+  description: string
+  path: string
+  keywords?: string[]
+  image?: string | null
+  type?: 'website' | 'article' | 'profile'
+  noindex?: boolean
+  publishedTime?: string
+  modifiedTime?: string
+  authors?: string[]
+}) {
+  const canonical = opts.path.startsWith('/') ? opts.path : `/${opts.path}`
+  const og = opts.image ? abs(opts.image) : DEFAULT_OG_IMAGE
+  return {
+    title: opts.title,
+    description: clip(opts.description, 160),
+    keywords: opts.keywords,
+    alternates: {
+      canonical,
+      languages: {
+        'en-IN': canonical,
+        'ml-IN': `${canonical}${canonical.includes('?') ? '&' : '?'}lang=ml`,
+        'x-default': canonical,
+      },
+    },
+    openGraph: {
+      type: opts.type ?? 'website',
+      url: abs(canonical),
+      siteName: SITE_NAME,
+      title: opts.title,
+      description: clip(opts.description, 160),
+      locale: 'en_IN',
+      alternateLocale: ['ml_IN'],
+      images: [{ url: og, width: 1200, height: 630, alt: opts.title }],
+      ...(opts.type === 'article' && opts.publishedTime
+        ? {
+            publishedTime: opts.publishedTime,
+            modifiedTime: opts.modifiedTime ?? opts.publishedTime,
+            authors: opts.authors,
+          }
+        : {}),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@ayurconnect',
+      title: opts.title,
+      description: clip(opts.description, 160),
+      images: [og],
+    },
+    robots: opts.noindex
+      ? { index: false, follow: false, googleBot: { index: false, follow: false } }
+      : {
+          index: true,
+          follow: true,
+          googleBot: {
+            index: true,
+            follow: true,
+            'max-snippet': -1,
+            'max-image-preview': 'large' as const,
+            'max-video-preview': -1,
+          },
+        },
+  }
+}
+
+// ─── Geo meta — emit ICBM / geo.position / geo.region <meta> tags ────────
+// Use in any page that has a physical location (clinics, hospitals, tourism).
+// Returns an `other` block suitable for Next.js Metadata.
+export function geoMeta(opts: {
+  region: string      // ISO 3166-2 — e.g. 'IN-KL', 'AE-DU'
+  placename: string   // e.g. 'Kochi, Kerala, India'
+  latitude?: number
+  longitude?: number
+}) {
+  const meta: Record<string, string> = {
+    'geo.region':    opts.region,
+    'geo.placename': opts.placename,
+  }
+  if (opts.latitude != null && opts.longitude != null) {
+    meta['geo.position'] = `${opts.latitude};${opts.longitude}`
+    meta['ICBM']         = `${opts.latitude}, ${opts.longitude}`
+  }
+  return meta
+}
