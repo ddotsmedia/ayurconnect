@@ -145,6 +145,8 @@ echo "▶ build packages/db"
 pnpm --filter @ayurconnect/db build 2>&1 | tail -2
 echo "▶ build apps/api"
 pnpm --filter api build 2>&1 | tail -2
+echo "▶ clean apps/web .next cache (forces rebuild after workspace-pkg source changes)"
+rm -rf apps/web/.next/cache 2>/dev/null || true
 echo "▶ build apps/web"
 pnpm --filter @ayurconnect/web build 2>&1 | tail -30'
 fi
