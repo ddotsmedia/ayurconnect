@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: 'AyurConnect', description: "Kerala's Ayurveda platform", site: '@ayurconnect' },
   alternates: {
     canonical: '/',
-    languages: { 'en-IN': '/', 'ml-IN': '/?lang=ml', 'x-default': '/' },
+    languages: { 'en-IN': '/', 'x-default': '/' },
   },
   manifest: '/manifest.webmanifest',
   appleWebApp: {
@@ -193,7 +193,6 @@ export default async function RootLayout({
         {/* hreflang — emitted at root for the homepage; per-page metadata
             (pageMetadata helper) overrides with the correct canonical path. */}
         <link rel="alternate" hrefLang="en-IN" href={SITE_URL} />
-        <link rel="alternate" hrefLang="ml-IN" href={`${SITE_URL}/?lang=ml`} />
         <link rel="alternate" hrefLang="x-default" href={SITE_URL} />
 
         {/* AI training opt-out hint mirrored in HTML (also enforced by robots.ts). */}

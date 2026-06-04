@@ -4,16 +4,10 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { Menu, X, ChevronDown, LayoutDashboard, Shield, LogOut, User, Stethoscope } from 'lucide-react'
 import { cn } from './lib/utils'
-import { t, type Lang } from './i18n'
+import { t } from './i18n'
 import { LogoLockup, LogoMark } from './logo'
 import { NavSearch } from './nav-search'
 import { NotificationBell } from './notification-bell'
-
-function readLangCookie(): Lang {
-  if (typeof document === 'undefined') return 'en'
-  const m = document.cookie.match(/(?:^|;\s*)lang=(en|ml)/)
-  return (m?.[1] as Lang) ?? 'en'
-}
 
 const TOP_SPECS = ['Panchakarma', 'Kayachikitsa', 'Prasuti Tantra', 'Kaumarbhritya', 'Shalya', 'Manasika']
 const TOP_DISTRICTS = ['Thiruvananthapuram', 'Ernakulam', 'Kozhikode', 'Thrissur', 'Kottayam', 'Malappuram']
@@ -40,8 +34,7 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
   const [megaOpen, setMegaOpen] = useState(false)
   const [openGroup, setOpenGroup] = useState<string | null>(null)
   const [userOpen, setUserOpen] = useState(false)
-  const [lang, setLang] = useState<Lang>('en')
-  const tr = t(lang)
+  const tr = t()
   const userRef = useRef<HTMLDivElement | null>(null)
 
   // Compact navigation — 5 visible items instead of 9. Less-used links roll up
@@ -81,7 +74,6 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
   ]
 
   useEffect(() => {
-    setLang(readLangCookie())
     const onScroll = () => setScrolled(window.scrollY > 8)
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })

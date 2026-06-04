@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { headers as nextHeaders } from 'next/headers'
-import { DoctorCard, LeafPattern, LogoMark, t, readLangFromCookieHeader, type DoctorCardData } from '@ayurconnect/ui'
+import { DoctorCard, LeafPattern, LogoMark, t, type DoctorCardData } from '@ayurconnect/ui'
 import {
   Search, Stethoscope, Building2, Bot, MessageSquare, Briefcase, Leaf, Plane,
   GraduationCap, ShieldCheck, Video, Sparkles, Users, MapPin, Lock, Star, ArrowRight, ChevronRight, BookOpen,
@@ -185,8 +185,7 @@ export default async function HomePage() {
     getTestimonials(),
     nextHeaders(),
   ])
-  const lang = readLangFromCookieHeader(hdrs.get('cookie'))
-  const tr = t(lang)
+  const tr = t()
 
   const homeJsonLd = ldGraph(
     medicalBusinessLd(HOME_SERVICES_CATALOG),
