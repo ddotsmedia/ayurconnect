@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { Menu, X, ChevronDown, LayoutDashboard, Shield, LogOut, User, Stethoscope } from 'lucide-react'
 import { cn } from './lib/utils'
-import { LangToggle } from './lang-toggle'
 import { t, type Lang } from './i18n'
 import { LogoLockup, LogoMark } from './logo'
 import { NavSearch } from './nav-search'
@@ -230,9 +229,8 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
               <NavSearch />
             </div>
 
-            {/* Auth buttons + lang (desktop) */}
+            {/* Auth buttons (desktop) */}
             <div className="hidden md:flex items-center gap-2">
-              <LangToggle className="mr-1" />
               {session ? (
                 <>
                   <NotificationBell />
@@ -321,12 +319,9 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                 <LogoMark className="h-7 w-7" />
                 <span className="font-serif text-xl text-kerala-700">{tr.nav.menu}</span>
               </span>
-              <div className="flex items-center gap-2">
-                <LangToggle />
-                <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="p-1">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+              <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="p-1">
+                <X className="w-5 h-5" />
+              </button>
             </div>
             <div className="px-4 pt-4">
               <NavSearch compact />
