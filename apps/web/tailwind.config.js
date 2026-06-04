@@ -42,6 +42,8 @@ module.exports = {
         cream:  '#fafaf7',
         ink:    '#1a1a1a',
         muted:  '#6b7280',
+        primary: '#155228',
+        accent:  '#c9a84c',
         subtle: '#9ca3af',
       },
       fontFamily: {
