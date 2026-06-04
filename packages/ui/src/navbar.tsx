@@ -77,6 +77,7 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
         { href: '/colleges', label: tr.nav.colleges },
       ],
     },
+    { kind: 'link',  href: '/jobs',                 label: tr.nav.jobs },
     { kind: 'link',  href: '/amai',                 label: 'AMAI', iconSrc: '/amai-logo.svg' },
   ]
 
@@ -286,17 +287,12 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                   </div>
                 </>
               ) : (
-                <>
-                  <Link href="/sign-in" className="px-3 py-1.5 text-sm text-gray-700 hover:text-kerala-700 transition-colors">
-                    {tr.nav.login}
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="px-4 py-1.5 text-sm font-semibold bg-gold-500 text-white rounded-md hover:bg-gold-600 transition-colors"
-                  >
-                    {tr.nav.joinFree}
-                  </Link>
-                </>
+                <Link
+                  href="/sign-in"
+                  className="px-4 py-1.5 text-sm font-semibold bg-gold-500 text-white rounded-md hover:bg-gold-600 transition-colors"
+                >
+                  {tr.nav.login} / {tr.nav.joinFree}
+                </Link>
               )}
             </div>
 
@@ -403,22 +399,13 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                   </button>
                 </>
               ) : (
-                <>
-                  <Link
-                    href="/sign-in"
-                    onClick={() => setMobileOpen(false)}
-                    className="block w-full px-4 py-2 text-center text-kerala-700 border border-kerala-600 rounded-md hover:bg-kerala-50"
-                  >
-                    {tr.nav.login}
-                  </Link>
-                  <Link
-                    href="/register"
-                    onClick={() => setMobileOpen(false)}
-                    className="block w-full px-4 py-2 text-center bg-gold-500 text-white rounded-md hover:bg-gold-600"
-                  >
-                    {tr.nav.joinFree}
-                  </Link>
-                </>
+                <Link
+                  href="/sign-in"
+                  onClick={() => setMobileOpen(false)}
+                  className="block w-full px-4 py-2 text-center bg-gold-500 text-white rounded-md hover:bg-gold-600 font-semibold"
+                >
+                  {tr.nav.login} / {tr.nav.joinFree}
+                </Link>
               )}
             </div>
           </div>

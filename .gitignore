@@ -49,3 +49,10 @@ cookies.txt
 
 # Office temp/lock files
 ~$*
+
+# Local spec drop-zones — never deploy these
+files.zip
+files/
+ayurconnect-claude-code-prompt.md
+AyurConnect_SEO_Strategy_2026.docx
+AyurConnect_SEO_Strategy_2026.pdf
