@@ -69,6 +69,8 @@ model User {
   protocolComments    ProtocolComment[]
   conferenceRSVPs     ConferenceRSVP[]
   cmeCredits          CmeCredit[]
+  // Jobs v2 (2026-05-19): track applications submitted by signed-in users.
+  jobApplications     JobApplication[] @relation("JobApplicantUser")
 }
 
 // ─── Patient health journal (added 2026-05-10) ────────────────────────────
@@ -414,17 +416,75 @@ model Job {
   id          String   @id @default(cuid())
   title       String
   description String
-  type        String   // doctor | therapist | pharmacist | government
+  type        String   // doctor | therapist | pharmacist | government | clinic | teaching
   district    String?
   salary      String?
   userId      String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Jobs v2 (2026-05-19) — discriminated unions, moderation, structured fields.
+  // hiring = hospital/clinic posting; availability = doctor offering services.
+  kind            String    @default("hiring")  // 'hiring' | 'availability'
+  status          String    @default("active")  // 'pending' | 'active' | 'closed' | 'rejected'
+  clinic          String?
+  location        String?
+  specialty       String?
+  qualifications  String[]  @default([])
+  expMin          Int?
+  expMax          Int?
+  currency        String?   // 'INR' | 'AED' | 'USD'
+  salaryMin       Int?
+  salaryMax       Int?
+  deadline        DateTime?
+  remote          Boolean   @default(false)
+  urgent          Boolean   @default(false)
+  featured        Boolean   @default(false)
+  tags            String[]  @default([])
+  requirements    String[]  @default([])
+  benefits        String[]  @default([])
+  contactEmail    String?
+  logoInitials    String?
+  logoColor       String?
+  postedByRole    String?
+  reviewedAt      DateTime?
+  reviewedById    String?
+  rejectionReason String?
+  internalNotes   String?
+  availFrom       DateTime?
+  availDurationDays Int?
+  contactKind     String?   // 'email' | 'whatsapp' | 'phone'
+  contactValue    String?
+
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications JobApplication[]
 
   @@index([userId])
   @@index([type])
+  @@index([status, kind, featured, createdAt(sort: Desc)])
+  @@index([specialty])
+}
+
+model JobApplication {
+  id              String   @id @default(cuid())
+  jobId           String
+  applicantUserId String?
+  name            String
+  email           String
+  phone           String
+  qualification   String?
+  experience      String?
+  coverNote       String?
+  status          String   @default("new")  // 'new' | 'reviewed' | 'shortlisted' | 'rejected'
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  job       Job   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  applicant User? @relation("JobApplicantUser", fields: [applicantUserId], references: [id], onDelete: SetNull)
+
+  @@unique([jobId, email])
+  @@index([jobId, status])
+  @@index([applicantUserId])
 }
 
 // ─── WhatsApp job alert subscriptions (added 2026-05-11) ─────────────────

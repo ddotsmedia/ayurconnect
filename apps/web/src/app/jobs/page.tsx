@@ -77,6 +77,14 @@ export default async function JobsPage() {
             exclusive Ayurveda jobs board. Government posts, private clinics,
             international (Gulf / UK / US) openings.
           </p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link href="/jobs/post" className="inline-flex items-center gap-1.5 px-4 py-2 bg-white text-kerala-800 hover:bg-cream rounded-md text-sm font-semibold">
+              Post a job
+            </Link>
+            <Link href="/jobs/post" className="inline-flex items-center gap-1.5 px-4 py-2 border border-white/40 text-white hover:bg-white/10 rounded-md text-sm font-semibold">
+              I&apos;m a doctor — post availability
+            </Link>
+          </div>
         </div>
       </GradientHero>
 
