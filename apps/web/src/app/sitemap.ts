@@ -185,5 +185,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
       })),
     ),
+    // /ayurveda-doctors/[location] — 14 Kerala districts + 3 UAE cities.
+    ...[
+      'thiruvananthapuram','kollam','pathanamthitta','alappuzha','kottayam',
+      'idukki','ernakulam','thrissur','palakkad','malappuram',
+      'kozhikode','wayanad','kannur','kasaragod',
+      'dubai','abu-dhabi','sharjah',
+    ].map((loc) => ({
+      url: `${BASE}/ayurveda-doctors/${loc}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    })),
+    // /ayurveda/[specialty] — 11 classical Ayurveda specialties.
+    ...[
+      'kayachikitsa','panchakarma','prasuti-tantra','kaumarbhritya','shalya',
+      'shalakya','manasika','rasashastra','general-practice','research','online-consultation',
+    ].map((spec) => ({
+      url: `${BASE}/ayurveda/${spec}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    })),
   ]
 }

@@ -6,6 +6,8 @@ const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ayurconnect.com'
 const DISALLOW_ALL = [
   '/admin/',
   '/dashboard/',
+  '/clinic-portal/dashboard',
+  '/jobs/dashboard',
   '/api/',
   '/sign-in',
   '/dr/',          // private doctor surface

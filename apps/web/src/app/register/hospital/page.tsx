@@ -9,6 +9,7 @@ import { CountrySelect } from '../../../components/country-select'
 import { StateSelect } from '../../../components/state-select'
 import { PhoneInput } from '../../../components/phone-input'
 import { detectCountry, rememberCountry } from '../../../lib/detect-country'
+import { FaqAccordion } from '../../../components/seo/FaqAccordion'
 
 export default function HospitalRegisterPage() {
   const router = useRouter()
@@ -131,6 +132,22 @@ export default function HospitalRegisterPage() {
 
         <Style />
       </div>
+
+      <FaqAccordion
+        heading="Hospital partnership — frequently asked"
+        items={[
+          { q: 'What kinds of hospitals are eligible to partner with AyurConnect?',
+            a: 'Any Ayurveda hospital, classical clinic, or Panchakarma centre registered with the State Indian Medicine Department. NABH accreditation is welcome but not required. We list hospitals from single-doctor clinics through 200+ bed multi-branch chains. Wellness resorts without licensed BAMS doctors on staff are not eligible.' },
+          { q: 'How does the verification process work?',
+            a: 'Upload your hospital registration, the senior physician\'s CCIM/AYUSH registration, and any infrastructure / NABH documentation. We do an on-call walkthrough (45 min) with your administrator and verify at least 3 senior doctors\' credentials independently. Total time: 5–7 business days.' },
+          { q: 'What does the hospital portal include?',
+            a: 'Patient intake with classical Prakriti + Nadi pariksha fields, doctor + room scheduling, OPD/IPD tracker, prescription writer with the 1,000-formulation library, online consultation video (Daily.co), Razorpay payments, WhatsApp appointment reminders, and a performance dashboard. See /clinic-portal for the full feature list and pricing (AED 299–799 / month).' },
+          { q: 'Can we accept UAE / GCC patients for medical tourism?',
+            a: 'Yes — once verified, you can list Panchakarma packages on /tourism with INR and AED pricing. We handle the enquiry funnel + WhatsApp lead delivery directly to your reception. International patients can pay via Razorpay UAE rails (AED card / Apple Pay) so funds reach your account in INR within 48 hours.' },
+          { q: 'Is there a setup fee or contract minimum?',
+            a: 'No setup fee. Monthly subscription, cancellable any time with 30 days\' notice. You retain ownership of all patient data — exportable in CSV / FHIR JSON if you ever switch. Insurance integration (Niva Bupa / Star + GCC carriers) is included in the Enterprise tier.' },
+        ]}
+      />
     </div>
   )
 }

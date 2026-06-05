@@ -3,6 +3,7 @@ import { GradientHero } from '@ayurconnect/ui'
 import { Plane, MapPin, Clock, IndianRupee, ShieldCheck } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
 import { AYURVEDA_KEYWORDS } from '../../lib/seo'
+import { FaqAccordion } from '../../components/seo/FaqAccordion'
 
 type Pkg = {
   id: string
@@ -158,6 +159,22 @@ export default async function TourismPage() {
           )
         })}
       </section>
+
+      <FaqAccordion
+        heading="Kerala Ayurveda retreats — frequently asked"
+        items={[
+          { q: 'When is the best season for Panchakarma in Kerala?',
+            a: 'The classical window is Karkidaka (mid-July to mid-August). The monsoon climate keeps body pores open so medicated oils absorb deeper and Vata disorders respond faster. If monsoon is uncomfortable, mid-October to February is a valid alternative window — slightly slower outcomes but the treatment is fully effective.' },
+          { q: 'How many days do I need to fly from UAE for a meaningful course?',
+            a: 'A 14-day Panchakarma is the minimum for therapeutic benefit. 21 days is the classical full-course recommendation — enough for proper Snehana (oleation) + Swedana (sudation) + the main purification action + Samsarjana Krama (post-treatment dietary reintroduction). 7-day packages are wellness retreats, not Panchakarma.' },
+          { q: 'Is the treatment Halal-friendly for GCC visitors?',
+            a: 'Major medical-tourism hospitals (Somatheeram, CGH Earth Kalari Kovilakom, Kairali, Vaidyaratnam) offer Halal-certified vegetarian Ayurvedic kitchens. Confirm with the specific hospital in advance — and request a vegetarian-only kitchen if needed, since some classical formulations use animal-derived ghee.' },
+          { q: 'Will UAE travel insurance cover Ayurveda treatment in Kerala?',
+            a: 'Most international travel insurance does NOT cover Ayurveda. Niva Bupa and Star Health offer Ayurveda riders for UAE residents — verify your policy includes the specific hospital and procedure before travel.' },
+          { q: 'What kind of doctor will I see — BAMS, MD-Ayurveda, or a chief physician?',
+            a: 'AyurConnect-listed medical-tourism packages always include initial + mid-course + discharge consultations with the senior MD-Ayurveda physician. Daily therapy is delivered by trained Panchakarma technicians under physician supervision. Verify the senior physician\'s CCIM registration on their profile before booking.' },
+        ]}
+      />
     </>
   )
 }

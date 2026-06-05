@@ -9,6 +9,7 @@ import { CountrySelect } from '../../../components/country-select'
 import { StateSelect } from '../../../components/state-select'
 import { PhoneInput } from '../../../components/phone-input'
 import { detectCountry, rememberCountry } from '../../../lib/detect-country'
+import { FaqAccordion } from '../../../components/seo/FaqAccordion'
 
 export default function DoctorRegisterPage() {
   const router = useRouter()
@@ -120,6 +121,22 @@ export default function DoctorRegisterPage() {
 
         <Style />
       </div>
+
+      <FaqAccordion
+        heading="Doctor onboarding — frequently asked"
+        items={[
+          { q: 'Do I need to be CCIM-registered to list my profile?',
+            a: 'Yes. AyurConnect only verifies practitioners with active CCIM (Central Council of Indian Medicine) or equivalent State Medical Council registration. Upload your registration certificate during onboarding — verification typically completes within 48 hours.' },
+          { q: 'What does it cost to maintain a profile?',
+            a: 'Listing your profile is free for verified BAMS / MD-Ayurveda doctors. AyurConnect retains a 12% platform fee on completed online consultations only. In-person consultation revenue stays 100% with you — we don\'t see or touch it.' },
+          { q: 'Can I practise on AyurConnect while still in service at a government hospital?',
+            a: 'Yes, provided your government employer\'s policies permit private online practice (most allow it post-duty hours). AyurConnect doesn\'t share your private-practice data with employers; appointments are scheduled around availability you control.' },
+          { q: 'How do I get paid for online consultations from UAE / GCC patients?',
+            a: 'Razorpay handles international card payments. We disburse weekly to your registered Indian bank account in INR — the FX conversion is handled automatically. UAE patients can also pay via Razorpay UAE rails (AED card / Apple Pay) starting Q3 2026.' },
+          { q: 'What happens if I get a poor review or a patient files a complaint?',
+            a: 'Patient reviews are moderated for genuineness (we verify the patient had an actual appointment with you). Complaints are handled by our medical-affairs team within 72 hours — you\'re given the opportunity to respond before any visible action is taken. Profile suspension is reserved for verified ethics breaches, not single negative reviews.' },
+        ]}
+      />
     </div>
   )
 }
