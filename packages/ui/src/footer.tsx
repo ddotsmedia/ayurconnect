@@ -48,6 +48,8 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
       { href: '/tourism',             label: 'Medical Tourism' },
       { href: '/cost-estimator',      label: 'Cost Estimator' },
       { href: '/case-studies',        label: 'Case Studies' },
+      { href: '/kerala-guide',        label: 'Kerala Guide' },
+      { href: '/seminars',            label: 'Seminars' },
     ],
   },
   {
@@ -72,14 +74,18 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
       { href: '/products/hms',    label: 'AyurConnect HMS' },
       { href: '/products/saas',   label: 'White-label SaaS' },
       { href: '/products/mobile', label: 'Mobile Apps' },
+      { href: '/clinic-portal',   label: 'Clinic Portal' },
+      { href: '/jobs/post',       label: 'Post a Job' },
       { href: '/roi-calculator',  label: 'ROI Calculator' },
       { href: '/partnership',     label: 'Partnership' },
+      { href: '/careers',         label: 'Careers' },
     ],
   },
   {
     heading: 'Platform',
     links: [
       { href: '/contact',     label: 'Contact us' },
+      { href: '/jobs',        label: 'Jobs Board' },
       { href: '/sign-in',     label: 'Sign in' },
       { href: '/register',    label: 'Join free' },
       { href: '/privacy',     label: 'Privacy' },
