@@ -166,6 +166,16 @@ export default async function HerbDetailPage({ params }: { params: Promise<{ id:
             <span className="mt-3 inline-flex items-center gap-1 text-xs">Open AyurBot <ArrowRight className="w-3 h-3" /></span>
           </Link>
 
+          <Link
+            href={`/interaction-checker?herb=${encodeURIComponent(h.name)}`}
+            className="block bg-amber-50 border border-amber-200 rounded-card p-4 hover:bg-amber-100 transition-colors"
+          >
+            <div className="text-xs uppercase tracking-wider text-amber-700 font-semibold">Safety</div>
+            <div className="mt-1 font-serif text-base text-amber-900 leading-tight">Check {h.name} interactions with your medications</div>
+            <span className="mt-2 inline-flex items-center gap-1 text-xs text-amber-800">Open checker <ArrowRight className="w-3 h-3" /></span>
+          </Link>
+
+
           <Link href="/herbs" className="block text-center px-4 py-2 text-sm border border-kerala-600 text-kerala-700 rounded-md hover:bg-kerala-50">
             ← All herbs
           </Link>

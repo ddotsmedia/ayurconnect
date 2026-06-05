@@ -55,6 +55,7 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/kerala-guide',   priority: 0.8,  changeFrequency: 'monthly' },
   { path: '/clinic-portal',  priority: 0.7,  changeFrequency: 'monthly' },
   { path: '/seminars',       priority: 0.75, changeFrequency: 'weekly'  },
+  { path: '/interaction-checker', priority: 0.85, changeFrequency: 'monthly' },
   { path: '/marketplace',    priority: 0.75, changeFrequency: 'weekly'  },
   { path: '/academy',        priority: 0.7,  changeFrequency: 'monthly' },
   { path: '/roi-calculator', priority: 0.6,  changeFrequency: 'monthly' },
