@@ -71,7 +71,16 @@ export function RitucharyaForm() {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ dosha, city: city || undefined, climate: climate || undefined }),
       })
-      if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error ?? `HTTP ${r.status}`)
+      if (!r.ok) {
+        const j = await r.json().catch(() => ({})) as { error?: string; reason?: string }
+        const friendly =
+          j.reason === 'no-credits' || j.reason === 'not-configured' || j.reason === 'AI not configured'
+            ? 'The seasonal-regimen generator is temporarily offline. Please try again in a few minutes.'
+            : j.reason === 'rate-limited'
+              ? 'We\'re generating a lot of regimens right now — please try again in a minute.'
+              : (j.error ?? `HTTP ${r.status}`)
+        throw new Error(friendly)
+      }
       setData(await r.json() as GenRes)
     } catch (e) { setErr(e instanceof Error ? e.message : String(e)) } finally { setBusy(false) }
   }
