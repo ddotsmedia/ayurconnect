@@ -39,6 +39,7 @@ const PATIENT_NAV = [
   { href: '/dashboard/appointments',  label: 'Appointments' },
   { href: '/dashboard/prescriptions', label: 'My prescriptions' },
   { href: '/dashboard/journal',       label: 'Health journal' },
+  { href: '/dashboard/episodes',      label: 'Treatment progress' },
   { href: '/dashboard/vitals',        label: 'Vitals' },
   { href: '/dashboard/family',        label: 'Family health' },
   { href: '/dashboard/profile',       label: 'Health profile' },
@@ -50,6 +51,7 @@ const DOCTOR_NAV = [
   { href: '/dashboard/slots',          label: 'My availability' },
   { href: '/dashboard/prescriptions',  label: 'My prescriptions' },
   { href: '/dashboard/rpm',            label: 'Patient monitoring' },
+  { href: '/dr/episodes',              label: 'Patient progress' },
   { href: '/dashboard/analytics',      label: 'Analytics' },
   { href: '/dashboard/profile',        label: 'My profile' },
 ]

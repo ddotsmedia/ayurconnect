@@ -1,6 +1,27 @@
 import Link from 'next/link'
 import { GradientHero } from '@ayurconnect/ui'
-import { BookOpen, ChevronRight, ExternalLink, AlertTriangle } from 'lucide-react'
+import { BookOpen, ChevronRight, ExternalLink, AlertTriangle, ShieldCheck, TrendingDown, Users } from 'lucide-react'
+import { API_INTERNAL as API } from '../../lib/server-fetch'
+
+type Aggregate = {
+  condition: string
+  patientCount:        number
+  episodeCount:        number
+  meanInitialSeverity: number
+  meanLatestSeverity:  number
+  meanDeltaSeverity:   number
+  improvedFraction:    number
+  medianDurationDays:  number | null
+}
+type AggregateResponse = { aggregates: Aggregate[]; suppressedConditions: number; kThreshold: number; computedAt: string }
+
+async function fetchAggregates(): Promise<AggregateResponse | null> {
+  try {
+    const r = await fetch(`${API}/research/outcomes`, { next: { revalidate: 600 } })
+    if (!r.ok) return null
+    return await r.json() as AggregateResponse
+  } catch { return null }
+}
 
 export const metadata = {
   title: 'Clinical Research on Ayurveda — Curated Evidence | AyurConnect',
@@ -58,7 +79,8 @@ const STUDIES = [
   },
 ]
 
-export default function ResearchPage() {
+export default async function ResearchPage() {
+  const agg = await fetchAggregates()
   return (
     <>
       <GradientHero variant="green" size="lg">
@@ -108,6 +130,53 @@ export default function ResearchPage() {
           </ul>
         </div>
       </section>
+
+      {agg && agg.aggregates.length > 0 && (
+        <section className="container mx-auto px-4 py-12 max-w-4xl">
+          <h2 className="font-serif text-2xl text-ink mb-2 inline-flex items-center gap-2">
+            <TrendingDown className="w-6 h-6 text-kerala-700" /> AyurConnect outcome data
+          </h2>
+          <p className="text-sm text-muted mb-6">
+            Aggregated severity trends from real treatment episodes contributed by consenting patients on AyurConnect.
+            Cells with fewer than {agg.kThreshold} patients are suppressed — these aren&apos;t personal stories, they&apos;re anonymous summaries.
+          </p>
+          <div className="overflow-x-auto bg-white border border-gray-100 rounded-card shadow-card">
+            <table className="min-w-full text-sm">
+              <thead className="bg-cream text-left text-gray-700 text-xs uppercase tracking-wider">
+                <tr>
+                  <th className="px-4 py-2.5">Condition</th>
+                  <th className="px-4 py-2.5">Patients</th>
+                  <th className="px-4 py-2.5">Initial → latest severity</th>
+                  <th className="px-4 py-2.5">Δ</th>
+                  <th className="px-4 py-2.5">% improved</th>
+                  <th className="px-4 py-2.5">Median days tracked</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {agg.aggregates.map((a) => (
+                  <tr key={a.condition}>
+                    <td className="px-4 py-2.5 font-medium">{a.condition}</td>
+                    <td className="px-4 py-2.5 text-gray-700">{a.patientCount} <span className="text-xs text-gray-400">({a.episodeCount} episode{a.episodeCount === 1 ? '' : 's'})</span></td>
+                    <td className="px-4 py-2.5 text-gray-700">{a.meanInitialSeverity.toFixed(1)} → {a.meanLatestSeverity.toFixed(1)}</td>
+                    <td className={'px-4 py-2.5 font-semibold ' + (a.meanDeltaSeverity < 0 ? 'text-emerald-700' : 'text-red-700')}>
+                      {a.meanDeltaSeverity > 0 ? '+' : ''}{a.meanDeltaSeverity.toFixed(1)}
+                    </td>
+                    <td className="px-4 py-2.5 text-gray-700">{Math.round(a.improvedFraction * 100)}%</td>
+                    <td className="px-4 py-2.5 text-gray-700">{a.medianDurationDays ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-[11px] text-gray-500 mt-3 inline-flex items-center gap-1.5">
+            <Users className="w-3 h-3" /> k = {agg.kThreshold} anonymity threshold ·
+            <ShieldCheck className="w-3 h-3 text-emerald-700" /> per-episode consent opt-in required ·
+            no PII ever shared ·
+            recomputed {new Date(agg.computedAt).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' })}.
+            {agg.suppressedConditions > 0 && ` ${agg.suppressedConditions} condition${agg.suppressedConditions === 1 ? '' : 's'} suppressed for low patient count.`}
+          </p>
+        </section>
+      )}
 
       <section className="container mx-auto px-4 py-12 max-w-3xl">
         <div className="p-5 rounded-card bg-amber-50 border border-amber-100 text-sm text-amber-900 leading-relaxed flex gap-3">

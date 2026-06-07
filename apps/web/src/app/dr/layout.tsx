@@ -8,7 +8,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getServerSession } from '../../lib/auth'
-import { Home, FileText, BookOpen, Video, Library, FlaskConical, Calendar, Pill, Bot, ShieldCheck, ArrowLeft, Share2 } from 'lucide-react'
+import { Home, FileText, BookOpen, Video, Library, FlaskConical, Calendar, Pill, Bot, ShieldCheck, ArrowLeft, Share2, Activity } from 'lucide-react'
 
 const NAV = [
   { href: '/dr',              label: 'Hub home',         icon: Home },
@@ -21,6 +21,7 @@ const NAV = [
   { href: '/dr/conferences',  label: 'Conferences',      icon: Calendar },
   { href: '/dr/interactions', label: 'Drug interactions', icon: Pill },
   { href: '/dr/referrals',    label: 'Referrals',        icon: Share2 },
+  { href: '/dr/episodes',     label: 'Patient progress', icon: Activity },
 ]
 
 const ALLOWED_ROLES = ['DOCTOR', 'DOCTOR_PENDING', 'ADMIN']

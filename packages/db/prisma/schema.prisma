@@ -71,6 +71,9 @@ model User {
   cmeCredits          CmeCredit[]
   // Jobs v2 (2026-05-19): track applications submitted by signed-in users.
   jobApplications     JobApplication[] @relation("JobApplicantUser")
+  // Longitudinal outcomes (2026-06-07): patient ↔ treatment-episode + log relations.
+  treatmentEpisodesPatient TreatmentEpisode[] @relation("EpisodePatient")
+  treatmentEpisodesDoctor  TreatmentEpisode[] @relation("EpisodeDoctor")
 }
 
 // ─── Patient health journal (added 2026-05-10) ────────────────────────────
@@ -1645,4 +1648,70 @@ model AmaiLink {
   page      AmaiPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
 
   @@index([pageId, category, sortOrder])
+}
+
+// ─── Longitudinal outcome tracking (2026-06-07) ───────────────────────────
+// Patients log symptom-severity scores over the course of a treatment.
+// Doctors see trends in their portal. K-anonymized aggregates (≥10
+// patients per cell) surface on /research as "evidence-informed"
+// outcome data the platform actually owns.
+//
+// Privacy: every TreatmentEpisode has its own consentForResearch flag —
+// per-episode opt-in is stricter than a global toggle. Aggregates only
+// include episodes where consentForResearch=true AND the per-condition
+// count meets the threshold, suppressing low-N cells.
+model TreatmentEpisode {
+  id                  String   @id @default(cuid())
+  patientUserId       String
+  doctorUserId        String?
+  // Condition tag (free-text in v1; will harden against a condition slug
+  // table once /conditions/_data/conditions.ts is migrated to DB).
+  condition           String
+  conditionSlug       String?  // optional slug for /conditions/[slug] cross-link
+  // Protocol notes — what was prescribed (free-text; never used in aggregates).
+  protocolNotes       String?
+  status              String   @default("active")  // 'active' | 'completed' | 'paused' | 'abandoned'
+  startDate           DateTime @default(now())
+  endDate             DateTime?
+  // Per-episode consent for anonymized research aggregation. Default OFF
+  // so opt-in is explicit. Patient can flip at any time; if turned off
+  // after data is contributed, prior contributions stop being included
+  // in future recomputations.
+  consentForResearch  Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  patient User  @relation("EpisodePatient", fields: [patientUserId], references: [id], onDelete: Cascade)
+  doctor  User? @relation("EpisodeDoctor",  fields: [doctorUserId],  references: [id], onDelete: SetNull)
+  logs    OutcomeLog[]
+
+  @@index([patientUserId, status])
+  @@index([doctorUserId, status])
+  @@index([condition, status])
+  @@index([consentForResearch, status])
+}
+
+// Daily / periodic check-in by the patient. Four severity scales (0–10)
+// keep the form lightweight; free-text note for anything unstructured.
+// optionalPhotoUrl is reserved for v2 (we already have MinIO-encrypted
+// upload infra; not wiring photos to keep this scope minimal).
+model OutcomeLog {
+  id           String   @id @default(cuid())
+  episodeId    String
+  date         DateTime @db.Date
+  // 0 = no symptom; 10 = worst imaginable. Patient sees plain-English labels.
+  severity     Int      // primary chief-complaint severity 0-10
+  energy       Int?     // 0-10
+  sleepQuality Int?     // 0-10
+  mood         Int?     // 0-10
+  note         String?
+  // Photo reservation. When wired in v2, photos go to the same MinIO
+  // bucket as appointment artifacts (server-side encrypted, signed URLs).
+  photoUrl     String?
+  createdAt    DateTime @default(now())
+
+  episode TreatmentEpisode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
+
+  @@unique([episodeId, date])  // one log per day per episode
+  @@index([episodeId, date])
 }

@@ -32,7 +32,7 @@ type AuditTargetType =
   | 'Herb' | 'College' | 'Tourism' | 'HealthTip'
   // PHI target types (P0-H5)
   | 'Appointment' | 'Prescription' | 'JournalEntry' | 'HealthMetric'
-  | 'ClinicalCase' | 'DoctorReferral' | 'RpmAlert'
+  | 'ClinicalCase' | 'DoctorReferral' | 'RpmAlert' | 'TreatmentEpisode' | 'OutcomeLog'
 
 type AuditInput = {
   actorId:    string
