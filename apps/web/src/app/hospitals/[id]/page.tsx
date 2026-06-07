@@ -8,6 +8,7 @@ import { hospitalLd, breadcrumbLd, ldGraph, clip, SITE_URL } from '../../../lib/
 import { mapsDirectionsUrl, mapsLatLngUrl } from '../../../lib/maps'
 import { getServerSession } from '../../../lib/auth'
 import { ReviewForm } from '../../../components/review-form'
+import { VerificationBadges } from '../../../components/seo/VerificationBadges'
 import { SocialLinksDisplay } from '../../../components/social-links'
 
 type Hospital = {
@@ -152,6 +153,7 @@ export default async function HospitalDetailPage({ params }: { params: Promise<{
       {/* BODY */}
       <div className="container mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
         <div className="space-y-10">
+          <VerificationBadges entityType="centre" entityId={h.id} />
           {h.profile && (
             <section>
               <h2 className="text-2xl text-kerala-700 mb-3">About</h2>

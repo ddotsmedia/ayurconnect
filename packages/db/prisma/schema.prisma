@@ -1650,6 +1650,41 @@ model AmaiLink {
   @@index([pageId, category, sortOrder])
 }
 
+// ─── Verification badges (2026-06-07) ─────────────────────────────────────
+// Polymorphic credential ledger. One row per (entityType × entityId × badgeType).
+// Public surfaces only render rows where status='verified' AND validUntil
+// is null or in the future. Admin can never set status='verified' without
+// sourceUrl OR referenceNumber (UI + API hard-rule).
+//
+// entityType is a string union, not a Prisma enum, because 'college' and
+// 'manufacturer' have no DB model yet — they're free-string slugs.
+model CredentialBadge {
+  id              String   @id @default(cuid())
+  entityType      String   // 'doctor' | 'centre' | 'college' | 'manufacturer' | 'product'
+  entityId        String   // FK by string — Doctor.id, Hospital.id, slug, etc.
+  badgeType       String   // 'state_registered' | 'tourism_classified' | 'gmp_licensed' | 'ncism_kuhs' | 'lineage_verified'
+  status          String   @default("pending")  // 'pending' | 'verified' | 'rejected' | 'expired'
+  tier            String?  // for tourism_classified: 'diamond' | 'gold' | 'silver' | 'green_leaf' | 'olive_leaf'
+  referenceNumber String?  // e.g. CCIM reg number, GMP licence number
+  sourceUrl       String?  // public credential URL (state register page, KUHS list, etc.)
+  sourceName      String?  // human label ("Kerala State Medical Council ISM Register")
+  // Entity name + locality cached at ingestion — lets the admin queue render
+  // even before /colleges/[id] / /manufacturers/[id] profile routes exist.
+  entityNameCached     String?
+  entityDistrictCached String?
+  verifiedAt      DateTime?
+  verifiedById    String?
+  validUntil      DateTime?  // tourism = +3yr; others null = no expiry
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([entityType, entityId, badgeType])
+  @@index([status, validUntil])
+  @@index([entityType, status])
+  @@index([badgeType, tier])
+}
+
 // ─── Longitudinal outcome tracking (2026-06-07) ───────────────────────────
 // Patients log symptom-severity scores over the course of a treatment.
 // Doctors see trends in their portal. K-anonymized aggregates (≥10

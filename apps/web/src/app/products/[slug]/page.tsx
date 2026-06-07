@@ -4,6 +4,7 @@ import { GradientHero } from '@ayurconnect/ui'
 import { ChevronRight, AlertCircle, Building2, Server, Smartphone, ShieldCheck } from 'lucide-react'
 import { PRODUCTS, PRODUCT_SLUGS } from '../_data/products'
 import { WaitlistForm } from '../_waitlist-form'
+import { VerificationBadges } from '../../../components/seo/VerificationBadges'
 
 export function generateStaticParams() {
   return PRODUCT_SLUGS.map((slug) => ({ slug }))
@@ -55,6 +56,10 @@ export default async function ProductWaitlistPage({ params }: Params) {
           <p className="mt-5 text-lg text-white/85 max-w-2xl mx-auto">{p.tagline}</p>
         </div>
       </GradientHero>
+
+      <section className="container mx-auto px-4 pt-8 max-w-4xl">
+        <VerificationBadges entityType="product" entityId={p.slug} />
+      </section>
 
       <section className="container mx-auto px-4 py-14 max-w-4xl">
         <h2 className="font-serif text-2xl md:text-3xl text-kerala-700 mb-4">Why we&apos;re building this</h2>

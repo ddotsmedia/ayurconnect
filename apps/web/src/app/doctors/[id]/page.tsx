@@ -11,6 +11,7 @@ import {
 import { API_INTERNAL as API } from '../../../lib/server-fetch'
 import { physicianLd, breadcrumbLd, ldGraph } from '../../../lib/seo'
 import { getServerSession } from '../../../lib/auth'
+import { VerificationBadges } from '../../../components/seo/VerificationBadges'
 import { ReviewForm } from '../../../components/review-form'
 const ALL_DAYS: ReadonlyArray<string> = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
 
@@ -157,6 +158,7 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
       <div className="container mx-auto px-4 py-12 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
         {/* LEFT */}
         <div className="space-y-10">
+          <VerificationBadges entityType="doctor" entityId={doctor.id} />
           <section>
             <h2 className="text-2xl text-kerala-700 mb-3">About {doctor.name}</h2>
             {doctor.bio ? (

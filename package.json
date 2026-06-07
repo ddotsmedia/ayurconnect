@@ -9,6 +9,7 @@
     "clean": "turbo clean",
     "typecheck": "pnpm --filter api exec tsc --noEmit && pnpm --filter @ayurconnect/web exec tsc --noEmit",
     "test:e2e": "playwright test",
+    "import:listings": "pnpm --filter api exec tsx ../../scripts/import-listings.ts",
     "stabilize": "powershell -ExecutionPolicy Bypass -File scripts/stabilize.ps1",
     "deploy-all": "powershell -ExecutionPolicy Bypass -File scripts/deploy-all.ps1",
     "ship": "bash scripts/deploy.sh",
