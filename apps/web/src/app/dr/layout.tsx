@@ -10,6 +10,10 @@ import { redirect } from 'next/navigation'
 import { getServerSession } from '../../lib/auth'
 import { Home, FileText, BookOpen, Video, Library, FlaskConical, Calendar, Pill, Bot, ShieldCheck, ArrowLeft, Share2, Activity } from 'lucide-react'
 
+export const metadata = {
+  robots: { index: false, follow: false },  // gated doctor portal — never indexable
+}
+
 const NAV = [
   { href: '/dr',              label: 'Hub home',         icon: Home },
   { href: '/dr/cases',        label: 'Clinical cases',   icon: FileText },

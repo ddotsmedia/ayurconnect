@@ -64,12 +64,16 @@ export async function generateMetadata({ params }: { params: Promise<{ specialty
   const { specialty: slug } = await params
   const s = SPECIALTIES.find((x) => x.slug === slug)
   if (!s) return { title: 'Not found', robots: { index: false, follow: false } }
-  return pageMetadata({
+  // Programmatic data-gate: noindex when fewer than 3 doctors for this specialty.
+  const doctors = await fetchDoctorsBySpecialty(s.name)
+  const meta = pageMetadata({
     path: `/ayurveda/${slug}`,
     title:       `${s.name} Specialists in Kerala | AyurConnect`,
     description: `Verified ${s.name} doctors across Kerala. ${s.summary} Filter by district, language, and availability.`,
     keywords:    ['ayurveda', s.name, 'Kerala', 'BAMS', s.sanskrit].filter(Boolean) as string[],
   })
+  if (doctors.length < 3) meta.robots = { index: false, follow: true, googleBot: { index: false, follow: true } }
+  return meta
 }
 
 export default async function SpecialtyPage({ params }: { params: Promise<{ specialty: string }> }) {

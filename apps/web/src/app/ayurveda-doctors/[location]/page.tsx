@@ -45,12 +45,17 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   const { location: slug } = await params
   const loc = slugToLocation(slug)
   if (!loc) return { title: 'Not found', robots: { index: false, follow: false } }
-  return pageMetadata({
+  // Programmatic data-gate: noindex when the underlying directory is thin
+  // (< 3 doctors). Prevents Google penalising "city pages with nothing on them".
+  const doctors = await fetchDoctorsAt(loc)
+  const meta = pageMetadata({
     path: `/ayurveda-doctors/${slug}`,
     title:       `Ayurveda Doctors in ${loc} | Verified BAMS Doctors | AyurConnect`,
     description: `Find verified Ayurveda doctors in ${loc}. 500+ BAMS and MD practitioners across Kerala available for online and in-person consultation. CCIM cross-checked.`,
     keywords:    ['ayurveda doctors', loc, 'BAMS', 'Kerala', 'online consultation'],
   })
+  if (doctors.length < 3) meta.robots = { index: false, follow: true, googleBot: { index: false, follow: true } }
+  return meta
 }
 
 export default async function LocationDoctorsPage({ params }: { params: Promise<{ location: string }> }) {

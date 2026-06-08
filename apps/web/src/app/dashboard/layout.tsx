@@ -4,6 +4,10 @@ import { headers as nextHeaders } from 'next/headers'
 import { getServerSession } from '../../lib/auth'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
 
+export const metadata = {
+  robots: { index: false, follow: false },  // patient + doctor private surfaces — never indexable
+}
+
 type MeResponse = {
   user: {
     id: string
