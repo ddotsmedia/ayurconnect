@@ -46,7 +46,7 @@ export function EnquiryForm({ defaultCountry }: { defaultCountry?: string } = {}
           name:  form.name.trim(),
           email: form.email.trim(),
           phone: form.phone.trim() || undefined,
-          note:  note.slice(0, 2000),
+          message: note.slice(0, 4000),
         }),
       })
       if (!r.ok) {
