@@ -57,6 +57,7 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/seminars',       priority: 0.75, changeFrequency: 'weekly'  },
   { path: '/interaction-checker', priority: 0.85, changeFrequency: 'monthly' },
   { path: '/ritucharya',          priority: 0.85, changeFrequency: 'monthly' },
+  { path: '/heal-in-kerala',      priority: 0.95, changeFrequency: 'weekly'  },
   { path: '/marketplace',    priority: 0.75, changeFrequency: 'weekly'  },
   { path: '/academy',        priority: 0.7,  changeFrequency: 'monthly' },
   { path: '/roi-calculator', priority: 0.6,  changeFrequency: 'monthly' },
@@ -198,6 +199,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
+    })),
+    // /heal-in-kerala/[country] — 15 international source markets.
+    ...[
+      'uae','saudi-arabia','qatar','oman','kuwait','bahrain',
+      'uk','germany','russia','usa','canada','australia',
+      'japan','malaysia','singapore',
+    ].map((slug) => ({
+      url: `${BASE}/heal-in-kerala/${slug}`,
+      lastModified: now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.85,
     })),
     // /ayurveda/[specialty] — 11 classical Ayurveda specialties.
     ...[

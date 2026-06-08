@@ -21,6 +21,7 @@ const ALLOWED_KINDS = new Set([
   'second_opinion',      // /second-opinion intake form
   'seminar_registration',// /seminars anonymous register modal
   'clinic_portal_demo',  // /clinic-portal "Request Demo" form
+  'heal_in_kerala_enquiry',  // /heal-in-kerala + /heal-in-kerala/[country] enquiry form
 ])
 
 // Rate-limit: 5 submissions / 10 min / IP. Backed by Redis via lib/rate-limit

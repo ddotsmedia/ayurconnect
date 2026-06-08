@@ -137,6 +137,12 @@ export default function CostEstimatorPage() {
         </div>
       </GradientHero>
 
+      <section className="container mx-auto px-4 pt-8 max-w-5xl">
+        <Link href="/heal-in-kerala" className="block bg-gradient-to-br from-kerala-50 via-white to-amber-50 border border-kerala-100 rounded-card p-4 shadow-card hover:shadow-cardLg transition-shadow text-sm">
+          <strong className="text-kerala-800">Traveling from abroad?</strong> See per-country visa + flight + cost guides for UAE, UK, USA and 12 more →
+        </Link>
+      </section>
+
       <section className="container mx-auto px-4 py-12 max-w-5xl">
         <div className="grid md:grid-cols-2 gap-8">
           {/* Left: inputs */}

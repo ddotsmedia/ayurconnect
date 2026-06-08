@@ -61,6 +61,14 @@ export default async function TourismPage() {
         </div>
       </GradientHero>
 
+      {/* Heal-in-Kerala international hub cross-link */}
+      <section className="container mx-auto px-4 pt-8 max-w-4xl">
+        <Link href="/heal-in-kerala" className="block bg-gradient-to-br from-kerala-50 via-white to-amber-50 border border-kerala-100 rounded-card p-5 shadow-card hover:shadow-cardLg transition-shadow">
+          <p className="text-[10px] uppercase tracking-wider text-kerala-700 font-semibold">For international visitors</p>
+          <p className="font-serif text-lg text-ink mt-1">Planning from UAE, UK, USA or 12 other countries? <span className="text-kerala-700">→ Country-specific visa + cost guide</span></p>
+        </Link>
+      </section>
+
       {/* How it works */}
       <section className="container mx-auto px-4 py-14">
         <h2 className="text-2xl md:text-3xl text-kerala-700 text-center mb-10">How it works</h2>

@@ -83,6 +83,7 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
         { href: '/about/certifications', label: 'Verification Process' },
       ],
     },
+    { kind: 'link',  href: '/heal-in-kerala',       label: 'Heal in Kerala' },
     { kind: 'link',  href: '/jobs',                 label: tr.nav.jobs },
     { kind: 'link',  href: '/amai',                 label: 'AMAI', iconSrc: '/amai-logo.svg' },
   ]
