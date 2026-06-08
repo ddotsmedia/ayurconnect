@@ -86,6 +86,7 @@ const doctors: FastifyPluginAsync = async (fastify) => {
   fastify.get('/', async (request) => {
     const {
       country, state, district, specialization, q, language, verified, online,
+      collegeSlug, homeDistrict, practiceMode, keralaOrigin,
       sort = 'rating', page = '1', limit = '12',
     } = request.query as Record<string, string>
     const pageNum = Number(page) || 1
@@ -99,6 +100,11 @@ const doctors: FastifyPluginAsync = async (fastify) => {
     if (verified === 'false') where.ccimVerified = false
     if (online === 'true') where.availableForOnline = true
     if (language) where.languages = { has: language }
+    // 2026-06-08 Kerala-origin + diaspora filters.
+    if (collegeSlug)   where.collegeSlug   = collegeSlug
+    if (homeDistrict)  where.homeDistrict  = homeDistrict
+    if (practiceMode)  where.practiceMode  = practiceMode
+    if (keralaOrigin === 'true')  where.homeDistrict = { not: null }
     if (q) where.OR = [
       { name:           { contains: q, mode: 'insensitive' } },
       { specialization: { contains: q, mode: 'insensitive' } },

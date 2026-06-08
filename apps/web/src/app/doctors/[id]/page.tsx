@@ -33,6 +33,22 @@ type DoctorDetail = DoctorCardData & {
   reviews: Review[]
   averageRating: number | null
   reviewsCount: number
+  // Geography fields (may be on DoctorCardData; widened here defensively)
+  country?:                  string | null
+  state?:                    string | null
+  // Kerala-origin + diaspora additive fields (2026-06-08)
+  homeDistrict?:             string | null
+  college?:                  string | null
+  collegeSlug?:              string | null
+  batchYear?:                number | null
+  ksmcRegNumber?:            string | null
+  lineageOrTradition?:       string | null
+  localRegBody?:             string | null
+  localRegNumber?:           string | null
+  localRegCountry?:          string | null
+  practiceMode?:             string | null
+  specialTreatmentsOffered?: string[] | null
+  aboutMl?:                  string | null
 }
 
 async function fetchDoctor(id: string): Promise<DoctorDetail | null> {
@@ -159,15 +175,92 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
         {/* LEFT */}
         <div className="space-y-10">
           <VerificationBadges entityType="doctor" entityId={doctor.id} />
+
+          {(doctor.homeDistrict || doctor.college || doctor.lineageOrTradition || doctor.ksmcRegNumber) && (
+            <section>
+              <h2 className="text-2xl text-kerala-700 mb-3">Kerala roots</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                {doctor.homeDistrict && (
+                  <div className="bg-white border border-gray-100 rounded-card p-4 shadow-card">
+                    <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Home district</div>
+                    <div className="font-medium text-gray-900 mt-0.5">{doctor.homeDistrict}, Kerala</div>
+                  </div>
+                )}
+                {doctor.college && (
+                  <div className="bg-white border border-gray-100 rounded-card p-4 shadow-card">
+                    <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Ayurveda college</div>
+                    <div className="font-medium text-gray-900 mt-0.5">
+                      {doctor.collegeSlug ? <Link href={`/colleges/${doctor.collegeSlug}/alumni`} className="text-kerala-700 hover:underline">{doctor.college}</Link> : doctor.college}
+                      {doctor.batchYear && <span className="text-xs text-gray-500 ml-2">Batch of {doctor.batchYear}</span>}
+                    </div>
+                  </div>
+                )}
+                {doctor.lineageOrTradition && (
+                  <div className="bg-white border border-gray-100 rounded-card p-4 shadow-card md:col-span-2">
+                    <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Lineage / tradition</div>
+                    <div className="font-medium text-gray-900 mt-0.5">{doctor.lineageOrTradition}</div>
+                  </div>
+                )}
+                {doctor.ksmcRegNumber && (
+                  <div className="bg-white border border-gray-100 rounded-card p-4 shadow-card">
+                    <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">KSMC registration</div>
+                    <div className="font-medium text-gray-900 mt-0.5 font-mono text-xs">{doctor.ksmcRegNumber.slice(0, 4)}•••{doctor.ksmcRegNumber.slice(-3)}</div>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
+          {(doctor.country !== 'IN' || doctor.localRegBody || doctor.workplace) && (
+            <section>
+              <h2 className="text-2xl text-kerala-700 mb-3">Currently practicing</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                <div className="bg-white border border-gray-100 rounded-card p-4 shadow-card">
+                  <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Location</div>
+                  <div className="font-medium text-gray-900 mt-0.5">{doctor.district}{doctor.state ? `, ${doctor.state}` : ''}{doctor.country && doctor.country !== 'IN' ? `, ${doctor.country}` : ''}</div>
+                </div>
+                {doctor.practiceMode && (
+                  <div className="bg-white border border-gray-100 rounded-card p-4 shadow-card">
+                    <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Practice mode</div>
+                    <div className="font-medium text-gray-900 mt-0.5 capitalize">{doctor.practiceMode === 'both' ? 'In-person + teleconsult' : doctor.practiceMode.replace('_', ' ')}</div>
+                  </div>
+                )}
+                {doctor.localRegBody && doctor.localRegNumber && (
+                  <div className="bg-white border border-gray-100 rounded-card p-4 shadow-card md:col-span-2">
+                    <div className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold">Local regulatory registration</div>
+                    <div className="font-medium text-gray-900 mt-0.5">{doctor.localRegBody} · <span className="font-mono text-xs">{doctor.localRegNumber.slice(0, 3)}•••{doctor.localRegNumber.slice(-3)}</span></div>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
+          {(doctor.specialTreatmentsOffered?.length ?? 0) > 0 && (
+            <section>
+              <h2 className="text-2xl text-kerala-700 mb-3">Treatments offered</h2>
+              <div className="flex flex-wrap gap-2">
+                {doctor.specialTreatmentsOffered!.map((t: string) => (
+                  <Link key={t} href={`/treatments/${t.toLowerCase().replace(/\s+/g, '-')}`} className="px-3 py-1.5 bg-kerala-50 border border-kerala-200 rounded-full text-sm text-kerala-800 hover:bg-kerala-100">{t}</Link>
+                ))}
+              </div>
+            </section>
+          )}
+
           <section>
             <h2 className="text-2xl text-kerala-700 mb-3">About {doctor.name}</h2>
+            {doctor.aboutMl && (
+              <div className="mb-4 p-3 bg-kerala-50 border border-kerala-100 rounded-card">
+                <p className="text-[10px] uppercase tracking-wider text-kerala-700 font-semibold mb-1">മലയാളം</p>
+                <p className="text-gray-800 leading-relaxed whitespace-pre-line">{doctor.aboutMl}</p>
+              </div>
+            )}
             {doctor.bio ? (
               <p className="text-gray-700 leading-relaxed whitespace-pre-line">{doctor.bio}</p>
             ) : doctor.profile ? (
               <p className="text-gray-700 leading-relaxed">{doctor.profile}</p>
-            ) : (
+            ) : !doctor.aboutMl ? (
               <p className="text-muted italic">No bio added yet.</p>
-            )}
+            ) : null}
           </section>
 
           <section>

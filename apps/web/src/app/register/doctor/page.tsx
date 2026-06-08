@@ -18,6 +18,17 @@ export default function DoctorRegisterPage() {
     qualification: '', specialization: '',
     country: 'IN', state: '', district: '',
     experienceYears: '', contact: '', languages: 'Malayalam, English',
+    // Kerala roots (additive, all optional)
+    homeDistrict: '', college: '', batchYear: '', ksmcRegNumber: '',
+    lineageOrTradition: '',
+    // Abroad regulatory
+    localRegBody: '', localRegNumber: '',
+    // Treatments + practice
+    practiceMode: 'both',
+    specialTreatments: '',  // comma-separated → array on submit
+    aboutMl: '', bio: '',
+    // Credential URLs (v1 doctor-supplied URL)
+    degreeCertUrl: '', regCertUrl: '',
   })
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
@@ -41,6 +52,25 @@ export default function DoctorRegisterPage() {
         experienceYears: form.experienceYears ? Number(form.experienceYears) : null,
         contact: form.contact || null,
         languages: form.languages.split(',').map((s) => s.trim()).filter(Boolean),
+        // Kerala roots
+        homeDistrict:       form.homeDistrict || null,
+        college:            form.college || null,
+        collegeSlug:        form.college ? form.college.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : null,
+        batchYear:          form.batchYear ? Number(form.batchYear) : null,
+        ksmcRegNumber:      form.ksmcRegNumber || null,
+        lineageOrTradition: form.lineageOrTradition || null,
+        // Abroad regulatory
+        localRegBody:       form.localRegBody || null,
+        localRegNumber:     form.localRegNumber || null,
+        localRegCountry:    form.country !== 'IN' ? form.country : null,
+        // Practice + treatments
+        practiceMode:       form.practiceMode,
+        specialTreatmentsOffered: form.specialTreatments.split(',').map((s) => s.trim()).filter(Boolean),
+        aboutMl:            form.aboutMl || null,
+        bio:                form.bio || null,
+        // Credential URL refs
+        degreeCertUrl:      form.degreeCertUrl || null,
+        regCertUrl:         form.regCertUrl || null,
       })
       rememberCountry(form.country)
       router.push('/dashboard?welcome=doctor')
@@ -106,6 +136,72 @@ export default function DoctorRegisterPage() {
             </Field>
             <Field label="Languages (comma-separated)">
               <input value={form.languages} onChange={(e) => setForm({ ...form, languages: e.target.value })} className="input" />
+            </Field>
+            <Field label="Practice mode">
+              <select value={form.practiceMode} onChange={(e) => setForm({ ...form, practiceMode: e.target.value })} className="input">
+                <option value="both">In-person + teleconsult</option>
+                <option value="in_person">In-person only</option>
+                <option value="teleconsult">Teleconsult only</option>
+              </select>
+            </Field>
+          </div>
+
+          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider pt-3 border-t">Kerala roots <span className="text-[10px] text-gray-400 normal-case font-normal">(optional but encouraged)</span></h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <Field label="Home district (Kerala)">
+              <select value={form.homeDistrict} onChange={(e) => setForm({ ...form, homeDistrict: e.target.value })} className="input">
+                <option value="">— not from Kerala / skip —</option>
+                {['Thiruvananthapuram','Kollam','Pathanamthitta','Alappuzha','Kottayam','Idukki','Ernakulam','Thrissur','Palakkad','Malappuram','Kozhikode','Wayanad','Kannur','Kasaragod'].map((d) => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </Field>
+            <Field label="Ayurveda college (BAMS)">
+              <input value={form.college} onChange={(e) => setForm({ ...form, college: e.target.value })} className="input" placeholder="e.g. Government Ayurveda College, Thiruvananthapuram" />
+            </Field>
+            <Field label="Batch year">
+              <input type="number" min={1950} max={new Date().getFullYear()} value={form.batchYear} onChange={(e) => setForm({ ...form, batchYear: e.target.value })} className="input" placeholder="e.g. 2008" />
+            </Field>
+            <Field label="KSMC reg number (optional)">
+              <input value={form.ksmcRegNumber} onChange={(e) => setForm({ ...form, ksmcRegNumber: e.target.value })} className="input" placeholder="Kerala State Medical Council" />
+            </Field>
+            <Field label="Lineage or tradition (optional)">
+              <input value={form.lineageOrTradition} onChange={(e) => setForm({ ...form, lineageOrTradition: e.target.value })} className="input" placeholder="e.g. Ashtavaidya — Pulamanthole Mooss" />
+            </Field>
+          </div>
+
+          {form.country !== 'IN' && (
+            <>
+              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider pt-3 border-t">Local regulatory registration</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <Field label="Local reg body">
+                  <input value={form.localRegBody} onChange={(e) => setForm({ ...form, localRegBody: e.target.value })} className="input" placeholder="e.g. DHA, SCFHS, GMC, MOHAP" />
+                </Field>
+                <Field label="Local reg number">
+                  <input value={form.localRegNumber} onChange={(e) => setForm({ ...form, localRegNumber: e.target.value })} className="input" />
+                </Field>
+              </div>
+            </>
+          )}
+
+          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider pt-3 border-t">Treatments + bio</h2>
+          <div className="space-y-3 sm:space-y-4">
+            <Field label="Special treatments offered (comma-separated)">
+              <input value={form.specialTreatments} onChange={(e) => setForm({ ...form, specialTreatments: e.target.value })} className="input" placeholder="Pizhichil, Njavarakizhi, Sirodhara, Panchakarma" />
+            </Field>
+            <Field label="About yourself — English (bio)">
+              <textarea value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} rows={4} className="input" placeholder="2–3 sentences on your practice + philosophy. Public on your profile." />
+            </Field>
+            <Field label="About yourself — മലയാളം (Malayalam bio, optional but recommended)">
+              <textarea value={form.aboutMl} onChange={(e) => setForm({ ...form, aboutMl: e.target.value })} rows={4} className="input" placeholder="നിങ്ങളെക്കുറിച്ച് ഹ്രസ്വവിവരണം — മലയാളിയായ രോഗികൾക്ക് വിശ്വാസമേറും." />
+            </Field>
+          </div>
+
+          <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wider pt-3 border-t">Credentials <span className="text-[10px] text-gray-400 normal-case font-normal">(URL refs; LinkedIn / drive link OK for now)</span></h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <Field label="BAMS degree certificate URL">
+              <input type="url" value={form.degreeCertUrl} onChange={(e) => setForm({ ...form, degreeCertUrl: e.target.value })} className="input" placeholder="https://…" />
+            </Field>
+            <Field label="Registration certificate URL">
+              <input type="url" value={form.regCertUrl} onChange={(e) => setForm({ ...form, regCertUrl: e.target.value })} className="input" placeholder="https://…" />
             </Field>
           </div>
 

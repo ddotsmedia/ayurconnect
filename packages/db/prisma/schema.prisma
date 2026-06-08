@@ -249,6 +249,36 @@ model Doctor {
   // Index for queue sorting: oldest pending first.
   @@index([moderationStatus, createdAt])
 
+  // ─── Kerala-origin + diaspora directory fields (2026-06-08) ────────────
+  // Additive; all nullable so the existing 500+ rows remain valid. Allows
+  // distinguishing a Kerala-trained doctor practising in Dubai (homeDistrict
+  // set, practiceCountry=AE) from a Kerala-trained doctor practising in
+  // Kerala (homeDistrict=null OR same as practice district).
+  homeDistrict             String?
+  college                  String?
+  collegeSlug              String?
+  batchYear                Int?
+  ksmcRegNumber            String?  // Kerala State Medical Council reg # (modern)
+  lineageOrTradition       String?  // e.g. "Ashtavaidya - Pulamanthole Mooss"
+  // Local regulatory bodies abroad (DHA Dubai, SCFHS Saudi, GMC UK, etc.)
+  localRegBody             String?
+  localRegNumber           String?
+  localRegCountry          String?  // ISO 3166-1 alpha-2
+  // Practice mode + treatments offered (string array; mirrors specialization).
+  practiceMode             String?  @default("both")  // 'in_person' | 'teleconsult' | 'both'
+  specialTreatmentsOffered String[] @default([])
+  // Malayalam bio. Display primary when present.
+  aboutMl                  String?
+  // Profile management
+  profileClaimedAt         DateTime?
+  profileCompleteness      Int?     @default(0)
+  selfRegistered           Boolean  @default(false)
+  featured                 Boolean  @default(false)
+  // Credential uploads (URL refs; presigned MinIO uploads wire up in v2).
+  degreeCertUrl            String?
+  regCertUrl               String?
+  photoIdUrl               String?
+
   // Indexes for directory filtering. The `country` filter is a strict equality
   // (ISO-2), state/district/specialization are case-insensitive `contains`
   // queries, so a btree index helps the typical prefix case + WHERE country=…
@@ -258,6 +288,11 @@ model Doctor {
   @@index([district])
   @@index([specialization])
   @@index([ccimVerified, createdAt])
+  // 2026-06-08 indices for the Kerala-origin + diaspora filters.
+  @@index([homeDistrict])
+  @@index([collegeSlug, batchYear])
+  @@index([selfRegistered, moderationStatus])
+  @@index([featured, ccimVerified])
 }
 
 // Concrete bookable time slots. Doctors create them; patients pick one when

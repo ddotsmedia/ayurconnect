@@ -108,6 +108,16 @@ const me: FastifyPluginAsync = async (fastify) => {
     const country = typeof body.country === 'string' && /^[A-Z]{2}$/.test(body.country) ? body.country : 'IN'
     const state   = typeof body.state === 'string' && body.state.trim() ? body.state.trim().slice(0, 100) : null
 
+    // ─── Kerala-origin + diaspora additive fields (2026-06-08). All optional.
+    const arrStr = (x: unknown): string[] => Array.isArray(x) ? (x as unknown[]).filter((s): s is string => typeof s === 'string') : []
+    const optStr = (x: unknown, cap = 500): string | null => typeof x === 'string' && x.trim() ? x.trim().slice(0, cap) : null
+    const optInt = (x: unknown): number | null => x != null && !Number.isNaN(Number(x)) ? Number(x) : null
+    const practiceMode = typeof body.practiceMode === 'string' && ['in_person', 'teleconsult', 'both'].includes(body.practiceMode) ? body.practiceMode : 'both'
+    // Profile completeness — quick 0-100 score from filled fields.
+    const fields = [name, specialization, district, body.qualification, body.experienceYears, body.bio, body.aboutMl, body.languages, body.contact, body.homeDistrict, body.college, body.ksmcRegNumber, body.specialTreatmentsOffered, body.lineageOrTradition, body.localRegBody]
+    const filledCount = fields.filter((f) => f != null && (typeof f !== 'string' || f.trim().length > 0) && (!Array.isArray(f) || f.length > 0)).length
+    const profileCompleteness = Math.min(100, Math.round((filledCount / fields.length) * 100))
+
     const doctor = await fastify.prisma.doctor.create({
       data: {
         name,
@@ -115,15 +125,39 @@ const me: FastifyPluginAsync = async (fastify) => {
         country,
         state,
         district,
-        ccimVerified: false, // admin-approved later
-        qualification:   typeof body.qualification === 'string'   ? body.qualification   : null,
-        experienceYears: body.experienceYears != null && !Number.isNaN(Number(body.experienceYears)) ? Number(body.experienceYears) : null,
-        contact:         typeof body.contact === 'string' ? body.contact : null,
-        address:         typeof body.address === 'string' ? body.address : null,
-        languages:       Array.isArray(body.languages) ? (body.languages as unknown[]).filter((x): x is string => typeof x === 'string') : [],
-        availableDays:   Array.isArray(body.availableDays) ? (body.availableDays as unknown[]).filter((x): x is string => typeof x === 'string') : [],
-        profile:         typeof body.profile === 'string' ? body.profile : null,
-        bio:             typeof body.bio === 'string' ? body.bio : null,
+        ccimVerified: false,
+        qualification:   optStr(body.qualification),
+        experienceYears: optInt(body.experienceYears),
+        contact:         optStr(body.contact),
+        address:         optStr(body.address, 1000),
+        languages:       arrStr(body.languages),
+        availableDays:   arrStr(body.availableDays),
+        profile:         optStr(body.profile, 280),
+        bio:             optStr(body.bio, 4000),
+        // Kerala-origin additive fields
+        homeDistrict:             optStr(body.homeDistrict, 100),
+        college:                  optStr(body.college, 200),
+        collegeSlug:              optStr(body.collegeSlug, 100),
+        batchYear:                optInt(body.batchYear),
+        ksmcRegNumber:            optStr(body.ksmcRegNumber, 50),
+        lineageOrTradition:       optStr(body.lineageOrTradition, 200),
+        // Abroad regulatory
+        localRegBody:             optStr(body.localRegBody, 100),
+        localRegNumber:           optStr(body.localRegNumber, 100),
+        localRegCountry:          typeof body.localRegCountry === 'string' && /^[A-Z]{2}$/.test(body.localRegCountry) ? body.localRegCountry : null,
+        // Practice details
+        practiceMode,
+        specialTreatmentsOffered: arrStr(body.specialTreatmentsOffered),
+        aboutMl:                  optStr(body.aboutMl, 4000),
+        // Provenance
+        selfRegistered:           true,
+        source:                   'self-register',
+        profileCompleteness,
+        moderationStatus:         'pending',
+        // Credential urls (v1 = doctor-supplied; MinIO presigned upload deferred)
+        degreeCertUrl:            optStr(body.degreeCertUrl, 500),
+        regCertUrl:               optStr(body.regCertUrl, 500),
+        photoIdUrl:               optStr(body.photoIdUrl, 500),
       },
     })
     await fastify.prisma.user.update({

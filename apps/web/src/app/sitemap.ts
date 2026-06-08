@@ -200,6 +200,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     })),
+    // /doctors/[country] — 15 international markets (data-gated noindex when <3).
+    ...[
+      'uae','saudi-arabia','qatar','oman','kuwait','bahrain',
+      'uk','germany','russia','usa','canada','australia',
+      'japan','malaysia','singapore',
+    ].map((slug) => ({
+      url: `${BASE}/doctors/${slug}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.85,
+    })),
+    // /doctors/register — high-priority signup landing.
+    { url: `${BASE}/doctors/register`, lastModified: now, changeFrequency: 'monthly' as const, priority: 0.9 },
     // /heal-in-kerala/[country] — 15 international source markets.
     ...[
       'uae','saudi-arabia','qatar','oman','kuwait','bahrain',

@@ -56,6 +56,7 @@ const DOCTOR_NAV = [
   { href: '/dashboard/prescriptions',  label: 'My prescriptions' },
   { href: '/dashboard/rpm',            label: 'Patient monitoring' },
   { href: '/dr/episodes',              label: 'Patient progress' },
+  { href: '/doctor/share',             label: 'Share + invite' },
   { href: '/dashboard/analytics',      label: 'Analytics' },
   { href: '/dashboard/profile',        label: 'My profile' },
 ]
