@@ -51,6 +51,8 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
         { href: '/research',      label: 'Clinical Research' },
         { href: '/seminars',      label: 'Seminars' },
         { href: '/kerala-guide',  label: 'Kerala Guide' },
+        { href: '/heritage',      label: 'Heritage & Culture' },
+        { href: '/karkidaka',     label: 'Karkidaka Chikitsa' },
         { href: '/conditions',    label: 'Conditions Library' },
         { href: '/qa',            label: 'Ayurveda Q&A' },
         { href: '/programs',      label: 'Wellness Programs' },
