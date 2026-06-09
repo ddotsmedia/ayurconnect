@@ -3,8 +3,8 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { GradientHero } from '@ayurconnect/ui'
 import { MapPin, ChevronRight, Stethoscope } from 'lucide-react'
-import { API_INTERNAL as API } from '../../../lib/server-fetch'
-import { breadcrumbLd, ldGraph, pageMetadata } from '../../../lib/seo'
+import { API_INTERNAL as API } from '../../../../lib/server-fetch'
+import { breadcrumbLd, ldGraph, pageMetadata } from '../../../../lib/seo'
 
 // Country-level Kerala-trained doctor directory. Data-gated: noindex when
 // <3 doctors. generateStaticParams covers the 15 priority diaspora markets;
@@ -49,7 +49,7 @@ export async function generateMetadata({ params }: { params: Promise<{ country: 
   if (!c) return { title: 'Not found', robots: { index: false, follow: false } }
   const doctors = await fetchDoctorsInCountry(c.code)
   const meta = pageMetadata({
-    path:        `/doctors/${country}`,
+    path:        `/doctors/in/${country}`,
     title:       `Kerala-Trained Ayurveda Doctors in ${c.name} — Teleconsult & In-Person | AyurConnect`,
     description: `Kerala-trained Ayurveda doctors practicing in ${c.name}. Verified credentials (KSMC + local body), teleconsult availability, Malayalam-speaking practitioners. Free directory.`,
     keywords:    [`ayurveda doctor ${c.name.toLowerCase()}`, `kerala ayurveda ${c.name.toLowerCase()}`, `BAMS ${c.name.toLowerCase()}`, 'malayali ayurveda doctor', 'kerala-trained ayurveda diaspora'],
@@ -69,7 +69,7 @@ export default async function CountryDoctorsPage({ params }: { params: Promise<{
     breadcrumbLd([
       { name: 'Home',                 url: '/' },
       { name: 'Ayurveda Doctors',     url: '/doctors' },
-      { name: c.name,                 url: `/doctors/${country}` },
+      { name: c.name,                 url: `/doctors/in/${country}` },
     ]),
     {
       '@context': 'https://schema.org',

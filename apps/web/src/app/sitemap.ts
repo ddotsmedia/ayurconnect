@@ -206,7 +206,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       'uk','germany','russia','usa','canada','australia',
       'japan','malaysia','singapore',
     ].map((slug) => ({
-      url: `${BASE}/doctors/${slug}`,
+      url: `${BASE}/doctors/in/${slug}`,
       lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.85,
