@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma } from '@prisma/client'
+import { seedHospitalsV2 } from './seed-hospitals-v2'
 
 const prisma = new PrismaClient()
 
@@ -347,9 +348,11 @@ async function main() {
     },
   })
 
+  const hospV2 = await seedHospitalsV2(prisma)
   console.log('✓ seeded:', {
     doctors: DOCTORS.length,
     hospitals: HOSPITALS.length,
+    hospitalsV2: hospV2.count,
     herbs: HERBS.length,
     colleges: COLLEGES.length,
     tourism: TOURISM.length,
