@@ -343,8 +343,8 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                 if (link.kind === 'amai') {
                   return (
                     <Link key={link.href} href={link.href} className={cn(tabBase, isActive(link.href) ? tabActive : tabIdle)}>
-                      <span aria-hidden className="flex h-[18px] w-[18px] items-center justify-center rounded bg-[#faf5e4]">
-                        <ShieldCheck className="h-3 w-3 text-[#c9a84c]" />
+                      <span aria-hidden className="flex h-[20px] w-[20px] items-center justify-center rounded bg-[#faf5e4]">
+                        <img src="/amai-logo.svg" alt="" width={14} height={20} style={{ objectFit: 'contain' }} />
                       </span>
                       {link.label}
                       {isActive(link.href) && activeBar}
@@ -486,7 +486,7 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                     >
                       {isCta && <Plane className="h-4 w-4" />}
                       {link.kind === 'amai' && (
-                        <span aria-hidden className="flex h-[18px] w-[18px] items-center justify-center rounded bg-[#faf5e4]"><ShieldCheck className="h-3 w-3 text-[#c9a84c]" /></span>
+                        <span aria-hidden className="flex h-[20px] w-[20px] items-center justify-center rounded bg-[#faf5e4]"><img src="/amai-logo.svg" alt="" width={14} height={20} style={{ objectFit: 'contain' }} /></span>
                       )}
                       {link.label}
                     </Link>
