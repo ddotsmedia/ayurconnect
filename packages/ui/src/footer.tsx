@@ -52,6 +52,7 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
       { href: '/kerala-guide',        label: 'Kerala Guide' },
       { href: '/heritage',            label: 'Heritage & Culture' },
       { href: '/karkidaka',           label: 'Karkidaka Chikitsa' },
+      { href: '/learn/ask-the-classics', label: 'Ask the Classics' },
       { href: '/seminars',            label: 'Seminars' },
       { href: '/interaction-checker', label: 'Interaction Checker' },
       { href: '/ritucharya',          label: 'Seasonal Regimen' },

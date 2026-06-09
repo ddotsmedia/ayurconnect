@@ -5,6 +5,7 @@ import { PRODUCT_SLUGS } from './products/_data/products'
 import { CASE_STUDY_SLUGS } from './case-studies/_data/cases'
 import { CONDITIONS as SEO_CONDITIONS } from './conditions/_data/conditions'
 import { CITIES as SEO_CITIES } from './conditions/_data/cities'
+import { ANSWERED_QA } from './learn/ask-the-classics/_answered'
 
 const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ayurconnect.com'
 
@@ -59,6 +60,7 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/heritage/history',            priority: 0.7,  changeFrequency: 'yearly'  },
   { path: '/heritage/temples',            priority: 0.65, changeFrequency: 'yearly'  },
   { path: '/karkidaka',                   priority: 0.85, changeFrequency: 'monthly' },
+  { path: '/learn/ask-the-classics',      priority: 0.8,  changeFrequency: 'weekly'  },
   { path: '/clinic-portal',  priority: 0.7,  changeFrequency: 'monthly' },
   { path: '/seminars',       priority: 0.75, changeFrequency: 'weekly'  },
   { path: '/interaction-checker', priority: 0.85, changeFrequency: 'monthly' },
@@ -82,6 +84,11 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   ...PRODUCT_SLUGS.map((slug) => ({
     path: `/products/${slug}` as const,
     priority: 0.55,
+    changeFrequency: 'monthly' as const,
+  })),
+  ...ANSWERED_QA.map((qa) => ({
+    path: `/learn/ask-the-classics/${qa.slug}` as const,
+    priority: 0.6,
     changeFrequency: 'monthly' as const,
   })),
 ]
