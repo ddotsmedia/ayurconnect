@@ -25,3 +25,16 @@
 ### /doctors/[country]/[city] city-level sub-pages (step 7)
 - Existing `/ayurveda-doctors/[location]` already covers UAE city pages (Dubai, Abu Dhabi, Sharjah).
 - New `/doctors/in/[country]/[city]` would duplicate that surface. Deferred until editorial team wants distinct content per surface.
+
+## 2026-06-09 — WhatsApp funnel (Phase 8): Twilio credentials not provisioned
+
+- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM` are all empty in `apps/api/.env`.
+- Shipped (functional once creds exist, safe no-op meanwhile):
+  - Inbound webhook bot at `POST /api/whatsapp/inbound` (`apps/api/src/routes/whatsapp-webhook.ts`) — FAQ keyword bot + booking deep-link handoff (`/consult`), STOP/START opt-out handling.
+  - Status endpoint `GET /api/whatsapp/status` reports whether outbound is configured.
+  - Outbound `sendWhatsApp()` lib + appointment-reminder cron already existed (`apps/api/src/lib/whatsapp.ts`, `cron/appointmentReminders.ts`).
+- To activate:
+  1. Provision a Twilio WhatsApp sender; set the three env vars on the VPS.
+  2. Twilio console → WhatsApp sender → "When a message comes in" → `https://ayurconnect.com/api/whatsapp/inbound` (POST).
+  3. Submit + get approval for outbound template messages (booking confirmation, 24h/1h reminders, post-consult follow-up, Ritucharya seasonal nudge).
+- Deferred until creds land: approved outbound template SIDs for the four template types in 8b (reminder cron is wired; templates need Twilio approval before they can send).
