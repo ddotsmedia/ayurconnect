@@ -72,6 +72,12 @@ const app = fp(async (fastify, opts: AppOptions) => {
     // Embed any herbs / research papers missing a vector (one-time on first
     // boot after migration, then no-op on subsequent boots). Free Gemini
     // quota easily covers ~145 herbs + ~50 papers.
+    //
+    // DETACHED (not awaited): a slow or failing embedding provider — e.g. an
+    // expired Gemini key that retries — must never delay `onReady` from
+    // resolving, or Fastify won't bind the port and the deploy smoke test hits
+    // a connection-refused/502 before the server is listening (seen 2026-06-09).
+    void (async () => {
     try {
       const { embedTexts, toVectorLiteral, embeddingsEnabled } = await import('./lib/embeddings.js')
       if (!embeddingsEnabled()) {
@@ -133,6 +139,7 @@ const app = fp(async (fastify, opts: AppOptions) => {
     } catch (err) {
       fastify.log.warn({ err }, 'embeddings: bootstrap failed (semantic search will be empty)')
     }
+    })()
   })
 }, { name: 'app' })
 

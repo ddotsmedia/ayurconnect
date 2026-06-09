@@ -124,8 +124,15 @@ if $DRY_RUN; then
   printf "  ${C_DIM}would tar-pipe %s bytes (%s kb) to %s:%s${C_RESET}\n" \
     "$size_kb" "$((size_kb/1024))" "$VPS" "$DEPLOY_DIR"
 else
-  tar czf - "${TAR_EXCLUDES[@]}" . | ssh "$VPS" "cd $DEPLOY_DIR && tar xzf -"
-  ok "source synced"
+  # Prune the repo-owned source trees before extracting so files deleted in the
+  # repo don't linger on the VPS. `tar xzf` is additive-only — it overwrites and
+  # adds but never removes. A stale source file (e.g. a deleted Fastify route)
+  # gets recompiled into dist and can crash boot (FST_ERR_DUPLICATED_ROUTE seen
+  # 2026-06-09). These trees are 100% repo-owned (dist/.next are built remotely
+  # and excluded from the tarball), so wiping + re-extracting is safe.
+  PRUNE_DIRS='apps/api/src apps/web/src packages/db/src packages/ui/src packages/config/src'
+  tar czf - "${TAR_EXCLUDES[@]}" . | ssh "$VPS" "cd $DEPLOY_DIR && rm -rf $PRUNE_DIRS && tar xzf -"
+  ok "source synced (pruned stale source files)"
 fi
 
 # ─── 2. remote install / migrate / build / restart ─────────────────────────
