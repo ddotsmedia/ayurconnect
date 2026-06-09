@@ -1,383 +1,390 @@
 import type { Metadata } from 'next'
-import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import Image from 'next/image'
 import { GradientHero } from '@ayurconnect/ui'
 import {
-  Target, Eye, Gem, Milestone as MilestoneIcon, Scale, Users,
-  CalendarDays, Network, IdCard, Mail, Phone, MapPin, Globe,
-  Facebook, Instagram, Youtube, Linkedin, MessageCircle, Send,
-  ExternalLink, Link2,
+  Users, CalendarDays, Network, MapPin, Mail, Phone, Globe, Facebook, Twitter, Youtube,
+  ChevronRight, ShieldCheck, Award, Building2, BookOpen, Scale, GraduationCap, FlaskConical,
+  Sprout, Newspaper, HeartHandshake, AlertTriangle, ExternalLink, Sparkles, Briefcase,
 } from 'lucide-react'
-import { API_INTERNAL as API } from '../../lib/server-fetch'
-import { abs } from '../../lib/seo'
+import { breadcrumbLd, faqLd, ldGraph, pageMetadata } from '../../lib/seo'
 
-// Public AMAI microsite. All content is admin-editable at /admin/amai and
-// served from GET /api/amai. Server component — no client JS needed.
+export const metadata: Metadata = pageMetadata({
+  path:  '/amai',
+  title: 'AMAI — Ayurveda Medical Association of India | AyurConnect',
+  description: 'Official AMAI page on AyurConnect. Learn about the Ayurveda Medical Association of India — Kerala\'s largest organization of 10,000+ qualified Ayurveda doctors since 1978. Membership, events, leadership, initiatives.',
+  keywords: ['AMAI', 'Ayurveda Medical Association of India', 'Kerala ayurveda doctors', 'BAMS association', 'AMAI membership', 'Angamaly ayurveda', 'AMARF', 'AMAI Vanitha', 'AMAI Yuvatha'],
+})
 
-type Bearer    = { id: string; name: string; position: string; category: string; photoUrl: string | null }
-type Milestone = { id: string; year: string; description: string }
-type ListItem  = { id: string; section: string; text: string }
-type AmaiLink  = { id: string; category: string; label: string; url: string }
-type PageData = {
-  page: {
-    orgName: string; shortName: string; tagline: string
-    heroImageUrl: string | null; logoUrl: string | null
-    mission: string; aboutText: string; foundedInfo: string
-    strategicNote: string; membershipInfo: string
-    contactAddress: string; contactPhone: string; contactEmail: string
-    websiteUrl: string; registrationInfo: string; copyrightText: string
-    published: boolean
-  } | null
-  officeBearers: Bearer[]
-  milestones: Milestone[]
-  listItems: ListItem[]
-  links: AmaiLink[]
-}
-
-const SOCIAL_ICON: Record<string, typeof Facebook> = {
-  facebook:  Facebook,
-  instagram: Instagram,
-  youtube:   Youtube,
-  linkedin:  Linkedin,
-  whatsapp:  MessageCircle,
-  telegram:  Send,
-}
-const SOCIAL_LABEL: Record<string, string> = {
-  facebook: 'Facebook', instagram: 'Instagram', youtube: 'YouTube',
-  twitter: 'Twitter / X', linkedin: 'LinkedIn', whatsapp: 'WhatsApp', telegram: 'Telegram',
-}
-
-const BEARER_GROUPS: Array<{ key: string; label: string }> = [
-  { key: 'executive', label: 'Executive Leadership' },
-  { key: 'secretary', label: 'Secretaries' },
-  { key: 'women',     label: 'Women Sub Committee' },
-  { key: 'apta',      label: 'APTA — Publication' },
-  { key: 'other',     label: 'Other Office Bearers' },
+const STATS = [
+  { label: '10,000+', sub: 'Members' },
+  { label: '14',      sub: 'District Committees' },
+  { label: '1978',    sub: 'Founded' },
+  { label: '47+',     sub: 'Annual Conferences' },
 ]
 
-async function getAmai(): Promise<PageData | null> {
-  try {
-    const res = await fetch(`${API}/amai`, { next: { revalidate: 300 } })
-    if (!res.ok) return null
-    return (await res.json()) as PageData
-  } catch {
-    return null
-  }
-}
+const LEADERSHIP = [
+  { role: 'President',         name: 'Dr. Leena C D',       phone: '+91 9847320018', email: 'drleena63@gmail.com',  icon: Award },
+  { role: 'General Secretary', name: 'Dr. Ajith Kumar K C', phone: '+91 9446564345', email: 'office.amai@gmail.com', icon: Briefcase },
+]
 
-export async function generateMetadata(): Promise<Metadata> {
-  const data = await getAmai()
-  const p = data?.page
-  const title = p
-    ? `${p.orgName} (${p.shortName}) | AyurConnect`
-    : 'Ayurveda Medical Association of India | AyurConnect'
-  const description = p?.mission || p?.tagline ||
-    'The Ayurveda Medical Association of India (AMAI) — promoting quality Ayurveda for public health.'
-  return {
-    title,
-    description: description.slice(0, 155),
-    alternates: { canonical: '/amai' },
-    openGraph: { title, description: description.slice(0, 155), url: abs('/amai') },
-  }
-}
+const STRUCTURE = [
+  { name: 'Kerala State Committee',        d: 'Apex governing body of AMAI at the state level.' },
+  { name: 'State Executive Committee',     d: 'Day-to-day operations, policy, and rapid response.' },
+  { name: 'Zone Committees',               d: 'Regional coordination across multi-district zones.' },
+  { name: 'District Committees',           d: 'Active in all 14 Kerala districts — local membership, CME, advocacy.' },
+  { name: 'Area Committees',               d: 'Taluk and panchayat-level grass-roots presence.' },
+  { name: 'AMAI Vanitha',                  d: 'Women doctors\' sub-committee — clinics, advocacy, support.' },
+  { name: 'AMAI Yuvatha',                  d: 'Youth + student wing for college members and young practitioners.' },
+  { name: 'APTA Editorial Board',          d: 'Editorial governance of the official AMAI journal/magazine.' },
+]
 
-function Paragraphs({ text, className = '' }: { text: string; className?: string }) {
-  const parts = text.split(/\n+/).map((s) => s.trim()).filter(Boolean)
-  if (parts.length === 0) return null
-  return (
-    <div className={`space-y-3 ${className}`}>
-      {parts.map((para, i) => <p key={i}>{para}</p>)}
-    </div>
+const WINGS = [
+  { name: 'AMAI Foundation',           icon: HeartHandshake, d: 'Welfare and community programmes for members and the public.' },
+  { name: 'AMAI Research Foundation (AMARF)', icon: FlaskConical, d: 'Clinical research arm — diabetes survey programmes, treatment outcome studies.' },
+  { name: 'AMAI Academy',              icon: GraduationCap, d: 'PSC Medical Officer (Ayurveda) coaching, CME programmes, examination guidance.' },
+  { name: 'AMAI Vanitha',              icon: Users,         d: 'Women doctors\' wing; runs Vanitha Clinic and women\'s health programmes.' },
+  { name: 'AMAI Yuvatha',              icon: Sparkles,      d: 'Youth and student wing — mentorship, leadership, college chapters.' },
+  { name: 'AMAI Against Quacks',       icon: ShieldCheck,   d: 'Public-protection campaign against unqualified practitioners.' },
+  { name: 'Aswas Relief Fund',         icon: HeartHandshake, d: 'Welfare support fund for members and families in distress.' },
+  { name: 'APTA Journal',              icon: Newspaper,     d: 'Official journal / magazine — peer-reviewed clinical + organisational content.' },
+  { name: 'Ayush Gramam',              icon: Sprout,        d: 'Medicinal plant cultivation + tribal empowerment programmes.' },
+  { name: 'Know Your Herbs',           icon: BookOpen,      d: 'Educational herb-awareness series — Panikoorka, Thumba, Shankupushpam, etc.' },
+]
+
+const FAQ = [
+  { q: 'When and where was AMAI founded?',
+    a: 'AMAI was formed on 14 February 1978 at Guruvayoor by uniting two earlier organisations — the Ayurveda Medical Association (AMA) in northern Kerala and the National Ayurveda Medical Association (NAMA) in southern Kerala. The first combined state conference was held on 13 August 1978 at Thrissur.' },
+  { q: 'Who can become a member of AMAI?',
+    a: 'Membership is open to all qualified Ayurveda professionals — government medical officers, private practitioners, manufacturing physicians, hospital-employed doctors, Ayurveda college teachers, PG scholars, and students.' },
+  { q: 'How do I apply for AMAI membership?',
+    a: 'Apply at amaiapp.ayurveda-amai.org or contact your district or area committee office bearers. Forms are also downloadable on the official AMAI website.' },
+  { q: 'What is the AMAI headquarters address?',
+    a: 'Ayurveda Bhavan, P.B. No 93, Angamaly 683572, Kerala, India.' },
+  { q: 'What does AMAI do to fight quackery?',
+    a: 'The "AMAI Against Quacks" campaign coordinates with regulators and the public to identify and act against unqualified practitioners misrepresenting themselves as Ayurveda doctors. AMAI also won the Kerala Medical Practitioners Bill battle, securing practice rights exclusively for registered medical practitioners.' },
+]
+
+const RESOURCES = [
+  { label: 'Medical Ethics',                href: 'https://ayurveda-amai.org/category/medical-ethics/' },
+  { label: 'Legal Issues',                  href: 'https://ayurveda-amai.org/category/legal-issues/' },
+  { label: 'E-Submission of Form C',        href: 'https://ayurveda-amai.org/' },
+  { label: "President's Blog",              href: 'https://ayurveda-amai.org/category/presidents-blog/' },
+  { label: "General Secretary's Blog",      href: 'https://ayurveda-amai.org/category/general-secretarys-blog/' },
+  { label: 'Ayurveda for Social Health',    href: 'https://ayurveda-amai.org/category/ayurveda-for-social-health/' },
+  { label: 'Ayurveda Medical Colleges in Kerala', href: 'https://ayurveda-amai.org/category/ayurveda-medical-colleges-in-kerala/' },
+  { label: 'Downloads — forms, books, bylaws', href: 'https://ayurveda-amai.org/category/downloads/' },
+]
+
+const SOCIAL = [
+  { label: 'Facebook',     icon: Facebook, href: 'https://www.facebook.com/ayurvedaamai/',                   sub: '15,000+ followers' },
+  { label: 'Twitter / X',  icon: Twitter,  href: 'https://twitter.com/_AyurvedaIndia',                       sub: '@_AyurvedaIndia' },
+  { label: 'YouTube',      icon: Youtube,  href: 'https://www.youtube.com/channel/UCOXTnXJT-xkBIEnNMNsjdFw', sub: 'Official channel' },
+  { label: 'Website',      icon: Globe,    href: 'https://ayurveda-amai.org',                                sub: 'ayurveda-amai.org' },
+  { label: 'Membership',   icon: ShieldCheck, href: 'https://amaiapp.ayurveda-amai.org/',                    sub: 'Apply / login' },
+]
+
+export default function AmaiPage() {
+  const ld = ldGraph(
+    {
+      '@context': 'https://schema.org',
+      '@type':    ['MedicalOrganization', 'Organization'],
+      name:       'Ayurveda Medical Association of India',
+      alternateName: 'AMAI',
+      url:        'https://ayurveda-amai.org',
+      logo:       'https://ayurconnect.com/amai-logo.svg',
+      foundingDate: '1978-02-14',
+      foundingLocation: { '@type': 'Place', name: 'Guruvayoor, Kerala, India' },
+      address: {
+        '@type':         'PostalAddress',
+        streetAddress:   'Ayurveda Bhavan, P.B. No 93',
+        addressLocality: 'Angamaly',
+        postalCode:      '683572',
+        addressRegion:   'Kerala',
+        addressCountry:  'IN',
+      },
+      sameAs: SOCIAL.map((s) => s.href),
+      employee: LEADERSHIP.map((l) => ({
+        '@type':   'Person',
+        name:      l.name,
+        jobTitle:  l.role,
+        email:     l.email,
+        telephone: l.phone,
+      })),
+    },
+    faqLd(FAQ),
+    breadcrumbLd([
+      { name: 'Home', url: '/' },
+      { name: 'AMAI', url: '/amai' },
+    ]),
   )
-}
-
-export default async function AmaiPage() {
-  const data = await getAmai()
-  if (!data || !data.page || !data.page.published) notFound()
-  const { page, officeBearers, milestones, listItems, links } = data
-
-  const socialLinks = (links ?? []).filter((l) => l.category === 'social')
-  const otherLinks  = (links ?? []).filter((l) => l.category === 'other')
-  const bySection = (s: string) => listItems.filter((l) => l.section === s)
-  const vision = bySection('vision')
-  const coreValues = bySection('core_value')
-  const strategicIssues = bySection('strategic_issue')
-  const activities = bySection('activity')
-  const committees = bySection('committee')
-  const bearersByGroup = BEARER_GROUPS
-    .map((g) => ({ ...g, items: officeBearers.filter((b) => b.category === g.key) }))
-    .filter((g) => g.items.length > 0)
-
-  const orgLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: page.orgName,
-    alternateName: page.shortName,
-    url: page.websiteUrl || abs('/amai'),
-    ...(page.logoUrl ? { logo: page.logoUrl } : {}),
-    ...(page.contactEmail ? { email: page.contactEmail } : {}),
-    ...(page.contactPhone ? { telephone: page.contactPhone } : {}),
-    ...(page.contactAddress ? { address: page.contactAddress } : {}),
-    ...(page.mission ? { description: page.mission } : {}),
-  }
 
   return (
-    <div>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
 
-      {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <GradientHero variant="green">
-        <div className="max-w-3xl">
-          {page.logoUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={page.logoUrl} alt={`${page.shortName} logo`} className="h-20 w-auto mb-6 bg-white rounded-lg p-2" />
-          )}
-          <p className="text-gold-200 font-semibold tracking-wide uppercase text-sm mb-2">{page.shortName}</p>
-          <h1 className="font-serif text-4xl md:text-5xl leading-tight">{page.orgName}</h1>
-          {page.tagline && <p className="mt-4 text-lg text-white/85">{page.tagline}</p>}
-          {page.mission && <p className="mt-3 text-white/70">{page.mission}</p>}
-          {socialLinks.length > 0 && (
-            <div className="flex items-center gap-3 mt-6">
-              {socialLinks.map((s) => {
-                const Icon = SOCIAL_ICON[s.label]
-                return (
-                  <a
-                    key={s.id}
-                    href={s.url}
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    aria-label={SOCIAL_LABEL[s.label] ?? s.label}
-                    className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors text-sm font-bold"
-                  >
-                    {Icon ? <Icon className="w-4 h-4" /> : s.label === 'twitter' ? '𝕏' : <Globe className="w-4 h-4" />}
-                  </a>
-                )
-              })}
-            </div>
-          )}
+      <GradientHero variant="green" size="lg">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="mx-auto bg-white/95 rounded-2xl p-4 inline-flex items-center justify-center shadow-cardLg mb-5">
+            <Image src="/amai-logo.svg" alt="AMAI — Ayurveda Medical Association of India logo" width={72} height={100} priority className="h-24 w-auto" />
+          </div>
+          <span className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur rounded-full text-xs text-white/90 border border-white/20 mb-4">
+            <ShieldCheck className="w-3 h-3" /> Kerala&apos;s largest Ayurveda medical association
+          </span>
+          <h1 className="font-serif text-4xl md:text-6xl text-white leading-tight">Ayurveda Medical Association of India</h1>
+          <p className="mt-3 text-lg md:text-xl text-white/90 font-semibold">AMAI</p>
+          <p className="mt-5 text-base md:text-lg text-white/85 max-w-3xl mx-auto">
+            Kerala&apos;s largest organisation of qualified Ayurveda doctors since 1978. The universal voice and umbrella platform of private practitioners, academicians, government doctors, researchers, manufacturing physicians, PG scholars and students.
+          </p>
+
+          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3 max-w-3xl mx-auto">
+            {STATS.map((s) => (
+              <div key={s.sub} className="bg-white/10 backdrop-blur border border-white/20 rounded-card px-4 py-3">
+                <p className="text-2xl md:text-3xl font-bold text-white">{s.label}</p>
+                <p className="text-xs uppercase tracking-wider text-white/75 mt-0.5">{s.sub}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </GradientHero>
 
-      <div className="container mx-auto px-4 py-14 space-y-16 max-w-5xl">
-        {/* ── About ──────────────────────────────────────────────────── */}
-        {(page.aboutText || page.foundedInfo) && (
-          <section>
-            <h2 className="font-serif text-3xl text-kerala-800 mb-5">About {page.shortName}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <Paragraphs text={page.aboutText} className="md:col-span-2 text-gray-700 leading-relaxed" />
-              {page.foundedInfo && (
-                <aside className="bg-kerala-50 border border-kerala-100 rounded-card p-5 h-fit">
-                  <h3 className="text-xs uppercase tracking-wider text-kerala-700 font-semibold mb-2">Founded</h3>
-                  <Paragraphs text={page.foundedInfo} className="text-sm text-gray-700" />
-                </aside>
-              )}
-            </div>
-          </section>
-        )}
+      {/* About / History */}
+      <section className="container mx-auto px-4 py-14 max-w-4xl">
+        <h2 className="font-serif text-2xl md:text-3xl text-ink mb-4 inline-flex items-center gap-2">
+          <Building2 className="w-7 h-7 text-kerala-700" /> About AMAI
+        </h2>
+        <p className="text-gray-700 leading-relaxed">
+          AMAI was formed on <strong>14 February 1978 at Guruvayoor</strong> by uniting two earlier organisations — the
+          <strong> Ayurveda Medical Association (AMA)</strong> in northern Kerala and the
+          <strong> National Ayurveda Medical Association (NAMA)</strong> in southern Kerala.
+          The first combined state conference was held on <strong>13 August 1978 at Thrissur</strong>.
+        </p>
+        <p className="text-gray-700 leading-relaxed mt-3">
+          First elected leaders: <strong>Dr. NS Narayanan Nair</strong> (President), <strong>Dr. CK Divakaran</strong> (General Secretary),
+          <strong> Dr. M. Gopalakrishnan</strong> (Treasurer).
+        </p>
 
-        {/* ── Vision + Core values ───────────────────────────────────── */}
-        {(vision.length > 0 || coreValues.length > 0) && (
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {vision.length > 0 && (
-              <div className="bg-white border border-gray-100 rounded-card p-6 shadow-card">
-                <h2 className="font-serif text-2xl text-kerala-800 inline-flex items-center gap-2 mb-4">
-                  <Eye className="w-6 h-6" /> Vision
-                </h2>
-                <ul className="space-y-2.5">
-                  {vision.map((v) => (
-                    <li key={v.id} className="flex gap-2.5 text-gray-700">
-                      <span className="text-kerala-600 mt-1">●</span><span>{v.text}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {coreValues.length > 0 && (
-              <div className="bg-white border border-gray-100 rounded-card p-6 shadow-card">
-                <h2 className="font-serif text-2xl text-kerala-800 inline-flex items-center gap-2 mb-4">
-                  <Gem className="w-6 h-6" /> Core Values
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {coreValues.map((c) => (
-                    <span key={c.id} className="px-3 py-1.5 bg-gold-50 border border-gold-200 text-gold-700 rounded-full text-sm">
-                      {c.text}
-                    </span>
-                  ))}
-                </div>
-                {page.mission && (
-                  <div className="mt-5 pt-5 border-t border-gray-100">
-                    <h3 className="text-xs uppercase tracking-wider text-kerala-700 font-semibold inline-flex items-center gap-1.5 mb-1.5">
-                      <Target className="w-3.5 h-3.5" /> Mission
-                    </h3>
-                    <p className="text-gray-700">{page.mission}</p>
+        <h3 className="font-serif text-xl text-ink mt-8 mb-2 inline-flex items-center gap-2">
+          <Scale className="w-5 h-5 text-kerala-700" /> Key milestone
+        </h3>
+        <p className="text-gray-700 leading-relaxed">
+          AMAI won the landmark <strong>Kerala Medical Practitioners Bill</strong> battle — securing practice rights
+          <strong> exclusively for registered medical practitioners</strong>, a legal victory that continues to define the rights of qualified Ayurveda doctors today.
+        </p>
+
+        <h3 className="font-serif text-xl text-ink mt-8 mb-2">Mission</h3>
+        <ul className="text-gray-700 leading-relaxed space-y-1.5 list-disc pl-5">
+          <li>Promote quality Ayurveda for public health.</li>
+          <li>Protect the rights and interests of qualified Ayurveda professionals.</li>
+          <li>Fight quackery and unqualified practice.</li>
+          <li>Advance research, education, and the scientific footing of classical Ayurveda.</li>
+        </ul>
+      </section>
+
+      {/* Leadership */}
+      <section className="bg-cream py-14">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="font-serif text-2xl md:text-3xl text-ink mb-6 text-center">Current leadership</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {LEADERSHIP.map((l) => (
+              <article key={l.role} className="bg-white border border-gray-100 rounded-card p-5 shadow-card">
+                <div className="flex items-start gap-3">
+                  <div className="w-12 h-12 rounded-full bg-kerala-50 text-kerala-700 inline-flex items-center justify-center">
+                    <l.icon className="w-6 h-6" />
                   </div>
-                )}
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* ── Milestones ─────────────────────────────────────────────── */}
-        {milestones.length > 0 && (
-          <section>
-            <h2 className="font-serif text-3xl text-kerala-800 inline-flex items-center gap-2 mb-6">
-              <MilestoneIcon className="w-7 h-7" /> Milestones
-            </h2>
-            <ol className="relative border-l-2 border-kerala-100 ml-3 space-y-6">
-              {milestones.map((m) => (
-                <li key={m.id} className="ml-6">
-                  <span className="absolute -left-[9px] w-4 h-4 rounded-full bg-kerala-600 border-2 border-white" />
-                  <div className="font-mono text-sm font-semibold text-kerala-700">{m.year}</div>
-                  <p className="text-gray-700 mt-0.5">{m.description}</p>
-                </li>
-              ))}
-            </ol>
-          </section>
-        )}
-
-        {/* ── Strategic issues ───────────────────────────────────────── */}
-        {strategicIssues.length > 0 && (
-          <section>
-            <h2 className="font-serif text-3xl text-kerala-800 inline-flex items-center gap-2 mb-3">
-              <Scale className="w-7 h-7" /> Strategic Issues
-            </h2>
-            {page.strategicNote && <p className="text-gray-600 mb-4 max-w-3xl">{page.strategicNote}</p>}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-              {strategicIssues.map((s) => (
-                <div key={s.id} className="flex gap-2.5 bg-white border border-gray-100 rounded-card p-3.5 text-sm text-gray-700">
-                  <Scale className="w-4 h-4 text-kerala-600 flex-shrink-0 mt-0.5" /><span>{s.text}</span>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* ── Office bearers ─────────────────────────────────────────── */}
-        {bearersByGroup.length > 0 && (
-          <section>
-            <h2 className="font-serif text-3xl text-kerala-800 inline-flex items-center gap-2 mb-6">
-              <Users className="w-7 h-7" /> Office Bearers
-            </h2>
-            <div className="space-y-7">
-              {bearersByGroup.map((g) => (
-                <div key={g.key}>
-                  <h3 className="text-xs uppercase tracking-wider text-gray-400 font-semibold mb-3">{g.label}</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                    {g.items.map((b) => (
-                      <div key={b.id} className="bg-white border border-gray-100 rounded-card p-4 text-center shadow-card">
-                        {b.photoUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={b.photoUrl} alt={b.name} className="w-16 h-16 rounded-full object-cover mx-auto mb-2" />
-                        ) : (
-                          <div className="w-16 h-16 rounded-full bg-kerala-100 text-kerala-700 font-serif text-xl flex items-center justify-center mx-auto mb-2">
-                            {b.name.replace(/^Dr\.?\s*/i, '').trim().charAt(0).toUpperCase() || '—'}
-                          </div>
-                        )}
-                        <div className="font-semibold text-ink text-sm">{b.name}</div>
-                        <div className="text-xs text-muted mt-0.5">{b.position}</div>
-                      </div>
-                    ))}
+                  <div className="min-w-0">
+                    <p className="text-[10px] uppercase tracking-wider text-kerala-700 font-semibold">{l.role}</p>
+                    <h3 className="font-serif text-lg text-ink">{l.name}</h3>
+                    <p className="text-xs text-gray-700 mt-2 inline-flex items-center gap-1"><Phone className="w-3 h-3" /> <a href={`tel:${l.phone.replace(/\s/g, '')}`} className="hover:underline">{l.phone}</a></p>
+                    <p className="text-xs text-gray-700 mt-1 inline-flex items-center gap-1"><Mail className="w-3 h-3" /> <a href={`mailto:${l.email}`} className="hover:underline break-all">{l.email}</a></p>
                   </div>
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
+              </article>
+            ))}
+          </div>
+          <article className="mt-4 bg-white border border-gray-100 rounded-card p-5 shadow-card">
+            <p className="text-[10px] uppercase tracking-wider text-kerala-700 font-semibold inline-flex items-center gap-1"><MapPin className="w-3 h-3" /> Headquarters</p>
+            <p className="font-serif text-lg text-ink mt-1">Ayurveda Bhavan</p>
+            <p className="text-sm text-gray-700">P.B. No 93, Angamaly 683572, Kerala, India</p>
+          </article>
+        </div>
+      </section>
 
-        {/* ── Activities + Committees ────────────────────────────────── */}
-        {(activities.length > 0 || committees.length > 0) && (
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {activities.length > 0 && (
-              <div>
-                <h2 className="font-serif text-2xl text-kerala-800 inline-flex items-center gap-2 mb-4">
-                  <CalendarDays className="w-6 h-6" /> Activities & Events
-                </h2>
-                <ul className="space-y-2">
-                  {activities.map((a) => (
-                    <li key={a.id} className="flex gap-2.5 text-gray-700">
-                      <CalendarDays className="w-4 h-4 text-kerala-600 flex-shrink-0 mt-1" /><span>{a.text}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {committees.length > 0 && (
-              <div>
-                <h2 className="font-serif text-2xl text-kerala-800 inline-flex items-center gap-2 mb-4">
-                  <Network className="w-6 h-6" /> Committees
-                </h2>
-                <ul className="space-y-2">
-                  {committees.map((c) => (
-                    <li key={c.id} className="flex gap-2.5 text-gray-700">
-                      <Network className="w-4 h-4 text-kerala-600 flex-shrink-0 mt-1" /><span>{c.text}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </section>
-        )}
+      {/* Organisation structure */}
+      <section className="container mx-auto px-4 py-14 max-w-5xl">
+        <h2 className="font-serif text-2xl md:text-3xl text-ink mb-6 text-center inline-flex items-center justify-center gap-2 w-full">
+          <Network className="w-7 h-7 text-kerala-700" /> Organisation structure
+        </h2>
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {STRUCTURE.map((s) => (
+            <li key={s.name} className="bg-white border border-gray-100 rounded-card p-4 shadow-card">
+              <h3 className="font-serif text-base text-ink">{s.name}</h3>
+              <p className="text-xs text-gray-600 mt-1 leading-relaxed">{s.d}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
 
-        {/* ── Membership ─────────────────────────────────────────────── */}
-        {page.membershipInfo && (
-          <section className="bg-kerala-50 border border-kerala-100 rounded-card p-6">
-            <h2 className="font-serif text-2xl text-kerala-800 inline-flex items-center gap-2 mb-3">
-              <IdCard className="w-6 h-6" /> Membership
-            </h2>
-            <Paragraphs text={page.membershipInfo} className="text-gray-700" />
-          </section>
-        )}
+      {/* Wings + initiatives */}
+      <section className="bg-cream py-14">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <h2 className="font-serif text-2xl md:text-3xl text-ink mb-6 text-center">Wings &amp; initiatives</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {WINGS.map((w) => (
+              <article key={w.name} className="bg-white border border-gray-100 rounded-card p-5 shadow-card">
+                <w.icon className="w-6 h-6 text-kerala-700 mb-2" />
+                <h3 className="font-serif text-lg text-ink">{w.name}</h3>
+                <p className="text-sm text-gray-700 mt-1 leading-relaxed">{w.d}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        {/* ── Related links ─────────────────────────────────────────── */}
-        {otherLinks.length > 0 && (
-          <section>
-            <h2 className="font-serif text-3xl text-kerala-800 inline-flex items-center gap-2 mb-5">
-              <Link2 className="w-7 h-7" /> Related Links
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {otherLinks.map((l) => (
-                <a
-                  key={l.id}
-                  href={l.url}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  className="flex items-center justify-between gap-3 bg-white border border-gray-100 rounded-card p-4 shadow-card hover:border-kerala-300 hover:shadow-cardLg transition-all group"
-                >
-                  <span className="font-medium text-ink group-hover:text-kerala-700">{l.label}</span>
-                  <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-kerala-600 flex-shrink-0" />
-                </a>
-              ))}
-            </div>
-          </section>
-        )}
+      {/* Membership */}
+      <section className="container mx-auto px-4 py-14 max-w-4xl">
+        <h2 className="font-serif text-2xl md:text-3xl text-ink mb-4 text-center">Why join AMAI</h2>
+        <p className="text-sm md:text-base text-gray-700 leading-relaxed text-center mb-6">
+          The largest Ayurvedic medical organisation in Kerala — <strong>10,000+ qualified members</strong>, decades of advocacy, legislative victories, legal support, CME, journal access and a real professional network.
+        </p>
 
-        {/* ── Contact ────────────────────────────────────────────────── */}
-        {(page.contactAddress || page.contactPhone || page.contactEmail || page.websiteUrl || page.registrationInfo) && (
-          <section>
-            <h2 className="font-serif text-3xl text-kerala-800 mb-5">Contact</h2>
-            <div className="bg-white border border-gray-100 rounded-card p-6 shadow-card grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-              {page.contactAddress && (
-                <div className="flex gap-3"><MapPin className="w-5 h-5 text-kerala-600 flex-shrink-0 mt-0.5" /><span className="whitespace-pre-line">{page.contactAddress}</span></div>
-              )}
-              {page.contactPhone && (
-                <div className="flex gap-3"><Phone className="w-5 h-5 text-kerala-600 flex-shrink-0 mt-0.5" /><a href={`tel:${page.contactPhone.replace(/\s+/g, '')}`} className="hover:text-kerala-700">{page.contactPhone}</a></div>
-              )}
-              {page.contactEmail && (
-                <div className="flex gap-3"><Mail className="w-5 h-5 text-kerala-600 flex-shrink-0 mt-0.5" /><a href={`mailto:${page.contactEmail}`} className="hover:text-kerala-700">{page.contactEmail}</a></div>
-              )}
-              {page.websiteUrl && (
-                <div className="flex gap-3"><Globe className="w-5 h-5 text-kerala-600 flex-shrink-0 mt-0.5" /><a href={page.websiteUrl} target="_blank" rel="noreferrer" className="hover:text-kerala-700">{page.websiteUrl.replace(/^https?:\/\//, '')}</a></div>
-              )}
-              {page.registrationInfo && (
-                <div className="flex gap-3 md:col-span-2"><IdCard className="w-5 h-5 text-kerala-600 flex-shrink-0 mt-0.5" /><span>{page.registrationInfo}</span></div>
-              )}
-            </div>
-          </section>
-        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <article className="bg-white border border-gray-100 rounded-card p-5 shadow-card">
+            <h3 className="font-serif text-lg text-ink">Who can join</h3>
+            <ul className="mt-2 text-sm text-gray-700 leading-relaxed list-disc pl-5 space-y-1">
+              <li>Government medical officers (Ayurveda)</li>
+              <li>Private practitioners</li>
+              <li>Manufacturing physicians</li>
+              <li>Hospital-employed doctors</li>
+              <li>Ayurveda college teachers</li>
+              <li>PG scholars + students</li>
+            </ul>
+          </article>
+          <article className="bg-white border border-gray-100 rounded-card p-5 shadow-card">
+            <h3 className="font-serif text-lg text-ink">Member benefits</h3>
+            <ul className="mt-2 text-sm text-gray-700 leading-relaxed list-disc pl-5 space-y-1">
+              <li>APTA journal access</li>
+              <li>CME credits + Academy programmes</li>
+              <li>Legal support + ethics committee</li>
+              <li>Aswas Relief Fund — welfare safety net</li>
+              <li>Advocacy + regulatory representation</li>
+              <li>Career support + networking</li>
+            </ul>
+          </article>
+        </div>
 
-        {page.copyrightText && (
-          <p className="text-center text-xs text-gray-400 pt-4 border-t border-gray-100">{page.copyrightText}</p>
-        )}
-      </div>
-    </div>
+        <div className="text-center">
+          <a
+            href="https://amaiapp.ayurveda-amai.org/"
+            target="_blank" rel="noreferrer noopener"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-kerala-700 hover:bg-kerala-800 text-white rounded text-sm font-semibold"
+          >
+            Apply for membership <ExternalLink className="w-4 h-4" />
+          </a>
+          <p className="text-xs text-gray-500 mt-3">Application forms available on the AMAI website. Contact your District or Area Committee Office Bearers.</p>
+        </div>
+      </section>
+
+      {/* Events */}
+      <section className="bg-cream py-14">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <h2 className="font-serif text-2xl md:text-3xl text-ink mb-6 text-center inline-flex items-center justify-center gap-2 w-full">
+            <CalendarDays className="w-7 h-7 text-kerala-700" /> Events &amp; conferences
+          </h2>
+          <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <li className="bg-white border border-gray-100 rounded-card p-5 shadow-card">
+              <h3 className="font-serif text-lg text-ink">Annual State Conference</h3>
+              <p className="text-sm text-gray-700 mt-1">Latest: <strong>47th State Conference</strong>, Wayanad.</p>
+            </li>
+            <li className="bg-white border border-gray-100 rounded-card p-5 shadow-card">
+              <h3 className="font-serif text-lg text-ink">District CME programmes</h3>
+              <p className="text-sm text-gray-700 mt-1">Regular continuing medical education across all 14 Kerala districts.</p>
+            </li>
+            <li className="bg-white border border-gray-100 rounded-card p-5 shadow-card">
+              <h3 className="font-serif text-lg text-ink">National + International conferences</h3>
+              <p className="text-sm text-gray-700 mt-1">AMAI organises and represents Kerala Ayurveda at national and international forums.</p>
+            </li>
+            <li className="bg-white border border-gray-100 rounded-card p-5 shadow-card">
+              <h3 className="font-serif text-lg text-ink">Academic seminars</h3>
+              <p className="text-sm text-gray-700 mt-1">PSC coaching, postgraduate seminars, classical-text study circles.</p>
+            </li>
+          </ul>
+          <div className="text-center mt-6">
+            <a href="https://ayurveda-amai.org/category/events/" target="_blank" rel="noreferrer noopener" className="inline-flex items-center gap-1 text-sm text-kerala-700 hover:underline">
+              See all events on ayurveda-amai.org <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* Resources */}
+      <section className="container mx-auto px-4 py-14 max-w-5xl">
+        <h2 className="font-serif text-2xl md:text-3xl text-ink mb-6 text-center inline-flex items-center justify-center gap-2 w-full">
+          <BookOpen className="w-7 h-7 text-kerala-700" /> Resources
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          {RESOURCES.map((r) => (
+            <a
+              key={r.label} href={r.href} target="_blank" rel="noreferrer noopener"
+              className="bg-white border border-gray-100 rounded-card p-4 shadow-card hover:shadow-cardLg transition-shadow flex items-start gap-2"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-kerala-700 mt-0.5 flex-shrink-0" />
+              <span className="text-sm text-ink">{r.label}</span>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* Social + contact */}
+      <section className="bg-cream py-14">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <h2 className="font-serif text-2xl md:text-3xl text-ink mb-6 text-center">Connect with AMAI</h2>
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 max-w-4xl mx-auto">
+            {SOCIAL.map((s) => (
+              <a
+                key={s.label} href={s.href} target="_blank" rel="noreferrer noopener"
+                className="bg-white border border-gray-100 rounded-card p-4 shadow-card hover:shadow-cardLg transition-shadow text-center"
+              >
+                <s.icon className="w-6 h-6 text-kerala-700 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-ink">{s.label}</p>
+                <p className="text-[10px] text-gray-500 mt-0.5">{s.sub}</p>
+              </a>
+            ))}
+          </div>
+          <article className="mt-6 bg-white border border-gray-100 rounded-card p-5 shadow-card max-w-2xl mx-auto">
+            <p className="text-[10px] uppercase tracking-wider text-kerala-700 font-semibold inline-flex items-center gap-1"><MapPin className="w-3 h-3" /> Headquarters</p>
+            <p className="text-sm text-gray-700 mt-1">Ayurveda Bhavan, P.B. No 93, Angamaly 683572, Kerala, India</p>
+          </article>
+        </div>
+      </section>
+
+      {/* AyurConnect partnership CTA */}
+      <section className="container mx-auto px-4 py-14 max-w-3xl">
+        <div className="bg-gradient-to-br from-kerala-50 via-white to-amber-50 border border-kerala-100 rounded-card p-6 md:p-8 shadow-card text-center">
+          <ShieldCheck className="w-10 h-10 text-kerala-700 mx-auto mb-3" />
+          <h2 className="font-serif text-xl md:text-2xl text-ink">AyurConnect supports AMAI&apos;s mission</h2>
+          <p className="text-sm md:text-base text-gray-700 mt-2 leading-relaxed">
+            AyurConnect is proud to support AMAI&apos;s mission of promoting quality Ayurveda.
+            Are you an <strong>AMAI member</strong>? Register on AyurConnect for a verified profile with the AMAI Member badge.
+          </p>
+          <Link
+            href="/doctors/register"
+            className="inline-flex items-center gap-2 px-5 py-2.5 mt-5 bg-kerala-700 hover:bg-kerala-800 text-white rounded text-sm font-semibold"
+          >
+            Register as Doctor <ChevronRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </section>
+
+      {/* Compliance footnote */}
+      <section className="container mx-auto px-4 pb-12 max-w-3xl">
+        <div className="p-5 rounded-card bg-amber-50 border border-amber-100 text-sm text-amber-900 leading-relaxed flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+          <div>
+            <strong>Editorial note.</strong> AyurConnect is an independent platform. The information on this page is collected from AMAI&apos;s public website (<a className="underline" href="https://ayurveda-amai.org" target="_blank" rel="noreferrer noopener">ayurveda-amai.org</a>), official social channels, and public records, and is presented in support of the association&apos;s mission. For the most current details, refer directly to the AMAI website or contact the headquarters.
+          </div>
+        </div>
+      </section>
+    </>
   )
 }
