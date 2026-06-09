@@ -38,6 +38,9 @@ export function EnquiryForm({ defaultCountry }: { defaultCountry?: string } = {}
         form.message         ? `Message: ${form.message}` : null,
       ].filter(Boolean).join('\n')
 
+      // Map the country slug to its ISO-2 code so the lead lands in the Lead
+      // model's structured `country` column (admin CRM filters on it).
+      const iso = HEAL_COUNTRIES.find((c) => c.slug === form.country)?.code
       const r = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -46,6 +49,14 @@ export function EnquiryForm({ defaultCountry }: { defaultCountry?: string } = {}
           name:  form.name.trim(),
           email: form.email.trim(),
           phone: form.phone.trim() || undefined,
+          country: iso,
+          subject: form.treatmentInterest,
+          meta: {
+            treatmentInterest: form.treatmentInterest,
+            countrySlug: form.country,
+            preferredDates: form.preferredDates || null,
+            note: form.message || null,
+          },
           message: note.slice(0, 4000),
         }),
       })
