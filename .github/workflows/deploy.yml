@@ -3,7 +3,14 @@ name: deploy to ayurconnect.com
 on:
   push:
     branches: [main]
-  workflow_dispatch: {}   # also allow manual run from the Actions tab
+  workflow_dispatch:
+    inputs:
+      seed:
+        description: 'Run db:seed on the VPS after deploy (idempotent upserts)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
 
 concurrency:
   group: deploy-prod
@@ -48,7 +55,12 @@ jobs:
           DEPLOY_VPS: ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}
           DEPLOY_DIR: /opt/ayurconnect
           DEPLOY_DOMAIN: ayurconnect.com
-        run: bash scripts/deploy.sh
+        run: |
+          if [ "${{ inputs.seed }}" = "true" ]; then
+            bash scripts/deploy.sh --seed
+          else
+            bash scripts/deploy.sh
+          fi
 
       - name: cleanup
         if: always()
