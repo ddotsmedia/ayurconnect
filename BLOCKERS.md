@@ -68,3 +68,15 @@ GHA deploy run IDs (all failed only at the smoke gate, not build): `27206560151`
 6. Re-run the deploy smoke gate: `gh -R ddotsmedia/ayurconnect run rerun 80325034250 --failed` (or just push again once the API is healthy).
 
 **Build correctness is verified independently** (`tsc --noEmit` clean for apps/api + apps/web; `next build` passes; `next lint` clean). No code rollback needed — once the VPS Postgres is restored the existing HEAD deploys green.
+
+## 2026-06-09 — RESOLVED: deploy green, all phases live
+
+The smoke-gate 502 was **not** the DB (Postgres was healthy the whole time). Three real causes, all fixed:
+
+1. **`FST_ERR_DUPLICATED_ROUTE: POST /tourism/plan`** — `deploy.sh`'s `tar xzf` is additive-only, so `tourism-plan.ts` (deleted in the repo when merged into `tourism.ts`) lingered on the VPS and recompiled into a second `/tourism/plan`, crashing API boot. Fixed: removed the stale file; `deploy.sh` now `rm -rf`s the repo-owned src trees before extract (commit 42116a5).
+2. **redis/meili/minio containers missing** — only postgres was up; their volumes didn't even exist. `docker compose up -d` recreated all four.
+3. **API bound the port too slowly** — the `onReady` embedding backfill retried an **expired Gemini key** (`GOOGLE_API_KEY`) before Fastify started listening, so the smoke test hit connection-refused/502. Fixed: detached the embed backfill (fire-and-forget) so the port binds immediately (commit 42116a5).
+
+Final deploy run is **green**: `/`, `/doctors`, `/api/health`, `/api/doctors` all 200. All Phase 1–9 + 11 routes verified live (heritage, karkidaka, ask-the-classics, verify, heal-in-kerala/plan) with Malayalam rendering correctly.
+
+**Still open (credential, not code):** `GOOGLE_API_KEY` (Gemini embeddings) is expired — semantic search / embedding bootstrap is disabled until renewed in `/opt/ayurconnect/apps/api/.env`. Non-fatal now that the backfill is detached. WhatsApp Twilio creds + Phase 10 vision remain deferred as logged above.
