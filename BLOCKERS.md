@@ -38,3 +38,9 @@
   2. Twilio console → WhatsApp sender → "When a message comes in" → `https://ayurconnect.com/api/whatsapp/inbound` (POST).
   3. Submit + get approval for outbound template messages (booking confirmation, 24h/1h reminders, post-consult follow-up, Ritucharya seasonal nudge).
 - Deferred until creds land: approved outbound template SIDs for the four template types in 8b (reminder cron is wired; templates need Twilio approval before they can send).
+
+## 2026-06-09 — Phase 10 (vision tongue analysis): deferred (explicitly optional)
+
+- Spec marks Phase 10 "optional — build if time permits".
+- Deferred deliberately: it requires an image-upload pipeline with at-rest encryption, a retention/delete-control policy, explicit pre-upload consent, AND a vision-capable model. The current LLM abstraction (`apps/api/src/lib/llm.ts`) is text-only (`chat()`); no vision provider is wired. Shipping half of a privacy-sensitive photo feature (encryption/retention) would be worse than not shipping it.
+- To build later: add a vision provider to llm.ts (e.g. Gemini 2.5 Flash vision / Claude vision), a MinIO encrypted-upload flow with signed URLs + TTL retention + delete control + consent gate, then `/tools/tongue-analysis` returning OBSERVATION-ONLY notes (coating/color/cracks → dosha tendency) with mandatory disclaimer + "review with a verified doctor" CTA. Never diagnosis/treatment; never used for training.
