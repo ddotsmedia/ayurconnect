@@ -328,7 +328,7 @@ export function websiteLd() {
       target: { '@type': 'EntryPoint', urlTemplate: `${SITE_URL}/doctors?q={search_term_string}` },
       'query-input': 'required name=search_term_string',
     },
-    inLanguage: ['en-IN', 'ml-IN'],
+    inLanguage: ['en-IN'],
   }
 }
 
@@ -1035,7 +1035,6 @@ export function pageMetadata(opts: {
       canonical,
       languages: {
         'en-IN': canonical,
-        'ml-IN': `${canonical}${canonical.includes('?') ? '&' : '?'}lang=ml`,
         'x-default': canonical,
       },
     },

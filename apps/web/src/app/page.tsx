@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { headers as nextHeaders } from 'next/headers'
-import { DoctorCard, LeafPattern, LogoMark, t, readLangFromCookieHeader, type DoctorCardData } from '@ayurconnect/ui'
+import { DoctorCard, LeafPattern, LogoMark, t, type DoctorCardData } from '@ayurconnect/ui'
 import {
   Search, Stethoscope, Building2, Bot, MessageSquare, Briefcase, Leaf, Plane,
   GraduationCap, ShieldCheck, Video, Sparkles, Users, MapPin, Lock, Star, ArrowRight, ChevronRight, BookOpen,
@@ -179,14 +179,14 @@ export const metadata = {
 }
 
 export default async function HomePage() {
-  const [featuredDoctors, healthTips, testimonials, hdrs] = await Promise.all([
+  const [featuredDoctors, healthTips, testimonials] = await Promise.all([
     getFeaturedDoctors(),
     getHealthTips(),
     getTestimonials(),
-    nextHeaders(),
   ])
-  const lang = readLangFromCookieHeader(hdrs.get('cookie'))
-  const tr = t(lang)
+  // UI chrome is English-only. Malayalam appears solely in content/article
+  // bodies (heritage, classical-text names, herb/treatment native names).
+  const tr = t()
 
   const homeJsonLd = ldGraph(
     medicalBusinessLd(HOME_SERVICES_CATALOG),
