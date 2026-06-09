@@ -47,6 +47,8 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
       { href: '/diet-planner',        label: 'AI Diet Planner' },
       { href: '/tourism',             label: 'Medical Tourism' },
       { href: '/heal-in-kerala',      label: 'Heal in Kerala (international)' },
+      { href: '/heal-in-kerala/plan', label: 'AI Trip Planner' },
+      { href: '/verify',              label: 'Verify Product Authenticity' },
       { href: '/cost-estimator',      label: 'Cost Estimator' },
       { href: '/case-studies',        label: 'Case Studies' },
       { href: '/kerala-guide',        label: 'Kerala Guide' },

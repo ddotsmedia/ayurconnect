@@ -22,6 +22,10 @@ export type Product = {
   uses: string[]
   priceRange: string
   size: string
+  // Verified-source / authenticity metadata (Phase 9). Optional — populated for
+  // products whose manufacturer participates in batch authenticity verification.
+  manufacturer?: string       // legal manufacturer name (may differ from retail vendor)
+  ayushLicenseRef?: string    // AYUSH / drug-licence reference number
 }
 
 export const CATEGORIES: ProductCategory[] = [
