@@ -44,3 +44,27 @@
 - Spec marks Phase 10 "optional — build if time permits".
 - Deferred deliberately: it requires an image-upload pipeline with at-rest encryption, a retention/delete-control policy, explicit pre-upload consent, AND a vision-capable model. The current LLM abstraction (`apps/api/src/lib/llm.ts`) is text-only (`chat()`); no vision provider is wired. Shipping half of a privacy-sensitive photo feature (encryption/retention) would be worse than not shipping it.
 - To build later: add a vision provider to llm.ts (e.g. Gemini 2.5 Flash vision / Claude vision), a MinIO encrypted-upload flow with signed URLs + TTL retention + delete control + consent gate, then `/tools/tongue-analysis` returning OBSERVATION-ONLY notes (coating/color/cracks → dosha tendency) with mandatory disclaimer + "review with a verified doctor" CTA. Never diagnosis/treatment; never used for training.
+
+## 2026-06-09 — Deploy blocked at smoke test: VPS API down (502, Postgres unreachable)
+
+Autonomous build Phases 1–9 + 11 shipped and pushed to origin/main (HEAD f164a00). SSH **worked** this session (the recurring port-22 block had self-recovered), and the deploy's remote phase completed: install → migrate → build (apps/api tsc + apps/web next build both passed) → pm2 restart all succeeded. The web tier is live:
+- `GET /        → 200`
+- `GET /doctors → 200`
+
+But the smoke test fails on the API tier:
+- `GET /api/health         → 502`
+- `GET /api/doctors?limit=1 → 502`
+
+GHA deploy run IDs (all failed only at the smoke gate, not build): `27206560151`, `27206... ` latest `80325034250` (job).
+
+**Root cause = VPS infrastructure, NOT the build.** The web-error log shows `ECONNREFUSED 127.0.0.1:4100` since 2026-06-09 **10:22** — hours *before* this session's first deploy (12:37). Booting the API locally reproduces the crash: `PrismaClientInitializationError: Can't reach database server` (P1001) in `plugins/db.js`, which registers before any route. So the `ayurconnect-api` PM2 process is crash-looping because its Docker Postgres is down/unreachable on the VPS. (Routes register fine; the new Phase 6/7/8/9 routes typecheck, build, and the `/tourism` autoPrefix collision was fixed in f164a00.)
+
+**Recovery (needs VPS shell — not doable from this terminal):**
+1. `ssh root@194.164.151.202`
+2. `docker ps -a` → confirm the postgres (pgvector/pgvector:pg16) container is up. If exited: `cd /opt/ayurconnect && docker compose up -d postgres` (and redis/meili/minio if also down).
+3. `pm2 logs ayurconnect-api --lines 50` → confirm P1001 cleared after DB is up.
+4. `pm2 restart ayurconnect-api && pm2 save`
+5. `curl -sS localhost:4100/health` → expect 200, then `curl -sS https://ayurconnect.com/api/health`.
+6. Re-run the deploy smoke gate: `gh -R ddotsmedia/ayurconnect run rerun 80325034250 --failed` (or just push again once the API is healthy).
+
+**Build correctness is verified independently** (`tsc --noEmit` clean for apps/api + apps/web; `next build` passes; `next lint` clean). No code rollback needed — once the VPS Postgres is restored the existing HEAD deploys green.
