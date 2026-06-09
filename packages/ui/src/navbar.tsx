@@ -8,7 +8,7 @@ import {
   Menu, X, ChevronDown, LayoutDashboard, Shield, LogOut, User, Stethoscope,
   ListFilter, Sparkles, MessagesSquare, UserPlus, BookOpen, ScrollText, Leaf,
   Sprout, FlaskConical, AlertTriangle, HelpCircle, Microscope, CalendarDays,
-  CloudRain, Building2, School, Sun, ShieldCheck, Plane,
+  CloudRain, Building2, Building, School, Sun, ShieldCheck, Plane, Video, HeartPulse,
 } from 'lucide-react'
 import { cn } from './lib/utils'
 import { t } from './i18n'
@@ -30,13 +30,14 @@ function initialsOf(s: NonNullable<NavbarSession>): string {
 }
 
 type RichItem = { href: string; label: string; desc?: string; icon: LucideIcon; highlight?: boolean }
+type Section = { heading?: string; items: RichItem[] }
 type NavChildLink = { href: string; label: string }
 type NavItem =
   | { kind: 'doctors'; key: string; href: string; label: string }
   | { kind: 'link'; href: string; label: string }
   | { kind: 'cta'; href: string; label: string }
   | { kind: 'amai'; href: string; label: string }
-  | { kind: 'group'; key: string; label: string; cols: 1 | 2; heading?: string; featured: RichItem[]; more?: NavChildLink[] }
+  | { kind: 'group'; key: string; label: string; href?: string; cols: 1 | 2; sections: Section[]; more?: NavChildLink[] }
 
 export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
   const [scrolled, setScrolled] = useState(false)
@@ -47,29 +48,59 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
   const pathname = usePathname() ?? ''
   const userRef = useRef<HTMLDivElement | null>(null)
 
-  // All top-level tabs preserved. Dropdowns now lead with rich, described
-  // "featured" items and keep every original destination under "More" so no
-  // nav item is lost.
+  // Doctors dropdown — "Find care" + "For doctors" (provider items moved here).
+  const DOCTOR_FIND_CARE: RichItem[] = [
+    { href: '/doctors', label: 'Browse all doctors', desc: '500+ verified Kerala specialists', icon: ListFilter },
+    { href: '/doctor-match', label: 'AI doctor match', desc: '30-sec quiz → ranked results', icon: Sparkles },
+    { href: '/online-consultation', label: 'Online consultation', desc: 'Secure video from anywhere', icon: Video },
+    { href: '/second-opinion', label: 'Second opinion', desc: 'Senior specialist review', icon: MessagesSquare },
+  ]
+  const DOCTOR_FOR_DOCTORS: RichItem[] = [
+    { href: '/dr', label: 'Doctor dashboard', desc: 'Manage profile, view stats', icon: LayoutDashboard },
+    { href: '/colleges', label: 'College alumni', desc: 'Find your batchmates', icon: School },
+  ]
+  const DOCTOR_REGISTER: RichItem = { href: '/register/doctor', label: 'Register as doctor', desc: 'Free verified profile + patient leads', icon: UserPlus, highlight: true }
+
+  // All top-level tabs (For Providers removed; its items redistributed).
   const NAV_LINKS: NavItem[] = [
     { kind: 'doctors', key: 'doctors', href: '/doctors', label: tr.nav.doctors },
     { kind: 'link', href: '/online-consultation', label: tr.nav.consult },
-    { kind: 'link', href: '/hospitals', label: tr.nav.hospitals },
     {
-      kind: 'group', key: 'learn', label: tr.nav.learn, cols: 2, heading: 'Knowledge',
-      featured: [
-        { href: '/heritage', label: 'Heritage & tradition', desc: 'Ashtavaidya, Kerala history', icon: BookOpen },
-        { href: '/learn/ask-the-classics', label: 'Ask the classics', desc: 'AI-cited ancient text answers', icon: ScrollText },
-        { href: '/treatments', label: 'Treatments', desc: 'Pizhichil, Sirodhara, more', icon: Leaf },
-        { href: '/herbs', label: 'Herbs encyclopedia', desc: '150+ medicinal herbs', icon: Sprout },
-        { href: '/formulary', label: 'Formulary', desc: 'Classical compounds', icon: FlaskConical },
-        { href: '/interaction-checker', label: 'Interaction checker', desc: 'Herb-drug safety', icon: AlertTriangle },
+      kind: 'group', key: 'hospitals', label: tr.nav.hospitals, href: '/hospitals', cols: 1,
+      sections: [{
+        items: [
+          { href: '/hospitals', label: 'Browse hospitals', desc: 'Govt + private + AYUSH certified', icon: Building2 },
+          { href: '/panchakarma', label: 'Panchakarma centres', desc: 'Tourism-classified, verified', icon: HeartPulse },
+          { href: '/clinic-portal', label: 'Clinic portal', desc: 'Manage your clinic listing', icon: Building },
+        ],
+      }],
+    },
+    {
+      kind: 'group', key: 'learn', label: tr.nav.learn, cols: 2,
+      sections: [
+        {
+          heading: 'Knowledge',
+          items: [
+            { href: '/heritage', label: 'Heritage & tradition', desc: 'Ashtavaidya, Kerala history', icon: BookOpen },
+            { href: '/learn/ask-the-classics', label: 'Ask the classics', desc: 'AI-cited ancient text answers', icon: ScrollText },
+            { href: '/treatments', label: 'Treatments', desc: 'Pizhichil, Sirodhara, more', icon: Leaf },
+          ],
+        },
+        {
+          heading: 'Reference & tools',
+          items: [
+            { href: '/herbs', label: 'Herbs encyclopedia', desc: '150+ medicinal herbs', icon: Sprout },
+            { href: '/formulary', label: 'Formulary', desc: 'Classical compounds', icon: FlaskConical },
+            { href: '/interaction-checker', label: 'Interaction checker', desc: 'Herb-drug safety', icon: AlertTriangle },
+            { href: '/ritucharya', label: 'Ritucharya planner', desc: 'Personalized seasonal regimen', icon: Sun },
+          ],
+        },
       ],
       more: [
         { href: '/prakriti-quiz', label: 'Prakriti Quiz' },
         { href: '/kerala-guide', label: 'Kerala Guide' },
         { href: '/conditions', label: 'Conditions Library' },
         { href: '/programs', label: 'Wellness Programs' },
-        { href: '/doctor-match', label: 'AI Doctor Match' },
         { href: '/triage', label: 'Symptom Checker' },
         { href: '/ayurbot', label: tr.nav.ayurbot },
         { href: '/health-tips', label: tr.nav.healthTips },
@@ -79,45 +110,24 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
     },
     {
       kind: 'group', key: 'community', label: tr.nav.community, cols: 1,
-      featured: [
-        { href: '/qa', label: 'Q&A forum', desc: 'Ask health questions', icon: HelpCircle },
-        { href: '/research', label: 'Research', desc: 'Clinical papers', icon: Microscope },
-        { href: '/seminars', label: 'Seminars & CME', desc: 'Events and webinars', icon: CalendarDays },
-        { href: '/karkidaka', label: 'Karkidaka hub', desc: 'Monsoon healing season', icon: CloudRain },
-      ],
+      sections: [{
+        items: [
+          { href: '/qa', label: 'Q&A forum', desc: 'Ask health questions', icon: HelpCircle },
+          { href: '/research', label: 'Research', desc: 'Clinical papers', icon: Microscope },
+          { href: '/seminars', label: 'Seminars & CME', desc: 'Events and webinars', icon: CalendarDays },
+          { href: '/karkidaka', label: 'Karkidaka hub', desc: 'Monsoon healing season', icon: CloudRain },
+        ],
+      }],
       more: [
         { href: '/forum', label: tr.nav.forum },
         { href: '/case-studies', label: 'Case Studies' },
         { href: '/tourism', label: tr.nav.tourism },
-        { href: '/colleges', label: tr.nav.colleges },
-      ],
-    },
-    {
-      kind: 'group', key: 'providers', label: 'For Providers', cols: 1,
-      featured: [
-        { href: '/dr', label: 'Doctor dashboard', desc: 'Clinical hub & co-pilot', icon: LayoutDashboard },
-        { href: '/clinic-portal', label: 'Clinic portal', desc: 'Manage your practice', icon: Building2 },
-        { href: '/colleges', label: 'College alumni', desc: 'Network & directory', icon: School },
-        { href: '/ritucharya', label: 'Ritucharya planner', desc: 'Seasonal regimen tool', icon: Sun },
-      ],
-      more: [
-        { href: '/register/doctor', label: 'Register as doctor' },
-        { href: '/register/hospital', label: 'Register a hospital' },
-        { href: '/about/certifications', label: 'Verification process' },
       ],
     },
     { kind: 'cta', href: '/heal-in-kerala', label: 'Heal in Kerala' },
     { kind: 'link', href: '/jobs', label: tr.nav.jobs },
     { kind: 'amai', href: '/amai', label: 'AMAI' },
   ]
-
-  // Doctors dropdown featured items (mega keeps the spec/district grid below).
-  const DOCTOR_FEATURED: RichItem[] = [
-    { href: '/doctors', label: 'Browse all doctors', desc: '500+ verified Kerala specialists', icon: ListFilter },
-    { href: '/doctor-match', label: 'AI doctor match', desc: '30-sec quiz → ranked results', icon: Sparkles },
-    { href: '/second-opinion', label: 'Second opinion', desc: 'Senior specialist review', icon: MessagesSquare },
-  ]
-  const DOCTOR_REGISTER: RichItem = { href: '/register/doctor', label: 'Register as doctor', desc: 'Free verified profile', icon: UserPlus, highlight: true }
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
@@ -142,18 +152,15 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
     if (typeof window !== 'undefined') window.location.href = '/'
   }
 
-  // Active-tab detection: exact for '/', prefix for everything else.
   const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname === href || pathname.startsWith(href + '/'))
   const groupActive = (it: Extract<NavItem, { kind: 'group' }>) =>
-    [...it.featured, ...(it.more ?? [])].some((c) => isActive(c.href))
+    [...it.sections.flatMap((s) => s.items), ...(it.more ?? [])].some((c) => isActive(c.href))
 
-  // Shared classes for a top-level tab.
   const tabBase = 'relative flex items-center gap-1 rounded-md px-[13px] py-[6px] text-[13.5px] tracking-[0.01em] transition-colors'
   const tabIdle = 'font-normal text-[#4a4a42] hover:text-[#155228] hover:bg-[#f0fdf4]'
   const tabActive = 'font-medium text-[#155228]'
   const activeBar = <span aria-hidden className="absolute left-[13px] right-[13px] -bottom-[11px] h-[2px] rounded-full bg-[#155228]" />
 
-  // A rich dropdown row: 32px sand icon tile + label + description.
   const RichRow = ({ item, onClick }: { item: RichItem; onClick?: () => void }) => {
     const Icon = item.icon
     return (
@@ -162,17 +169,13 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
         onClick={onClick}
         className={cn(
           'group/row flex items-center gap-[10px] rounded-lg px-2.5 py-2 transition-colors duration-200',
-          item.highlight
-            ? 'bg-[#f0fdf4] border border-[#dcfce7] hover:bg-[#e7fbef]'
-            : 'hover:bg-[#f0fdf4]',
+          item.highlight ? 'bg-[#f0fdf4] border border-[#dcfce7] hover:bg-[#e7fbef]' : 'hover:bg-[#f0fdf4]',
         )}
       >
         <span
           className={cn(
             'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg transition-colors',
-            item.highlight
-              ? 'bg-[#155228] text-white'
-              : 'bg-[#f5f5eb] text-[#4a4a42] group-hover/row:bg-[#dcfce7] group-hover/row:text-[#22863f]',
+            item.highlight ? 'bg-[#155228] text-white' : 'bg-[#f5f5eb] text-[#4a4a42] group-hover/row:bg-[#dcfce7] group-hover/row:text-[#22863f]',
           )}
         >
           <Icon className="h-[17px] w-[17px]" />
@@ -198,7 +201,9 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
     </div>
   )
 
-  // Dropdown panel chrome per spec (radius 12, soft shadow, hairline border).
+  const SectionHeading = ({ children }: { children: React.ReactNode }) =>
+    <p className="px-2.5 pb-1 pt-0.5 text-[10px] font-semibold uppercase tracking-wider text-gray-400">{children}</p>
+
   const panelCls = 'rounded-xl border border-black/[0.07] bg-white p-2 shadow-[0_8px_40px_rgba(0,0,0,0.1)] animate-slide-up'
 
   return (
@@ -206,9 +211,7 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
       <nav
         className={cn(
           'sticky top-0 z-40 w-full transition-all',
-          scrolled
-            ? 'bg-white/85 backdrop-blur-md border-b border-gray-200 shadow-sm'
-            : 'bg-white border-b border-gray-100',
+          scrolled ? 'bg-white/85 backdrop-blur-md border-b border-gray-200 shadow-sm' : 'bg-white border-b border-gray-100',
         )}
       >
         {/* STEP 1 — signature gradient accent line */}
@@ -216,7 +219,6 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
 
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            {/* Logo lockup */}
             <Link href="/" className="group" aria-label="AyurConnect home">
               <LogoLockup className="group-hover:opacity-90 transition-opacity" />
             </Link>
@@ -224,16 +226,11 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
             {/* Desktop links */}
             <div className="hidden md:flex items-center gap-0.5">
               {NAV_LINKS.map((link) => {
-                // ── Doctors mega: featured rows + spec/district grid ──
+                // ── Doctors: Find care + For doctors + register + spec/district ──
                 if (link.kind === 'doctors') {
                   const open = openGroup === 'doctors'
                   return (
-                    <div
-                      key={link.key}
-                      className="relative"
-                      onMouseEnter={() => setOpenGroup('doctors')}
-                      onMouseLeave={() => setOpenGroup(null)}
-                    >
+                    <div key={link.key} className="relative" onMouseEnter={() => setOpenGroup('doctors')} onMouseLeave={() => setOpenGroup(null)}>
                       <Link href={link.href} className={cn(tabBase, isActive(link.href) ? tabActive : tabIdle)}>
                         {link.label}
                         <ChevronDown className={cn('h-3 w-3 opacity-35 transition-transform duration-200', open && 'rotate-180')} />
@@ -242,18 +239,25 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                       {open && (
                         <div className="absolute left-1/2 top-full w-[560px] -translate-x-1/2 pt-3">
                           <div className={panelCls}>
+                            <SectionHeading>Find care</SectionHeading>
                             <div className="grid grid-cols-2 gap-1">
-                              {DOCTOR_FEATURED.map((it) => <RichRow key={it.href} item={it} />)}
-                              <div className="col-span-2"><RichRow item={DOCTOR_REGISTER} /></div>
+                              {DOCTOR_FIND_CARE.map((it) => <RichRow key={it.href} item={it} onClick={() => setOpenGroup(null)} />)}
+                            </div>
+                            <div className="mt-1 border-t border-black/[0.06] pt-1.5">
+                              <SectionHeading>For doctors</SectionHeading>
+                              <div className="grid grid-cols-2 gap-1">
+                                {DOCTOR_FOR_DOCTORS.map((it) => <RichRow key={it.href} item={it} onClick={() => setOpenGroup(null)} />)}
+                              </div>
+                            </div>
+                            <div className="mt-1.5 border-t border-black/[0.06] pt-1.5">
+                              <RichRow item={DOCTOR_REGISTER} onClick={() => setOpenGroup(null)} />
                             </div>
                             <div className="mt-2 grid grid-cols-2 gap-x-4 border-t border-black/[0.06] px-2.5 pt-2">
                               <div>
                                 <p className="pb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400">{tr.nav.bySpec}</p>
                                 <ul className="space-y-0.5">
                                   {TOP_SPECS.map((s) => (
-                                    <li key={s}>
-                                      <Link href={`/doctors?specialization=${encodeURIComponent(s)}`} className="block rounded px-1 py-0.5 text-[12.5px] text-[#4a4a42] hover:text-[#155228]">{s}</Link>
-                                    </li>
+                                    <li key={s}><Link href={`/doctors?specialization=${encodeURIComponent(s)}`} className="block rounded px-1 py-0.5 text-[12.5px] text-[#4a4a42] hover:text-[#155228]">{s}</Link></li>
                                   ))}
                                 </ul>
                               </div>
@@ -261,9 +265,7 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                                 <p className="pb-1 text-[10px] font-semibold uppercase tracking-wider text-gray-400">{tr.nav.byDistrict}</p>
                                 <ul className="space-y-0.5">
                                   {TOP_DISTRICTS.map((d) => (
-                                    <li key={d}>
-                                      <Link href={`/doctors?district=${encodeURIComponent(d)}`} className="block rounded px-1 py-0.5 text-[12.5px] text-[#4a4a42] hover:text-[#155228]">{d}</Link>
-                                    </li>
+                                    <li key={d}><Link href={`/doctors?district=${encodeURIComponent(d)}`} className="block rounded px-1 py-0.5 text-[12.5px] text-[#4a4a42] hover:text-[#155228]">{d}</Link></li>
                                   ))}
                                 </ul>
                               </div>
@@ -275,30 +277,43 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                   )
                 }
 
-                // ── Rich group dropdowns (Learn / Community / For Providers) ──
+                // ── Group dropdowns (Hospitals / Learn / Community) ──
                 if (link.kind === 'group') {
                   const open = openGroup === link.key
-                  const active = groupActive(link)
-                  const width = link.cols === 2 ? 'w-[480px]' : 'w-[300px]'
+                  const active = groupActive(link) || (link.href ? isActive(link.href) : false)
+                  const width = link.cols === 2 ? 'w-[480px]' : 'w-[320px]'
+                  const triggerInner = (
+                    <>
+                      {link.label}
+                      <ChevronDown className={cn('h-3 w-3 opacity-35 transition-transform duration-200', open && 'rotate-180')} />
+                      {active && activeBar}
+                    </>
+                  )
                   return (
-                    <div
-                      key={link.key}
-                      className="relative"
-                      onMouseEnter={() => setOpenGroup(link.key)}
-                      onMouseLeave={() => setOpenGroup(null)}
-                    >
-                      <button type="button" className={cn(tabBase, active ? tabActive : tabIdle)}>
-                        {link.label}
-                        <ChevronDown className={cn('h-3 w-3 opacity-35 transition-transform duration-200', open && 'rotate-180')} />
-                        {active && activeBar}
-                      </button>
+                    <div key={link.key} className="relative" onMouseEnter={() => setOpenGroup(link.key)} onMouseLeave={() => setOpenGroup(null)}>
+                      {link.href
+                        ? <Link href={link.href} className={cn(tabBase, active ? tabActive : tabIdle)}>{triggerInner}</Link>
+                        : <button type="button" className={cn(tabBase, active ? tabActive : tabIdle)}>{triggerInner}</button>}
                       {open && (
                         <div className={cn('absolute left-1/2 top-full -translate-x-1/2 pt-3', width)}>
                           <div className={panelCls}>
-                            {link.heading && <p className="px-2.5 pb-1.5 pt-0.5 text-[10px] font-semibold uppercase tracking-wider text-gray-400">{link.heading}</p>}
-                            <div className={cn('grid gap-1', link.cols === 2 ? 'grid-cols-2' : 'grid-cols-1')}>
-                              {link.featured.map((it) => <RichRow key={it.href} item={it} onClick={() => setOpenGroup(null)} />)}
-                            </div>
+                            {link.cols === 2 ? (
+                              <div className="grid grid-cols-2 gap-1">
+                                {link.sections.map((sec, i) => (
+                                  <div key={i}>
+                                    {sec.heading && <SectionHeading>{sec.heading}</SectionHeading>}
+                                    <div className="grid gap-1">{sec.items.map((it) => <RichRow key={it.href} item={it} onClick={() => setOpenGroup(null)} />)}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              link.sections.map((sec, i) => (
+                                <div key={i}>
+                                  {sec.heading && <SectionHeading>{sec.heading}</SectionHeading>}
+                                  <div className="grid gap-1">{sec.items.map((it) => <RichRow key={it.href} item={it} onClick={() => setOpenGroup(null)} />)}</div>
+                                </div>
+                              ))
+                            )}
                             {link.more && link.more.length > 0 && <MoreLinks items={link.more} onClick={() => setOpenGroup(null)} />}
                           </div>
                         </div>
@@ -433,78 +448,65 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
       {/* Mobile drawer */}
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 z-50 bg-black/40" onClick={() => setMobileOpen(false)}>
-          <div
-            className="absolute right-0 top-0 h-full w-72 bg-white shadow-cardXl flex flex-col animate-slide-up"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* gradient accent on the drawer too */}
+          <div className="absolute right-0 top-0 h-full w-72 bg-white shadow-cardXl flex flex-col animate-slide-up" onClick={(e) => e.stopPropagation()}>
             <div aria-hidden className="h-[3px] w-full bg-[linear-gradient(to_right,#155228_0%,#2a9a4a_55%,#c9a84c_100%)]" />
             <div className="flex items-center justify-between p-4 border-b">
               <span className="inline-flex items-center gap-2">
                 <LogoMark className="h-7 w-7" />
                 <span className="font-serif text-xl text-kerala-700">{tr.nav.menu}</span>
               </span>
-              <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="p-1">
-                <X className="w-5 h-5" />
-              </button>
+              <button onClick={() => setMobileOpen(false)} aria-label="Close menu" className="p-1"><X className="w-5 h-5" /></button>
             </div>
-            <div className="px-4 pt-4">
-              <NavSearch compact />
-            </div>
+            <div className="px-4 pt-4"><NavSearch compact /></div>
             <nav className="flex-1 p-4 overflow-y-auto">
+              {/* Doctors mobile section */}
+              <div className="pt-3 first:pt-0">
+                <div className="px-3 pb-1 text-[10px] uppercase tracking-wider text-gray-400 font-semibold">{tr.nav.doctors}</div>
+                {[...DOCTOR_FIND_CARE, ...DOCTOR_FOR_DOCTORS, DOCTOR_REGISTER].map((it) => {
+                  const Icon = it.icon
+                  return (
+                    <Link key={it.href} href={it.href} onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 px-3 py-2 rounded text-gray-800 hover:bg-[#f0fdf4]">
+                      <span className={cn('flex h-7 w-7 items-center justify-center rounded-lg', it.highlight ? 'bg-[#155228] text-white' : 'bg-[#f5f5eb] text-[#4a4a42]')}><Icon className="h-4 w-4" /></span>
+                      <span className="text-sm">{it.label}</span>
+                    </Link>
+                  )
+                })}
+              </div>
+
               {NAV_LINKS.map((link) => {
-                // Doctors / plain link / CTA / AMAI → flat row
-                if (link.kind === 'doctors' || link.kind === 'link' || link.kind === 'cta' || link.kind === 'amai') {
+                if (link.kind === 'doctors') return null // rendered above
+                if (link.kind === 'link' || link.kind === 'cta' || link.kind === 'amai') {
                   const isCta = link.kind === 'cta'
                   return (
                     <Link
                       key={link.href}
                       href={link.href}
                       onClick={() => setMobileOpen(false)}
-                      className={cn(
-                        'flex items-center gap-2 px-3 py-2.5 rounded',
-                        isCta ? 'mt-1 bg-[#155228] text-white font-medium hover:bg-[#1a6b33]' : 'text-gray-800 hover:bg-[#f0fdf4]',
-                      )}
+                      className={cn('flex items-center gap-2 px-3 py-2.5 rounded', isCta ? 'mt-1 bg-[#155228] text-white font-medium hover:bg-[#1a6b33]' : 'text-gray-800 hover:bg-[#f0fdf4]')}
                     >
                       {isCta && <Plane className="h-4 w-4" />}
                       {link.kind === 'amai' && (
-                        <span aria-hidden className="flex h-[18px] w-[18px] items-center justify-center rounded bg-[#faf5e4]">
-                          <ShieldCheck className="h-3 w-3 text-[#c9a84c]" />
-                        </span>
+                        <span aria-hidden className="flex h-[18px] w-[18px] items-center justify-center rounded bg-[#faf5e4]"><ShieldCheck className="h-3 w-3 text-[#c9a84c]" /></span>
                       )}
                       {link.label}
                     </Link>
                   )
                 }
-                // group → header + featured (icon rows) + more
+                // group → header + section items + more
                 return (
-                  <div key={link.key} className="pt-3 first:pt-0">
+                  <div key={link.key} className="pt-3">
                     <div className="px-3 pb-1 text-[10px] uppercase tracking-wider text-gray-400 font-semibold">{link.label}</div>
-                    {link.featured.map((it) => {
+                    {link.sections.flatMap((s) => s.items).map((it) => {
                       const Icon = it.icon
                       return (
-                        <Link
-                          key={it.href}
-                          href={it.href}
-                          onClick={() => setMobileOpen(false)}
-                          className="flex items-center gap-2.5 px-3 py-2 rounded text-gray-800 hover:bg-[#f0fdf4]"
-                        >
-                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#f5f5eb] text-[#4a4a42]">
-                            <Icon className="h-4 w-4" />
-                          </span>
+                        <Link key={it.href} href={it.href} onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 px-3 py-2 rounded text-gray-800 hover:bg-[#f0fdf4]">
+                          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#f5f5eb] text-[#4a4a42]"><Icon className="h-4 w-4" /></span>
                           <span className="text-sm">{it.label}</span>
                         </Link>
                       )
                     })}
                     {(link.more ?? []).map((c) => (
-                      <Link
-                        key={c.href}
-                        href={c.href}
-                        className="block px-3 py-1.5 rounded text-gray-700 hover:bg-[#f0fdf4] text-[13px]"
-                        onClick={() => setMobileOpen(false)}
-                      >
-                        {c.label}
-                      </Link>
+                      <Link key={c.href} href={c.href} className="block px-3 py-1.5 rounded text-gray-700 hover:bg-[#f0fdf4] text-[13px]" onClick={() => setMobileOpen(false)}>{c.label}</Link>
                     ))}
                   </div>
                 )
@@ -514,37 +516,23 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
               {session ? (
                 <>
                   <div className="flex items-center gap-3 px-1 py-2">
-                    <span className="w-9 h-9 rounded-full bg-kerala-700 text-white text-[12px] font-semibold flex items-center justify-center">
-                      {initialsOf(session)}
-                    </span>
+                    <span className="w-9 h-9 rounded-full bg-kerala-700 text-white text-[12px] font-semibold flex items-center justify-center">{initialsOf(session)}</span>
                     <div className="min-w-0">
                       <div className="text-sm font-semibold truncate">{session.user.name ?? session.user.email}</div>
                       <div className="text-[10px] uppercase tracking-wider text-kerala-700">{session.user.role}</div>
                     </div>
                   </div>
-                  <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded text-gray-800 hover:bg-kerala-50">
-                    <LayoutDashboard className="w-4 h-4" /> Dashboard
-                  </Link>
+                  <Link href="/dashboard" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded text-gray-800 hover:bg-kerala-50"><LayoutDashboard className="w-4 h-4" /> Dashboard</Link>
                   {['DOCTOR', 'DOCTOR_PENDING', 'ADMIN'].includes(session.user.role) && (
-                    <Link href="/dr" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded text-gray-800 hover:bg-kerala-50">
-                      <Stethoscope className="w-4 h-4" /> Doctor Hub
-                    </Link>
+                    <Link href="/dr" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded text-gray-800 hover:bg-kerala-50"><Stethoscope className="w-4 h-4" /> Doctor Hub</Link>
                   )}
                   {session.user.role === 'ADMIN' && (
-                    <Link href="/admin" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded text-gray-800 hover:bg-kerala-50">
-                      <Shield className="w-4 h-4" /> Admin panel
-                    </Link>
+                    <Link href="/admin" onClick={() => setMobileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded text-gray-800 hover:bg-kerala-50"><Shield className="w-4 h-4" /> Admin panel</Link>
                   )}
-                  <button onClick={() => { setMobileOpen(false); void signOut() }} className="w-full flex items-center gap-2 px-3 py-2 rounded text-red-600 hover:bg-red-50">
-                    <LogOut className="w-4 h-4" /> Sign out
-                  </button>
+                  <button onClick={() => { setMobileOpen(false); void signOut() }} className="w-full flex items-center gap-2 px-3 py-2 rounded text-red-600 hover:bg-red-50"><LogOut className="w-4 h-4" /> Sign out</button>
                 </>
               ) : (
-                <Link
-                  href="/sign-in"
-                  onClick={() => setMobileOpen(false)}
-                  className="block w-full px-4 py-2 text-center bg-gold-500 text-white rounded-md hover:bg-gold-600 font-semibold"
-                >
+                <Link href="/sign-in" onClick={() => setMobileOpen(false)} className="block w-full px-4 py-2 text-center bg-gold-500 text-white rounded-md hover:bg-gold-600 font-semibold">
                   {tr.nav.login} / {tr.nav.joinFree}
                 </Link>
               )}
