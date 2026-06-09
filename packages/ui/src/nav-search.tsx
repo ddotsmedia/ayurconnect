@@ -13,6 +13,7 @@ export function NavSearch({ compact = false }: { compact?: boolean }) {
   const [results, setResults] = useState<Results | null>(null)
   const [busy, setBusy] = useState(false)
   const ref = useRef<HTMLDivElement | null>(null)
+  const inputRef = useRef<HTMLInputElement | null>(null)
 
   // Click outside to close
   useEffect(() => {
@@ -21,6 +22,18 @@ export function NavSearch({ compact = false }: { compact?: boolean }) {
     document.addEventListener('mousedown', onClick)
     return () => document.removeEventListener('mousedown', onClick)
   }, [open])
+
+  // ⌘K / Ctrl-K focuses the search box.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault()
+        inputRef.current?.focus()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   // Debounced fetch
   useEffect(() => {
@@ -46,17 +59,23 @@ export function NavSearch({ compact = false }: { compact?: boolean }) {
 
   return (
     <div ref={ref} className={`relative ${compact ? 'w-full' : 'w-72'}`}>
-      <form action="/search" onSubmit={() => setOpen(false)}>
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+      <form action="/search" onSubmit={() => setOpen(false)} className="group/search">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
         <input
+          ref={inputRef}
           name="q"
           value={q}
           onChange={(e) => setQ(e.target.value)}
           onFocus={() => q && setOpen(true)}
-          placeholder="Search doctors, herbs, conditions…"
+          placeholder="Search doctors, herbs..."
           aria-label="Site search"
-          className="w-full pl-8 pr-3 py-1.5 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-kerala-700 focus:border-kerala-300"
+          className="w-full rounded-full border border-transparent bg-[#f5f5eb] py-[6px] pl-9 pr-14 text-[12px] text-gray-700 placeholder:text-gray-500 transition-colors hover:border-black/[0.07] hover:bg-[#fafaf5] focus:border-[#dcfce7] focus:bg-white focus:outline-none focus:ring-1 focus:ring-kerala-300"
         />
+        {!compact && (
+          <kbd className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded border border-black/10 bg-white/70 px-1.5 py-0.5 font-mono text-[10px] leading-none text-gray-500 pointer-events-none">
+            ⌘K
+          </kbd>
+        )}
       </form>
 
       {showDropdown && (
