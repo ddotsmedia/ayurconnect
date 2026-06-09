@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { headers as nextHeaders } from 'next/headers'
-import { FileText, BookOpen, Video, MessageSquare, Award, ArrowRight, Calendar, Library, Share2 } from 'lucide-react'
+import { FileText, BookOpen, Video, MessageSquare, Award, ArrowRight, Calendar, Library, Share2, Stethoscope } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
 
 type Stats = {
@@ -85,6 +85,7 @@ export default async function DrPortalHome() {
           <SurfaceCard href="/dr/cases"         icon={FileText}   title="Clinical cases"   body="Structured anonymized case discussions with peer commentary." />
           <SurfaceCard href="/dr/research"      icon={BookOpen}   title="Research papers"  body="Curated Ayurveda research with bookmarks + private notes." />
           <SurfaceCard href="/dr/ai-research"   icon={MessageSquare} title="AI research assistant" body="Ask a clinical research question — cited summary from curated papers." badge="New" />
+          <SurfaceCard href="/dr/copilot"       icon={Stethoscope} title="Consult Co-Pilot"   body="Structure patient intake into a classical case sheet and draft a prescription scaffold — you review and issue. Audited." badge="New" />
           <SurfaceCard href="/dr/cme"           icon={Video}      title="CME webinars"     body="Earn platform-issued CME credit certificates." />
           <SurfaceCard href="/dr/protocols"     icon={Library}    title="Clinical protocols" body="Community-contributed peer-reviewed protocols." />
           <SurfaceCard href="/dr/interactions"  icon={Award}      title="Drug interactions" body="Ayurveda-allopathic interaction checker." />

@@ -8,7 +8,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getServerSession } from '../../lib/auth'
-import { Home, FileText, BookOpen, Video, Library, FlaskConical, Calendar, Pill, Bot, ShieldCheck, ArrowLeft, Share2, Activity } from 'lucide-react'
+import { Home, FileText, BookOpen, Video, Library, FlaskConical, Calendar, Pill, Bot, ShieldCheck, ArrowLeft, Share2, Activity, Stethoscope } from 'lucide-react'
 
 export const metadata = {
   robots: { index: false, follow: false },  // gated doctor portal — never indexable
@@ -19,6 +19,7 @@ const NAV = [
   { href: '/dr/cases',        label: 'Clinical cases',   icon: FileText },
   { href: '/dr/research',     label: 'Research papers',  icon: BookOpen },
   { href: '/dr/ai-research',  label: 'AI research',      icon: Bot },
+  { href: '/dr/copilot',      label: 'Consult Co-Pilot', icon: Stethoscope },
   { href: '/dr/cme',          label: 'CME webinars',     icon: Video },
   { href: '/dr/journals',     label: 'Journals',         icon: Library },
   { href: '/dr/protocols',    label: 'Protocols',        icon: FlaskConical },
