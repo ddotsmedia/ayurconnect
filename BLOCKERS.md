@@ -80,3 +80,17 @@ The smoke-gate 502 was **not** the DB (Postgres was healthy the whole time). Thr
 Final deploy run is **green**: `/`, `/doctors`, `/api/health`, `/api/doctors` all 200. All Phase 1–9 + 11 routes verified live (heritage, karkidaka, ask-the-classics, verify, heal-in-kerala/plan) with Malayalam rendering correctly.
 
 **Still open (credential, not code):** `GOOGLE_API_KEY` (Gemini embeddings) is expired — semantic search / embedding bootstrap is disabled until renewed in `/opt/ayurconnect/apps/api/.env`. Non-fatal now that the backfill is detached. WhatsApp Twilio creds + Phase 10 vision remain deferred as logged above.
+
+## 2026-06-09 — Admin panel "lost features" investigation: NOT reproduced (no restoration needed)
+
+Reported: the admin panel lost features after the mega build. Investigated exhaustively against full git history; **no admin functionality was removed.** The admin panel is a strict superset at every commit:
+
+- **Route files:** 0 deleted or renamed in the entire history (`git log --diff-filter=D/R -- apps/web/src/app/admin/*` is empty). 22 admin page files at HEAD; identical set at the pre-mega commit `bd3f215`.
+- **Sidebar nav (`admin/layout.tsx`):** GREW 11 → 21 items over history (baseline `515e3ca` had 11). Every one of the 22 route files is linked. No nav entry ever removed.
+- **Per-page content:** every admin page is the same size or larger than baseline, and **byte-identical between `bd3f215` (pre-mega) and HEAD** — no page lost in-page features.
+- **Admin API routes:** 0 deleted (`apps/api/src/routes/admin*` — 9 files intact).
+- **No external admin surface** was lost (`/dashboard`, `/dr`, `/jobs/dashboard` are separate user/doctor portals, not admin).
+
+Old + new features coexist as required: directory CRUD (users, doctors, hospitals, herbs, colleges, tourism, jobs), content (articles, health-tips, health-videos, testimonials, AMAI microsite), moderation (forum, reviews, leads), config (settings), analytics, bulk import — **plus** the mega-build additions: CCIM **verify queue** (`/admin/verify`) and **credential-badge console** (`/admin/verify-badges`).
+
+Conclusion: acceptance ("all old features PLUS new ones; nothing lost") is already met by the current code. No files restored — doing so would be a no-op. If a specific feature is still perceived missing, it likely existed only in uncommitted local state or behind data/permissions, not in git.
