@@ -61,6 +61,7 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/heritage/temples',            priority: 0.65, changeFrequency: 'yearly'  },
   { path: '/karkidaka',                   priority: 0.85, changeFrequency: 'monthly' },
   { path: '/learn/ask-the-classics',      priority: 0.8,  changeFrequency: 'weekly'  },
+  { path: '/learn/tridosha',              priority: 0.9,  changeFrequency: 'monthly' },
   { path: '/clinic-portal',  priority: 0.7,  changeFrequency: 'monthly' },
   { path: '/seminars',       priority: 0.75, changeFrequency: 'weekly'  },
   { path: '/interaction-checker', priority: 0.85, changeFrequency: 'monthly' },

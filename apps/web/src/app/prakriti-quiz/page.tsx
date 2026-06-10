@@ -168,6 +168,9 @@ export default function PrakritiQuizPage() {
               Open Ritucharya <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
+          <p className="mt-3 text-center text-xs text-gray-600">
+            New to the dosha framework? <Link href="/learn/tridosha" className="text-kerala-700 hover:underline font-semibold">Read the Tridosha foundation series</Link> — 7 bilingual articles (മലയാളം + English) with classical shlokas.
+          </p>
         </section>
 
         <section className="container mx-auto px-4 py-14 max-w-3xl">
