@@ -58,6 +58,11 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
       { href: '/seminars',            label: 'Seminars' },
       { href: '/interaction-checker', label: 'Interaction Checker' },
       { href: '/ritucharya',          label: 'Seasonal Regimen' },
+      { href: '/tools/symptom-checker', label: 'Symptom Checker' },
+      { href: '/tools/bmi-calculator',  label: 'BMI Calculator' },
+      { href: '/tools',               label: 'All free tools' },
+      { href: '/community/malayalees', label: 'For Malayalees abroad' },
+      { href: '/doctors/ambassador',  label: 'Doctor Ambassador Program' },
     ],
   },
   {
