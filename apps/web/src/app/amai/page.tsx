@@ -358,24 +358,6 @@ export default function AmaiPage() {
         </div>
       </section>
 
-      {/* AyurConnect partnership CTA */}
-      <section className="container mx-auto px-4 py-14 max-w-3xl">
-        <div className="bg-gradient-to-br from-kerala-50 via-white to-amber-50 border border-kerala-100 rounded-card p-6 md:p-8 shadow-card text-center">
-          <ShieldCheck className="w-10 h-10 text-kerala-700 mx-auto mb-3" />
-          <h2 className="font-serif text-xl md:text-2xl text-ink">AyurConnect supports AMAI&apos;s mission</h2>
-          <p className="text-sm md:text-base text-gray-700 mt-2 leading-relaxed">
-            AyurConnect is proud to support AMAI&apos;s mission of promoting quality Ayurveda.
-            Are you an <strong>AMAI member</strong>? Register on AyurConnect for a verified profile with the AMAI Member badge.
-          </p>
-          <Link
-            href="/doctors/register"
-            className="inline-flex items-center gap-2 px-5 py-2.5 mt-5 bg-kerala-700 hover:bg-kerala-800 text-white rounded text-sm font-semibold"
-          >
-            Register as Doctor <ChevronRight className="w-4 h-4" />
-          </Link>
-        </div>
-      </section>
-
       {/* Compliance footnote */}
       <section className="container mx-auto px-4 pb-12 max-w-3xl">
         <div className="p-5 rounded-card bg-amber-50 border border-amber-100 text-sm text-amber-900 leading-relaxed flex items-start gap-3">
