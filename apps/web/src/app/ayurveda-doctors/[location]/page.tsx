@@ -11,7 +11,7 @@ const KERALA_DISTRICTS = [
   'Idukki', 'Ernakulam', 'Thrissur', 'Palakkad', 'Malappuram',
   'Kozhikode', 'Wayanad', 'Kannur', 'Kasaragod',
 ]
-const UAE_CITIES = ['Dubai', 'Abu Dhabi', 'Sharjah']
+const UAE_CITIES = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ajman', 'Al Ain']
 
 const ALL_LOCATIONS = [...KERALA_DISTRICTS, ...UAE_CITIES]
 
