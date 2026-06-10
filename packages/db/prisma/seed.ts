@@ -4,6 +4,9 @@ import { seedArticlesV2 } from './seed-articles-v2'
 import { seedFormularyV2 } from './seed-formulary-v2'
 import { seedTridosha }   from './seed-tridosha'
 import { seedArticleCategories } from './seed-article-categories'
+import { seedArticlesV3Part1 } from './seed-articles-v3'
+import { seedArticlesV3Part2 } from './seed-articles-v3b'
+import { seedArticlesV3Part3 } from './seed-articles-v3c'
 
 const prisma = new PrismaClient()
 
@@ -357,7 +360,10 @@ async function main() {
   const formV2 = await seedFormularyV2(prisma)
   const triV   = await seedTridosha(prisma)
   const cats   = await seedArticleCategories(prisma)
-  void artV2; void formV2; void triV; void cats
+  const v3a    = await seedArticlesV3Part1(prisma)
+  const v3b    = await seedArticlesV3Part2(prisma)
+  const v3c    = await seedArticlesV3Part3(prisma)
+  void artV2; void formV2; void triV; void cats; void v3a; void v3b; void v3c
   console.log('✓ seeded:', {
     doctors: DOCTORS.length,
     hospitals: HOSPITALS.length,
