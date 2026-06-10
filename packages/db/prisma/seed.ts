@@ -1,5 +1,6 @@
 import { PrismaClient, Prisma } from '@prisma/client'
 import { seedHospitalsV2 } from './seed-hospitals-v2'
+import { seedArticlesV2 } from './seed-articles-v2'
 
 const prisma = new PrismaClient()
 
@@ -349,6 +350,8 @@ async function main() {
   })
 
   const hospV2 = await seedHospitalsV2(prisma)
+  const artV2  = await seedArticlesV2(prisma)
+  void artV2
   console.log('✓ seeded:', {
     doctors: DOCTORS.length,
     hospitals: HOSPITALS.length,
