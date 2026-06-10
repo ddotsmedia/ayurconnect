@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { ArrowLeft, BookOpen, Calendar, ScrollText, FlaskConical, Leaf } from 'lucide-react'
 import { API_INTERNAL as API } from '../../../lib/server-fetch'
 import { articleLd, breadcrumbLd, ldGraph, clip, SITE_URL } from '../../../lib/seo'
+import { ArticleEngagement } from '../_engagement'
 
 type Article = {
   id: string
@@ -138,6 +139,13 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
 
         <div className="prose prose-kerala max-w-none text-gray-800 space-y-4 text-[15px]">
           {renderContent(article.content)}
+        </div>
+
+        <ArticleEngagement id={article.id} title={article.title} />
+
+        <div className="mt-4 p-4 rounded-card bg-amber-50 border border-amber-100 text-sm text-amber-900">
+          <strong>Consult a doctor about this topic.</strong> Articles are educational. For diagnosis + personalised treatment, talk to a verified Ayurveda doctor.
+          <Link href="/doctors" className="text-kerala-800 hover:underline ml-1 font-semibold">Browse verified doctors →</Link>
         </div>
 
         <div className="mt-8 pt-6 border-t border-gray-100 text-xs text-gray-400">

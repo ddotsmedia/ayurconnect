@@ -658,11 +658,60 @@ model KnowledgeArticle {
   id        String   @id @default(cuid())
   title     String
   content   String
-  category  String   // classical-text | research | seasonal-health
+  category  String   // legacy string slug; categoryId is the FK target
   source    String?  // Charaka Samhita | Ashtanga Hridayam | PubMed | ...
   language  String   @default("en")
+  // ─── 2026-06-10 enhanced article features ────────────────────────────
+  slug              String?  @unique
+  titleMl           String?  // Malayalam title (when language='en' with ML companion title)
+  categoryId        String?  // FK to ArticleCategory; nullable for legacy rows
+  featuredImage     String?
+  readTimeMinutes   Int?
+  isFeatured        Boolean  @default(false)
+  isPinned          Boolean  @default(false)
+  viewCount         Int      @default(0)
+  likeCount         Int      @default(0)
+  shareCount        Int      @default(0)
+  seoTitle          String?
+  seoDescription    String?
+  relatedArticleIds String[] @default([])
+  reviewedBy        String?  // doctor name (free-text v1; FK to Doctor in v2)
+  reviewedAt        DateTime?
+  publishedAt       DateTime?  // scheduled-publish anchor; null = published immediately on save
+  status            String   @default("published")  // 'draft' | 'pending_review' | 'published'
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  categoryRef ArticleCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([categoryId, language])
+  @@index([isFeatured, isPinned, publishedAt])
+  @@index([status, language, createdAt])
+}
+
+// ─── Article category taxonomy (added 2026-06-10) ────────────────────────
+// Replaces the loose `category` string on KnowledgeArticle with a proper
+// admin-managed table. Existing string categories on KnowledgeArticle
+// remain valid (and unchanged) — the new `categoryId` FK is optional so
+// migration can be gradual.
+model ArticleCategory {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  name          String
+  nameMl        String?
+  description   String?
+  descriptionMl String?
+  icon          String?  // lucide-react icon name like 'Leaf', 'Heart', 'FlaskConical'
+  color         String?  // hex for badge tinting, e.g. '#155228'
+  sortOrder     Int      @default(0)
+  isActive      Boolean  @default(true)
+  articleCount  Int      @default(0)  // denormalised; recomputed by admin job + on article save
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  articles KnowledgeArticle[]
+
+  @@index([isActive, sortOrder])
 }
 
 model MedicalTourismPackage {

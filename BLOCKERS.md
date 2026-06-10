@@ -94,3 +94,18 @@ Reported: the admin panel lost features after the mega build. Investigated exhau
 Old + new features coexist as required: directory CRUD (users, doctors, hospitals, herbs, colleges, tourism, jobs), content (articles, health-tips, health-videos, testimonials, AMAI microsite), moderation (forum, reviews, leads), config (settings), analytics, bulk import — **plus** the mega-build additions: CCIM **verify queue** (`/admin/verify`) and **credential-badge console** (`/admin/verify-badges`).
 
 Conclusion: acceptance ("all old features PLUS new ones; nothing lost") is already met by the current code. No files restored — doing so would be a no-op. If a specific feature is still perceived missing, it likely existed only in uncommitted local state or behind data/permissions, not in git.
+
+## 2026-06-10 — Enhanced articles: deferred features (logged not blocked)
+
+Shipped this session (ArticleCategory model + 16 seeded categories + admin CRUD + view/like/share counters + /articles/category/[slug] + Drug-schema cross-link kept intact). The following spec items deferred to keep minimal-diff + scope shippable:
+
+- **Rich-text article editor.** Current admin uses textarea. Markdown editor with preview, image embed, ingredient/dose autocomplete = separate ~2-day build.
+- **Drag-to-reorder categories.** Manual `sortOrder` integer input shipped instead; drag DnD library + persistence layer deferred.
+- **Scheduled publishing.** `publishedAt` column shipped; cron worker to flip `status` from `draft` → `published` at the scheduled time deferred. Admin can hard-publish today.
+- **Bulk actions on article admin list.** Single-row actions only in this pass.
+- **Featured-image upload.** URL field only — MinIO presigned upload UI matches the existing doctor-credential deferral pattern.
+- **Author-card link to Doctor.** `reviewedBy` is free-text string today. Linking to `Doctor.id` needs a typed FK + dropdown autocomplete.
+- **Related-articles multi-select on editor.** `relatedArticleIds[]` column shipped; UI multi-select deferred.
+- **Markdown preview inside admin editor.** Current path: write markdown in textarea → public render uses existing `renderContent()`.
+
+To resume: build a single `<ArticleEditor>` React-Quill (or Tiptap) component, wire to the existing /api/articles PATCH endpoint, add admin queue filters by status + bulk-action toolbar, then schedule cron via the existing /opt/ayurconnect cron infra.
