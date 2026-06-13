@@ -56,6 +56,8 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
       { href: '/karkidaka',           label: 'Karkidaka Chikitsa' },
       { href: '/learn/ask-the-classics', label: 'Ask the Classics' },
       { href: '/seminars',            label: 'Seminars' },
+      { href: '/news',                label: 'News' },
+      { href: '/events',              label: 'Events' },
       { href: '/interaction-checker', label: 'Interaction Checker' },
       { href: '/ritucharya',          label: 'Seasonal Regimen' },
       { href: '/tools/symptom-checker', label: 'Symptom Checker' },

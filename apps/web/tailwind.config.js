@@ -69,9 +69,11 @@ module.exports = {
       },
       keyframes: {
         'slide-up': { from: { transform: 'translateY(8px)', opacity: '0' }, to: { transform: 'translateY(0)', opacity: '1' } },
+        'ticker':   { from: { transform: 'translateX(0)' }, to: { transform: 'translateX(-33.333%)' } },
       },
       animation: {
         'slide-up': 'slide-up 200ms ease-out',
+        'ticker':   'ticker 60s linear infinite',
       },
     },
   },

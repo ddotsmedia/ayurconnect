@@ -9,6 +9,7 @@ import {
   ListFilter, Sparkles, MessagesSquare, UserPlus, BookOpen, ScrollText, Leaf,
   Sprout, FlaskConical, AlertTriangle, HelpCircle, Microscope, CalendarDays,
   CloudRain, Building2, Building, School, Sun, ShieldCheck, Plane, Video, HeartPulse,
+  Newspaper, Ticket,
 } from 'lucide-react'
 import { cn } from './lib/utils'
 import { t } from './i18n'
@@ -112,6 +113,8 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
       kind: 'group', key: 'community', label: tr.nav.community, cols: 1,
       sections: [{
         items: [
+          { href: '/news', label: 'News', desc: 'Industry, research, govt updates', icon: Newspaper },
+          { href: '/events', label: 'Events', desc: 'Conferences, CME, retreats, webinars', icon: Ticket },
           { href: '/qa', label: 'Q&A forum', desc: 'Ask health questions', icon: HelpCircle },
           { href: '/research', label: 'Research', desc: 'Clinical papers', icon: Microscope },
           { href: '/seminars', label: 'Seminars & CME', desc: 'Events and webinars', icon: CalendarDays },
