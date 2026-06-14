@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Stethoscope, ShieldCheck } from 'lucide-react'
 import { signUpUser, postJson, SPECIALIZATIONS } from '../_lib'
+import { BatchmatesFinder } from '../../../components/doctor/BatchmatesFinder'
 import { CountrySelect } from '../../../components/country-select'
 import { StateSelect } from '../../../components/state-select'
 import { PhoneInput } from '../../../components/phone-input'
@@ -13,6 +14,8 @@ import { FaqAccordion } from '../../../components/seo/FaqAccordion'
 
 export default function DoctorRegisterPage() {
   const router = useRouter()
+  const search = useSearchParams()
+  const refCode = search?.get('ref') ?? null
   const [form, setForm] = useState({
     name: '', email: '', password: '',
     qualification: '', specialization: '',
@@ -42,7 +45,7 @@ export default function DoctorRegisterPage() {
     setBusy(true); setErr(null)
     try {
       await signUpUser({ name: form.name, email: form.email, password: form.password })
-      await postJson('/me/promote-to-doctor', {
+      const promoted = await postJson<{ doctorId?: string }>('/me/promote-to-doctor', {
         name: form.name,
         specialization: form.specialization || null,
         country: form.country,
@@ -73,7 +76,14 @@ export default function DoctorRegisterPage() {
         regCertUrl:         form.regCertUrl || null,
       })
       rememberCountry(form.country)
-      router.push('/dashboard?welcome=doctor')
+      // Track referral if a ?ref= code was on the URL.
+      if (refCode && promoted?.doctorId) {
+        void fetch('/api/doctor-viral/track-registration', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ code: refCode, doctorId: promoted.doctorId }),
+        }).catch(() => {})
+      }
+      router.push('/doctor/welcome')
       router.refresh()
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e))
@@ -160,6 +170,14 @@ export default function DoctorRegisterPage() {
             <Field label="Batch year">
               <input type="number" min={1950} max={new Date().getFullYear()} value={form.batchYear} onChange={(e) => setForm({ ...form, batchYear: e.target.value })} className="input" placeholder="e.g. 2008" />
             </Field>
+            {form.college.trim().length > 3 && (
+              <div className="md:col-span-2">
+                <BatchmatesFinder
+                  collegeSlug={form.college.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')}
+                  batchYear={form.batchYear ? Number(form.batchYear) : null}
+                />
+              </div>
+            )}
             <Field label="KSMC reg number (optional)">
               <input value={form.ksmcRegNumber} onChange={(e) => setForm({ ...form, ksmcRegNumber: e.target.value })} className="input" placeholder="Kerala State Medical Council" />
             </Field>
