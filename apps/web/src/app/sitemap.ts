@@ -8,6 +8,8 @@ import { CITIES as SEO_CITIES } from './conditions/_data/cities'
 import { ANSWERED_QA } from './learn/ask-the-classics/_answered'
 import { NEWS_SLUGS } from '@/lib/data/news-seed'
 import { EVENT_SLUGS } from '@/lib/data/events-seed'
+import { DISTRICT_SLUGS as HOSPITAL_DISTRICT_SLUGS } from './hospitals/in/[district]/page'
+import { TYPE_SLUGS as HOSPITAL_TYPE_SLUGS } from './hospitals/type/[type]/page'
 
 const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ayurconnect.com'
 
@@ -85,6 +87,8 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/seminars',       priority: 0.75, changeFrequency: 'weekly'  },
   { path: '/news',           priority: 0.85, changeFrequency: 'daily'   },
   { path: '/events',         priority: 0.85, changeFrequency: 'daily'   },
+  { path: '/hospitals/register', priority: 0.85, changeFrequency: 'monthly' },
+  { path: '/hospitals/why-join', priority: 0.9,  changeFrequency: 'monthly' },
   { path: '/interaction-checker', priority: 0.85, changeFrequency: 'monthly' },
   { path: '/ritucharya',          priority: 0.85, changeFrequency: 'monthly' },
   { path: '/heal-in-kerala',      priority: 0.95, changeFrequency: 'weekly'  },
@@ -272,6 +276,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: now,
       changeFrequency: 'monthly' as const,
       priority: 0.85,
+    })),
+    // /hospitals/in/[district] + /hospitals/type/[type] — SEO directory pages.
+    ...HOSPITAL_DISTRICT_SLUGS.map((slug) => ({
+      url: `${BASE}/hospitals/in/${slug}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.85,
+    })),
+    ...HOSPITAL_TYPE_SLUGS.map((slug) => ({
+      url: `${BASE}/hospitals/type/${slug}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
     })),
     // /news/[slug] + /events/[slug] — static seed data.
     ...NEWS_SLUGS.map((slug) => ({

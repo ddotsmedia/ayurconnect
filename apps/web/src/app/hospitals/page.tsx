@@ -190,6 +190,20 @@ export default async function HospitalsPage({ searchParams }: { searchParams: Pr
         <div className="mt-10 text-center text-sm text-muted">
           <Link href="/sign-in" className="text-kerala-700 hover:underline">Sign in</Link> to leave a review or save a hospital.
         </div>
+
+        <section className="mt-10 bg-gradient-to-br from-kerala-700 via-kerala-800 to-amber-700 text-white rounded-card p-6 md:p-8 shadow-cardLg">
+          <div className="grid md:grid-cols-[1fr_auto] gap-6 items-center">
+            <div>
+              <p className="text-[10px] uppercase tracking-wider opacity-80">For hospital owners</p>
+              <h2 className="font-serif text-2xl md:text-3xl mt-1">List your Ayurveda hospital on AyurConnect — free</h2>
+              <p className="text-sm text-white/85 mt-2 max-w-2xl">Professional profile, patient inquiries, WhatsApp integration, verification badges, analytics. No setup fee, no contract.</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Link href="/hospitals/register" className="px-5 py-3 bg-white text-kerala-800 hover:bg-white/90 rounded font-bold text-sm text-center">Register free →</Link>
+              <Link href="/hospitals/why-join"  className="px-5 py-2 border border-white/40 text-white hover:bg-white/10 rounded text-sm text-center">Why join?</Link>
+            </div>
+          </div>
+        </section>
       </div>
     </>
   )
