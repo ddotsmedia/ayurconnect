@@ -12,87 +12,87 @@ datasource db {
 // ---------- Better Auth (https://www.better-auth.com) ----------
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
+  id            String   @id @default(cuid())
+  email         String   @unique
   name          String?
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean  @default(false)
   image         String?
-  role          String    @default("USER") // USER | DOCTOR_PENDING | DOCTOR | HOSPITAL_PENDING | HOSPITAL | THERAPIST | ADMIN
-  doctorId      String?   @unique // optional 1:1 link to Doctor row this user manages
-  hospitalId    String?   @unique // optional 1:1 link to Hospital row this user manages
-  prakriti      String?   // vata | pitta | kapha | (combinations like 'pitta-vata')
-  phone         String?   // E.164: +91XXXXXXXXXX
-  country       String?   // ISO 3166-1 alpha-2 (IN, US, AE, GB...). null = unknown / pre-internationalisation row.
-  state         String?   // first-level admin division (Kerala, California, Dubai, England...)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          String   @default("USER") // USER | DOCTOR_PENDING | DOCTOR | HOSPITAL_PENDING | HOSPITAL | THERAPIST | ADMIN
+  doctorId      String?  @unique // optional 1:1 link to Doctor row this user manages
+  hospitalId    String?  @unique // optional 1:1 link to Hospital row this user manages
+  prakriti      String? // vata | pitta | kapha | (combinations like 'pitta-vata')
+  phone         String? // E.164: +91XXXXXXXXXX
+  country       String? // ISO 3166-1 alpha-2 (IN, US, AE, GB...). null = unknown / pre-internationalisation row.
+  state         String? // first-level admin division (Kerala, California, Dubai, England...)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  accounts      Account[]
-  sessions      Session[]
-  reviews       Review[]
-  posts         Post[]
-  comments      Comment[]
-  jobs          Job[]
-  appointments  Appointment[]
-  upvotes       Upvote[]
-  savedDoctors  SavedDoctor[]
-  ownedDoctor   Doctor?       @relation("OwnedDoctor",   fields: [doctorId],   references: [id])
-  ownedHospital Hospital?     @relation("OwnedHospital", fields: [hospitalId], references: [id])
-  notifications Notification[]
-  journal       JournalEntry[]
-  assignedLeads Lead[]        @relation("LeadAssignee")
+  accounts                 Account[]
+  sessions                 Session[]
+  reviews                  Review[]
+  posts                    Post[]
+  comments                 Comment[]
+  jobs                     Job[]
+  appointments             Appointment[]
+  upvotes                  Upvote[]
+  savedDoctors             SavedDoctor[]
+  ownedDoctor              Doctor?                   @relation("OwnedDoctor", fields: [doctorId], references: [id])
+  ownedHospital            Hospital?                 @relation("OwnedHospital", fields: [hospitalId], references: [id])
+  notifications            Notification[]
+  journal                  JournalEntry[]
+  assignedLeads            Lead[]                    @relation("LeadAssignee")
   // Phase-7 health platform additions (2026-05-12)
-  family           FamilyMember[]
-  vitals           HealthMetric[]
-  prescriptions    Prescription[]   @relation("PrescriptionPatient")
-  authoredRxs      Prescription[]   @relation("PrescriptionDoctor")
-  rpmRulesForMe    RpmAlertRule[]   @relation("RpmRulePatient")
-  rpmRulesByMe     RpmAlertRule[]   @relation("RpmRuleDoctor")
-  rpmAlerts        RpmAlert[]
+  family                   FamilyMember[]
+  vitals                   HealthMetric[]
+  prescriptions            Prescription[]            @relation("PrescriptionPatient")
+  authoredRxs              Prescription[]            @relation("PrescriptionDoctor")
+  rpmRulesForMe            RpmAlertRule[]            @relation("RpmRulePatient")
+  rpmRulesByMe             RpmAlertRule[]            @relation("RpmRuleDoctor")
+  rpmAlerts                RpmAlert[]
   // Phase-8 (2026-05-13) — inspired by iCliniq + Qura + Ayushakti
-  authoredAnswers  DoctorAnswer[]
-  publicQuestions  PublicQuestion[]
-  programEnrollments ProgramEnrollment[]
+  authoredAnswers          DoctorAnswer[]
+  publicQuestions          PublicQuestion[]
+  programEnrollments       ProgramEnrollment[]
   // Phase-9 (2026-05-13) — admin moderation back-relations
-  moderatedDoctors   Doctor[]   @relation("DoctorModerator")
-  moderatedHospitals Hospital[] @relation("HospitalModerator")
+  moderatedDoctors         Doctor[]                  @relation("DoctorModerator")
+  moderatedHospitals       Hospital[]                @relation("HospitalModerator")
   // Phase-10 (2026-05-14) — Doctor Knowledge Hub
-  authoredCases       ClinicalCase[]
-  caseComments        CaseComment[]
-  caseUpvotes         CaseUpvote[]
-  paperBookmarks      ResearchPaperBookmark[]
-  paperAnnotations    ResearchPaperAnnotation[]
-  webinarsAsSpeaker   Webinar[]                  @relation("WebinarSpeaker")
-  webinarRegistrations WebinarRegistration[]
-  journalSubscriptions JournalSubscription[]
-  authoredProtocols   ClinicalProtocol[]
-  protocolComments    ProtocolComment[]
-  conferenceRSVPs     ConferenceRSVP[]
-  cmeCredits          CmeCredit[]
+  authoredCases            ClinicalCase[]
+  caseComments             CaseComment[]
+  caseUpvotes              CaseUpvote[]
+  paperBookmarks           ResearchPaperBookmark[]
+  paperAnnotations         ResearchPaperAnnotation[]
+  webinarsAsSpeaker        Webinar[]                 @relation("WebinarSpeaker")
+  webinarRegistrations     WebinarRegistration[]
+  journalSubscriptions     JournalSubscription[]
+  authoredProtocols        ClinicalProtocol[]
+  protocolComments         ProtocolComment[]
+  conferenceRSVPs          ConferenceRSVP[]
+  cmeCredits               CmeCredit[]
   // Jobs v2 (2026-05-19): track applications submitted by signed-in users.
-  jobApplications     JobApplication[] @relation("JobApplicantUser")
+  jobApplications          JobApplication[]          @relation("JobApplicantUser")
   // Longitudinal outcomes (2026-06-07): patient ↔ treatment-episode + log relations.
-  treatmentEpisodesPatient TreatmentEpisode[] @relation("EpisodePatient")
-  treatmentEpisodesDoctor  TreatmentEpisode[] @relation("EpisodeDoctor")
+  treatmentEpisodesPatient TreatmentEpisode[]        @relation("EpisodePatient")
+  treatmentEpisodesDoctor  TreatmentEpisode[]        @relation("EpisodeDoctor")
 }
 
 // ─── Patient health journal (added 2026-05-10) ────────────────────────────
 // Daily wellness log. Used to track symptoms over time and feed the AI
 // weekly summary endpoint that reports trends in dosha imbalance.
 model JournalEntry {
-  id           String   @id @default(cuid())
-  userId       String
+  id         String   @id @default(cuid())
+  userId     String
   // Date (without time component) — one entry per user per day.
-  date         DateTime @db.Date
-  mood         Int?     // 1-5
-  sleepHours   Float?
-  energy       Int?     // 1-5
-  symptoms     String[] @default([])
-  doshaFeel    String?  // vata | pitta | kapha | balanced
-  food         String?  // free-text food log
-  notes        String?  // anything else
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  date       DateTime @db.Date
+  mood       Int? // 1-5
+  sleepHours Float?
+  energy     Int? // 1-5
+  symptoms   String[] @default([])
+  doshaFeel  String? // vata | pitta | kapha | balanced
+  food       String? // free-text food log
+  notes      String? // anything else
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -111,7 +111,7 @@ model Notification {
   type      String
   title     String
   body      String?
-  link      String?  // optional URL to navigate to when clicked
+  link      String? // optional URL to navigate to when clicked
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
 
@@ -170,26 +170,26 @@ model Verification {
 // ---------- Domain models ----------
 
 model Doctor {
-  id                 String   @id @default(cuid())
+  id                 String    @id @default(cuid())
   name               String
   specialization     String
   // Geography (added 2026-05-11). country defaults to 'IN' so existing Kerala
   // rows remain valid. `state` is the first-level admin division (Kerala for
   // legacy rows; backfilled in migration). `district` is kept for back-compat
   // and now means city/region within state.
-  country            String   @default("IN")
+  country            String    @default("IN")
   state              String?
-  district           String   // legacy: was Kerala-only; now a generic city/region within state
-  ccimVerified       Boolean  @default(false)
-  profile            String?  // short tagline / one-liner
-  bio                String?  // long-form biography
-  qualification      String?  // "BAMS, MD (Ayurveda)"
+  district           String // legacy: was Kerala-only; now a generic city/region within state
+  ccimVerified       Boolean   @default(false)
+  profile            String? // short tagline / one-liner
+  bio                String? // long-form biography
+  qualification      String? // "BAMS, MD (Ayurveda)"
   experienceYears    Int?
-  languages          String[] @default([])
+  languages          String[]  @default([])
   photoUrl           String?
-  availableDays      String[] @default([])  // ["Mon","Tue","Wed",...]
-  availableForOnline Boolean  @default(true)
-  consultationFee    Int?     // INR
+  availableDays      String[]  @default([]) // ["Mon","Tue","Wed",...]
+  availableForOnline Boolean   @default(true)
+  consultationFee    Int? // INR
   contact            String?
   address            String?
   // ─── Social links (added 2026-05-12). Optional URLs; validated as http(s)
@@ -205,7 +205,7 @@ model Doctor {
   // from `address` which is a postal location). Used for the "where I practise"
   // line on the public profile.
   workplace          String?
-  workplaceUrl       String?   // optional link to that clinic / hospital
+  workplaceUrl       String? // optional link to that clinic / hospital
   // `featuredArticles` — array of { title, url, source?, year? } showcasing
   // articles the doctor authored, contributed to, or curates. Max 10 items
   // enforced at API layer.
@@ -214,9 +214,9 @@ model Doctor {
   // specific social posts (different from the platform homepage URLs above).
   featuredPosts      Json?
   // ─── Provenance / verification (added 2026-05-10 with import pipeline) ──
-  tcmcNumber         String?  @unique // Travancore-Cochin Medical Council registration #
-  source             String?  // e.g. 'tcmc', 'kerala-tourism', 'self-register', 'admin', 'csv'
-  sourceUrl          String?  // URL of the public listing this record came from
+  tcmcNumber         String?   @unique // Travancore-Cochin Medical Council registration #
+  source             String? // e.g. 'tcmc', 'kerala-tourism', 'self-register', 'admin', 'csv'
+  sourceUrl          String? // URL of the public listing this record came from
   importedAt         DateTime?
   // ─── Moderation (added 2026-05-13, Phase 9) ─────────────────────────────
   // `ccimVerified` is the public-facing verified flag. `moderationStatus`
@@ -224,30 +224,30 @@ model Doctor {
   // records), 'approved' (ccimVerified flipped true), 'declined' (rejected
   // with reason), 'needs-info' (admin asked submitter for more), 'flagged'
   // (suspicious, second review needed).
-  moderationStatus    String   @default("pending")
-  moderationReason    String?  // admin's decline/needs-info reason (sent to submitter)
-  moderationNotes     Json?    // internal admin comments: [{ at, byAdminId, byAdminName, kind, text }]
-  lastReviewedAt      DateTime?
-  lastReviewedById    String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  moderationStatus   String    @default("pending")
+  moderationReason   String? // admin's decline/needs-info reason (sent to submitter)
+  moderationNotes    Json? // internal admin comments: [{ at, byAdminId, byAdminName, kind, text }]
+  lastReviewedAt     DateTime?
+  lastReviewedById   String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  reviews      Review[]
-  appointments Appointment[]
-  ownedBy      User?         @relation("OwnedDoctor")
-  savedBy      SavedDoctor[]
-  slots        DoctorSlot[]
-  lastReviewedBy User?       @relation("DoctorModerator", fields: [lastReviewedById], references: [id], onDelete: SetNull)
+  reviews        Review[]
+  appointments   Appointment[]
+  ownedBy        User?         @relation("OwnedDoctor")
+  savedBy        SavedDoctor[]
+  slots          DoctorSlot[]
+  lastReviewedBy User?         @relation("DoctorModerator", fields: [lastReviewedById], references: [id], onDelete: SetNull)
 
   // Videos this doctor appears in (admin-curated YouTube embeds, /videos).
-  healthVideos   HealthVideo[] @relation("DoctorVideos")
+  healthVideos HealthVideo[] @relation("DoctorVideos")
 
   // Doctor-to-doctor referrals (2026-05-16).
   referralsSent     DoctorReferral[] @relation("DoctorReferralFrom")
   referralsReceived DoctorReferral[] @relation("DoctorReferralTo")
 
-  // Index for queue sorting: oldest pending first.
-  @@index([moderationStatus, createdAt])
+  // Hospital team links (Phase 5, 2026-06-13).
+  hospitalLinks HospitalDoctorLink[]
 
   // ─── Kerala-origin + diaspora directory fields (2026-06-08) ────────────
   // Additive; all nullable so the existing 500+ rows remain valid. Allows
@@ -258,27 +258,29 @@ model Doctor {
   college                  String?
   collegeSlug              String?
   batchYear                Int?
-  ksmcRegNumber            String?  // Kerala State Medical Council reg # (modern)
-  lineageOrTradition       String?  // e.g. "Ashtavaidya - Pulamanthole Mooss"
+  ksmcRegNumber            String? // Kerala State Medical Council reg # (modern)
+  lineageOrTradition       String? // e.g. "Ashtavaidya - Pulamanthole Mooss"
   // Local regulatory bodies abroad (DHA Dubai, SCFHS Saudi, GMC UK, etc.)
   localRegBody             String?
   localRegNumber           String?
-  localRegCountry          String?  // ISO 3166-1 alpha-2
+  localRegCountry          String? // ISO 3166-1 alpha-2
   // Practice mode + treatments offered (string array; mirrors specialization).
-  practiceMode             String?  @default("both")  // 'in_person' | 'teleconsult' | 'both'
-  specialTreatmentsOffered String[] @default([])
+  practiceMode             String?   @default("both") // 'in_person' | 'teleconsult' | 'both'
+  specialTreatmentsOffered String[]  @default([])
   // Malayalam bio. Display primary when present.
   aboutMl                  String?
   // Profile management
   profileClaimedAt         DateTime?
-  profileCompleteness      Int?     @default(0)
-  selfRegistered           Boolean  @default(false)
-  featured                 Boolean  @default(false)
+  profileCompleteness      Int?      @default(0)
+  selfRegistered           Boolean   @default(false)
+  featured                 Boolean   @default(false)
   // Credential uploads (URL refs; presigned MinIO uploads wire up in v2).
   degreeCertUrl            String?
   regCertUrl               String?
   photoIdUrl               String?
 
+  // Index for queue sorting: oldest pending first.
+  @@index([moderationStatus, createdAt])
   // Indexes for directory filtering. The `country` filter is a strict equality
   // (ISO-2), state/district/specialization are case-insensitive `contains`
   // queries, so a btree index helps the typical prefix case + WHERE country=…
@@ -317,49 +319,68 @@ model DoctorSlot {
 }
 
 model Hospital {
-  id              String   @id @default(cuid())
-  name            String
-  type            String
+  id               String    @id @default(cuid())
+  slug             String?   @unique
+  name             String
+  nameMl           String?
+  type             String
   // Geography (added 2026-05-11). See Doctor model for migration semantics.
-  country         String   @default("IN")
-  state           String?
-  district        String   // legacy: city/region within state
-  ccimVerified    Boolean  @default(false)
-  ayushCertified  Boolean  @default(false)
-  panchakarma     Boolean  @default(false)
-  nabh            Boolean  @default(false)
-  profile         String?
-  establishedYear Int?
-  services        String[] @default([])
-  contact         String?
-  address         String?
-  latitude        Float?
-  longitude       Float?
+  country          String    @default("IN")
+  state            String?
+  district         String // legacy: city/region within state
+  pincode          String?
+  ccimVerified     Boolean   @default(false)
+  ayushCertified   Boolean   @default(false)
+  panchakarma      Boolean   @default(false)
+  nabh             Boolean   @default(false)
+  tourismClass     String? // Ayur Diamond | Gold | Silver | Green Leaf | Olive Leaf
+  iso              String?
+  profile          String?
+  profileMl        String?
+  establishedYear  Int?
+  services         String[]  @default([])
+  treatments       String[]  @default([])
+  facilities       String[]  @default([])
+  photos           String[]  @default([])
+  languages        String[]  @default([])
+  paymentMethods   String[]  @default([])
+  operatingHours   Json?
+  whatsapp         String?
+  email            String?
+  contact          String?
+  address          String?
+  latitude         Float?
+  longitude        Float?
   // ─── Social links (added 2026-05-12). See Doctor model for semantics.
-  websiteUrl      String?
-  linkedinUrl     String?
-  facebookUrl     String?
-  instagramUrl    String?
-  twitterUrl      String?
-  youtubeUrl      String?
+  websiteUrl       String?
+  linkedinUrl      String?
+  facebookUrl      String?
+  instagramUrl     String?
+  twitterUrl       String?
+  youtubeUrl       String?
   // ─── Provenance / classification (added 2026-05-10 with import pipeline) ──
-  classification  String?  // 'olive-leaf' | 'green-leaf' | null (Kerala Tourism's official rating)
-  source          String?  // e.g. 'kerala-tourism', 'ism-kerala', 'self-register', 'admin', 'csv'
-  sourceUrl       String?
-  importedAt      DateTime?
+  classification   String? // 'olive-leaf' | 'green-leaf' | null (Kerala Tourism's official rating)
+  source           String? // e.g. 'kerala-tourism', 'ism-kerala', 'self-register', 'admin', 'csv'
+  sourceUrl        String?
+  importedAt       DateTime?
   // ─── Moderation (added 2026-05-13, Phase 9) ─── mirrors Doctor model ──
-  moderationStatus    String   @default("pending")  // 'pending'|'approved'|'declined'|'needs-info'|'flagged'
-  moderationReason    String?
-  moderationNotes     Json?
-  lastReviewedAt      DateTime?
-  lastReviewedById    String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  moderationStatus String    @default("pending") // 'pending'|'approved'|'declined'|'needs-info'|'flagged'
+  moderationReason String?
+  moderationNotes  Json?
+  lastReviewedAt   DateTime?
+  lastReviewedById String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  reviews      Review[]
-  appointments Appointment[]
-  ownedBy      User?         @relation("OwnedHospital")
-  lastReviewedBy User?       @relation("HospitalModerator", fields: [lastReviewedById], references: [id], onDelete: SetNull)
+  reviews         Review[]
+  appointments    Appointment[]
+  ownedBy         User?                    @relation("OwnedHospital")
+  lastReviewedBy  User?                    @relation("HospitalModerator", fields: [lastReviewedById], references: [id], onDelete: SetNull)
+  packages        TreatmentPackage[]
+  inquiries       HospitalInquiry[]
+  reviewResponses HospitalReviewResponse[]
+  promotions      HospitalPromotion[]
+  doctorLinks     HospitalDoctorLink[]
 
   // Indexes mirror Doctor for the same directory filter patterns.
   @@index([country, state])
@@ -367,6 +388,110 @@ model Hospital {
   @@index([district])
   @@index([type])
   @@index([moderationStatus, createdAt])
+}
+
+// ─── Treatment packages (Phase 4) — replaces MedicalTourismPackage usage ──
+model TreatmentPackage {
+  id            String   @id @default(cuid())
+  hospitalId    String
+  name          String
+  nameMl        String?
+  slug          String
+  description   String
+  descriptionMl String?
+  treatments    String[] @default([])
+  duration      String // "7 days" | "14 days" | "21 days"
+  priceFrom     Int // INR
+  priceTo       Int?
+  currency      String   @default("INR")
+  includes      String[] @default([])
+  idealFor      String[] @default([])
+  season        String[] @default([])
+  maxPatients   Int?
+  isActive      Boolean  @default(true)
+  isFeatured    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  hospital Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@unique([hospitalId, slug])
+  @@index([hospitalId, isActive])
+  @@index([isFeatured])
+}
+
+// ─── Patient inquiries (Phase 6) ─────────────────────────────────────────
+model HospitalInquiry {
+  id                String   @id @default(cuid())
+  hospitalId        String
+  patientName       String
+  email             String
+  phone             String?
+  whatsapp          String?
+  country           String? // ISO-2
+  treatmentInterest String?
+  preferredDates    String?
+  message           String
+  source            String   @default("website") // website | whatsapp | heal_in_kerala | direct
+  status            String   @default("new") // new | contacted | converted | closed
+  notes             String?
+  assignedTo        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  hospital Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, status, createdAt])
+  @@index([hospitalId, source])
+}
+
+// ─── Review responses (Phase 7) — hospital's public reply to a review ──
+model HospitalReviewResponse {
+  id         String   @id @default(cuid())
+  reviewId   String   @unique
+  hospitalId String
+  body       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  hospital Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  review   Review   @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId])
+}
+
+// ─── Seasonal promotions (Phase 9) — banner shown on profile ───────────
+model HospitalPromotion {
+  id         String    @id @default(cuid())
+  hospitalId String
+  title      String
+  subtitle   String?
+  ctaLabel   String?
+  ctaUrl     String?
+  startsAt   DateTime  @default(now())
+  endsAt     DateTime?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+
+  hospital Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, isActive, endsAt])
+}
+
+// ─── Explicit doctor-team links (Phase 5) — beyond text-match ──────────
+model HospitalDoctorLink {
+  id         String   @id @default(cuid())
+  hospitalId String
+  doctorId   String
+  role       String? // "Chief Physician" | "Consultant" | "Resident"
+  position   Int      @default(0) // ordering; lower = earlier
+  createdAt  DateTime @default(now())
+
+  hospital Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  doctor   Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@unique([hospitalId, doctorId])
+  @@index([hospitalId, position])
 }
 
 model Review {
@@ -379,9 +504,10 @@ model Review {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  doctor   Doctor?   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-  hospital Hospital? @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  user             User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  doctor           Doctor?                 @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  hospital         Hospital?               @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  hospitalResponse HospitalReviewResponse?
 
   @@index([userId])
   @@index([doctorId])
@@ -393,7 +519,7 @@ model Post {
   title     String
   content   String
   userId    String
-  category  String   // doctor-discussion | patient-forum | webinar | research
+  category  String // doctor-discussion | patient-forum | webinar | research
   language  String   @default("en") // en | ml
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -454,7 +580,7 @@ model Job {
   id          String   @id @default(cuid())
   title       String
   description String
-  type        String   // doctor | therapist | pharmacist | government | clinic | teaching
+  type        String // doctor | therapist | pharmacist | government | clinic | teaching
   district    String?
   salary      String?
   userId      String
@@ -463,36 +589,36 @@ model Job {
 
   // Jobs v2 (2026-05-19) — discriminated unions, moderation, structured fields.
   // hiring = hospital/clinic posting; availability = doctor offering services.
-  kind            String    @default("hiring")  // 'hiring' | 'availability'
-  status          String    @default("active")  // 'pending' | 'active' | 'closed' | 'rejected'
-  clinic          String?
-  location        String?
-  specialty       String?
-  qualifications  String[]  @default([])
-  expMin          Int?
-  expMax          Int?
-  currency        String?   // 'INR' | 'AED' | 'USD'
-  salaryMin       Int?
-  salaryMax       Int?
-  deadline        DateTime?
-  remote          Boolean   @default(false)
-  urgent          Boolean   @default(false)
-  featured        Boolean   @default(false)
-  tags            String[]  @default([])
-  requirements    String[]  @default([])
-  benefits        String[]  @default([])
-  contactEmail    String?
-  logoInitials    String?
-  logoColor       String?
-  postedByRole    String?
-  reviewedAt      DateTime?
-  reviewedById    String?
-  rejectionReason String?
-  internalNotes   String?
-  availFrom       DateTime?
+  kind              String    @default("hiring") // 'hiring' | 'availability'
+  status            String    @default("active") // 'pending' | 'active' | 'closed' | 'rejected'
+  clinic            String?
+  location          String?
+  specialty         String?
+  qualifications    String[]  @default([])
+  expMin            Int?
+  expMax            Int?
+  currency          String? // 'INR' | 'AED' | 'USD'
+  salaryMin         Int?
+  salaryMax         Int?
+  deadline          DateTime?
+  remote            Boolean   @default(false)
+  urgent            Boolean   @default(false)
+  featured          Boolean   @default(false)
+  tags              String[]  @default([])
+  requirements      String[]  @default([])
+  benefits          String[]  @default([])
+  contactEmail      String?
+  logoInitials      String?
+  logoColor         String?
+  postedByRole      String?
+  reviewedAt        DateTime?
+  reviewedById      String?
+  rejectionReason   String?
+  internalNotes     String?
+  availFrom         DateTime?
   availDurationDays Int?
-  contactKind     String?   // 'email' | 'whatsapp' | 'phone'
-  contactValue    String?
+  contactKind       String? // 'email' | 'whatsapp' | 'phone'
+  contactValue      String?
 
   user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   applications JobApplication[]
@@ -513,7 +639,7 @@ model JobApplication {
   qualification   String?
   experience      String?
   coverNote       String?
-  status          String   @default("new")  // 'new' | 'reviewed' | 'shortlisted' | 'rejected'
+  status          String   @default("new") // 'new' | 'reviewed' | 'shortlisted' | 'rejected'
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -531,18 +657,18 @@ model JobApplication {
 // WhatsApp wrapper (lib/whatsapp.ts). Reply STOP unsubscribes via webhook
 // (not yet implemented; admins can flip isActive=false).
 model WhatsAppAlertSubscription {
-  id              String   @id @default(cuid())
-  phone           String   // E.164: +91XXXXXXXXXX
+  id             String    @id @default(cuid())
+  phone          String // E.164: +91XXXXXXXXXX
   // Optional filters — all null means "all Kerala Ayurveda jobs"
-  specialization  String?
-  district        String?
-  source          String?  // restrict to one source if user prefers
-  isActive        Boolean  @default(true)
-  lastSentAt      DateTime?
-  consentAt       DateTime @default(now())
-  unsubscribedAt  DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  specialization String?
+  district       String?
+  source         String? // restrict to one source if user prefers
+  isActive       Boolean   @default(true)
+  lastSentAt     DateTime?
+  consentAt      DateTime  @default(now())
+  unsubscribedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@unique([phone])
   @@index([isActive, lastSentAt])
@@ -551,24 +677,24 @@ model WhatsAppAlertSubscription {
 // ─── Auto-imported Ayurveda jobs (added 2026-05-10 — separate table from Job
 // because user-posted jobs require a userId FK; importer rows have no owner) ──
 model ImportedJob {
-  id              String    @id @default(cuid())
-  title           String
-  organization    String?
-  location        String?           // free-text from source (e.g. "Trivandrum, Kerala")
-  description     String?
-  qualifications  String?
-  lastDate        DateTime?
-  applyUrl        String
-  source          String            // 'kerala-psc' | 'nhm-kerala' | 'indeed' | 'naukri'
-  sourceId        String   @unique  // md5(source + applyUrl + title) — dedupe key
-  salary          String?
-  jobType         String?           // full-time | part-time | contract | govt
-  category        String?           // 'doctor' | 'therapist' | etc.
-  isAutoImported  Boolean  @default(true)
-  isActive        Boolean  @default(true)
-  importedAt      DateTime @default(now())
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String    @id @default(cuid())
+  title          String
+  organization   String?
+  location       String? // free-text from source (e.g. "Trivandrum, Kerala")
+  description    String?
+  qualifications String?
+  lastDate       DateTime?
+  applyUrl       String
+  source         String // 'kerala-psc' | 'nhm-kerala' | 'indeed' | 'naukri'
+  sourceId       String    @unique // md5(source + applyUrl + title) — dedupe key
+  salary         String?
+  jobType        String? // full-time | part-time | contract | govt
+  category       String? // 'doctor' | 'therapist' | etc.
+  isAutoImported Boolean   @default(true)
+  isActive       Boolean   @default(true)
+  importedAt     DateTime  @default(now())
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@index([source, importedAt])
   @@index([isActive, importedAt])
@@ -599,7 +725,7 @@ model MedicalCollege {
   id        String   @id @default(cuid())
   name      String
   district  String
-  type      String   // ayurveda | modern
+  type      String // ayurveda | modern
   profile   String?
   contact   String?
   address   String?
@@ -608,38 +734,38 @@ model MedicalCollege {
 }
 
 model Appointment {
-  id              String    @id @default(cuid())
-  userId          String
-  doctorId        String?
-  hospitalId      String?
-  dateTime        DateTime
-  type            String    // consultation-video | consultation-in-person | panchakarma
-  status          String    @default("scheduled") // scheduled | confirmed | reschedule-proposed | completed | cancelled | no-show | declined
-  notes           String?
-  chiefComplaint  String?
-  duration        String?   // "less than a week" | "1-4 weeks" | "1-6 months" | "more than 6 months"
-  fee             Int?      // INR
-  paymentStatus   String?   // pending | paid | refunded | failed | free
-  paymentProvider String?   // razorpay | manual
-  paymentRef      String?   // razorpay order_id / payment_id
+  id                    String    @id @default(cuid())
+  userId                String
+  doctorId              String?
+  hospitalId            String?
+  dateTime              DateTime
+  type                  String // consultation-video | consultation-in-person | panchakarma
+  status                String    @default("scheduled") // scheduled | confirmed | reschedule-proposed | completed | cancelled | no-show | declined
+  notes                 String?
+  chiefComplaint        String?
+  duration              String? // "less than a week" | "1-4 weeks" | "1-6 months" | "more than 6 months"
+  fee                   Int? // INR
+  paymentStatus         String? // pending | paid | refunded | failed | free
+  paymentProvider       String? // razorpay | manual
+  paymentRef            String? // razorpay order_id / payment_id
   // Doctor's decision audit + reschedule proposals (set by /accept, /decline, /propose-new-time):
-  declineReason   String?   // when status=declined
-  proposedAt      DateTime? // alternate dateTime proposed by doctor when status=reschedule-proposed
+  declineReason         String? // when status=declined
+  proposedAt            DateTime? // alternate dateTime proposed by doctor when status=reschedule-proposed
   // Reminder de-dupe — prevents the cron from firing the same reminder twice:
-  reminded24hAt   DateTime?
-  reminded1hAt    DateTime?
-  reviewPrompted  Boolean   @default(false) // post-appointment "leave a review" notification fired
+  reminded24hAt         DateTime?
+  reminded1hAt          DateTime?
+  reviewPrompted        Boolean   @default(false) // post-appointment "leave a review" notification fired
   // Online consultation clinical record (filled by doctor during/after the call):
   consultationStartedAt DateTime?
   consultationEndedAt   DateTime?
-  consultationSummary   String?   // observations / diagnosis — visible to patient
-  prescription          String?   // medications, dosages, duration — visible to patient
-  treatmentPlan         String?   // recommended Panchakarma, lifestyle, follow-up — visible to patient
-  doctorPrivateNotes    String?   // doctor's private clinical notes — never shown to patient
+  consultationSummary   String? // observations / diagnosis — visible to patient
+  prescription          String? // medications, dosages, duration — visible to patient
+  treatmentPlan         String? // recommended Panchakarma, lifestyle, follow-up — visible to patient
+  doctorPrivateNotes    String? // doctor's private clinical notes — never shown to patient
   followUpRecommended   Boolean   @default(false)
-  followUpAfterWeeks    Int?      // doctor's suggested follow-up window
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  followUpAfterWeeks    Int? // doctor's suggested follow-up window
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   doctor   Doctor?   @relation(fields: [doctorId], references: [id], onDelete: SetNull)
@@ -655,32 +781,32 @@ model Appointment {
 }
 
 model KnowledgeArticle {
-  id        String   @id @default(cuid())
-  title     String
-  content   String
-  category  String   // legacy string slug; categoryId is the FK target
-  source    String?  // Charaka Samhita | Ashtanga Hridayam | PubMed | ...
-  language  String   @default("en")
+  id                String    @id @default(cuid())
+  title             String
+  content           String
+  category          String // legacy string slug; categoryId is the FK target
+  source            String? // Charaka Samhita | Ashtanga Hridayam | PubMed | ...
+  language          String    @default("en")
   // ─── 2026-06-10 enhanced article features ────────────────────────────
-  slug              String?  @unique
-  titleMl           String?  // Malayalam title (when language='en' with ML companion title)
-  categoryId        String?  // FK to ArticleCategory; nullable for legacy rows
+  slug              String?   @unique
+  titleMl           String? // Malayalam title (when language='en' with ML companion title)
+  categoryId        String? // FK to ArticleCategory; nullable for legacy rows
   featuredImage     String?
   readTimeMinutes   Int?
-  isFeatured        Boolean  @default(false)
-  isPinned          Boolean  @default(false)
-  viewCount         Int      @default(0)
-  likeCount         Int      @default(0)
-  shareCount        Int      @default(0)
+  isFeatured        Boolean   @default(false)
+  isPinned          Boolean   @default(false)
+  viewCount         Int       @default(0)
+  likeCount         Int       @default(0)
+  shareCount        Int       @default(0)
   seoTitle          String?
   seoDescription    String?
-  relatedArticleIds String[] @default([])
-  reviewedBy        String?  // doctor name (free-text v1; FK to Doctor in v2)
+  relatedArticleIds String[]  @default([])
+  reviewedBy        String? // doctor name (free-text v1; FK to Doctor in v2)
   reviewedAt        DateTime?
-  publishedAt       DateTime?  // scheduled-publish anchor; null = published immediately on save
-  status            String   @default("published")  // 'draft' | 'pending_review' | 'published'
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  publishedAt       DateTime? // scheduled-publish anchor; null = published immediately on save
+  status            String    @default("published") // 'draft' | 'pending_review' | 'published'
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   categoryRef ArticleCategory? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
@@ -701,11 +827,11 @@ model ArticleCategory {
   nameMl        String?
   description   String?
   descriptionMl String?
-  icon          String?  // lucide-react icon name like 'Leaf', 'Heart', 'FlaskConical'
-  color         String?  // hex for badge tinting, e.g. '#155228'
+  icon          String? // lucide-react icon name like 'Leaf', 'Heart', 'FlaskConical'
+  color         String? // hex for badge tinting, e.g. '#155228'
   sortOrder     Int      @default(0)
   isActive      Boolean  @default(true)
-  articleCount  Int      @default(0)  // denormalised; recomputed by admin job + on article save
+  articleCount  Int      @default(0) // denormalised; recomputed by admin job + on article save
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -733,9 +859,9 @@ model AnalyticsEvent {
   id        String   @id @default(cuid())
   userId    String?
   sessionId String?
-  name      String   // 'search' | 'doctor_view' | 'ayurbot_chat' | 'booking_started' | ...
+  name      String // 'search' | 'doctor_view' | 'ayurbot_chat' | 'booking_started' | ...
   props     Json?
-  path      String?  // optional referer path
+  path      String? // optional referer path
   createdAt DateTime @default(now())
 
   @@index([name, createdAt])
@@ -746,7 +872,7 @@ model AnalyticsEvent {
 // Used for social media URLs, contact info, taglines, etc.
 // Reading is public; writing is admin-gated.
 model SiteSetting {
-  key       String   @id  // e.g. 'social.facebook', 'contact.email', 'brand.tagline'
+  key       String   @id // e.g. 'social.facebook', 'contact.email', 'brand.tagline'
   value     String   @default("")
   updatedAt DateTime @updatedAt
 }
@@ -755,8 +881,8 @@ model HealthTip {
   id        String   @id @default(cuid())
   title     String
   content   String
-  dosha     String   // vata | pitta | kapha | tridosha
-  season    String?  // varsha | grishma | vasantha | sharad
+  dosha     String // vata | pitta | kapha | tridosha
+  season    String? // varsha | grishma | vasantha | sharad
   language  String   @default("en")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -771,24 +897,24 @@ model HealthTip {
 // youtube-nocookie.com so we don't drop YouTube cookies until the user
 // presses play (better Core Web Vitals + GDPR posture).
 model HealthVideo {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  youtubeUrl  String                 // canonical paste-in URL
-  youtubeId   String                 // 11-char video id parsed from url
-  thumbnailUrl String?               // override; else derived from youtubeId
-  category    String?                // panchakarma | yoga | herbs | lifestyle | qa | research
-  speaker     String?                // doctor / channel name (free text)
-  speakerDoctorId String?            // optional FK to platform doctor
-  duration    String?                // e.g. "12:34"
-  language    String   @default("en")
-  tags        String[] @default([])
-  published   Boolean  @default(true)
-  featured    Boolean  @default(false)
-  sortOrder   Int      @default(0)
-  viewCount   Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  youtubeUrl      String // canonical paste-in URL
+  youtubeId       String // 11-char video id parsed from url
+  thumbnailUrl    String? // override; else derived from youtubeId
+  category        String? // panchakarma | yoga | herbs | lifestyle | qa | research
+  speaker         String? // doctor / channel name (free text)
+  speakerDoctorId String? // optional FK to platform doctor
+  duration        String? // e.g. "12:34"
+  language        String   @default("en")
+  tags            String[] @default([])
+  published       Boolean  @default(true)
+  featured        Boolean  @default(false)
+  sortOrder       Int      @default(0)
+  viewCount       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   speakerDoctor Doctor? @relation("DoctorVideos", fields: [speakerDoctorId], references: [id], onDelete: SetNull)
 
@@ -803,12 +929,12 @@ model HealthVideo {
 // ascending; ties broken by createdAt desc.
 model Testimonial {
   id        String   @id @default(cuid())
-  name      String                 // e.g. "Anita M."
-  condition String?                // e.g. "Chronic migraine"
-  initials  String?                // auto-derived from name if null
-  stars     Int      @default(5)   // 1-5
-  quote     String                 // the testimonial body
-  imageUrl  String?                // optional patient photo (S3/MinIO)
+  name      String // e.g. "Anita M."
+  condition String? // e.g. "Chronic migraine"
+  initials  String? // auto-derived from name if null
+  stars     Int      @default(5) // 1-5
+  quote     String // the testimonial body
+  imageUrl  String? // optional patient photo (S3/MinIO)
   published Boolean  @default(true)
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
@@ -827,26 +953,26 @@ model Testimonial {
 // kanban view in /admin/leads. status retained for back-compat but stage
 // is now the source of truth for sales pipeline state.
 model Lead {
-  id           String   @id @default(cuid())
-  kind         String   // 'cost_estimator' | 'contact' | 'partnership' | 'franchise' | 'marketplace_vendor' | 'academy' | 'product_waitlist'
+  id           String    @id @default(cuid())
+  kind         String // 'cost_estimator' | 'contact' | 'partnership' | 'franchise' | 'marketplace_vendor' | 'academy' | 'product_waitlist'
   name         String
   email        String
   phone        String?
-  country      String?  // ISO-2
-  subject      String?  // short label / treatment slug / partnership type
+  country      String? // ISO-2
+  subject      String? // short label / treatment slug / partnership type
   message      String
-  meta         Json?    // form-specific fields (estimator inputs etc.)
-  status       String   @default("new")     // legacy: 'new' | 'contacted' | 'closed' | 'spam'
-  stage        String   @default("new")     // CRM: 'new' | 'contacted' | 'qualified' | 'quoted' | 'won' | 'lost' | 'spam'
-  assignedToId String?  // admin user assigned to this lead
+  meta         Json? // form-specific fields (estimator inputs etc.)
+  status       String    @default("new") // legacy: 'new' | 'contacted' | 'closed' | 'spam'
+  stage        String    @default("new") // CRM: 'new' | 'contacted' | 'qualified' | 'quoted' | 'won' | 'lost' | 'spam'
+  assignedToId String? // admin user assigned to this lead
   followUpAt   DateTime?
-  notesJson    Json?    // array of { at, by, text, kind } — timeline
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  notesJson    Json? // array of { at, by, text, kind } — timeline
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   // SetNull so deleting an admin user doesn't fail the delete (Prisma default
   // is Restrict, which would force re-assigning every lead first).
-  assignedTo   User?    @relation("LeadAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  assignedTo User? @relation("LeadAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
 
   @@index([kind, status, createdAt])
   @@index([stage, createdAt])
@@ -860,15 +986,15 @@ model Lead {
 // attempts are stored against sessionId. Used for personalisation later
 // (Diet Engine consumes the latest dominant dosha per user).
 model PrakritiAssessment {
-  id         String   @id @default(cuid())
-  userId     String?
-  sessionId  String?
-  vata       Int      // raw score 0-N
-  pitta      Int
-  kapha      Int
-  dominant   String   // 'vata' | 'pitta' | 'kapha' | 'vata-pitta' | 'pitta-kapha' | 'vata-kapha' | 'tridoshic'
-  responses  Json     // map of questionId -> 'V' | 'P' | 'K'
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String?
+  sessionId String?
+  vata      Int // raw score 0-N
+  pitta     Int
+  kapha     Int
+  dominant  String // 'vata' | 'pitta' | 'kapha' | 'vata-pitta' | 'pitta-kapha' | 'vata-kapha' | 'tridoshic'
+  responses Json // map of questionId -> 'V' | 'P' | 'K'
+  createdAt DateTime @default(now())
 
   @@index([userId, createdAt])
   @@index([dominant])
@@ -880,14 +1006,14 @@ model PrakritiAssessment {
 // preferences match a recent plan (within 30 days) to avoid burning quota
 // for identical requests.
 model DietPlan {
-  id           String   @id @default(cuid())
-  userId       String?
-  dosha        String
-  season       String?
-  conditions   String[]
-  preferences  Json?    // { vegetarian, eggs, dairy, allergies, region }
-  output       Json     // { days: [{ meals: [...] }], favorFoods, avoidFoods, principles }
-  createdAt    DateTime @default(now())
+  id          String   @id @default(cuid())
+  userId      String?
+  dosha       String
+  season      String?
+  conditions  String[]
+  preferences Json? // { vegetarian, eggs, dairy, allergies, region }
+  output      Json // { days: [{ meals: [...] }], favorFoods, avoidFoods, principles }
+  createdAt   DateTime @default(now())
 
   @@index([userId, createdAt])
   @@index([dosha, season])
@@ -899,21 +1025,21 @@ model DietPlan {
 // where one phone number tracks parents/spouse/children health. Each member
 // has their own dosha + medical context but no login of their own.
 model FamilyMember {
-  id           String   @id @default(cuid())
-  userId       String   // primary account holder
-  name         String
-  relation     String   // 'spouse' | 'parent' | 'child' | 'sibling' | 'self' | 'other'
-  dob          DateTime? @db.Date
-  gender       String?   // 'female' | 'male' | 'other'
-  prakriti     String?   // 'vata' | 'pitta' | 'kapha' | combos
-  conditions   String[] @default([]) // chronic conditions or allergies
-  notes        String?
-  avatarColor  String?   // hex/tailwind shade for the initials avatar
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String    @id @default(cuid())
+  userId      String // primary account holder
+  name        String
+  relation    String // 'spouse' | 'parent' | 'child' | 'sibling' | 'self' | 'other'
+  dob         DateTime? @db.Date
+  gender      String? // 'female' | 'male' | 'other'
+  prakriti    String? // 'vata' | 'pitta' | 'kapha' | combos
+  conditions  String[]  @default([]) // chronic conditions or allergies
+  notes       String?
+  avatarColor String? // hex/tailwind shade for the initials avatar
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  vitals       HealthMetric[]
+  user   User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vitals HealthMetric[]
 
   @@index([userId, createdAt])
 }
@@ -925,24 +1051,25 @@ model FamilyMember {
 // not one column per metric — so we can ingest new ones (HRV, SpO2, glucose,
 // blood pressure pair, weight, temperature) without schema churn.
 model HealthMetric {
-  id              String   @id @default(cuid())
-  userId          String   // primary account holder (always set; even family member metrics roll up to a user)
-  familyMemberId  String?  // null = self; else scoped to a family member
-  kind            String   // 'bp_systolic' | 'bp_diastolic' | 'hr' | 'weight_kg' | 'glucose_mg_dl' | 'temp_c' | 'spo2' | 'sleep_hours' | 'steps' | 'hrv_ms'
-  value           Float
-  unit            String?  // optional override; we standardise kinds to SI in display
-  recordedAt      DateTime @default(now())
-  source          String   @default("manual") // 'manual' | 'apple_health' | 'google_fit' | 'fitbit' | 'omron_bp' | 'doctor_entry'
-  notes           String?
-  createdAt       DateTime @default(now())
+  id             String   @id @default(cuid())
+  userId         String // primary account holder (always set; even family member metrics roll up to a user)
+  familyMemberId String? // null = self; else scoped to a family member
+  kind           String // 'bp_systolic' | 'bp_diastolic' | 'hr' | 'weight_kg' | 'glucose_mg_dl' | 'temp_c' | 'spo2' | 'sleep_hours' | 'steps' | 'hrv_ms'
+  value          Float
+  unit           String? // optional override; we standardise kinds to SI in display
+  recordedAt     DateTime @default(now())
+  source         String   @default("manual") // 'manual' | 'apple_health' | 'google_fit' | 'fitbit' | 'omron_bp' | 'doctor_entry'
+  notes          String?
+  createdAt      DateTime @default(now())
 
-  user            User           @relation(fields: [userId],         references: [id], onDelete: Cascade)
-  familyMember    FamilyMember?  @relation(fields: [familyMemberId], references: [id], onDelete: SetNull)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  familyMember FamilyMember? @relation(fields: [familyMemberId], references: [id], onDelete: SetNull)
 
   @@index([userId, kind, recordedAt])
   @@index([userId, recordedAt])
   @@index([familyMemberId, kind, recordedAt])
 }
+
 // FK relation on FamilyMember side declared inline because Prisma needs an
 // explicit relation field; we don't expose it as a getter because metrics
 // scoped to a family member are queried via userId anyway.
@@ -953,22 +1080,22 @@ model HealthMetric {
 // alone (doctor adds a renewal). Items capture dose + frequency + duration
 // + special instructions Ayurveda-style ("anupana: warm water").
 model Prescription {
-  id             String   @id @default(cuid())
-  patientId      String   // User id
-  doctorId       String   // User id (the prescribing doctor's user account)
-  appointmentId  String?  // links back to the consultation if applicable
-  issuedAt       DateTime @default(now())
-  validUntil     DateTime? // optional expiry (most prescriptions are point-in-time)
-  diagnosis      String?
-  advice         String?  // dietary advice, lifestyle, dinacharya
+  id                 String    @id @default(cuid())
+  patientId          String // User id
+  doctorId           String // User id (the prescribing doctor's user account)
+  appointmentId      String? // links back to the consultation if applicable
+  issuedAt           DateTime  @default(now())
+  validUntil         DateTime? // optional expiry (most prescriptions are point-in-time)
+  diagnosis          String?
+  advice             String? // dietary advice, lifestyle, dinacharya
   followUpAfterWeeks Int?
-  status         String   @default("active") // 'active' | 'completed' | 'cancelled'
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  status             String    @default("active") // 'active' | 'completed' | 'cancelled'
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  patient        User                 @relation("PrescriptionPatient", fields: [patientId], references: [id], onDelete: Cascade)
-  doctor         User                 @relation("PrescriptionDoctor",  fields: [doctorId],  references: [id], onDelete: Cascade)
-  items          PrescriptionItem[]
+  patient User               @relation("PrescriptionPatient", fields: [patientId], references: [id], onDelete: Cascade)
+  doctor  User               @relation("PrescriptionDoctor", fields: [doctorId], references: [id], onDelete: Cascade)
+  items   PrescriptionItem[]
 
   @@index([patientId, issuedAt])
   @@index([doctorId, issuedAt])
@@ -976,20 +1103,20 @@ model Prescription {
 }
 
 model PrescriptionItem {
-  id              String   @id @default(cuid())
-  prescriptionId  String
+  id             String  @id @default(cuid())
+  prescriptionId String
   // Either a free-form medication name (classical formulation like "Yogaraj Guggulu")
   // or a herb reference for native herbs in our DB.
-  medication      String
-  herbId          String?  // optional link to Herb table
-  dose            String   // "1 tablet" / "5 ml" / "1 tsp"
-  frequency       String   // "twice daily" / "every 6 hours" / "after meals"
-  duration        String?  // "for 30 days" / "until follow-up"
-  anupana         String?  // vehicle: "warm water" / "honey" / "milk" — Ayurveda-specific
-  instructions    String?  // free-text additional notes
-  position        Int      @default(0) // ordering in the prescription
+  medication     String
+  herbId         String? // optional link to Herb table
+  dose           String // "1 tablet" / "5 ml" / "1 tsp"
+  frequency      String // "twice daily" / "every 6 hours" / "after meals"
+  duration       String? // "for 30 days" / "until follow-up"
+  anupana        String? // vehicle: "warm water" / "honey" / "milk" — Ayurveda-specific
+  instructions   String? // free-text additional notes
+  position       Int     @default(0) // ordering in the prescription
 
-  prescription    Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  prescription Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
 
   @@index([prescriptionId, position])
 }
@@ -1006,37 +1133,37 @@ model RpmAlertRule {
   id               String   @id @default(cuid())
   patientId        String
   doctorId         String
-  kind             String   // HealthMetric.kind (e.g. 'bp_systolic')
-  operator         String   // 'gt' | 'lt' | 'gte' | 'lte' | 'between'
+  kind             String // HealthMetric.kind (e.g. 'bp_systolic')
+  operator         String // 'gt' | 'lt' | 'gte' | 'lte' | 'between'
   threshold        Float
-  threshold2       Float?   // upper bound when operator='between'
-  windowDays       Int      @default(1)   // look back N days
-  consecutiveCount Int      @default(1)   // require this many readings to satisfy
+  threshold2       Float? // upper bound when operator='between'
+  windowDays       Int      @default(1) // look back N days
+  consecutiveCount Int      @default(1) // require this many readings to satisfy
   active           Boolean  @default(true)
-  label            String?  // doctor-friendly name e.g. "High BP — alert"
+  label            String? // doctor-friendly name e.g. "High BP — alert"
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  patient          User     @relation("RpmRulePatient", fields: [patientId], references: [id], onDelete: Cascade)
-  doctor           User     @relation("RpmRuleDoctor",  fields: [doctorId],  references: [id], onDelete: Cascade)
-  alerts           RpmAlert[]
+  patient User       @relation("RpmRulePatient", fields: [patientId], references: [id], onDelete: Cascade)
+  doctor  User       @relation("RpmRuleDoctor", fields: [doctorId], references: [id], onDelete: Cascade)
+  alerts  RpmAlert[]
 
   @@index([patientId, active])
   @@index([doctorId, active])
 }
 
 model RpmAlert {
-  id           String   @id @default(cuid())
-  ruleId       String
-  patientId    String
-  kind         String   // mirror of rule.kind for query convenience
-  value        Float    // the triggering value
-  acknowledged Boolean  @default(false)
+  id             String    @id @default(cuid())
+  ruleId         String
+  patientId      String
+  kind           String // mirror of rule.kind for query convenience
+  value          Float // the triggering value
+  acknowledged   Boolean   @default(false)
   acknowledgedAt DateTime?
-  createdAt    DateTime @default(now())
+  createdAt      DateTime  @default(now())
 
-  rule         RpmAlertRule @relation(fields: [ruleId],    references: [id], onDelete: Cascade)
-  patient      User         @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  rule    RpmAlertRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  patient User         @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
   @@index([patientId, acknowledged, createdAt])
   @@index([ruleId, createdAt])
@@ -1064,28 +1191,28 @@ model KnowledgeChunk {
 // user posts (so they can edit/delete their own). Approval queue uses
 // `status` so admins moderate before publishing publicly.
 model PublicQuestion {
-  id            String   @id @default(cuid())
-  userId        String?  // null = anonymous
+  id         String   @id @default(cuid())
+  userId     String? // null = anonymous
   // Patient context — kept lightweight; not full medical history.
-  authorName    String?  // display name; defaults to "Anonymous"
-  age           Int?
-  gender        String?  // 'female' | 'male' | 'other'
-  country       String?  // ISO-2
-  title         String
-  body          String   // the actual question
-  category      String   // 'panchakarma' | 'womens-health' | 'stress' | 'diabetes' | 'skin' | 'pediatric' | 'general'
-  language      String   @default("en")
+  authorName String? // display name; defaults to "Anonymous"
+  age        Int?
+  gender     String? // 'female' | 'male' | 'other'
+  country    String? // ISO-2
+  title      String
+  body       String // the actual question
+  category   String // 'panchakarma' | 'womens-health' | 'stress' | 'diabetes' | 'skin' | 'pediatric' | 'general'
+  language   String   @default("en")
   // Moderation
-  status        String   @default("pending") // 'pending' | 'approved' | 'rejected' | 'spam'
+  status     String   @default("pending") // 'pending' | 'approved' | 'rejected' | 'spam'
   // Engagement
-  viewCount     Int      @default(0)
+  viewCount  Int      @default(0)
   // SEO
-  slug          String?  @unique  // generated on approval, e.g. "what-is-the-best-ayurveda-for-pcos-q-cmar123"
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  slug       String?  @unique // generated on approval, e.g. "what-is-the-best-ayurveda-for-pcos-q-cmar123"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  user          User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
-  answers       DoctorAnswer[]
+  user    User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  answers DoctorAnswer[]
 
   @@index([status, category, createdAt])
   @@index([status, createdAt])
@@ -1093,18 +1220,18 @@ model PublicQuestion {
 }
 
 model DoctorAnswer {
-  id              String   @id @default(cuid())
-  questionId      String
-  doctorUserId    String   // the answering doctor's User id (must have role=DOCTOR or ADMIN)
-  body            String
+  id           String   @id @default(cuid())
+  questionId   String
+  doctorUserId String // the answering doctor's User id (must have role=DOCTOR or ADMIN)
+  body         String
   // Featured answers float to the top of the question page.
-  featured        Boolean  @default(false)
-  helpfulCount    Int      @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  featured     Boolean  @default(false)
+  helpfulCount Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  question        PublicQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
-  doctor          User           @relation(fields: [doctorUserId], references: [id], onDelete: Cascade)
+  question PublicQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  doctor   User           @relation(fields: [doctorUserId], references: [id], onDelete: Cascade)
 
   @@index([questionId, featured, createdAt])
   @@index([doctorUserId, createdAt])
@@ -1115,63 +1242,63 @@ model DoctorAnswer {
 // "steps" — a mix of dietary protocols, meditations, journaling prompts,
 // exercise, medication reminders. Patients enroll and check in daily.
 model WellnessProgram {
-  id            String   @id @default(cuid())
-  slug          String   @unique
-  name          String
-  tagline       String
-  description   String
-  durationDays  Int
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  name         String
+  tagline      String
+  description  String
+  durationDays Int
   // Categorisation
-  category      String   // 'stress' | 'pcos' | 'diabetes' | 'detox' | 'arthritis' | 'sleep' | 'weight' | 'karkidaka' | 'general'
-  dosha         String?  // primary dosha addressed; null = general
-  difficulty    String   @default("beginner") // 'beginner' | 'intermediate' | 'advanced'
+  category     String // 'stress' | 'pcos' | 'diabetes' | 'detox' | 'arthritis' | 'sleep' | 'weight' | 'karkidaka' | 'general'
+  dosha        String? // primary dosha addressed; null = general
+  difficulty   String   @default("beginner") // 'beginner' | 'intermediate' | 'advanced'
   // Pricing
-  priceInr      Int      @default(0)  // 0 = free
+  priceInr     Int      @default(0) // 0 = free
   // Display
-  heroEmoji     String?
-  heroColor     String?  // hex / tailwind tint
+  heroEmoji    String?
+  heroColor    String? // hex / tailwind tint
   // Status
-  published     Boolean  @default(true)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  published    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  days          ProgramDay[]
-  enrollments   ProgramEnrollment[]
+  days        ProgramDay[]
+  enrollments ProgramEnrollment[]
 
   @@index([category, published])
   @@index([published, createdAt])
 }
 
 model ProgramDay {
-  id            String   @id @default(cuid())
-  programId     String
-  dayNumber     Int      // 1..durationDays
-  title         String
+  id        String  @id @default(cuid())
+  programId String
+  dayNumber Int // 1..durationDays
+  title     String
   // Each day has a checklist of actions the patient ticks off.
-  actions       Json     // array of { kind: 'diet'|'meditation'|'medication'|'exercise'|'journal', text: string, durationMin?: int }
-  notes         String?  // doctor's notes for this day
+  actions   Json // array of { kind: 'diet'|'meditation'|'medication'|'exercise'|'journal', text: string, durationMin?: int }
+  notes     String? // doctor's notes for this day
 
-  program       WellnessProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
+  program WellnessProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
 
   @@unique([programId, dayNumber])
   @@index([programId, dayNumber])
 }
 
 model ProgramEnrollment {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   userId        String
   programId     String
-  startedAt     DateTime @default(now())
+  startedAt     DateTime  @default(now())
   completedAt   DateTime?
-  currentDay    Int      @default(1)
+  currentDay    Int       @default(1)
   // Completed day numbers — array of ints to keep schema simple.
-  completedDays Int[]    @default([])
-  status        String   @default("active") // 'active' | 'completed' | 'paused' | 'abandoned'
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  completedDays Int[]     @default([])
+  status        String    @default("active") // 'active' | 'completed' | 'paused' | 'abandoned'
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  program       WellnessProgram  @relation(fields: [programId], references: [id], onDelete: Cascade)
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  program WellnessProgram @relation(fields: [programId], references: [id], onDelete: Cascade)
 
   @@unique([userId, programId])
   @@index([userId, status])
@@ -1184,30 +1311,30 @@ model ProgramEnrollment {
 // finished compound medicines like Yogaraj Guggulu, Triphala Choornam,
 // Ashwagandharishta. NirogStreet-style B2B reference + patient-facing SEO.
 model AyurvedaFormulation {
-  id              String   @id @default(cuid())
-  slug            String   @unique
-  name            String   // 'Yogaraj Guggulu'
-  sanskritName    String?
-  malayalamName   String?
+  id                String   @id @default(cuid())
+  slug              String   @unique
+  name              String // 'Yogaraj Guggulu'
+  sanskritName      String?
+  malayalamName     String?
   // Classical classification
-  classicalText   String?  // 'Sharangadhara Samhita' | 'Charaka Samhita' | ...
-  category        String   // 'guggulu' | 'choornam' | 'kashaya' | 'arishtam' | 'asava' | 'taila' | 'ghritam' | 'lehyam' | 'vati' | 'rasa'
+  classicalText     String? // 'Sharangadhara Samhita' | 'Charaka Samhita' | ...
+  category          String // 'guggulu' | 'choornam' | 'kashaya' | 'arishtam' | 'asava' | 'taila' | 'ghritam' | 'lehyam' | 'vati' | 'rasa'
   // Composition + indications
-  ingredients     String[] @default([])
-  primaryUses     String[] @default([])
-  doshaImpact     String?  // 'vata-pacifying' | 'pitta-pacifying' | 'kapha-pacifying' | 'tridosha'
+  ingredients       String[] @default([])
+  primaryUses       String[] @default([])
+  doshaImpact       String? // 'vata-pacifying' | 'pitta-pacifying' | 'kapha-pacifying' | 'tridosha'
   // Practical
-  typicalDose     String?  // '500mg twice daily after meals'
-  anupanaCommon   String?  // 'warm water'
+  typicalDose       String? // '500mg twice daily after meals'
+  anupanaCommon     String? // 'warm water'
   contraindications String?
-  sideEffects     String?
-  availability    String?  // 'widely available' | 'specialty stores' | 'prescription only'
+  sideEffects       String?
+  availability      String? // 'widely available' | 'specialty stores' | 'prescription only'
   // Common brand makers (text only — we don't endorse)
-  manufacturers   String[] @default([])  // ['Kottakkal', 'AVN', 'Vaidyaratnam', 'Pankajakasthuri']
+  manufacturers     String[] @default([]) // ['Kottakkal', 'AVN', 'Vaidyaratnam', 'Pankajakasthuri']
   // SEO
-  description     String?  // longer free-text overview
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  description       String? // longer free-text overview
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   @@index([category])
   @@index([slug])
@@ -1221,13 +1348,13 @@ model AyurvedaFormulation {
 // captures the row state pre-mutation (for delete + role-change diffs).
 model AuditLog {
   id         String   @id @default(cuid())
-  actorId    String   // admin user who performed the action
-  action     String   // 'delete' | 'role-change' | 'ccim-verify' | ...
-  targetType String   // 'Doctor' | 'Hospital' | 'User' | 'Lead' | ...
+  actorId    String // admin user who performed the action
+  action     String // 'delete' | 'role-change' | 'ccim-verify' | ...
+  targetType String // 'Doctor' | 'Hospital' | 'User' | 'Lead' | ...
   targetId   String
-  before     Json?    // snapshot of relevant fields before the change
-  after      Json?    // snapshot after (for non-delete actions)
-  reason     String?  // optional human note (e.g. "duplicate of <other-id>")
+  before     Json? // snapshot of relevant fields before the change
+  after      Json? // snapshot after (for non-delete actions)
+  reason     String? // optional human note (e.g. "duplicate of <other-id>")
   ip         String?
   createdAt  DateTime @default(now())
 
@@ -1248,44 +1375,44 @@ model AuditLog {
 // is free-form. Cases are anonymised (no patient names; relative dates
 // only). Admin moderation before publication.
 model ClinicalCase {
-  id                  String   @id @default(cuid())
-  authorId            String   // doctor User id
-  title               String
+  id                 String    @id @default(cuid())
+  authorId           String // doctor User id
+  title              String
   // Ashtavidha Pariksha (8-fold examination) + modern clinical fields
-  chiefComplaint      String
-  presentingHistory   String   // history of presenting illness, lifestyle, family hx
-  prakriti            String?  // 'vata' | 'pitta' | 'kapha' | combos
-  vikriti             String?
-  ashtavidhaJson      Json?    // structured 8-fold exam: { nadi, mootra, mala, jihva, shabda, sparsha, drik, akriti }
+  chiefComplaint     String
+  presentingHistory  String // history of presenting illness, lifestyle, family hx
+  prakriti           String? // 'vata' | 'pitta' | 'kapha' | combos
+  vikriti            String?
+  ashtavidhaJson     Json? // structured 8-fold exam: { nadi, mootra, mala, jihva, shabda, sparsha, drik, akriti }
   // Diagnosis
-  ayurvedicDiagnosis  String
-  modernDiagnosis     String?  // ICD-10 / lay term equivalent
+  ayurvedicDiagnosis String
+  modernDiagnosis    String? // ICD-10 / lay term equivalent
   // Treatment plan
-  protocolJson        Json     // [{ phase, weeks, formulations[], procedures[], diet, lifestyle, anupana }]
+  protocolJson       Json // [{ phase, weeks, formulations[], procedures[], diet, lifestyle, anupana }]
   // Outcome
-  outcomeAtFollowUp   String?  // 'remission' | 'major-improvement' | 'partial' | 'no-change' | 'worsened'
-  outcomeDetail       String?
-  durationMonths      Int?
-  doctorNotes         String?  // reflections, what worked / what didn't
+  outcomeAtFollowUp  String? // 'remission' | 'major-improvement' | 'partial' | 'no-change' | 'worsened'
+  outcomeDetail      String?
+  durationMonths     Int?
+  doctorNotes        String? // reflections, what worked / what didn't
   // Specialty + condition for filtering
-  specialty           String   // 'kayachikitsa' | 'panchakarma' | 'prasuti-tantra' | ...
-  condition           String   // free-text condition tag
-  tags                String[] @default([])
+  specialty          String // 'kayachikitsa' | 'panchakarma' | 'prasuti-tantra' | ...
+  condition          String // free-text condition tag
+  tags               String[]  @default([])
   // Citations to ResearchPaper rows or external DOIs
-  citations           Json?    // [{ kind: 'paper'|'external', paperId?, doi?, title?, url? }]
+  citations          Json? // [{ kind: 'paper'|'external', paperId?, doi?, title?, url? }]
   // Moderation
-  status              String   @default("draft") // 'draft' | 'pending' | 'published' | 'rejected'
-  rejectionReason     String?
-  publishedAt         DateTime?
+  status             String    @default("draft") // 'draft' | 'pending' | 'published' | 'rejected'
+  rejectionReason    String?
+  publishedAt        DateTime?
   // Engagement
-  viewCount           Int      @default(0)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  viewCount          Int       @default(0)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  author              User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  comments            CaseComment[]
-  upvotes             CaseUpvote[]
-  referrals           DoctorReferral[] @relation("DoctorReferralCase")
+  author    User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments  CaseComment[]
+  upvotes   CaseUpvote[]
+  referrals DoctorReferral[] @relation("DoctorReferralCase")
 
   @@index([status, publishedAt])
   @@index([specialty, status])
@@ -1299,30 +1426,30 @@ model ClinicalCase {
 // Schema added via raw SQL in 20260516000000_doctor_referrals; declared here
 // so Prisma client typing covers it.
 model DoctorReferral {
-  id             String   @id @default(cuid())
-  fromDoctorId   String
-  toDoctorId     String
-  patientName    String
-  patientEmail   String?
-  patientPhone   String?
-  patientAge     Int?
-  specialty      String?
-  condition      String?
-  reason         String
-  urgency        String   @default("routine")  // 'routine' | 'soon' | 'urgent'
-  caseId         String?
-  status         String   @default("pending")  // 'pending' | 'accepted' | 'declined' | 'completed'
-  responseNote   String?
-  respondedAt    DateTime?
-  completedAt    DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id           String    @id @default(cuid())
+  fromDoctorId String
+  toDoctorId   String
+  patientName  String
+  patientEmail String?
+  patientPhone String?
+  patientAge   Int?
+  specialty    String?
+  condition    String?
+  reason       String
+  urgency      String    @default("routine") // 'routine' | 'soon' | 'urgent'
+  caseId       String?
+  status       String    @default("pending") // 'pending' | 'accepted' | 'declined' | 'completed'
+  responseNote String?
+  respondedAt  DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
-  fromDoctor     Doctor        @relation("DoctorReferralFrom", fields: [fromDoctorId], references: [id], onDelete: Cascade)
-  toDoctor       Doctor        @relation("DoctorReferralTo",   fields: [toDoctorId],   references: [id], onDelete: Cascade)
-  case           ClinicalCase? @relation("DoctorReferralCase", fields: [caseId],       references: [id], onDelete: SetNull)
+  fromDoctor Doctor        @relation("DoctorReferralFrom", fields: [fromDoctorId], references: [id], onDelete: Cascade)
+  toDoctor   Doctor        @relation("DoctorReferralTo", fields: [toDoctorId], references: [id], onDelete: Cascade)
+  case       ClinicalCase? @relation("DoctorReferralCase", fields: [caseId], references: [id], onDelete: SetNull)
 
-  @@index([toDoctorId,   createdAt])
+  @@index([toDoctorId, createdAt])
   @@index([fromDoctorId, createdAt])
   @@index([status])
 }
@@ -1337,8 +1464,8 @@ model CaseComment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  case      ClinicalCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  author    User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  case   ClinicalCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  author User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([caseId, createdAt])
   @@index([authorId])
@@ -1350,8 +1477,8 @@ model CaseUpvote {
   userId    String
   createdAt DateTime @default(now())
 
-  case      ClinicalCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
-  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  case ClinicalCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  user User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([caseId, userId])
   @@index([caseId])
@@ -1360,31 +1487,31 @@ model CaseUpvote {
 // ─── Research papers ─────────────────────────────────────────────────────
 // Curated peer-reviewed Ayurveda research. v1 manually seeded; v2 PubMed sync.
 model ResearchPaper {
-  id            String   @id @default(cuid())
-  title         String
-  authors       String[]
-  journal       String
-  year          Int
-  doi           String?  @unique
-  pubmedId      String?  @unique
-  abstract      String
+  id         String   @id @default(cuid())
+  title      String
+  authors    String[]
+  journal    String
+  year       Int
+  doi        String?  @unique
+  pubmedId   String?  @unique
+  abstract   String
   // Tagging for filter facets
-  conditions    String[] @default([])  // e.g. 'arthritis', 'anxiety', 'diabetes'
-  doshas        String[] @default([])  // 'vata' | 'pitta' | 'kapha'
-  studyType     String?  // 'RCT' | 'case-series' | 'systematic-review' | 'observational' | 'in-vitro' | 'animal' | 'case-report' | 'review'
-  sampleSize    Int?
-  url           String?  // canonical URL to the paper
-  pdfUrl        String?
+  conditions String[] @default([]) // e.g. 'arthritis', 'anxiety', 'diabetes'
+  doshas     String[] @default([]) // 'vata' | 'pitta' | 'kapha'
+  studyType  String? // 'RCT' | 'case-series' | 'systematic-review' | 'observational' | 'in-vitro' | 'animal' | 'case-report' | 'review'
+  sampleSize Int?
+  url        String? // canonical URL to the paper
+  pdfUrl     String?
   // pgvector embedding column (768 dims, Gemini text-embedding-001). Added via
   // raw SQL in 20260514120000_research_paper_embedding since Prisma can't type
   // the `vector` column. Populated by the apps/api/src/app.ts onReady embed
   // loop. Indexed with HNSW for fast cosine search; powers the AI Research
   // Assistant's semantic retrieval (see routes/dr-ai-research.ts).
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  bookmarks     ResearchPaperBookmark[]
-  annotations   ResearchPaperAnnotation[]
+  bookmarks   ResearchPaperBookmark[]
+  annotations ResearchPaperAnnotation[]
 
   @@index([year])
   @@index([studyType, year])
@@ -1396,8 +1523,8 @@ model ResearchPaperBookmark {
   paperId   String
   createdAt DateTime @default(now())
 
-  user      User          @relation(fields: [userId],  references: [id], onDelete: Cascade)
-  paper     ResearchPaper @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paper ResearchPaper @relation(fields: [paperId], references: [id], onDelete: Cascade)
 
   @@unique([userId, paperId])
   @@index([userId, createdAt])
@@ -1405,62 +1532,62 @@ model ResearchPaperBookmark {
 
 model ResearchPaperAnnotation {
   id        String   @id @default(cuid())
-  userId    String   // private notes per doctor
+  userId    String // private notes per doctor
   paperId   String
   body      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user      User          @relation(fields: [userId],  references: [id], onDelete: Cascade)
-  paper     ResearchPaper @relation(fields: [paperId], references: [id], onDelete: Cascade)
+  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  paper ResearchPaper @relation(fields: [paperId], references: [id], onDelete: Cascade)
 
   @@index([userId, paperId])
 }
 
 // ─── Webinars (CME) ──────────────────────────────────────────────────────
 model Webinar {
-  id              String   @id @default(cuid())
-  slug            String   @unique
-  title           String
-  description     String
-  speakerName     String   // free-text speaker bio
-  speakerUserId   String?  // optional link if the speaker is a platform user
-  scheduledFor    DateTime
-  durationMin     Int      @default(60)
-  cmeCredits      Float    @default(1)
-  status          String   @default("upcoming")  // 'upcoming' | 'live' | 'completed' | 'cancelled'
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  title         String
+  description   String
+  speakerName   String // free-text speaker bio
+  speakerUserId String? // optional link if the speaker is a platform user
+  scheduledFor  DateTime
+  durationMin   Int      @default(60)
+  cmeCredits    Float    @default(1)
+  status        String   @default("upcoming") // 'upcoming' | 'live' | 'completed' | 'cancelled'
   // Delivery
-  videoRoomUrl    String?  // Daily.co room URL once it's live
-  recordingUrl    String?  // YouTube/Vimeo embed for replay
-  thumbnailUrl    String?
+  videoRoomUrl  String? // Daily.co room URL once it's live
+  recordingUrl  String? // YouTube/Vimeo embed for replay
+  thumbnailUrl  String?
   // Materials
-  slidesUrl       String?
-  resources       Json?    // [{ title, url, kind: 'paper'|'protocol'|'slide' }]
+  slidesUrl     String?
+  resources     Json? // [{ title, url, kind: 'paper'|'protocol'|'slide' }]
   // Topic
-  specialty       String?
-  topics          String[] @default([])
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  specialty     String?
+  topics        String[] @default([])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  speaker         User?    @relation("WebinarSpeaker", fields: [speakerUserId], references: [id], onDelete: SetNull)
-  registrations   WebinarRegistration[]
+  speaker       User?                 @relation("WebinarSpeaker", fields: [speakerUserId], references: [id], onDelete: SetNull)
+  registrations WebinarRegistration[]
 
   @@index([status, scheduledFor])
   @@index([scheduledFor])
 }
 
 model WebinarRegistration {
-  id                  String   @id @default(cuid())
+  id                  String    @id @default(cuid())
   userId              String
   webinarId           String
-  registeredAt        DateTime @default(now())
-  attended            Boolean  @default(false)
+  registeredAt        DateTime  @default(now())
+  attended            Boolean   @default(false)
   attendedAt          DateTime?
   certificateIssuedAt DateTime?
-  certificateId       String?  @unique // short id for verification page
+  certificateId       String?   @unique // short id for verification page
 
-  user      User    @relation(fields: [userId],    references: [id], onDelete: Cascade)
-  webinar   Webinar @relation(fields: [webinarId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  webinar Webinar @relation(fields: [webinarId], references: [id], onDelete: Cascade)
 
   @@unique([userId, webinarId])
   @@index([webinarId, attended])
@@ -1468,24 +1595,24 @@ model WebinarRegistration {
 
 // ─── Journal database ────────────────────────────────────────────────────
 model Journal {
-  id              String   @id @default(cuid())
-  slug            String   @unique
-  title           String
-  shortName       String?  // 'JAIM', 'AYU', 'JRAS'
-  issn            String?
-  publisher       String?
-  scope           String?  // 1-2 paragraph description
-  url             String?  // homepage
-  latestIssueUrl  String?  // admin updates periodically
-  latestIssueAt   DateTime?
-  sampleArticles  Json?    // [{ title, doi, url, year }]
-  language        String   @default("en")
-  openAccess      Boolean  @default(false)
-  impactFactor    Float?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String    @id @default(cuid())
+  slug           String    @unique
+  title          String
+  shortName      String? // 'JAIM', 'AYU', 'JRAS'
+  issn           String?
+  publisher      String?
+  scope          String? // 1-2 paragraph description
+  url            String? // homepage
+  latestIssueUrl String? // admin updates periodically
+  latestIssueAt  DateTime?
+  sampleArticles Json? // [{ title, doi, url, year }]
+  language       String    @default("en")
+  openAccess     Boolean   @default(false)
+  impactFactor   Float?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  subscriptions   JournalSubscription[]
+  subscriptions JournalSubscription[]
 
   @@index([title])
 }
@@ -1496,8 +1623,8 @@ model JournalSubscription {
   journalId String
   createdAt DateTime @default(now())
 
-  user      User    @relation(fields: [userId],    references: [id], onDelete: Cascade)
-  journal   Journal @relation(fields: [journalId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  journal Journal @relation(fields: [journalId], references: [id], onDelete: Cascade)
 
   @@unique([userId, journalId])
   @@index([userId])
@@ -1507,32 +1634,32 @@ model JournalSubscription {
 // Community-contributed treatment protocols. Different from WellnessProgram
 // (patient-facing) — these are clinical, cite literature, list contraindications.
 model ClinicalProtocol {
-  id              String   @id @default(cuid())
-  slug            String   @unique
-  title           String
-  condition       String   // primary indication
-  doshas          String[] @default([])
+  id                String    @id @default(cuid())
+  slug              String    @unique
+  title             String
+  condition         String // primary indication
+  doshas            String[]  @default([])
   // Body
-  summary         String
-  rationale       String   // why this protocol works (Ayurvedic + modern explanation)
-  phasesJson      Json     // [{ phase, durationDays, items: [{ kind, name, dose, frequency, anupana, instructions }] }]
+  summary           String
+  rationale         String // why this protocol works (Ayurvedic + modern explanation)
+  phasesJson        Json // [{ phase, durationDays, items: [{ kind, name, dose, frequency, anupana, instructions }] }]
   contraindications String?
-  expectedDuration String?  // e.g. "3 months"
-  expectedOutcome String?
+  expectedDuration  String? // e.g. "3 months"
+  expectedOutcome   String?
   // References
-  citations       Json?    // [{ paperId?, doi?, title, url }]
+  citations         Json? // [{ paperId?, doi?, title, url }]
   // Authorship + moderation
-  authorId        String
-  status          String   @default("draft")  // 'draft' | 'under-review' | 'published' | 'rejected'
-  reviewerNotes   String?
-  publishedAt     DateTime?
+  authorId          String
+  status            String    @default("draft") // 'draft' | 'under-review' | 'published' | 'rejected'
+  reviewerNotes     String?
+  publishedAt       DateTime?
   // Engagement
-  viewCount       Int      @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  viewCount         Int       @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
-  author          User                @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  comments        ProtocolComment[]
+  author   User              @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments ProtocolComment[]
 
   @@index([status, publishedAt])
   @@index([condition, status])
@@ -1540,15 +1667,15 @@ model ClinicalProtocol {
 }
 
 model ProtocolComment {
-  id          String   @id @default(cuid())
-  protocolId  String
-  authorId    String
-  body        String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  protocolId String
+  authorId   String
+  body       String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  protocol    ClinicalProtocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
-  author      User             @relation(fields: [authorId],   references: [id], onDelete: Cascade)
+  protocol ClinicalProtocol @relation(fields: [protocolId], references: [id], onDelete: Cascade)
+  author   User             @relation(fields: [authorId], references: [id], onDelete: Cascade)
 
   @@index([protocolId, createdAt])
   @@index([authorId])
@@ -1556,23 +1683,23 @@ model ProtocolComment {
 
 // ─── Conferences calendar ────────────────────────────────────────────────
 model Conference {
-  id              String   @id @default(cuid())
-  slug            String   @unique
-  title           String
-  startDate       DateTime
-  endDate         DateTime?
-  location        String
-  mode            String   @default("in-person")  // 'in-person' | 'virtual' | 'hybrid'
-  organizer       String
-  description     String?
-  registrationUrl String?
+  id               String    @id @default(cuid())
+  slug             String    @unique
+  title            String
+  startDate        DateTime
+  endDate          DateTime?
+  location         String
+  mode             String    @default("in-person") // 'in-person' | 'virtual' | 'hybrid'
+  organizer        String
+  description      String?
+  registrationUrl  String?
   abstractDeadline DateTime?
-  topics          String[] @default([])
-  status          String   @default("upcoming")  // 'upcoming' | 'completed' | 'cancelled'
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  topics           String[]  @default([])
+  status           String    @default("upcoming") // 'upcoming' | 'completed' | 'cancelled'
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  rsvps           ConferenceRSVP[]
+  rsvps ConferenceRSVP[]
 
   @@index([status, startDate])
   @@index([startDate])
@@ -1582,11 +1709,11 @@ model ConferenceRSVP {
   id           String   @id @default(cuid())
   userId       String
   conferenceId String
-  status       String   @default("attending")  // 'attending' | 'interested'
+  status       String   @default("attending") // 'attending' | 'interested'
   createdAt    DateTime @default(now())
 
-  user         User       @relation(fields: [userId],       references: [id], onDelete: Cascade)
-  conference   Conference @relation(fields: [conferenceId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conference Conference @relation(fields: [conferenceId], references: [id], onDelete: Cascade)
 
   @@unique([userId, conferenceId])
   @@index([conferenceId])
@@ -1597,17 +1724,17 @@ model ConferenceRSVP {
 // the credit (webinar, case publication, protocol publication). Aggregates
 // rolled up per doctor for the /dr dashboard.
 model CmeCredit {
-  id          String   @id @default(cuid())
-  userId      String   // the doctor earning the credit
-  source      String   // 'webinar' | 'case-published' | 'protocol-published' | 'manual'
-  sourceRefId String?  // entity id (webinar id, case id, etc.)
-  credits     Float
-  description String   // 'Attended: Panchakarma in chronic pain — Dr Menon'
-  earnedAt    DateTime @default(now())
+  id            String   @id @default(cuid())
+  userId        String // the doctor earning the credit
+  source        String // 'webinar' | 'case-published' | 'protocol-published' | 'manual'
+  sourceRefId   String? // entity id (webinar id, case id, etc.)
+  credits       Float
+  description   String // 'Attended: Panchakarma in chronic pain — Dr Menon'
+  earnedAt      DateTime @default(now())
   // Issuing chain — for verification page
-  certificateId String? @unique
+  certificateId String?  @unique
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, earnedAt])
   @@index([source, sourceRefId])
@@ -1624,17 +1751,17 @@ model DrugInteraction {
   formulationAId  String?
   // Component B — can be allopathic medicine name OR another Ayurvedic.
   componentB      String
-  componentBKind  String   @default("allopathic")  // 'allopathic' | 'ayurvedic' | 'food' | 'lifestyle'
+  componentBKind  String   @default("allopathic") // 'allopathic' | 'ayurvedic' | 'food' | 'lifestyle'
   formulationBId  String?
   // Interaction details
-  severity        String   // 'minor' | 'moderate' | 'major' | 'contraindicated'
-  mechanism       String?  // pharmacological mechanism
-  clinicalEffect  String   // what actually happens to the patient
-  recommendation  String   // 'avoid combination' / 'monitor INR weekly' / 'space 2 hours apart'
-  evidenceLevel   String?  // 'case-report' | 'observational' | 'RCT' | 'theoretical'
-  citations       Json?    // [{ doi?, title, url, paperId? }]
+  severity        String // 'minor' | 'moderate' | 'major' | 'contraindicated'
+  mechanism       String? // pharmacological mechanism
+  clinicalEffect  String // what actually happens to the patient
+  recommendation  String // 'avoid combination' / 'monitor INR weekly' / 'space 2 hours apart'
+  evidenceLevel   String? // 'case-report' | 'observational' | 'RCT' | 'theoretical'
+  citations       Json? // [{ doi?, title, url, paperId? }]
   // Moderation
-  status          String   @default("published")  // 'draft' | 'under-review' | 'published'
+  status          String   @default("published") // 'draft' | 'under-review' | 'published'
   contributedById String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -1676,10 +1803,10 @@ model AmaiPage {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  officeBearers    AmaiOfficeBearer[]
-  milestones       AmaiMilestone[]
-  listItems        AmaiListItem[]
-  links            AmaiLink[]
+  officeBearers AmaiOfficeBearer[]
+  milestones    AmaiMilestone[]
+  listItems     AmaiListItem[]
+  links         AmaiLink[]
 }
 
 model AmaiOfficeBearer {
@@ -1698,7 +1825,7 @@ model AmaiOfficeBearer {
 model AmaiMilestone {
   id          String   @id @default(cuid())
   pageId      String
-  year        String   // string, so ranges like "1985-1995" are allowed
+  year        String // string, so ranges like "1985-1995" are allowed
   description String
   sortOrder   Int      @default(0)
   page        AmaiPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
@@ -1709,7 +1836,7 @@ model AmaiMilestone {
 model AmaiListItem {
   id        String   @id @default(cuid())
   pageId    String
-  section   String   // vision | core_value | strategic_issue | activity | committee
+  section   String // vision | core_value | strategic_issue | activity | committee
   text      String
   sortOrder Int      @default(0)
   page      AmaiPage @relation(fields: [pageId], references: [id], onDelete: Cascade)
@@ -1743,25 +1870,25 @@ model AmaiLink {
 // entityType is a string union, not a Prisma enum, because 'college' and
 // 'manufacturer' have no DB model yet — they're free-string slugs.
 model CredentialBadge {
-  id              String   @id @default(cuid())
-  entityType      String   // 'doctor' | 'centre' | 'college' | 'manufacturer' | 'product'
-  entityId        String   // FK by string — Doctor.id, Hospital.id, slug, etc.
-  badgeType       String   // 'state_registered' | 'tourism_classified' | 'gmp_licensed' | 'ncism_kuhs' | 'lineage_verified'
-  status          String   @default("pending")  // 'pending' | 'verified' | 'rejected' | 'expired'
-  tier            String?  // for tourism_classified: 'diamond' | 'gold' | 'silver' | 'green_leaf' | 'olive_leaf'
-  referenceNumber String?  // e.g. CCIM reg number, GMP licence number
-  sourceUrl       String?  // public credential URL (state register page, KUHS list, etc.)
-  sourceName      String?  // human label ("Kerala State Medical Council ISM Register")
+  id                   String    @id @default(cuid())
+  entityType           String // 'doctor' | 'centre' | 'college' | 'manufacturer' | 'product'
+  entityId             String // FK by string — Doctor.id, Hospital.id, slug, etc.
+  badgeType            String // 'state_registered' | 'tourism_classified' | 'gmp_licensed' | 'ncism_kuhs' | 'lineage_verified'
+  status               String    @default("pending") // 'pending' | 'verified' | 'rejected' | 'expired'
+  tier                 String? // for tourism_classified: 'diamond' | 'gold' | 'silver' | 'green_leaf' | 'olive_leaf'
+  referenceNumber      String? // e.g. CCIM reg number, GMP licence number
+  sourceUrl            String? // public credential URL (state register page, KUHS list, etc.)
+  sourceName           String? // human label ("Kerala State Medical Council ISM Register")
   // Entity name + locality cached at ingestion — lets the admin queue render
   // even before /colleges/[id] / /manufacturers/[id] profile routes exist.
   entityNameCached     String?
   entityDistrictCached String?
-  verifiedAt      DateTime?
-  verifiedById    String?
-  validUntil      DateTime?  // tourism = +3yr; others null = no expiry
-  notes           String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  verifiedAt           DateTime?
+  verifiedById         String?
+  validUntil           DateTime? // tourism = +3yr; others null = no expiry
+  notes                String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
   @@index([entityType, entityId, badgeType])
   @@index([status, validUntil])
@@ -1780,28 +1907,28 @@ model CredentialBadge {
 // include episodes where consentForResearch=true AND the per-condition
 // count meets the threshold, suppressing low-N cells.
 model TreatmentEpisode {
-  id                  String   @id @default(cuid())
-  patientUserId       String
-  doctorUserId        String?
+  id                 String    @id @default(cuid())
+  patientUserId      String
+  doctorUserId       String?
   // Condition tag (free-text in v1; will harden against a condition slug
   // table once /conditions/_data/conditions.ts is migrated to DB).
-  condition           String
-  conditionSlug       String?  // optional slug for /conditions/[slug] cross-link
+  condition          String
+  conditionSlug      String? // optional slug for /conditions/[slug] cross-link
   // Protocol notes — what was prescribed (free-text; never used in aggregates).
-  protocolNotes       String?
-  status              String   @default("active")  // 'active' | 'completed' | 'paused' | 'abandoned'
-  startDate           DateTime @default(now())
-  endDate             DateTime?
+  protocolNotes      String?
+  status             String    @default("active") // 'active' | 'completed' | 'paused' | 'abandoned'
+  startDate          DateTime  @default(now())
+  endDate            DateTime?
   // Per-episode consent for anonymized research aggregation. Default OFF
   // so opt-in is explicit. Patient can flip at any time; if turned off
   // after data is contributed, prior contributions stop being included
   // in future recomputations.
-  consentForResearch  Boolean  @default(false)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  consentForResearch Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  patient User  @relation("EpisodePatient", fields: [patientUserId], references: [id], onDelete: Cascade)
-  doctor  User? @relation("EpisodeDoctor",  fields: [doctorUserId],  references: [id], onDelete: SetNull)
+  patient User         @relation("EpisodePatient", fields: [patientUserId], references: [id], onDelete: Cascade)
+  doctor  User?        @relation("EpisodeDoctor", fields: [doctorUserId], references: [id], onDelete: SetNull)
   logs    OutcomeLog[]
 
   @@index([patientUserId, status])
@@ -1819,10 +1946,10 @@ model OutcomeLog {
   episodeId    String
   date         DateTime @db.Date
   // 0 = no symptom; 10 = worst imaginable. Patient sees plain-English labels.
-  severity     Int      // primary chief-complaint severity 0-10
-  energy       Int?     // 0-10
-  sleepQuality Int?     // 0-10
-  mood         Int?     // 0-10
+  severity     Int // primary chief-complaint severity 0-10
+  energy       Int? // 0-10
+  sleepQuality Int? // 0-10
+  mood         Int? // 0-10
   note         String?
   // Photo reservation. When wired in v2, photos go to the same MinIO
   // bucket as appointment artifacts (server-side encrypted, signed URLs).
@@ -1831,6 +1958,6 @@ model OutcomeLog {
 
   episode TreatmentEpisode @relation(fields: [episodeId], references: [id], onDelete: Cascade)
 
-  @@unique([episodeId, date])  // one log per day per episode
+  @@unique([episodeId, date]) // one log per day per episode
   @@index([episodeId, date])
 }
