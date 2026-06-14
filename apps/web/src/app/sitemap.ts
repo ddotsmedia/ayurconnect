@@ -8,8 +8,8 @@ import { CITIES as SEO_CITIES } from './conditions/_data/cities'
 import { ANSWERED_QA } from './learn/ask-the-classics/_answered'
 import { NEWS_SLUGS } from '@/lib/data/news-seed'
 import { EVENT_SLUGS } from '@/lib/data/events-seed'
-import { DISTRICT_SLUGS as HOSPITAL_DISTRICT_SLUGS } from './hospitals/in/[district]/page'
-import { TYPE_SLUGS as HOSPITAL_TYPE_SLUGS } from './hospitals/type/[type]/page'
+import { DISTRICT_SLUGS as HOSPITAL_DISTRICT_SLUGS } from './hospitals/in/[district]/_slugs'
+import { TYPE_SLUGS as HOSPITAL_TYPE_SLUGS } from './hospitals/type/[type]/_slugs'
 
 const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ayurconnect.com'
 

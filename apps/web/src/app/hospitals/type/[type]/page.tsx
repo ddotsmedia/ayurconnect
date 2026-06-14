@@ -6,15 +6,7 @@ import { Building2, ShieldCheck, MapPin } from 'lucide-react'
 import { API_INTERNAL as API } from '../../../../lib/server-fetch'
 import { pageMetadata } from '../../../../lib/seo'
 
-const TYPES: Record<string, string> = {
-  hospital:    'Hospitals',
-  clinic:      'Clinics',
-  panchakarma: 'Panchakarma Centres',
-  wellness:    'Wellness Centres',
-  resort:      'Resorts',
-  research:    'Research Institutes',
-}
-export const TYPE_SLUGS = Object.keys(TYPES)
+import { TYPES, TYPE_SLUGS } from './_slugs'
 
 type Hospital = { id: string; name: string; type: string; district: string; ccimVerified: boolean; ayushCertified: boolean; panchakarma: boolean; nabh: boolean; profile: string | null }
 

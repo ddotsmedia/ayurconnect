@@ -6,12 +6,7 @@ import { Building2, ShieldCheck, MapPin, Award, Phone } from 'lucide-react'
 import { API_INTERNAL as API } from '../../../../lib/server-fetch'
 import { pageMetadata } from '../../../../lib/seo'
 
-const KERALA_DISTRICTS = [
-  'thiruvananthapuram','kollam','pathanamthitta','alappuzha','kottayam',
-  'idukki','ernakulam','thrissur','palakkad','malappuram',
-  'kozhikode','wayanad','kannur','kasaragod',
-]
-export const DISTRICT_SLUGS = KERALA_DISTRICTS
+import { DISTRICT_SLUGS as KERALA_DISTRICTS } from './_slugs'
 
 function deslug(slug: string): string {
   return slug.split('-').map((s) => s[0].toUpperCase() + s.slice(1)).join(' ')
