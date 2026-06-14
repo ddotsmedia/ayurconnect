@@ -249,6 +249,13 @@ model Doctor {
   // Hospital team links (Phase 5, 2026-06-13).
   hospitalLinks HospitalDoctorLink[]
 
+  // Viral growth (2026-06-14): recruit invites + nudges + practice tools
+  recruitInvitesSent DoctorRecruitInvite[] @relation("RecruitFromDoctor")
+  recruitedByLink    DoctorRecruitInvite?  @relation("RecruitToDoctor")
+  nudges             DoctorNudge[]
+  prescriptions      DoctorPrescription[]
+  cmeLogs            DoctorCmeLog[]
+
   // ─── Kerala-origin + diaspora directory fields (2026-06-08) ────────────
   // Additive; all nullable so the existing 500+ rows remain valid. Allows
   // distinguishing a Kerala-trained doctor practising in Dubai (homeDistrict
@@ -274,6 +281,9 @@ model Doctor {
   profileCompleteness      Int?      @default(0)
   selfRegistered           Boolean   @default(false)
   featured                 Boolean   @default(false)
+  // Viral growth (2026-06-14)
+  referralCode             String?   @unique
+  profileBadges            String[]  @default([]) // 'rising' | 'active' | 'star' | 'complete' | 'referrer' | 'helpful' | 'reviewed'
   // Credential uploads (URL refs; presigned MinIO uploads wire up in v2).
   degreeCertUrl            String?
   regCertUrl               String?
@@ -1452,6 +1462,83 @@ model DoctorReferral {
   @@index([toDoctorId, createdAt])
   @@index([fromDoctorId, createdAt])
   @@index([status])
+}
+
+// ─── Viral growth: doctor recruits doctor (2026-06-14) ────────────────────
+// Distinct from DoctorReferral (which is patient referrals between doctors).
+// Created when a doctor invites a colleague who then registers via ?ref=<code>.
+model DoctorRecruitInvite {
+  id                 String    @id @default(cuid())
+  referrerDoctorId   String
+  referralCode       String // copy of referrer's code at invite time
+  invitedName        String?
+  invitedEmail       String?
+  invitedPhone       String?
+  invitedWhatsApp    String?
+  status             String    @default("invited") // 'invited' | 'registered' | 'verified'
+  registeredDoctorId String?   @unique // 1:1 — only one referral per registered doctor
+  source             String? // 'manual' | 'whatsapp' | 'email' | 'qr' | 'link'
+  createdAt          DateTime  @default(now())
+  registeredAt       DateTime?
+  verifiedAt         DateTime?
+
+  referrer   Doctor  @relation("RecruitFromDoctor", fields: [referrerDoctorId], references: [id], onDelete: Cascade)
+  registered Doctor? @relation("RecruitToDoctor", fields: [registeredDoctorId], references: [id], onDelete: SetNull)
+
+  @@index([referrerDoctorId, status])
+  @@index([referralCode])
+}
+
+// Nudge / drip-campaign log (2026-06-14)
+model DoctorNudge {
+  id        String    @id @default(cuid())
+  doctorId  String
+  nudgeType String // 'welcome' | 'add-specs' | 'invite-colleague' | 'add-photo' | 'district-leads' | 'milestone' | 'monthly-report'
+  sentAt    DateTime  @default(now())
+  clickedAt DateTime?
+  channel   String    @default("dashboard") // 'dashboard' | 'email' | 'whatsapp'
+
+  doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorId, nudgeType])
+  @@index([doctorId, sentAt])
+}
+
+// Lightweight prescription pad (2026-06-14). Markdown body + structured items.
+model DoctorPrescription {
+  id            String   @id @default(cuid())
+  doctorId      String
+  patientName   String
+  patientAge    Int?
+  patientGender String?
+  diagnosis     String?
+  diagnosisMl   String?
+  items         Json // Array of { medicine, dosage, timing, duration, anupana }
+  pathya        String? // diet to follow
+  apathya       String? // diet to avoid
+  notes         String?
+  createdAt     DateTime @default(now())
+
+  doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@index([doctorId, createdAt])
+}
+
+// CME tracker (2026-06-14)
+model DoctorCmeLog {
+  id             String   @id @default(cuid())
+  doctorId       String
+  eventName      String
+  organizer      String?
+  date           DateTime
+  credits        Float    @default(1)
+  certificateUrl String?
+  notes          String?
+  createdAt      DateTime @default(now())
+
+  doctor Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+
+  @@index([doctorId, date])
 }
 
 model CaseComment {
