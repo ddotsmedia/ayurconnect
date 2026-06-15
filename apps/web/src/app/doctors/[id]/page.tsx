@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { headers as nextHeaders } from 'next/headers'
+import { LEGACY_DOCTOR_SLUGS, LEGACY_SLUG_TO_SEED_ID } from './_legacy-slugs'
 import { DoctorCard, type DoctorCardData } from '@ayurconnect/ui'
 import { SocialLinksDisplay } from '../../../components/social-links'
 import { FeaturedArticlesDisplay, FeaturedPostsDisplay, type FeaturedArticle, type FeaturedPost } from '../../../components/featured-content'
@@ -86,7 +87,13 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 }
 
 export default async function DoctorProfilePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params
+  const { id: rawId } = await params
+  // Legacy seed-doctor-N → name-based slug (301 redirect).
+  if (LEGACY_DOCTOR_SLUGS[rawId]) {
+    redirect(`/doctors/${LEGACY_DOCTOR_SLUGS[rawId]}`)
+  }
+  // Slug from the map maps back to the real seed id for data lookup.
+  const id = LEGACY_SLUG_TO_SEED_ID[rawId] ?? rawId
   const [doctor, sess] = await Promise.all([fetchDoctor(id), getServerSession()])
   if (!doctor) notFound()
 
