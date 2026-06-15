@@ -151,6 +151,36 @@ async function getHealthTips(): Promise<Tip[]> {
   }
 }
 
+// Real homepage stats (Task 2). Pulls counts from API counts endpoints; falls
+// back to honest defaults if the API is down. ISR-cached at the route level.
+type HomeStats = { doctors: number; hospitals: number; herbs: number; formulations: number; consultations: number }
+async function getHomepageStats(): Promise<HomeStats> {
+  const fallback = { doctors: 0, hospitals: 0, herbs: 0, formulations: 0, consultations: 0 }
+  try {
+    const [d, h, hb, f, c] = await Promise.all([
+      fetch(`${API}/doctors?limit=1`,              { next: { revalidate: 3600 } }).then((r) => r.ok ? r.json() : null).catch(() => null),
+      fetch(`${API}/hospitals?limit=1`,            { next: { revalidate: 3600 } }).then((r) => r.ok ? r.json() : null).catch(() => null),
+      fetch(`${API}/herbs?limit=1`,                { next: { revalidate: 3600 } }).then((r) => r.ok ? r.json() : null).catch(() => null),
+      fetch(`${API}/formulations?limit=1`,         { next: { revalidate: 3600 } }).then((r) => r.ok ? r.json() : null).catch(() => null),
+      fetch(`${API}/appointments?limit=1&count=1`, { next: { revalidate: 3600 } }).then((r) => r.ok ? r.json() : null).catch(() => null),
+    ])
+    return {
+      doctors:       (d?.total ?? d?.count ?? (Array.isArray(d?.doctors) ? d.doctors.length : 0)) || 0,
+      hospitals:     (h?.total ?? h?.count ?? (Array.isArray(h) ? h.length : 0)) || 0,
+      herbs:         (hb?.total ?? hb?.count ?? (Array.isArray(hb?.herbs) ? hb.herbs.length : 0)) || 0,
+      formulations:  (f?.total ?? f?.count ?? (Array.isArray(f?.formulations) ? f.formulations.length : 0)) || 0,
+      consultations: (c?.total ?? c?.count ?? 0) || 0,
+    }
+  } catch { return fallback }
+}
+
+function statValue(n: number): string {
+  if (!n) return '—'
+  if (n >= 1000) return `${Math.floor(n / 1000)}K+`
+  if (n >  50)   return `${n}+`
+  return `${n}`
+}
+
 // Homepage-specific metadata — tighter than the site-wide layout 'all' keyword
 // dump. These are the priority-1 phrases we want this URL to rank for.
 export const metadata = {
@@ -179,11 +209,24 @@ export const metadata = {
 }
 
 export default async function HomePage() {
-  const [featuredDoctors, healthTips, testimonials] = await Promise.all([
+  const [featuredDoctors, healthTips, testimonials, stats] = await Promise.all([
     getFeaturedDoctors(),
     getHealthTips(),
     getTestimonials(),
+    getHomepageStats(),
   ])
+  // Pick the 4 stats with the strongest real numbers. If consultations is 0
+  // (no data yet), substitute districts-covered or formulations count.
+  const STAT_CARDS = [
+    { num: statValue(stats.doctors),   label: 'Verified Doctors',   sub: 'Credentials checked' },
+    { num: statValue(stats.hospitals), label: 'Wellness Centres',   sub: 'AYUSH certified' },
+    { num: statValue(stats.herbs),     label: 'Medicinal Herbs',    sub: 'Western Ghats' },
+    stats.consultations > 0
+      ? { num: statValue(stats.consultations),                       label: 'Consultations',            sub: 'and counting' }
+      : stats.formulations > 0
+        ? { num: statValue(stats.formulations),                      label: 'Classical Formulations',   sub: 'cited in classics' }
+        : { num: '14',                                               label: 'Kerala Districts Covered', sub: 'Kasaragod → Thiruvananthapuram' },
+  ]
   // UI chrome is English-only. Malayalam appears solely in content/article
   // bodies (heritage, classical-text names, herb/treatment native names).
   const tr = t()
@@ -264,12 +307,7 @@ export default async function HomePage() {
         <LeafPattern color="#ffffff" opacity={0.04} tile={70} />
         <div className="relative container mx-auto px-4 py-14">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { num: '500+',  label: 'Verified Doctors',  sub: 'Credentials checked' },
-              { num: '200+',  label: 'Wellness Centres',  sub: 'AYUSH certified' },
-              { num: '150+',  label: 'Medicinal Herbs',   sub: 'Western Ghats' },
-              { num: '50K+',  label: 'Consultations',     sub: 'and counting' },
-            ].map((s) => (
+            {STAT_CARDS.map((s) => (
               <div key={s.label} className="text-center px-2 py-3 border-l border-white/10 first:border-l-0">
                 <div className="font-serif text-5xl md:text-6xl text-gold-400 leading-none tracking-tight">{s.num}</div>
                 <div className="w-8 h-0.5 bg-gold-400/40 mx-auto mt-3" />
@@ -293,7 +331,7 @@ export default async function HomePage() {
         )}
         <div className="text-center mt-12">
           <Link href="/doctors" className="inline-flex items-center gap-2 px-6 py-3 border-2 border-kerala-700 text-kerala-700 hover:bg-kerala-700 hover:text-white font-semibold rounded-md transition-colors">
-            View all 500+ doctors <ArrowRight className="w-4 h-4" />
+            View all{stats.doctors > 0 ? ` ${statValue(stats.doctors)}` : ''} doctors <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>
