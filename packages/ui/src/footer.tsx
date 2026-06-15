@@ -26,85 +26,57 @@ const SOCIAL_DEFS: Array<{ key: keyof FooterSettings; icon: typeof Facebook; lab
   { key: 'social.telegram',  icon: Send,           label: 'Telegram' },
 ]
 
+// Footer reduced to 4 cohesive columns (Task 8). Stubs/no-content routes
+// removed: /academy, /products/saas, /products/mobile, /roi-calculator,
+// /products/hms, /about/press, /about/investors, /about/certifications,
+// /about/methodology, /about/why-ayurveda-works, /partnership, /careers.
 const COLS: Array<{ heading: string; links: Array<{ href: string; label: string }> }> = [
   {
-    heading: 'Directory',
+    heading: 'Find Care',
     links: [
-      { href: '/doctors',     label: 'Doctors' },
-      { href: '/hospitals',   label: 'Hospitals & Wellness' },
-      { href: '/colleges',    label: 'Medical Colleges' },
-      { href: '/herbs',       label: 'Herb Database' },
-      { href: '/treatments',  label: 'Specialised Treatments' },
-    ],
-  },
-  {
-    heading: 'Health',
-    links: [
+      { href: '/doctors',             label: 'Doctors' },
+      { href: '/hospitals',           label: 'Hospitals & Wellness' },
       { href: '/online-consultation', label: 'Online Consultation' },
-      { href: '/ayurbot',             label: 'AyurBot AI' },
-      { href: '/prakriti-quiz',       label: 'Prakriti Quiz' },
-      { href: '/wellness-check',      label: 'Wellness Check' },
-      { href: '/diet-planner',        label: 'AI Diet Planner' },
-      { href: '/tourism',             label: 'Medical Tourism' },
-      { href: '/heal-in-kerala',      label: 'Heal in Kerala (international)' },
-      { href: '/heal-in-kerala/plan', label: 'AI Trip Planner' },
-      { href: '/verify',              label: 'Verify Product Authenticity' },
-      { href: '/cost-estimator',      label: 'Cost Estimator' },
-      { href: '/case-studies',        label: 'Case Studies' },
-      { href: '/kerala-guide',        label: 'Kerala Guide' },
-      { href: '/heritage',            label: 'Heritage & Culture' },
-      { href: '/karkidaka',           label: 'Karkidaka Chikitsa' },
-      { href: '/learn/ask-the-classics', label: 'Ask the Classics' },
-      { href: '/seminars',            label: 'Seminars' },
-      { href: '/news',                label: 'News' },
-      { href: '/events',              label: 'Events' },
-      { href: '/interaction-checker', label: 'Interaction Checker' },
-      { href: '/ritucharya',          label: 'Seasonal Regimen' },
-      { href: '/tools/symptom-checker', label: 'Symptom Checker' },
-      { href: '/tools/bmi-calculator',  label: 'BMI Calculator' },
-      { href: '/tools',               label: 'All free tools' },
-      { href: '/community/malayalees', label: 'For Malayalees abroad' },
-      { href: '/doctors/ambassador',  label: 'Doctor Ambassador Program' },
+      { href: '/heal-in-kerala',      label: 'Heal in Kerala' },
+      { href: '/doctor-match',        label: 'Doctor Match' },
+      { href: '/conditions',          label: 'Conditions' },
+      { href: '/treatments',          label: 'Treatments' },
     ],
   },
   {
-    heading: 'About',
+    heading: 'Learn',
     links: [
-      { href: '/about',                    label: 'About AyurConnect' },
-      { href: '/about/methodology',        label: 'Our Methodology' },
-      { href: '/about/why-ayurveda-works', label: 'Why Ayurveda Works' },
-      { href: '/about/certifications',     label: 'Certifications' },
-      { href: '/about/press',              label: 'Press & Media' },
-      { href: '/about/investors',          label: 'Investor Relations' },
-      { href: '/research',                 label: 'Clinical Research' },
-      { href: '/knowledge',                label: 'Knowledge Hub' },
-      { href: '/amai',                     label: 'Ayurveda Medical Association of India' },
+      { href: '/articles',               label: 'Articles' },
+      { href: '/herbs',                  label: 'Herbs' },
+      { href: '/formulary',              label: 'Formulary' },
+      { href: '/health-tips',            label: 'Health Tips' },
+      { href: '/heritage',               label: 'Heritage' },
+      { href: '/karkidaka',              label: 'Karkidaka' },
+      { href: '/learn/tridosha',         label: 'Tridosha' },
+      { href: '/tools',                  label: 'Free Tools' },
     ],
   },
   {
-    heading: 'For Business',
+    heading: 'Community',
     links: [
-      { href: '/marketplace',     label: 'Marketplace' },
-      { href: '/academy',         label: 'Academy' },
-      { href: '/products/hms',    label: 'AyurConnect HMS' },
-      { href: '/products/saas',   label: 'White-label SaaS' },
-      { href: '/products/mobile', label: 'Mobile Apps' },
-      { href: '/clinic-portal',   label: 'Clinic Portal' },
-      { href: '/jobs/post',       label: 'Post a Job' },
-      { href: '/roi-calculator',  label: 'ROI Calculator' },
-      { href: '/partnership',     label: 'Partnership' },
-      { href: '/careers',         label: 'Careers' },
+      { href: '/qa',                     label: 'Q&A' },
+      { href: '/forum',                  label: 'Forum' },
+      { href: '/community/malayalees',   label: 'Malayalees Abroad' },
+      { href: '/doctors/ambassador',     label: 'Doctor Ambassador' },
+      { href: '/jobs',                   label: 'Jobs' },
+      { href: '/amai',                   label: 'AMAI' },
     ],
   },
   {
-    heading: 'Platform',
+    heading: 'AyurConnect',
     links: [
-      { href: '/contact',     label: 'Contact us' },
-      { href: '/jobs',        label: 'Jobs Board' },
-      { href: '/sign-in',     label: 'Sign in' },
-      { href: '/register',    label: 'Join free' },
-      { href: '/privacy',     label: 'Privacy' },
-      { href: '/terms',       label: 'Terms' },
+      { href: '/about',           label: 'About' },
+      { href: '/contact',         label: 'Contact' },
+      { href: '/privacy',         label: 'Privacy' },
+      { href: '/terms',           label: 'Terms' },
+      { href: '/sign-in',         label: 'Sign In' },
+      { href: '/register',        label: 'Register' },
+      { href: '/doctors/register',label: 'For Doctors' },
     ],
   },
 ]
@@ -119,7 +91,7 @@ export function Footer({ settings = {} }: { settings?: FooterSettings } = {}) {
   return (
     <footer className="bg-kerala-800 text-white mt-20">
       <div className="container mx-auto px-4 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand col */}
           <div>
             <Link href="/" aria-label="AyurConnect home" className="inline-block bg-white rounded-full p-3 shadow-cardLg group">
@@ -197,8 +169,10 @@ export function Footer({ settings = {} }: { settings?: FooterSettings } = {}) {
           </div>
         </div>
 
-        <div className="mt-8 text-xs text-white/50 text-center">
-          {copyright}
+        <div className="mt-8 pt-6 border-t border-white/10 text-xs text-white/60 text-center space-y-1">
+          <p className="inline-flex items-center justify-center gap-1.5"><MapPin className="w-3 h-3 text-gold-400" /> Ddotsmedia IT Solutions, SHAMS Free Zone, Sharjah, UAE</p>
+          <p className="inline-flex items-center justify-center gap-1.5"><Mail   className="w-3 h-3 text-gold-400" /> <a href="mailto:info@ayurconnect.com" className="hover:text-white">info@ayurconnect.com</a></p>
+          <p className="text-white/40 pt-2">{copyright}</p>
         </div>
       </div>
     </footer>
