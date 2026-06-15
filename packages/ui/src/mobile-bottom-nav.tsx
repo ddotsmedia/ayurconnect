@@ -3,14 +3,15 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Stethoscope, Leaf, MessagesSquare, MoreHorizontal, X, BookOpen, ScrollText, GraduationCap, MapPin, Briefcase, User, Sparkles } from 'lucide-react'
+import { Home, Stethoscope, Leaf, MessagesSquare, MoreHorizontal, X, BookOpen, ScrollText, GraduationCap, MapPin, Briefcase, User, Sparkles, Search } from 'lucide-react'
 import { cn } from './lib/utils'
 
+// Task 14 — Forum dropped from bottom nav, Search added.
 const TABS = [
   { href: '/',         label: 'Home',     icon: Home },
   { href: '/doctors',  label: 'Doctors',  icon: Stethoscope },
+  { href: '/doctors?focus=search', label: 'Search', icon: Search },
   { href: '/ayurbot',  label: 'AyurBot',  icon: Leaf },
-  { href: '/forum',    label: 'Forum',    icon: MessagesSquare },
 ] as const
 
 // "More" sheet — the long tail that doesn't fit on the bottom bar. Grouped
