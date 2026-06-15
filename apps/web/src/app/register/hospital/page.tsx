@@ -141,7 +141,7 @@ export default function HospitalRegisterPage() {
           { q: 'How does the verification process work?',
             a: 'Upload your hospital registration, the senior physician\'s CCIM/AYUSH registration, and any infrastructure / NABH documentation. We do an on-call walkthrough (45 min) with your administrator and verify at least 3 senior doctors\' credentials independently. Total time: 5–7 business days.' },
           { q: 'What does the hospital portal include?',
-            a: 'Patient intake with classical Prakriti + Nadi pariksha fields, doctor + room scheduling, OPD/IPD tracker, prescription writer with the 1,000-formulation library, online consultation video (Daily.co), Razorpay payments, WhatsApp appointment reminders, and a performance dashboard. See /clinic-portal for the full feature list and pricing (AED 299–799 / month).' },
+            a: 'Patient intake with classical Prakriti + Nadi pariksha fields, doctor + room scheduling, OPD/IPD tracker, prescription writer with the 1,000-formulation library, online consultation video (Daily.co), Razorpay payments, WhatsApp appointment reminders, and a performance dashboard. See /clinic-portal for the full feature list.' },
           { q: 'Can we accept UAE / GCC patients for medical tourism?',
             a: 'Yes — once verified, you can list Panchakarma packages on /tourism with INR and AED pricing. We handle the enquiry funnel + WhatsApp lead delivery directly to your reception. International patients can pay via Razorpay UAE rails (AED card / Apple Pay) so funds reach your account in INR within 48 hours.' },
           { q: 'Is there a setup fee or contract minimum?',

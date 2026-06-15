@@ -6,41 +6,9 @@ import { DemoRequestForm } from './_demo-request-form'
 
 export const metadata: Metadata = {
   title: 'AyurConnect Clinic Portal — Ayurveda clinic SaaS for Kerala + UAE',
-  description: 'Patient intake, treatment scheduling, OPD/IPD tracking, prescription writer, payouts. Built for Ayurveda clinics: classical fields (Prakriti, Nadi pariksha), modern UX. AED 299/mo and up.',
+  description: 'Patient intake, treatment scheduling, OPD/IPD tracking, prescription writer, payouts. Built for Ayurveda clinics: classical fields (Prakriti, Nadi pariksha), modern UX.',
   alternates: { canonical: '/clinic-portal' },
 }
-
-const TIERS = [
-  {
-    name: 'Basic',     price: 299, badge: null,
-    summary: 'Solo doctor / small clinic up to 100 patients/mo.',
-    features: [
-      'Patient intake with Prakriti + Nadi fields', 'Treatment scheduling (single doctor)',
-      'OPD tracker', 'Online prescription writer', 'Daily.co video consult (50min/day)',
-      'WhatsApp appointment reminders', 'Razorpay payments',
-    ],
-  },
-  {
-    name: 'Pro',       price: 499, badge: 'Most popular',
-    summary: '2–10 doctor clinic. Multi-doctor scheduling.',
-    features: [
-      'Everything in Basic',
-      'Multi-doctor schedule + room allocation', 'OPD + IPD tracker', 'Bed allotment dashboard',
-      'Inventory + classical pharmacy module', 'CME credit tracking for staff',
-      'Custom reports + monthly performance reviews',
-    ],
-  },
-  {
-    name: 'Enterprise', price: 799, badge: 'Hospitals',
-    summary: '10+ doctor hospital. Multi-branch, advanced reporting.',
-    features: [
-      'Everything in Pro',
-      'Multi-branch / multi-city architecture', 'Insurance integration (Niva Bupa / Star + GCC)',
-      'NABH-compliance reporting templates', 'Govt. AYUSH reporting templates',
-      'Dedicated success manager', 'Priority support + SLA', '99.9% uptime guarantee',
-    ],
-  },
-]
 
 const FEATURE_SECTIONS = [
   { icon: Users,          title: 'Patient intake', body: 'Classical Ayurveda fields built in — Prakriti, Vikriti, Nadi pariksha notes, Ashtavidha pariksha, doshic signs. Plus modern demographics. Quick scribe-mode for OPD speed.' },
@@ -79,41 +47,6 @@ export default function ClinicPortalLanding() {
               <p className="text-sm text-gray-700 mt-1 leading-relaxed">{f.body}</p>
             </article>
           ))}
-        </div>
-      </section>
-
-      <section id="pricing" className="bg-cream py-14">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <h2 className="font-serif text-2xl text-ink mb-2 text-center">Pricing</h2>
-          <p className="text-sm text-muted text-center mb-8">Billed monthly in AED. 30-day money-back if you don&apos;t love it. Indian rupee pricing on request.</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {TIERS.map((t) => (
-              <article key={t.name} className={'bg-white border rounded-card p-6 shadow-card ' + (t.badge === 'Most popular' ? 'border-kerala-700 ring-1 ring-kerala-700/10' : 'border-gray-100')}>
-                {t.badge && (
-                  <span className={'text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-bold inline-block mb-2 ' + (t.badge === 'Most popular' ? 'bg-kerala-700 text-white' : 'bg-gray-100 text-gray-700')}>
-                    {t.badge}
-                  </span>
-                )}
-                <h3 className="font-serif text-2xl text-ink">{t.name}</h3>
-                <p className="text-xs text-muted mt-1">{t.summary}</p>
-                <p className="mt-4">
-                  <span className="text-3xl font-serif text-kerala-700">AED {t.price}</span>
-                  <span className="text-sm text-muted"> / month</span>
-                </p>
-                <ul className="mt-5 space-y-2 text-sm text-gray-700">
-                  {t.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-2">
-                      <CheckCircle2 className="w-4 h-4 text-kerala-700 mt-0.5 flex-shrink-0" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link href="#demo" className="mt-6 block w-full text-center px-5 py-2.5 bg-kerala-700 hover:bg-kerala-800 text-white rounded text-sm font-semibold">
-                  Request demo
-                </Link>
-              </article>
-            ))}
-          </div>
         </div>
       </section>
 
