@@ -149,6 +149,13 @@ export default async function HerbDetailPage({ params }: { params: Promise<{ id:
             </section>
           )}
 
+          {/* Cross-link: herb → formulations (Task 15). Search by herb name. */}
+          <section className="rounded-card bg-white border border-gray-100 shadow-card p-5">
+            <h2 className="text-lg text-kerala-700 mb-2">Found in formulations</h2>
+            <p className="text-sm text-gray-700">Browse classical formulations that contain {h.name}.</p>
+            <a href={`/formulary?q=${encodeURIComponent(h.name)}`} className="mt-3 inline-flex items-center gap-1 px-3 py-1.5 bg-kerala-700 hover:bg-kerala-800 text-white rounded text-xs font-semibold">Browse formulations →</a>
+          </section>
+
           <section className="rounded-card bg-amber-50 border border-amber-200 p-5">
             <h3 className="font-semibold text-amber-900 text-sm">Disclaimer</h3>
             <p className="mt-1 text-sm text-amber-900 leading-relaxed">
