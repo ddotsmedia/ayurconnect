@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { GradientHero } from '@ayurconnect/ui'
 import { Calculator, Search, Salad, Sun, ShieldAlert, Activity, ChevronRight } from 'lucide-react'
 import { breadcrumbLd, ldGraph, pageMetadata } from '../../lib/seo'
+import { Breadcrumbs } from '../../components/Breadcrumbs'
 
 export const metadata = pageMetadata({
   path:        '/tools',
@@ -29,6 +30,7 @@ export default function ToolsHub() {
           <p className="text-white/85 mt-5">Educational tools to help you understand your Ayurvedic profile — never a substitute for a verified doctor.</p>
         </div>
       </GradientHero>
+      <Breadcrumbs items={[{ label: 'Tools' }]} />
       <section className="container mx-auto px-4 py-10 max-w-5xl">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {TOOLS.map((t) => (

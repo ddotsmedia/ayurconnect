@@ -3,6 +3,7 @@ import { GradientHero } from '@ayurconnect/ui'
 import { BookOpen, ScrollText, FlaskConical, Leaf, Calendar } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
 import { AYURVEDA_KEYWORDS } from '../../lib/seo'
+import { Breadcrumbs } from '../../components/Breadcrumbs'
 
 type Article = {
   id: string
@@ -86,6 +87,8 @@ export default async function ArticlesPage({ searchParams }: { searchParams: Pro
           </p>
         </div>
       </GradientHero>
+
+      <Breadcrumbs items={[{ label: 'Articles' }]} />
 
       <div className="container mx-auto px-4 py-10">
         {/* Category filter strip */}

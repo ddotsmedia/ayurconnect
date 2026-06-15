@@ -3,6 +3,7 @@ import { headers as nextHeaders } from 'next/headers'
 import { DoctorCard, GradientHero, type DoctorCardData } from '@ayurconnect/ui'
 import { X } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
+import { Breadcrumbs } from '../../components/Breadcrumbs'
 import { DoctorFilterSidebar } from './_filter-sidebar'
 import { CountryPills, type CountryCount } from '../../components/country-pills'
 import { AYURVEDA_KEYWORDS } from '../../lib/seo'
@@ -81,6 +82,8 @@ export default async function DoctorsPage({ searchParams }: { searchParams: Prom
           <p className="text-white/70 mt-3">verified practitioners across Kerala. Filter by district, specialization, language and availability.</p>
         </div>
       </GradientHero>
+
+      <Breadcrumbs items={[{ label: 'Doctors' }]} />
 
       <div className="container mx-auto px-4 pt-8">
         {/* Country pills — always-visible breakdown so users see the cross-country

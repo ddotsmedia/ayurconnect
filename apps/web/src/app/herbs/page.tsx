@@ -4,6 +4,7 @@ import { Leaf, BookOpen } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
 import { SemanticHerbSearch } from '../../components/semantic-herb-search'
 import { AYURVEDA_KEYWORDS } from '../../lib/seo'
+import { Breadcrumbs } from '../../components/Breadcrumbs'
 
 type Herb = {
   id: string
@@ -61,6 +62,8 @@ export default async function HerbsPage() {
           </p>
         </div>
       </GradientHero>
+
+      <Breadcrumbs items={[{ label: 'Herbs' }]} />
 
       <div className="container mx-auto px-4 py-12">
         <SemanticHerbSearch />

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { GradientHero } from '@ayurconnect/ui'
+import { Breadcrumbs } from '../../components/Breadcrumbs'
 import {
   Users, CalendarDays, Network, MapPin, Mail, Phone, Globe, Facebook, Twitter, Youtube,
   ChevronRight, ShieldCheck, Award, Building2, BookOpen, Scale, GraduationCap, FlaskConical,
@@ -147,6 +148,8 @@ export default function AmaiPage() {
           </div>
         </div>
       </GradientHero>
+
+      <Breadcrumbs items={[{ label: 'AMAI' }]} />
 
       {/* About / History */}
       <section className="container mx-auto px-4 py-14 max-w-4xl">

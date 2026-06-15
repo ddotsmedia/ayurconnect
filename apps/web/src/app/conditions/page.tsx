@@ -3,6 +3,7 @@ import { GradientHero } from '@ayurconnect/ui'
 import { ChevronRight, Stethoscope } from 'lucide-react'
 import { CONDITIONS } from './_data/conditions'
 import { breadcrumbLd, AYURVEDA_KEYWORDS } from '@/lib/seo'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 
 export const metadata = {
   title: 'Ayurvedic Treatment by Condition — Kerala + UAE',
@@ -57,6 +58,8 @@ export default function ConditionsIndex() {
           </p>
         </div>
       </GradientHero>
+
+      <Breadcrumbs items={[{ label: 'Conditions' }]} />
 
       <section className="container mx-auto px-4 py-10 max-w-5xl">
         {Object.entries(grouped).map(([cat, items]) => (

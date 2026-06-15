@@ -5,6 +5,7 @@ import { MapPin, ChevronRight, Calendar, Stethoscope, Plane, ShieldCheck, BookOp
 import { breadcrumbLd, faqLd, ldGraph, pageMetadata } from '../../lib/seo'
 import { EnquiryForm } from './_enquiry-form'
 import { HEAL_COUNTRIES } from './_countries'
+import { Breadcrumbs } from '../../components/Breadcrumbs'
 
 export const metadata: Metadata = pageMetadata({
   path: '/heal-in-kerala',
@@ -86,6 +87,8 @@ export default function HealHubPage() {
           </p>
         </div>
       </GradientHero>
+
+      <Breadcrumbs items={[{ label: 'Heal in Kerala' }]} />
 
       {/* (a) Why Kerala */}
       <section className="container mx-auto px-4 py-14 max-w-5xl">

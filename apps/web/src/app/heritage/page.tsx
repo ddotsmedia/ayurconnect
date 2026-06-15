@@ -4,6 +4,7 @@ import { GradientHero } from '@ayurconnect/ui'
 import { Users, BookOpen, Scroll, Landmark, ChevronRight } from 'lucide-react'
 import { breadcrumbLd, ldGraph, articleLd, pageMetadata } from '../../lib/seo'
 import { ASHTAVAIDYAS, CLASSICAL_TEXTS } from './_data'
+import { Breadcrumbs } from '../../components/Breadcrumbs'
 
 export const metadata: Metadata = pageMetadata({
   title: 'The Living Tradition of Kerala Ayurveda — Heritage & Culture | AyurConnect',
@@ -51,6 +52,8 @@ export default function HeritageHubPage() {
           Kerala healing.
         </p>
       </GradientHero>
+
+      <Breadcrumbs items={[{ label: 'Heritage' }]} />
 
       <section className="container mx-auto px-4 py-14">
         <div className="grid gap-6 md:grid-cols-2">
