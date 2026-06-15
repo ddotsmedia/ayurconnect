@@ -74,6 +74,11 @@ model User {
   // Longitudinal outcomes (2026-06-07): patient ↔ treatment-episode + log relations.
   treatmentEpisodesPatient TreatmentEpisode[]        @relation("EpisodePatient")
   treatmentEpisodesDoctor  TreatmentEpisode[]        @relation("EpisodeDoctor")
+
+  // Job portal (2026-06-15)
+  employerProfile  EmployerProfile?     @relation("EmployerOwner")
+  employerTeams    EmployerTeamMember[] @relation("EmployerTeamUser")
+  candidateProfile CandidateProfile?    @relation("CandidateOwner")
 }
 
 // ─── Patient health journal (added 2026-05-10) ────────────────────────────
@@ -255,6 +260,7 @@ model Doctor {
   nudges             DoctorNudge[]
   prescriptions      DoctorPrescription[]
   cmeLogs            DoctorCmeLog[]
+  candidateProfile   CandidateProfile?     @relation("CandidateDoctor")
 
   // ─── Kerala-origin + diaspora directory fields (2026-06-08) ────────────
   // Additive; all nullable so the existing 500+ rows remain valid. Allows
@@ -2047,4 +2053,293 @@ model OutcomeLog {
 
   @@unique([episodeId, date]) // one log per day per episode
   @@index([episodeId, date])
+}
+
+// ─── Job Portal Phase (2026-06-15) — additive on top of existing Job model ──
+model EmployerProfile {
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  companyName    String
+  companyNameMl  String?
+  slug           String    @unique
+  companyType    String
+  logo           String?
+  banner         String?
+  description    String    @default("")
+  descriptionMl  String?
+  website        String?
+  phone          String?
+  email          String?
+  whatsapp       String?
+  address        String?
+  city           String?
+  state          String?
+  country        String    @default("IN")
+  employeeCount  String?
+  foundedYear    Int?
+  accreditations String[]  @default([])
+  isVerified     Boolean   @default(false)
+  verifiedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user        User                 @relation("EmployerOwner", fields: [userId], references: [id], onDelete: Cascade)
+  teamMembers EmployerTeamMember[]
+
+  @@index([country, city])
+  @@index([companyType])
+}
+
+model EmployerTeamMember {
+  id                String    @id @default(cuid())
+  employerProfileId String
+  userId            String
+  role              String    @default("recruiter")
+  invitedAt         DateTime  @default(now())
+  acceptedAt        DateTime?
+
+  employer EmployerProfile @relation(fields: [employerProfileId], references: [id], onDelete: Cascade)
+  user     User            @relation("EmployerTeamUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([employerProfileId, userId])
+  @@index([userId])
+}
+
+model CandidateProfile {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  doctorId             String?   @unique
+  fullName             String
+  fullNameMl           String?
+  headline             String?
+  phone                String?
+  whatsapp             String?
+  email                String?
+  dateOfBirth          DateTime?
+  gender               String?
+  currentLocation      String?
+  preferredLocations   String[]  @default([])
+  currentSalary        Int?
+  expectedSalary       Int?
+  salaryCurrency       String    @default("INR")
+  noticePeriod         String?
+  availability         String    @default("open_to_offers")
+  profileVisibility    String    @default("public")
+  resumeUrl            String?
+  resumeParsedData     Json?
+  profileCompleteness  Int       @default(0)
+  totalExperience      Int       @default(0)
+  highestQualification String?
+  specializations      String[]  @default([])
+  skills               String[]  @default([])
+  languages            String[]  @default([])
+  currentLicenses      String[]  @default([])
+  willingToRelocate    Boolean   @default(false)
+  openToTelemedicine   Boolean   @default(false)
+  openToLocum          Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  user           User                     @relation("CandidateOwner", fields: [userId], references: [id], onDelete: Cascade)
+  doctor         Doctor?                  @relation("CandidateDoctor", fields: [doctorId], references: [id], onDelete: SetNull)
+  education      CandidateEducation[]
+  experience     CandidateExperience[]
+  certifications CandidateCertification[]
+  applications   JobApp[]
+  savedJobs      SavedJob[]
+  alerts         JobAlert[]
+  locumWindows   LocumAvailability[]
+  matchScores    MatchScore[]
+  licenseTracks  CandidateLicenseTrack[]
+
+  @@index([availability])
+  @@index([currentLocation])
+}
+
+model CandidateEducation {
+  id             String  @id @default(cuid())
+  candidateId    String
+  institution    String
+  degree         String
+  specialization String?
+  university     String?
+  startYear      Int
+  endYear        Int?
+  grade          String?
+  isCurrent      Boolean @default(false)
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+}
+
+model CandidateExperience {
+  id             String    @id @default(cuid())
+  candidateId    String
+  jobTitle       String
+  employer       String
+  employerType   String?
+  location       String?
+  country        String?
+  startDate      DateTime
+  endDate        DateTime?
+  isCurrent      Boolean   @default(false)
+  description    String?
+  specialization String?
+  employmentType String?
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+}
+
+model CandidateCertification {
+  id               String    @id @default(cuid())
+  candidateId      String
+  name             String
+  issuingAuthority String?
+  issueDate        DateTime
+  expiryDate       DateTime?
+  credentialId     String?
+  verificationUrl  String?
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+}
+
+model JobApp {
+  id              String   @id @default(cuid())
+  jobId           String
+  candidateId     String
+  coverLetter     String?
+  resumeUrl       String?
+  status          String   @default("applied")
+  matchScore      Int?
+  appliedAt       DateTime @default(now())
+  statusUpdatedAt DateTime @default(now())
+  rejectionReason String?
+  notes           String?
+
+  candidate  CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  interviews Interview[]
+
+  @@unique([jobId, candidateId])
+  @@index([jobId, status])
+  @@index([candidateId, status])
+}
+
+model Interview {
+  id               String   @id @default(cuid())
+  applicationId    String
+  scheduledAt      DateTime
+  duration         Int      @default(30)
+  type             String
+  location         String?
+  meetingLink      String?
+  interviewerNames String[] @default([])
+  status           String   @default("scheduled")
+  feedback         String?
+  rating           Int?
+  createdAt        DateTime @default(now())
+
+  application JobApp @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@index([applicationId])
+  @@index([scheduledAt])
+}
+
+model SavedJob {
+  id          String   @id @default(cuid())
+  candidateId String
+  jobId       String
+  createdAt   DateTime @default(now())
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@unique([candidateId, jobId])
+}
+
+model JobAlert {
+  id             String    @id @default(cuid())
+  candidateId    String
+  keywords       String?
+  specialization String?
+  location       String?
+  jobType        String?
+  salaryMin      Int?
+  frequency      String    @default("daily")
+  channel        String    @default("email")
+  isActive       Boolean   @default(true)
+  lastSentAt     DateTime?
+  createdAt      DateTime  @default(now())
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId, isActive])
+}
+
+model LocumAvailability {
+  id           String   @id @default(cuid())
+  candidateId  String
+  startDate    DateTime
+  endDate      DateTime
+  locations    String[] @default([])
+  minDailyRate Int?
+  currency     String   @default("INR")
+  notes        String?
+  status       String   @default("available")
+  createdAt    DateTime @default(now())
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([startDate, status])
+}
+
+model LicensingGuide {
+  id                  String   @id @default(cuid())
+  jurisdiction        String
+  slug                String   @unique
+  title               String
+  titleMl             String?
+  description         String   @default("")
+  eligibilityCriteria String   @default("")
+  documentChecklist   Json     @default("[]")
+  examDetails         String?
+  processingTime      String?
+  estimatedCost       String?
+  steps               Json     @default("[]")
+  tips                String?
+  lastUpdated         DateTime @default(now())
+  createdAt           DateTime @default(now())
+}
+
+model CandidateLicenseTrack {
+  id               String    @id @default(cuid())
+  candidateId      String
+  jurisdictionSlug String
+  stage            String    @default("documents_collected")
+  notes            String?
+  targetDate       DateTime?
+  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime  @default(now())
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@unique([candidateId, jurisdictionSlug])
+}
+
+model MatchScore {
+  id          String   @id @default(cuid())
+  jobId       String
+  candidateId String
+  score       Int
+  explanation String?
+  computedAt  DateTime @default(now())
+
+  candidate CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, candidateId])
+  @@index([jobId, score(sort: Desc)])
+  @@index([candidateId, score(sort: Desc)])
 }
