@@ -260,47 +260,67 @@ export default async function HomePage() {
           <p className="mt-6 text-lg md:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
             {tr.hero.subtitle}
           </p>
-          <div className="mt-10 flex flex-wrap gap-3 justify-center">
+          {/* Search form is now IN the hero — patient flow first, brand second. */}
+          <form
+            action="/doctors"
+            className="mt-8 bg-white rounded-card shadow-cardLg border border-white/10 p-3 md:p-4 grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto] gap-2 md:gap-3 items-stretch max-w-3xl mx-auto"
+          >
+            <label className="sr-only" htmlFor="hero-q">Search doctors, conditions, herbs</label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input id="hero-q" name="q" placeholder="Search doctors, conditions, herbs…" className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-md text-gray-900 focus:outline-none focus:ring-1 focus:ring-kerala-700" />
+            </div>
+            <label className="sr-only" htmlFor="hero-district">Select district</label>
+            <select id="hero-district" name="district" className="px-3 py-2.5 text-sm border border-gray-200 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-kerala-700">
+              <option value="">All districts</option>
+              {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
+            </select>
+            <label className="sr-only" htmlFor="hero-spec">Select specialization</label>
+            <select id="hero-spec" name="specialization" className="px-3 py-2.5 text-sm border border-gray-200 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-1 focus:ring-kerala-700">
+              <option value="">All specializations</option>
+              {SPECS.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
+            <button type="submit" aria-label="Search doctors" className="px-6 py-2.5 bg-kerala-700 hover:bg-kerala-800 text-white font-semibold rounded-md text-sm transition-colors">
+              Search
+            </button>
+          </form>
+
+          {/* Popular search chips */}
+          <ul className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-white/80">
+            <li className="opacity-70">Popular:</li>
+            {['PCOS', 'Diabetes', 'Panchakarma', 'Back Pain', 'Weight Loss', 'Hair Fall'].map((q) => (
+              <li key={q}><Link href={`/doctors?q=${encodeURIComponent(q)}`} className="inline-block px-2.5 py-1 bg-white/10 hover:bg-white/20 border border-white/20 rounded-full transition-colors">{q}</Link></li>
+            ))}
+          </ul>
+
+          {/* CTAs — one primary, one secondary (Task 5) */}
+          <div className="mt-7 flex flex-wrap gap-3 justify-center">
             <Link href="/doctors" className="group inline-flex items-center gap-2 px-7 py-3.5 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md shadow-[0_8px_30px_-6px_rgba(217,119,6,0.5)] hover:shadow-[0_12px_36px_-6px_rgba(217,119,6,0.6)] transition-all">
               {tr.hero.ctaFindDoctor} <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
             </Link>
-            <Link href="/ayurbot" className="inline-flex items-center gap-2 px-7 py-3.5 border-2 border-white/30 text-white hover:bg-white/10 font-semibold rounded-md backdrop-blur transition-colors">
+            <Link href="/ayurbot" className="inline-flex items-center gap-2 px-5 py-2 text-white/85 hover:text-white text-sm">
               <Bot className="w-4 h-4" /> {tr.hero.ctaAskAyurBot}
-            </Link>
-            <Link href="/herbs" className="inline-flex items-center gap-2 px-7 py-3.5 border-2 border-white/30 text-white hover:bg-white/10 font-semibold rounded-md backdrop-blur transition-colors">
-              <Leaf className="w-4 h-4" /> {tr.hero.ctaExploreHerbs}
             </Link>
           </div>
         </div>
       </section>
 
-      {/* 2. FLOATING SEARCH BAR */}
-      <div className="container mx-auto px-4 -mt-14 relative z-10">
-        <form
-          action="/doctors"
-          className="bg-white rounded-card shadow-cardLg border border-gray-100 p-4 grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto] gap-3 items-stretch"
-        >
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              name="q"
-              placeholder="Search doctors, conditions, herbs…"
-              className="w-full pl-9 pr-3 py-2.5 text-sm border border-gray-200 rounded-md focus:outline-none focus:ring-1 focus:ring-kerala-700"
-            />
-          </div>
-          <select name="district" className="px-3 py-2.5 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-kerala-700">
-            <option value="">All districts</option>
-            {DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
-          </select>
-          <select name="specialization" className="px-3 py-2.5 text-sm border border-gray-200 rounded-md bg-white focus:outline-none focus:ring-1 focus:ring-kerala-700">
-            <option value="">All specializations</option>
-            {SPECS.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <button type="submit" className="px-6 py-2.5 bg-kerala-700 hover:bg-kerala-800 text-white font-semibold rounded-md text-sm transition-colors">
-            Search
-          </button>
-        </form>
-      </div>
+      {/* 1b. HOW IT WORKS — 3-step strip */}
+      <section className="bg-white border-b border-gray-100">
+        <div className="container mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl">
+          {[
+            { e: '🔍', h: 'Search',  d: 'Find verified Ayurveda doctors by condition, location, or specialty' },
+            { e: '👨‍⚕️', h: 'Choose', d: 'Compare profiles, read reviews, check qualifications' },
+            { e: '📱', h: 'Consult', d: 'Book a video call or connect instantly via WhatsApp' },
+          ].map((s) => (
+            <div key={s.h} className="text-center">
+              <div className="text-4xl">{s.e}</div>
+              <h2 className="font-serif text-xl text-kerala-700 mt-2">{s.h}</h2>
+              <p className="text-sm text-gray-600 mt-1 max-w-xs mx-auto">{s.d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* 3. TRUST STATS — gradient cards, gold rule */}
       <section className="bg-kerala-700 text-white mt-16 relative overflow-hidden">
