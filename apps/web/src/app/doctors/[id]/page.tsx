@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { headers as nextHeaders } from 'next/headers'
 import { LEGACY_DOCTOR_SLUGS, LEGACY_SLUG_TO_SEED_ID } from './_legacy-slugs'
+import { BookingCard } from '../../../components/doctor/BookingCard'
 import { DoctorCard, type DoctorCardData } from '@ayurconnect/ui'
 import { SocialLinksDisplay } from '../../../components/social-links'
 import { FeaturedArticlesDisplay, FeaturedPostsDisplay, type FeaturedArticle, type FeaturedPost } from '../../../components/featured-content'
@@ -398,13 +399,15 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
         </div>
 
         {/* RIGHT — sticky sidebar */}
-        <aside className="space-y-4 lg:sticky lg:top-20 self-start">
+        <aside className="space-y-4 self-start">
+          {/* WhatsApp + callback booking (Task 12) */}
+          <BookingCard doctorId={doctor.id} doctorName={doctor.name} specialization={doctor.specialization} />
           <div className="bg-white rounded-card border border-gray-100 shadow-cardLg p-6">
-            <h3 className="font-serif text-xl text-kerala-700">Book a consultation</h3>
-            <p className="text-sm text-muted mt-1">Schedule a video or in-person visit.</p>
+            <h3 className="font-serif text-xl text-kerala-700">Schedule online slot</h3>
+            <p className="text-sm text-muted mt-1">Pick a video or in-person slot.</p>
             <Link
               href={`/book/${doctor.id}`}
-              className="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md text-sm"
+              className="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-kerala-700 text-kerala-700 hover:bg-kerala-50 font-semibold rounded-md text-sm"
             >
               Book Now <ArrowRight className="w-4 h-4" />
             </Link>

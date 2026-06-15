@@ -119,7 +119,16 @@ export function DoctorCard({ doctor, className }: { doctor: DoctorCardData; clas
         )}
       </div>
 
-      <div className="mt-auto pt-4 flex items-center justify-end">
+      <div className="mt-auto pt-4 flex items-center justify-end gap-2">
+        <a
+          href={`https://wa.me/971509379212?text=${encodeURIComponent(`Hi AyurConnect, I want to book a consultation with ${doctor.name} (${doctor.specialization}).`)}`}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`Book ${doctor.name} on WhatsApp`}
+          className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold bg-[#25D366] hover:opacity-90 text-white rounded-md transition-opacity"
+        >
+          Book
+        </a>
         <Link
           href={`/doctors/${doctor.id}`}
           className="px-3.5 py-1.5 text-xs font-semibold bg-kerala-600 text-white rounded-md hover:bg-kerala-700 transition-colors"
