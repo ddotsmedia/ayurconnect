@@ -440,7 +440,7 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
               type="button"
               onClick={() => setMobileOpen((v) => !v)}
               className="md:hidden p-2 text-gray-700 hover:text-kerala-700"
-              aria-label="Toggle menu"
+              aria-label="Toggle navigation menu"
             >
               {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
