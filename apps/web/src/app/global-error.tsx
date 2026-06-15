@@ -11,7 +11,8 @@ export default function GlobalError({ reset }: { error: Error & { digest?: strin
             <p style={{ color: '#4a4a42', margin: '8px 0 24px', fontSize: 14 }}>Please refresh the page or try again in a moment.</p>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
               <button onClick={reset} style={{ padding: '8px 16px', background: '#155228', color: 'white', border: 0, borderRadius: 6, cursor: 'pointer' }}>Try again</button>
-              <a href="/"                                                       style={{ padding: '8px 16px', background: 'white', color: '#155228', border: '1px solid #e5e7eb', borderRadius: 6, textDecoration: 'none' }}>Go home</a>
+              {/* global-error renders outside the router; using window.location avoids the next/link rule */}
+              <button onClick={() => { if (typeof window !== 'undefined') window.location.href = '/' }} style={{ padding: '8px 16px', background: 'white', color: '#155228', border: '1px solid #e5e7eb', borderRadius: 6, cursor: 'pointer' }}>Go home</button>
               <a href="https://wa.me/971509379212" target="_blank" rel="noreferrer" style={{ padding: '8px 16px', background: '#25d366', color: 'white', border: 0, borderRadius: 6, textDecoration: 'none' }}>WhatsApp us</a>
             </div>
           </div>
