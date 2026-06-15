@@ -426,12 +426,14 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                   </div>
                 </>
               ) : (
-                <Link
-                  href="/sign-in"
-                  className="px-4 py-1.5 text-sm font-semibold bg-gold-500 text-white rounded-md hover:bg-gold-600 transition-colors"
-                >
-                  {tr.nav.login} / {tr.nav.joinFree}
-                </Link>
+                <>
+                  <Link href="/sign-in" className="px-3 py-1.5 text-sm font-semibold text-gray-700 hover:text-kerala-700 transition-colors">
+                    Sign In
+                  </Link>
+                  <Link href="/doctors/register" className="px-4 py-1.5 text-sm font-semibold bg-gold-500 text-white rounded-md hover:bg-gold-600 transition-colors">
+                    Join as Doctor
+                  </Link>
+                </>
               )}
             </div>
 
@@ -535,9 +537,14 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                   <button onClick={() => { setMobileOpen(false); void signOut() }} className="w-full flex items-center gap-2 px-3 py-2 rounded text-red-600 hover:bg-red-50"><LogOut className="w-4 h-4" /> Sign out</button>
                 </>
               ) : (
-                <Link href="/sign-in" onClick={() => setMobileOpen(false)} className="block w-full px-4 py-2 text-center bg-gold-500 text-white rounded-md hover:bg-gold-600 font-semibold">
-                  {tr.nav.login} / {tr.nav.joinFree}
-                </Link>
+                <>
+                  <Link href="/doctors/register" onClick={() => setMobileOpen(false)} className="block w-full px-4 py-2 text-center bg-gold-500 text-white rounded-md hover:bg-gold-600 font-semibold">
+                    Join as Doctor
+                  </Link>
+                  <Link href="/sign-in" onClick={() => setMobileOpen(false)} className="block w-full px-4 py-2 text-center border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-md text-sm">
+                    Sign In
+                  </Link>
+                </>
               )}
             </div>
           </div>
