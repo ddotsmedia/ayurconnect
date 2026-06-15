@@ -6,6 +6,7 @@ import { getServerSession } from '../lib/auth'
 import { organizationLd, websiteLd, speakableLd, siteNavigationLd, ldGraph, SITE_URL, AYURVEDA_KEYWORDS } from '../lib/seo'
 import { API_INTERNAL as API } from '../lib/server-fetch'
 import { PageViewTracker } from '../components/page-view-tracker'
+import { WhatsAppButton } from '../components/WhatsAppButton'
 import './globals.css'
 
 const cormorant = Cormorant_Garamond({
@@ -200,12 +201,14 @@ export default async function RootLayout({
         <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
       </head>
       <body className="min-h-screen bg-cream font-sans text-ink">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-white focus:px-4 focus:py-2 focus:text-kerala-700 focus:shadow-lg focus:rounded">Skip to content</a>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ROOT_JSON_LD) }} />
         <TopContactBar settings={footerSettings} />
         <Navbar session={navSession} />
-        <main className="pb-16 md:pb-0">{children}</main>
+        <main id="main-content" className="pb-16 md:pb-0">{children}</main>
         <Footer settings={footerSettings} />
         <AyurBotWidget />
+        <WhatsAppButton />
         <MobileBottomNav />
         <ServiceWorkerRegister />
         <CookieConsent />

@@ -70,10 +70,12 @@ module.exports = {
       keyframes: {
         'slide-up': { from: { transform: 'translateY(8px)', opacity: '0' }, to: { transform: 'translateY(0)', opacity: '1' } },
         'ticker':   { from: { transform: 'translateX(0)' }, to: { transform: 'translateX(-33.333%)' } },
+        'wa-pulse': { '0%, 100%': { boxShadow: '0 6px 24px -6px rgba(37,211,102,0.6), 0 0 0 0 rgba(37,211,102,0.45)' }, '50%': { boxShadow: '0 6px 24px -6px rgba(37,211,102,0.6), 0 0 0 14px rgba(37,211,102,0)' } },
       },
       animation: {
         'slide-up': 'slide-up 200ms ease-out',
         'ticker':   'ticker 60s linear infinite',
+        'wa-pulse': 'wa-pulse 1.6s ease-out 3',
       },
     },
   },
