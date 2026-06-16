@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { GradientHero } from '@ayurconnect/ui'
-import { Briefcase, MapPin, Calendar } from 'lucide-react'
+import { Briefcase, MapPin, Calendar, Sparkles, FileText, ShieldCheck, MessageCircle, Bot, GraduationCap, Globe2, Plane, ArrowRight } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
 import { WhatsAppAlertsForm } from './_whatsapp-alerts-form'
 import { jobPostingLd, breadcrumbLd, ldGraph } from '../../lib/seo'
@@ -89,14 +89,44 @@ export default async function JobsPage() {
       </GradientHero>
 
       <div className="container mx-auto px-4 py-12">
-        <p className="text-sm text-muted mb-6"><strong className="text-ink">{jobs.length}</strong> open positions</p>
+        {jobs.length > 0 && <p className="text-sm text-muted mb-6"><strong className="text-ink">{jobs.length}</strong> open positions</p>}
 
         {jobs.length === 0 ? (
-          <div className="text-center py-20 bg-white border border-gray-100 rounded-card">
-            <Briefcase className="mx-auto h-10 w-10 text-gray-300 mb-3" />
-            <p className="text-muted">No openings posted right now.</p>
-            <p className="text-xs text-subtle mt-2">Hiring? <Link href="/sign-in" className="text-kerala-700 hover:underline">Sign in</Link> and post a job.</p>
-          </div>
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-6xl mx-auto">
+            {/* For employers */}
+            <article className="bg-gradient-to-br from-kerala-700 to-kerala-800 text-white rounded-card p-6 md:p-8 shadow-cardLg">
+              <span className="text-[10px] uppercase tracking-wider opacity-80 font-bold">For Employers</span>
+              <h2 className="font-serif text-2xl md:text-3xl mt-1">Hire Kerala&apos;s Best Ayurveda Talent</h2>
+              <p className="text-sm text-white/85 mt-2">Post your first job free. Reach BAMS graduates, MD specialists, Panchakarma therapists, and wellness professionals across India, UAE, and worldwide.</p>
+              <ul className="mt-4 space-y-2 text-sm">
+                <li className="flex items-start gap-2"><Sparkles className="w-4 h-4 text-amber-300 mt-0.5 flex-shrink-0" /> AI-powered candidate matching</li>
+                <li className="flex items-start gap-2"><Briefcase className="w-4 h-4 text-amber-300 mt-0.5 flex-shrink-0" /> Applicant tracking pipeline</li>
+                <li className="flex items-start gap-2"><MessageCircle className="w-4 h-4 text-amber-300 mt-0.5 flex-shrink-0" /> WhatsApp job alerts to 120K+ members</li>
+                <li className="flex items-start gap-2"><ShieldCheck className="w-4 h-4 text-amber-300 mt-0.5 flex-shrink-0" /> Verified doctor profiles with credentials</li>
+              </ul>
+              <Link href="/jobs/employers/register" className="mt-5 inline-flex items-center gap-1 px-5 py-2.5 bg-white text-kerala-800 hover:bg-white/90 rounded font-bold text-sm">
+                Post a Job — Free <ArrowRight className="w-4 h-4" />
+              </Link>
+              <p className="text-[11px] text-white/70 mt-3">Trusted by hospitals across Kerala and UAE</p>
+            </article>
+
+            {/* For candidates */}
+            <article className="bg-gradient-to-br from-amber-100 to-amber-50 text-ink rounded-card p-6 md:p-8 shadow-cardLg border border-amber-200">
+              <span className="text-[10px] uppercase tracking-wider text-amber-900 font-bold">For Doctors &amp; Therapists</span>
+              <h2 className="font-serif text-2xl md:text-3xl mt-1 text-kerala-800">Your Next Ayurveda Career Starts Here</h2>
+              <p className="text-sm text-gray-700 mt-2">Create your free profile. Get matched with hospitals, clinics, wellness resorts, and telemedicine companies worldwide.</p>
+              <ul className="mt-4 space-y-2 text-sm">
+                <li className="flex items-start gap-2"><FileText className="w-4 h-4 text-kerala-700 mt-0.5 flex-shrink-0" /> AI resume builder with Ayurveda-specific sections</li>
+                <li className="flex items-start gap-2"><Globe2 className="w-4 h-4 text-kerala-700 mt-0.5 flex-shrink-0" /> DHA, DOH, MOH licensing guides</li>
+                <li className="flex items-start gap-2"><Plane className="w-4 h-4 text-kerala-700 mt-0.5 flex-shrink-0" /> Locum and telemedicine opportunities</li>
+                <li className="flex items-start gap-2"><Bot className="w-4 h-4 text-kerala-700 mt-0.5 flex-shrink-0" /> Career advisor powered by AI</li>
+              </ul>
+              <Link href="/jobs/profile" className="mt-5 inline-flex items-center gap-1 px-5 py-2.5 bg-kerala-700 hover:bg-kerala-800 text-white rounded font-bold text-sm">
+                Create Profile — Free <ArrowRight className="w-4 h-4" />
+              </Link>
+              <p className="text-[11px] text-gray-600 mt-3">100% free for all doctors and therapists</p>
+            </article>
+          </section>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {jobs.map((j) => {
@@ -126,6 +156,25 @@ export default async function JobsPage() {
         )}
 
         <WhatsAppAlertsForm />
+
+        {/* Featured tools — surface portal capabilities even when jobs board is empty */}
+        <section className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-3 max-w-5xl mx-auto">
+          <Link href="/jobs/career-advisor" className="bg-white border border-gray-100 rounded-card p-5 shadow-card hover:shadow-cardLg block">
+            <Bot className="w-7 h-7 text-kerala-700" />
+            <h3 className="font-serif text-lg text-ink mt-2">AI Career Advisor</h3>
+            <p className="text-xs text-gray-700 mt-1">Get personalized career guidance.</p>
+          </Link>
+          <Link href="/jobs/resume-builder" className="bg-white border border-gray-100 rounded-card p-5 shadow-card hover:shadow-cardLg block">
+            <FileText className="w-7 h-7 text-kerala-700" />
+            <h3 className="font-serif text-lg text-ink mt-2">Resume Builder</h3>
+            <p className="text-xs text-gray-700 mt-1">Create an ATS-friendly Ayurveda CV.</p>
+          </Link>
+          <Link href="/jobs/licensing" className="bg-white border border-gray-100 rounded-card p-5 shadow-card hover:shadow-cardLg block">
+            <GraduationCap className="w-7 h-7 text-kerala-700" />
+            <h3 className="font-serif text-lg text-ink mt-2">Licensing Guides</h3>
+            <p className="text-xs text-gray-700 mt-1">DHA, DOH, MOH step-by-step.</p>
+          </Link>
+        </section>
 
         <div className="mt-6 p-5 rounded-card bg-rose-50 border border-rose-100 max-w-2xl mx-auto text-center">
           <p className="font-serif text-xl text-rose-900">🌍 Gulf & International Roles</p>
