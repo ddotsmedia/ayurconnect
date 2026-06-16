@@ -1,0 +1,315 @@
+// Compact, factual licensing guides for Ayurveda doctor placements abroad.
+// Sources: official regulator pages (DHA, DOH, MOH, QCHP, SCFHS) as of 2026.
+// Authoritative content kept short — link out to the regulator for the full text.
+
+export type Guide = {
+  slug: string
+  jurisdiction: string
+  title: string
+  description: string
+  eligibilityCriteria: string[]
+  documentChecklist: string[]
+  examDetails: string | null
+  processingTime: string
+  estimatedCost: string
+  steps: string[]
+  tips: string[]
+}
+
+export const GUIDES: Guide[] = [
+  {
+    slug: 'dha-dubai',
+    jurisdiction: 'Dubai (DHA)',
+    title: 'DHA Licensing for Ayurveda Doctors — Dubai',
+    description: 'The Dubai Health Authority (DHA) licenses Ayurveda doctors under the "Traditional / Complementary Medicine" track. A valid BAMS + 2 years experience is the floor; MD/MS Ayurveda holders may bypass the assessment.',
+    eligibilityCriteria: [
+      'BAMS from a recognised university (CCIM/NCISM listed)',
+      'Minimum 2 years post-internship clinical experience',
+      'Valid CCIM / KSMC registration (active)',
+      'IELTS Academic 5.0+ or equivalent English proficiency (for some routes)',
+    ],
+    documentChecklist: [
+      'Passport copy (valid 6+ months)',
+      'BAMS degree certificate + final transcript',
+      'CCIM / KSMC registration certificate',
+      'Experience letters (2+ years)',
+      'Good Standing Certificate from KSMC',
+      'Photograph (white background, 4×6 cm)',
+      'CV in DHA template',
+      'Application fee receipt',
+    ],
+    examDetails: 'DHA Prometric assessment (computer-based). 100 MCQs · 150 minutes · pass mark 60%. Exempt if you hold MD/MS Ayurveda + 5 years experience.',
+    processingTime: '6–12 weeks (Sheryan portal)',
+    estimatedCost: 'AED 3,800–5,200 (assessment + license + activation)',
+    steps: [
+      'Create Sheryan account at dha.gov.ae',
+      'Submit Primary Source Verification (PSV via Dataflow)',
+      'Sit DHA Prometric exam (or apply for exemption)',
+      'Receive eligibility letter',
+      'Submit job offer + employer activation',
+      'Receive DHA Professional License',
+    ],
+    tips: [
+      'Apply for PSV via Dataflow in parallel with the exam booking — saves 4 weeks',
+      'Cardiopulmonary Resuscitation (BLS) certificate is mandatory for licensing',
+      'Activation is tied to a sponsoring facility; you cannot work freelance on a base DHA license',
+    ],
+  },
+  {
+    slug: 'doh-abu-dhabi',
+    jurisdiction: 'Abu Dhabi (DOH)',
+    title: 'DOH Tamm Licensing for Ayurveda Doctors — Abu Dhabi',
+    description: 'The Department of Health Abu Dhabi licenses Ayurveda physicians under the Tamm platform with PQR (Professional Qualifications Requirements) "Ayurveda Practitioner" category.',
+    eligibilityCriteria: [
+      'BAMS from a recognised CCIM/NCISM university',
+      'Minimum 2 years experience (5 for "Specialist Ayurveda")',
+      'Active registration with home-country regulator',
+      'English proficiency (OET or IELTS) for clinical roles',
+    ],
+    documentChecklist: [
+      'Passport + visa page',
+      'Degree + transcript (attested by UAE Embassy)',
+      'CCIM/KSMC registration + Good Standing',
+      'Experience certificates (notarised)',
+      'CV (DOH format)',
+      'Recent photograph',
+      'BLS certificate (in date)',
+    ],
+    examDetails: 'DOH Tamm assessment via Prometric — 100 MCQs, 60% pass. Specialist track may also require a clinical interview.',
+    processingTime: '8–14 weeks',
+    estimatedCost: 'AED 4,500–6,000 (Dataflow + assessment + license)',
+    steps: [
+      'Register on TAMM (tamm.abudhabi)',
+      'Submit Dataflow primary source verification',
+      'Take Tamm PQR assessment (or exemption)',
+      'Apply for License Activation linked to facility',
+      'Issue of full professional license',
+    ],
+    tips: [
+      'PQR exemptions exist for MD/MS Ayurveda + 5 years — apply early with proof',
+      'Holding a DHA license eases the DOH transfer but does not auto-grant Abu Dhabi practice',
+    ],
+  },
+  {
+    slug: 'moh-uae',
+    jurisdiction: 'UAE Federal (MOHAP)',
+    title: 'MOHAP Licensing — Northern Emirates',
+    description: 'The Ministry of Health & Prevention (MOHAP) licenses Ayurveda doctors practising in Sharjah, Ajman, Ras Al Khaimah, Umm Al Quwain, and Fujairah.',
+    eligibilityCriteria: [
+      'BAMS from CCIM-listed university',
+      '2+ years clinical experience',
+      'Valid home registration + Good Standing',
+    ],
+    documentChecklist: [
+      'Attested degree + transcripts',
+      'CCIM / KSMC registration',
+      'Experience letters',
+      'Passport copy',
+      'CV (MOHAP template)',
+      'BLS card',
+    ],
+    examDetails: 'MOHAP Prometric assessment + structured interview for some roles.',
+    processingTime: '6–10 weeks',
+    estimatedCost: 'AED 3,500–4,800',
+    steps: [
+      'Register on MOHAP eService portal',
+      'Submit Dataflow PSV',
+      'Sit Prometric (or apply for exemption)',
+      'Submit facility-linked activation',
+    ],
+    tips: ['MOHAP licenses are sometimes used as a stepping-stone to DHA/DOH for specialty growth'],
+  },
+  {
+    slug: 'qchp-qatar',
+    jurisdiction: 'Qatar (QCHP)',
+    title: 'QCHP Licensing for Ayurveda Doctors — Qatar',
+    description: 'The Qatar Council for Healthcare Practitioners (QCHP) licenses traditional medicine physicians, including Ayurveda, under "TCM Practitioner" category.',
+    eligibilityCriteria: [
+      'BAMS + 3 years experience (or MD/MS Ayurveda + 1 year)',
+      'Active registration with CCIM',
+      'Good Standing Certificate',
+      'English proficiency (IELTS 5+)',
+    ],
+    documentChecklist: [
+      'Passport + visa',
+      'Degree (Embassy-attested)',
+      'CCIM registration',
+      'Experience letters',
+      'CV (QCHP format)',
+      'BLS + ACLS',
+    ],
+    examDetails: 'QCHP Prometric — 100 MCQs, 75 minutes. Some categories require an oral assessment.',
+    processingTime: '12–18 weeks',
+    estimatedCost: 'QAR 4,000–6,500',
+    steps: [
+      'Apply via QCHP DHP Practitioner Registration portal',
+      'Submit Dataflow PSV',
+      'Sit Prometric',
+      'Facility issues sponsorship + activation',
+    ],
+    tips: ['Qatar typically expects 3+ years post-internship; freshers face longer delays'],
+  },
+  {
+    slug: 'scfhs-saudi',
+    jurisdiction: 'Saudi Arabia (SCFHS)',
+    title: 'SCFHS Licensing — Saudi Arabia',
+    description: 'The Saudi Commission for Health Specialties (SCFHS) classifies Ayurveda under Complementary & Alternative Medicine. Demand is limited but growing in Riyadh and Jeddah private clinics.',
+    eligibilityCriteria: [
+      'BAMS + minimum 3 years experience',
+      'Recognised home country license',
+      'English / Arabic proficiency for patient care',
+    ],
+    documentChecklist: [
+      'Passport',
+      'Apostilled/attested degree',
+      'CCIM registration + Good Standing',
+      'Experience letters',
+      'CV (SCFHS template)',
+    ],
+    examDetails: 'SCFHS Prometric examination + classification interview.',
+    processingTime: '10–16 weeks',
+    estimatedCost: 'SAR 1,500–3,000 (verification + exam) + license fee',
+    steps: [
+      'Register on Mumaris+ portal',
+      'Submit Dataflow PSV',
+      'Sit SCFHS Prometric',
+      'Get professional classification',
+      'Convert to full practice license via employer',
+    ],
+    tips: ['Saudi typically requires Arabic proficiency for patient-facing roles; clinics serving Indian expat patients are more flexible'],
+  },
+  {
+    slug: 'moh-oman',
+    jurisdiction: 'Oman (MOH)',
+    title: 'Oman MOH Licensing — Ayurveda Doctors',
+    description: 'Oman MOH licenses Ayurveda under Traditional Medicine. Demand concentrated in Muscat + Salalah.',
+    eligibilityCriteria: ['BAMS + 2 years experience', 'CCIM/KSMC registration', 'Good Standing'],
+    documentChecklist: [
+      'Passport + visa',
+      'Attested degree + transcripts',
+      'CCIM registration',
+      'Experience letters',
+      'CV',
+      'BLS',
+    ],
+    examDetails: 'Oman Prometric exam (when required).',
+    processingTime: '6–10 weeks',
+    estimatedCost: 'OMR 200–400 + Dataflow + license fee',
+    steps: [
+      'Register with Ministry of Health',
+      'Submit Dataflow',
+      'Sit Oman Prometric',
+      'Employer activates license',
+    ],
+    tips: ['Smaller market but quicker turnaround once paperwork is complete'],
+  },
+  {
+    slug: 'nhra-bahrain',
+    jurisdiction: 'Bahrain (NHRA)',
+    title: 'NHRA Licensing — Bahrain',
+    description: 'The National Health Regulatory Authority (NHRA) licenses Ayurveda doctors under Complementary Medicine.',
+    eligibilityCriteria: ['BAMS + 2 years experience', 'Recognised home registration'],
+    documentChecklist: ['Passport', 'Attested degree', 'CCIM/KSMC registration', 'Experience letters', 'CV'],
+    examDetails: 'NHRA Prometric + competency assessment.',
+    processingTime: '8–12 weeks',
+    estimatedCost: 'BHD 250–400',
+    steps: ['Apply via NHRA portal', 'Dataflow PSV', 'Prometric exam', 'Facility activation'],
+    tips: ['Bahrain has friendly licensing for Indian-trained doctors; expat clinics actively recruit'],
+  },
+  {
+    slug: 'cnhc-uk',
+    jurisdiction: 'United Kingdom',
+    title: 'UK Practice — Ayurveda Doctor Pathways',
+    description: 'There is no statutory Ayurveda doctor register in the UK. Practitioners typically register voluntarily with the Complementary & Natural Healthcare Council (CNHC) under "Ayurvedic Practice" or work via the British Ayurvedic Medical Council (BAMC).',
+    eligibilityCriteria: [
+      'BAMS from a recognised university',
+      'Evidence of clinical training (500+ hours)',
+      'Continuing Professional Development (CPD) plan',
+      'Professional indemnity insurance',
+    ],
+    documentChecklist: [
+      'Degree + transcript',
+      'Clinical training certificate',
+      'Indemnity policy',
+      'CV',
+      'Disclosure & Barring Service (DBS) check',
+    ],
+    examDetails: null,
+    processingTime: '4–8 weeks (CNHC registration)',
+    estimatedCost: '£200–£400/year (CNHC + indemnity)',
+    steps: [
+      'Apply to CNHC or BAMC',
+      'Get indemnity (Balens, Towergate)',
+      'DBS check (for clinical practice)',
+      'Set up self-employed or join a registered clinic',
+    ],
+    tips: [
+      'Without statutory registration, you cannot prescribe regulated drugs — only Ayurveda herbal preparations within MHRA limits',
+      'Most UK Ayurveda clinics expect MD/MS qualification + UK CPD',
+    ],
+  },
+  {
+    slug: 'heilpraktiker-germany',
+    jurisdiction: 'Germany (Heilpraktiker)',
+    title: 'Germany — Heilpraktiker für Ayurveda',
+    description: 'Germany requires foreign Ayurveda doctors to qualify as Heilpraktiker (non-medical practitioner) unless they hold a German medical license. The Heilpraktiker route is the practical path for BAMS graduates.',
+    eligibilityCriteria: [
+      'High school diploma equivalent',
+      'Minimum age 25',
+      'German B2 proficiency (Goethe-Zertifikat)',
+      'Pass Heilpraktiker Überprüfung (state examination)',
+    ],
+    documentChecklist: [
+      'Passport',
+      'Heilpraktikerschule attendance certificate',
+      'German B2 certificate',
+      'Police clearance',
+      'Medical fitness certificate',
+    ],
+    examDetails: 'State exam — written (60 MCQ, 2 hours) + oral exam (medical knowledge, diagnosis, German clinical communication).',
+    processingTime: '6–12 months (course + exam)',
+    estimatedCost: 'EUR 3,000–6,000 (course + exam + setup)',
+    steps: [
+      'Enrol in Heilpraktikerschule (2 years part-time)',
+      'Achieve B2 German',
+      'Sit state Heilpraktiker exam',
+      'Register practice with local Gesundheitsamt',
+    ],
+    tips: [
+      'BAMS does not directly transfer — the German route requires the Heilpraktiker exam regardless',
+      'Munich, Berlin, Hamburg have established Ayurveda Heilpraktiker scenes',
+    ],
+  },
+  {
+    slug: 'ahpra-australia',
+    jurisdiction: 'Australia',
+    title: 'Australia — Ayurveda Practitioner Path',
+    description: 'AHPRA does not directly register Ayurveda doctors. Practitioners register with the Australasian Association of Ayurveda (AAA) or work as accredited "Natural Therapy" practitioners.',
+    eligibilityCriteria: [
+      'BAMS or equivalent recognised qualification',
+      'Australian Skills Recognition Information assessment',
+      'IELTS Academic 7.0',
+      'Professional indemnity',
+    ],
+    documentChecklist: [
+      'Passport',
+      'Degree + transcripts',
+      'IELTS',
+      'CV',
+      'Clinical experience letters',
+      'Health practitioner indemnity insurance',
+    ],
+    examDetails: null,
+    processingTime: '12–18 weeks (skills assessment) + visa',
+    estimatedCost: 'AUD 1,500–3,000 (skills + indemnity + visa)',
+    steps: [
+      'Register with Australasian Association of Ayurveda',
+      'Apply for skills assessment via VETASSESS',
+      'Obtain indemnity policy',
+      'Apply for skilled visa (subclass 482/189)',
+    ],
+    tips: ['Practising as a clinical "Ayurvedic doctor" requires AAA accreditation + recognised clinical hours; pharmacy-only roles need lower thresholds'],
+  },
+]
+
+export const GUIDE_SLUGS = GUIDES.map((g) => g.slug)
