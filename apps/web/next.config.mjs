@@ -11,12 +11,11 @@ export default {
   async rewrites() {
     return [
       { source: '/api/:path*', destination: 'http://localhost:4100/:path*' },
-      // SEO-friendly job-portal URLs map to dynamic segments under the hood.
-      // Next.js App Router requires segment names like `[slug]`; the `-jobs`
-      // suffix would otherwise be a literal folder. Rewriting preserves the
-      // public URL while letting Next match the dynamic route.
-      { source: '/jobs/:slug-jobs',            destination: '/jobs/specialization/:slug' },
-      { source: '/jobs/:slug-jobs/:location',  destination: '/jobs/specialization/:slug/:location' },
+      // Single-segment rewrite for the legacy SEO pattern. Multi-segment
+      // /jobs/:slug-jobs/:location would over-match /jobs/ayurveda-jobs/[country],
+      // so we only rewrite the single-segment form here and ship canonical
+      // /jobs/specialization/[slug]/[location] URLs everywhere else.
+      { source: '/jobs/:slug-jobs', destination: '/jobs/specialization/:slug' },
     ]
   },
   async redirects() {
