@@ -112,7 +112,7 @@ export default async function JobsPage() {
 
             {/* For candidates */}
             <article className="bg-gradient-to-br from-amber-100 to-amber-50 text-ink rounded-card p-6 md:p-8 shadow-cardLg border border-amber-200">
-              <span className="text-[10px] uppercase tracking-wider text-amber-900 font-bold">For Doctors &amp; Therapists</span>
+              <span className="text-[10px] uppercase tracking-wider text-amber-900 font-bold">For Doctors</span>
               <h2 className="font-serif text-2xl md:text-3xl mt-1 text-kerala-800">Your Next Ayurveda Career Starts Here</h2>
               <p className="text-sm text-gray-700 mt-2">Create your free profile. Get matched with hospitals, clinics, wellness resorts, and telemedicine companies worldwide.</p>
               <ul className="mt-4 space-y-2 text-sm">
@@ -124,7 +124,7 @@ export default async function JobsPage() {
               <Link href="/jobs/profile" className="mt-5 inline-flex items-center gap-1 px-5 py-2.5 bg-kerala-700 hover:bg-kerala-800 text-white rounded font-bold text-sm">
                 Create Profile — Free <ArrowRight className="w-4 h-4" />
               </Link>
-              <p className="text-[11px] text-gray-600 mt-3">100% free for all doctors and therapists</p>
+              <p className="text-[11px] text-gray-600 mt-3">100% free for all doctors</p>
             </article>
           </section>
         ) : (
