@@ -3,22 +3,22 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { GradientHero } from '@ayurconnect/ui'
 import { Briefcase, ArrowRight } from 'lucide-react'
-import { API_INTERNAL } from '../../../lib/server-fetch'
-import { pageMetadata } from '../../../lib/seo'
-import { SPECIALIZATIONS, LOCATIONS } from '../seo/_data'
+import { API_INTERNAL } from '../../../../lib/server-fetch'
+import { pageMetadata } from '../../../../lib/seo'
+import { SPECIALIZATIONS, LOCATIONS } from '../../seo/_data'
 
 export const dynamic = 'force-dynamic'
 
-export function generateStaticParams() { return SPECIALIZATIONS.map((s) => ({ specialization: s.slug })) }
+export function generateStaticParams() { return SPECIALIZATIONS.map((s) => ({ slug: s.slug })) }
 
 function findSpec(slug: string) { return SPECIALIZATIONS.find((s) => s.slug === slug) }
 
-export async function generateMetadata({ params }: { params: Promise<{ specialization: string }> }): Promise<Metadata> {
-  const { specialization } = await params
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug: specialization } = await params
   const s = findSpec(specialization)
   if (!s) return { title: 'Not found' }
   return pageMetadata({
-    path: `/jobs/${specialization}-jobs`,
+    path: `/jobs/specialization/${specialization}`,
     title: `${s.label} Jobs — Ayurveda Career Opportunities | AyurConnect`,
     description: `Latest ${s.label} jobs for Ayurveda doctors. Active openings, salary ranges, employer profiles.`,
     keywords: [`${s.label} jobs`, `${s.label} ayurveda jobs`, `BAMS ${s.label}`, `ayurveda ${s.label}`],
@@ -35,8 +35,8 @@ async function fetchJobs(specialty: string): Promise<Array<{ id: string; title: 
   } catch { return [] }
 }
 
-export default async function SpecJobsPage({ params }: { params: Promise<{ specialization: string }> }) {
-  const { specialization } = await params
+export default async function SpecJobsPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug: specialization } = await params
   const s = findSpec(specialization)
   if (!s) notFound()
   const jobs = await fetchJobs(s.label)
@@ -65,7 +65,7 @@ export default async function SpecJobsPage({ params }: { params: Promise<{ speci
           <h2 className="font-serif text-xl text-ink">{s.label} jobs by location</h2>
           <div className="mt-3 flex flex-wrap gap-2">
             {LOCATIONS.map((l) => (
-              <Link key={l.slug} href={`/jobs/${s.slug}-jobs/${l.slug}`} className="inline-flex items-center gap-1 px-3 py-1 bg-cream border border-kerala-100 text-kerala-800 rounded-full text-xs hover:bg-kerala-50">{s.label} in {l.label} <ArrowRight className="w-3 h-3" /></Link>
+              <Link key={l.slug} href={`/jobs/specialization/${s.slug}/${l.slug}`} className="inline-flex items-center gap-1 px-3 py-1 bg-cream border border-kerala-100 text-kerala-800 rounded-full text-xs hover:bg-kerala-50">{s.label} in {l.label} <ArrowRight className="w-3 h-3" /></Link>
             ))}
           </div>
         </section>

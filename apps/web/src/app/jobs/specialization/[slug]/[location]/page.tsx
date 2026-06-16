@@ -3,23 +3,23 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { GradientHero } from '@ayurconnect/ui'
 import { Briefcase, MapPin } from 'lucide-react'
-import { API_INTERNAL } from '../../../../lib/server-fetch'
-import { pageMetadata } from '../../../../lib/seo'
-import { SPECIALIZATIONS, LOCATIONS } from '../../seo/_data'
+import { API_INTERNAL } from '../../../../../lib/server-fetch'
+import { pageMetadata } from '../../../../../lib/seo'
+import { SPECIALIZATIONS, LOCATIONS } from '../../../seo/_data'
 
 export const dynamic = 'force-dynamic'
 
 export function generateStaticParams() {
-  return SPECIALIZATIONS.flatMap((s) => LOCATIONS.map((l) => ({ specialization: s.slug, location: l.slug })))
+  return SPECIALIZATIONS.flatMap((s) => LOCATIONS.map((l) => ({ slug: s.slug, location: l.slug })))
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ specialization: string; location: string }> }): Promise<Metadata> {
-  const { specialization, location } = await params
+export async function generateMetadata({ params }: { params: Promise<{ slug: string; location: string }> }): Promise<Metadata> {
+  const { slug: specialization, location } = await params
   const s = SPECIALIZATIONS.find((x) => x.slug === specialization)
   const l = LOCATIONS.find((x) => x.slug === location)
   if (!s || !l) return { title: 'Not found' }
   return pageMetadata({
-    path: `/jobs/${specialization}-jobs/${location}`,
+    path: `/jobs/specialization/${specialization}/${location}`,
     title: `${s.label} Jobs in ${l.label} | AyurConnect`,
     description: `Active ${s.label} jobs in ${l.label}. Salary ranges, employers hiring, application links.`,
     keywords: [`${s.label} jobs ${l.label}`, `ayurveda ${l.label}`, `BAMS ${l.label}`],
@@ -36,8 +36,8 @@ async function fetchJobs(specialty: string, locationQuery: string): Promise<Arra
   } catch { return [] }
 }
 
-export default async function SpecLocPage({ params }: { params: Promise<{ specialization: string; location: string }> }) {
-  const { specialization, location } = await params
+export default async function SpecLocPage({ params }: { params: Promise<{ slug: string; location: string }> }) {
+  const { slug: specialization, location } = await params
   const s = SPECIALIZATIONS.find((x) => x.slug === specialization)
   const l = LOCATIONS.find((x) => x.slug === location)
   if (!s || !l) notFound()
@@ -55,7 +55,7 @@ export default async function SpecLocPage({ params }: { params: Promise<{ specia
       </GradientHero>
       <section className="container mx-auto px-4 py-10 max-w-5xl">
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {jobs.length === 0 && <li className="text-sm text-gray-500 col-span-2 bg-white border border-gray-100 rounded-card p-8 text-center">No current openings — try <Link href={`/jobs/${s.slug}-jobs`} className="text-kerala-700 hover:underline">all {s.label} jobs</Link> or set an alert.</li>}
+          {jobs.length === 0 && <li className="text-sm text-gray-500 col-span-2 bg-white border border-gray-100 rounded-card p-8 text-center">No current openings — try <Link href={`/jobs/specialization/${s.slug}`} className="text-kerala-700 hover:underline">all {s.label} jobs</Link> or set an alert.</li>}
           {jobs.map((j) => (
             <li key={j.id} className="bg-white border border-gray-100 rounded-card p-4 shadow-card">
               <Link href={`/jobs/${j.id}`} className="font-semibold text-ink hover:text-kerala-700 inline-flex items-center gap-2"><Briefcase className="w-4 h-4" /> {j.title}</Link>
