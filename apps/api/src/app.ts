@@ -59,6 +59,14 @@ const app = fp(async (fastify, opts: AppOptions) => {
       fastify.log.warn({ err }, 'appointment-reminder cron: failed to start (non-fatal)')
     }
 
+    // ─── Daily 8 AM IST job match digest cron (Phase A) ───────────────
+    try {
+      const { registerJobDigestCron } = await import('./cron/jobDigest.js')
+      registerJobDigestCron(fastify)
+    } catch (err) {
+      fastify.log.warn({ err }, 'job-digest cron: failed to start (non-fatal)')
+    }
+
     // ─── Start weekly Sunday-7pm health-journal summary cron ────────────
     // For each user with 3+ journal entries that week, generates the AI
     // summary and emails + notifies them.

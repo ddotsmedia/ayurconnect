@@ -3,6 +3,7 @@
 // dedicated portal experience.
 
 import type { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify'
+import { computeJobMatches } from './jobs-matching.js'
 
 export const autoPrefix = '/jobs-portal'
 
@@ -163,6 +164,8 @@ const jobsPortal: FastifyPluginAsync = async (fastify) => {
           postedByRole: 'employer',
         },
       })
+      // Fire-and-forget Haiku scoring for the top-100 candidate pool.
+      void computeJobMatches(fastify, job.id).catch(() => {})
       return job
     })
 
