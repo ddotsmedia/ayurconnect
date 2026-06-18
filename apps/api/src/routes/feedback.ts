@@ -2,11 +2,13 @@
 
 import type { FastifyPluginAsync } from 'fastify'
 import { rateLimitOk } from '../lib/rate-limit.js'
+import { sendWhatsApp, whatsappEnabled } from '../lib/whatsapp.js'
 
 export const autoPrefix = '/feedback'
 
 const CATEGORIES = ['feedback', 'suggestion', 'bug_report', 'feature_request', 'complaint']
 const STATUSES   = ['new', 'reviewed', 'in_progress', 'resolved', 'dismissed']
+const ADMIN_WHATSAPP = process.env.FEEDBACK_WHATSAPP ?? '+971509379212'
 
 const feedback: FastifyPluginAsync = async (fastify) => {
   // Public submit — rate-limited 3/hour per IP.
@@ -41,6 +43,13 @@ const feedback: FastifyPluginAsync = async (fastify) => {
         userId,
       },
     })
+
+    // Fire-and-forget WhatsApp notification to admin.
+    if (whatsappEnabled()) {
+      const body = `🩺 AyurConnect feedback\n\nFrom: ${row.name}${row.email ? ' · ' + row.email : ''}${row.phone ? ' · ' + row.phone : ''}\nCategory: ${row.category.replace(/_/g, ' ')}\nSubject: ${row.subject}\n\n${row.message.slice(0, 1000)}${row.message.length > 1000 ? '…' : ''}\n\nManage: https://ayurconnect.com/admin/feedback`
+      void sendWhatsApp({ to: ADMIN_WHATSAPP, body }).catch(() => {})
+    }
+
     return { ok: true, id: row.id }
   })
 
