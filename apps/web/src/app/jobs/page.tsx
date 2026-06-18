@@ -176,6 +176,52 @@ export default async function JobsPage() {
           </Link>
         </section>
 
+        {/* FAQ section + schema (Task 11) */}
+        <section className="mt-12 max-w-3xl mx-auto">
+          <h2 className="font-serif text-2xl text-ink mb-3">Frequently asked</h2>
+          <div className="space-y-2">
+            {[
+              { q: 'How do I find Ayurveda jobs on AyurConnect?', a: 'Use the search bar + sidebar filters (job type, specialization, location, experience, salary). For ongoing alerts, create a job alert at /jobs/alerts so we email or WhatsApp matching jobs as they\'re posted.' },
+              { q: 'Is AyurConnect free for doctors?', a: 'Yes — 100% free, forever. Candidates never pay. Job posting + employer subscriptions support the platform.' },
+              { q: 'How do I apply for jobs abroad (Dubai, UAE, GCC)?', a: 'Each jurisdiction has its own licensing process. See /jobs/licensing for jurisdiction-by-jurisdiction guides on DHA, DOH, MOHAP, QCHP, SCFHS, etc.' },
+              { q: 'What qualifications do I need?', a: 'BAMS is the minimum for most roles. MD/MS is required for specialist positions. International roles often need active license + Dataflow verification + clinical experience.' },
+              { q: 'How does AI matching work?', a: 'When you complete your candidate profile and a job is posted, our matching engine scores jobs against your profile (specialization 25%, experience 15%, location 15%, salary 15%, qualification 10%, license 10%, language 5%, skills 5%) and surfaces top matches.' },
+            ].map((f) => (
+              <details key={f.q} className="bg-white border border-gray-100 rounded-card p-4 shadow-card">
+                <summary className="font-semibold text-ink cursor-pointer">{f.q}</summary>
+                <p className="text-sm text-gray-700 mt-2">{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+
+        {/* FAQPage JSON-LD schema */}
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org', '@type': 'FAQPage',
+          mainEntity: [
+            { q: 'How do I find Ayurveda jobs on AyurConnect?', a: 'Use the search bar + sidebar filters (job type, specialization, location, experience, salary). For ongoing alerts, create a job alert.' },
+            { q: 'Is AyurConnect free for doctors?', a: '100% free, forever. Candidates never pay.' },
+            { q: 'How do I apply for jobs abroad?', a: 'See /jobs/licensing for jurisdiction-by-jurisdiction guides on DHA, DOH, MOHAP, QCHP, SCFHS.' },
+            { q: 'What qualifications do I need?', a: 'BAMS minimum. MD/MS for specialist roles. International roles often need active license + Dataflow verification + clinical experience.' },
+            { q: 'How does AI matching work?', a: 'Matching engine scores jobs against your profile across specialization, experience, location, salary, qualification, license, language, skills.' },
+          ].map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+        }) }} />
+
+        {/* Related pages strip */}
+        <nav className="mt-8 max-w-4xl mx-auto bg-cream border border-kerala-100 rounded-card p-4 text-center">
+          <p className="text-xs uppercase tracking-wider text-gray-500 font-semibold mb-2">More from AyurConnect Jobs</p>
+          <div className="flex flex-wrap gap-2 justify-center text-xs">
+            <Link href="/jobs/career-advisor"   className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">Career Advisor</Link>
+            <Link href="/jobs/resume-builder"   className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">Resume Builder</Link>
+            <Link href="/jobs/resume-score"     className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">AI Resume Score</Link>
+            <Link href="/jobs/assessments"      className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">Skill Assessments</Link>
+            <Link href="/jobs/interview-prep"   className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">Interview Prep</Link>
+            <Link href="/jobs/career-paths"     className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">Career Paths</Link>
+            <Link href="/jobs/insights"         className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">Market Insights</Link>
+            <Link href="/jobs/licensing"        className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">Licensing Guides</Link>
+          </div>
+        </nav>
+
         <div className="mt-6 p-5 rounded-card bg-rose-50 border border-rose-100 max-w-2xl mx-auto text-center">
           <p className="font-serif text-xl text-rose-900">🌍 Gulf & International Roles</p>
           <p className="text-sm text-rose-800 mt-2">
