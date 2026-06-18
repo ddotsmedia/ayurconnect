@@ -66,6 +66,13 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/karkidaka',                   priority: 0.85, changeFrequency: 'monthly' },
   { path: '/learn/ask-the-classics',      priority: 0.8,  changeFrequency: 'weekly'  },
   { path: '/learn/tridosha',              priority: 0.9,  changeFrequency: 'monthly' },
+  { path: '/learn',                       priority: 0.95, changeFrequency: 'weekly'  },
+  { path: '/learn/notes',                 priority: 0.9,  changeFrequency: 'weekly'  },
+  { path: '/learn/question-papers',       priority: 0.85, changeFrequency: 'weekly'  },
+  { path: '/learn/mcq',                   priority: 0.9,  changeFrequency: 'weekly'  },
+  { path: '/learn/case-studies',          priority: 0.85, changeFrequency: 'weekly'  },
+  { path: '/learn/workshops',             priority: 0.8,  changeFrequency: 'weekly'  },
+  { path: '/learn/ebooks',                priority: 0.8,  changeFrequency: 'monthly' },
   // Article category pages — generated for the 16 default ArticleCategory slugs.
   { path: '/articles/category/lifestyle',       priority: 0.75, changeFrequency: 'weekly' },
   { path: '/articles/category/herbs',           priority: 0.75, changeFrequency: 'weekly' },

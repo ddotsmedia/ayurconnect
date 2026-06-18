@@ -80,11 +80,12 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
       kind: 'group', key: 'learn', label: tr.nav.learn, cols: 2,
       sections: [
         {
-          heading: 'Knowledge',
+          heading: 'Study (free)',
           items: [
-            { href: '/heritage', label: 'Heritage & tradition', desc: 'Ashtavaidya, Kerala history', icon: BookOpen },
-            { href: '/learn/ask-the-classics', label: 'Ask the classics', desc: 'AI-cited ancient text answers', icon: ScrollText },
-            { href: '/treatments', label: 'Treatments', desc: 'Pizhichil, Sirodhara, more', icon: Leaf },
+            { href: '/learn',                 label: 'Learning hub',     desc: 'BAMS notes, MCQ, papers — all free', icon: BookOpen },
+            { href: '/learn/notes',           label: 'BAMS Notes',       desc: '20+ notes across all years',         icon: BookOpen },
+            { href: '/learn/mcq',             label: 'AIAPGET MCQ',      desc: '100+ practice questions',            icon: ScrollText },
+            { href: '/learn/case-studies',    label: 'Case studies',     desc: '10 clinical cases',                   icon: Leaf },
           ],
         },
         {
@@ -98,6 +99,12 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
         },
       ],
       more: [
+        { href: '/learn/question-papers', label: 'Question Papers' },
+        { href: '/learn/workshops',       label: 'Workshops' },
+        { href: '/learn/ebooks',          label: 'E-Books' },
+        { href: '/learn/ask-the-classics', label: 'Ask the Classics' },
+        { href: '/heritage',              label: 'Heritage' },
+        { href: '/treatments',            label: 'Treatments' },
         { href: '/prakriti-quiz', label: 'Prakriti Quiz' },
         { href: '/kerala-guide', label: 'Kerala Guide' },
         { href: '/conditions', label: 'Conditions Library' },
