@@ -104,6 +104,9 @@ export default function AboutPage() {
           <Link href="/partnership" className="inline-flex items-center gap-2 px-6 py-3 border-2 border-kerala-600 text-kerala-700 hover:bg-kerala-50 rounded-md font-semibold">
             <Users className="w-4 h-4" /> Partnership
           </Link>
+          <Link href="/feedback" className="inline-flex items-center gap-2 px-6 py-3 border-2 border-kerala-600 text-kerala-700 hover:bg-kerala-50 rounded-md font-semibold">
+            Share your feedback
+          </Link>
         </div>
       </section>
     </>

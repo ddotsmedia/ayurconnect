@@ -79,6 +79,7 @@ model User {
   employerProfile  EmployerProfile?     @relation("EmployerOwner")
   employerTeams    EmployerTeamMember[] @relation("EmployerTeamUser")
   candidateProfile CandidateProfile?    @relation("CandidateOwner")
+  feedback         Feedback[]           @relation("UserFeedback")
 }
 
 // ─── Patient health journal (added 2026-05-10) ────────────────────────────
@@ -2352,4 +2353,27 @@ model MatchScore {
   @@unique([jobId, candidateId])
   @@index([jobId, score(sort: Desc)])
   @@index([candidateId, score(sort: Desc)])
+}
+
+model Feedback {
+  id         String   @id @default(cuid())
+  name       String
+  email      String?
+  phone      String?
+  category   String   @default("feedback")
+  subject    String
+  message    String
+  page       String?
+  status     String   @default("new")
+  adminNotes String?
+  userId     String?
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user User? @relation("UserFeedback", fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([category])
+  @@index([isRead])
 }
