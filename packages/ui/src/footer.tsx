@@ -170,7 +170,7 @@ export function Footer({ settings = {} }: { settings?: FooterSettings } = {}) {
         </div>
 
         <div className="mt-8 pt-6 border-t border-white/10 text-xs text-white/60 text-center space-y-1">
-          <p className="inline-flex items-center justify-center gap-1.5"><MapPin className="w-3 h-3 text-gold-400" /> Ddotsmedia IT Solutions, SHAMS Free Zone, Sharjah, UAE</p>
+          <p className="inline-flex items-center justify-center gap-1.5"><MapPin className="w-3 h-3 text-gold-400" /> Ddotsmedia Technologies</p>
           <p className="inline-flex items-center justify-center gap-1.5"><Mail   className="w-3 h-3 text-gold-400" /> <a href="mailto:info@ayurconnect.com" className="hover:text-white">info@ayurconnect.com</a></p>
           <p className="text-white/40 pt-2">{copyright}</p>
         </div>
