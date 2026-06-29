@@ -299,7 +299,7 @@ export default async function HomePage() {
 
       {/* 4. FEATURED DOCTORS */}
       <section className="container mx-auto px-4 py-20">
-        <SectionHeader eyebrow="Practitioners" title="Featured Doctors" subtitle="verified practitioners with deep classical training." />
+        <SectionHeader eyebrow="Practitioners" title="Featured Doctors" subtitle="Real doctors, verified credentials." />
         {featuredDoctors.length === 0 ? (
           <p className="text-center text-muted">No doctors available right now.</p>
         ) : (
@@ -317,7 +317,7 @@ export default async function HomePage() {
       {/* 5. SERVICE GRID */}
       <section className="bg-white border-y border-gray-100 py-20">
         <div className="container mx-auto px-4">
-          <SectionHeader eyebrow="Platform" title="Everything Ayurveda in One Place" subtitle="Eight modules. One platform. Rooted in Kerala." />
+          <SectionHeader eyebrow="Platform" title="What You Can Do on AyurConnect" subtitle="Doctors, herbs, treatments, and more — all verified." />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {SERVICES.map((svc, idx) => {
               const Icon = svc.icon
@@ -347,7 +347,7 @@ export default async function HomePage() {
       <section className="relative overflow-hidden bg-hero-tourism text-white py-20">
         <LeafPattern color="#5fc063" opacity={0.06} tile={70} />
         <div className="relative container mx-auto px-4">
-          <SectionHeader eyebrow="Heritage" title="Signature Kerala Treatments" subtitle="Classical therapies preserved unbroken for 5000 years." dark />
+          <SectionHeader eyebrow="Heritage" title="Signature Kerala Treatments" subtitle="Kerala's specialty treatments" dark />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {TREATMENTS.map((t) => (
               <div key={t.name} className="group bg-white/[0.06] border-l-4 border-l-gold-400 border-y border-r border-white/15 rounded-card p-6 backdrop-blur hover:bg-white/[0.10] hover:border-white/25 transition-colors duration-200">
@@ -369,7 +369,7 @@ export default async function HomePage() {
 
       {/* 7. HEALTH TIPS PREVIEW */}
       <section className="container mx-auto px-4 py-20">
-        <SectionHeader eyebrow="Daily Wisdom" title="Health Tips for Today" subtitle="Bite-sized classical guidance — Charaka, Ashtanga Hridayam." />
+        <SectionHeader eyebrow="Daily Wisdom" title="Daily Ayurveda Tips" />
         {healthTips.length === 0 ? (
           <p className="text-center text-muted">Health tips coming soon.</p>
         ) : (
@@ -446,14 +446,14 @@ export default async function HomePage() {
         <LeafPattern color="#5fc063" opacity={0.07} tile={70} />
         <div className="relative container mx-auto px-4 text-center max-w-3xl">
           <h2 className="font-serif text-3xl md:text-5xl text-white leading-tight">
-            Begin your Ayurveda journey today
+            Talk to an Ayurveda Doctor
           </h2>
           <p className="text-white/75 mt-4 text-lg max-w-xl mx-auto">
-            Free to join. verified doctors. No middlemen, no commission cuts. Trusted by 50,000+ patients.
+            Free to join. Verified doctors. No middlemen.
           </p>
           <div className="mt-8 flex flex-wrap gap-3 justify-center">
-            <Link href="/register" className="inline-flex items-center gap-2 px-7 py-3.5 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md shadow-[0_8px_30px_-6px_rgba(217,119,6,0.5)] transition-all">
-              Join free <ArrowRight className="w-4 h-4" />
+            <Link href="/doctors" className="inline-flex items-center gap-2 px-7 py-3.5 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md shadow-[0_8px_30px_-6px_rgba(217,119,6,0.5)] transition-all">
+              Find a Doctor <ArrowRight className="w-4 h-4" />
             </Link>
             <Link href="/doctors" className="inline-flex items-center gap-2 px-7 py-3.5 border-2 border-white/30 text-white hover:bg-white/10 font-semibold rounded-md backdrop-blur transition-colors">
               Browse doctors
