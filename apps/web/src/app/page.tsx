@@ -319,13 +319,14 @@ export default async function HomePage() {
         <div className="container mx-auto px-4">
           <SectionHeader eyebrow="Platform" title="Everything Ayurveda in One Place" subtitle="Eight modules. One platform. Rooted in Kerala." />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {SERVICES.map((svc) => {
+            {SERVICES.map((svc, idx) => {
               const Icon = svc.icon
+              const featured = idx < 2
               return (
                 <Link
                   key={svc.href}
                   href={svc.href}
-                  className="group p-6 rounded-card border border-gray-100 bg-white hover:shadow-cardLg hover:border-kerala-200 hover:-translate-y-1 transition-all duration-200"
+                  className={`group p-6 rounded-card border border-gray-100 bg-white hover:border-kerala-200 transition-colors duration-200 ${featured ? 'md:col-span-2' : ''}`}
                 >
                   <span className={`w-12 h-12 rounded-xl ${svc.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
                     <Icon className="w-5 h-5" />
