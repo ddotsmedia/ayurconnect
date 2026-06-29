@@ -2,8 +2,8 @@ import Link from 'next/link'
 import { headers as nextHeaders } from 'next/headers'
 import { DoctorCard, LeafPattern, LogoMark, t, type DoctorCardData } from '@ayurconnect/ui'
 import {
-  Search, Stethoscope, Building2, Bot, MessageSquare, Briefcase, Leaf, Plane,
-  GraduationCap, ShieldCheck, Video, Sparkles, Users, MapPin, Lock, Star, ArrowRight, ChevronRight, BookOpen, Heart,
+  Search, Stethoscope, Building2, Bot, MessageSquare, Leaf,
+  ShieldCheck, Sparkles, ArrowRight, ChevronRight, BookOpen, Heart,
 } from 'lucide-react'
 import { API_INTERNAL as API, logServerFetchError } from '../lib/server-fetch'
 import { PersonalizedWelcome } from '../components/personalized-welcome'
@@ -29,10 +29,10 @@ const SERVICES = [
 ]
 
 const TREATMENTS = [
-  { name: 'Panchakarma',    duration: '7–28 days',  emoji: '🌿', desc: 'Five classical purification therapies — Vamana, Virechana, Basti, Nasya, Raktamokshana. The pinnacle of Ayurvedic detox.' },
-  { name: 'Shirodhara',     duration: '30–45 min',  emoji: '💧', desc: 'Continuous warm-oil stream over the forehead. Profound relief from anxiety, insomnia, migraine, mental fatigue.' },
-  { name: 'Njavara Kizhi',  duration: '45–60 min',  emoji: '🌾', desc: 'Medicated rice-bolus poultice massage — strengthens muscles, nourishes tissues, classical anti-aging.' },
-  { name: 'Pizhichil',      duration: '60–90 min',  emoji: '🛁', desc: 'Synchronized warm-oil pour and massage — known as "the king\'s treatment". For arthritis, paralysis, chronic stiffness.' },
+  { name: 'Panchakarma',    duration: '7–28 days',  desc: 'Five classical purification therapies — Vamana, Virechana, Basti, Nasya, Raktamokshana. The pinnacle of Ayurvedic detox.' },
+  { name: 'Shirodhara',     duration: '30–45 min',  desc: 'Continuous warm-oil stream over the forehead. Profound relief from anxiety, insomnia, migraine, mental fatigue.' },
+  { name: 'Njavara Kizhi',  duration: '45–60 min',  desc: 'Medicated rice-bolus poultice massage — strengthens muscles, nourishes tissues, classical anti-aging.' },
+  { name: 'Pizhichil',      duration: '60–90 min',  desc: 'Synchronized warm-oil pour and massage — known as "the king\'s treatment". For arthritis, paralysis, chronic stiffness.' },
 ]
 
 const WHY = [
@@ -82,20 +82,14 @@ const HOME_SERVICES_CATALOG = [
   'AyurBot AI Assistant',
 ]
 
-// Admin-managed at /admin/testimonials. No hardcoded fallback: if the table
-// is empty (admin deleted everything) or the API is unreachable, show nothing
-// rather than phantom rows that look identical to the seeded data and make it
-// appear that delete didn't work.
-type TestimonialItem = { id?: string; name: string; condition: string | null; initials: string | null; stars: number; quote: string }
-
 type Tip = { id: string; title: string; content: string; dosha: string; season?: string | null }
 type DoctorWithMeta = DoctorCardData
 
-const DOSHA_TONE: Record<string, { bg: string; chip: string; emoji: string }> = {
-  vata:     { bg: 'bg-blue-50',    chip: 'bg-blue-600 text-white',    emoji: '🌬️' },
-  pitta:    { bg: 'bg-orange-50',  chip: 'bg-orange-600 text-white',  emoji: '🔥' },
-  kapha:    { bg: 'bg-emerald-50', chip: 'bg-emerald-600 text-white', emoji: '🌊' },
-  tridosha: { bg: 'bg-purple-50',  chip: 'bg-purple-600 text-white',  emoji: '☯️' },
+const DOSHA_TONE: Record<string, { bg: string; chip: string }> = {
+  vata:     { bg: 'bg-blue-50',    chip: 'bg-blue-600 text-white'    },
+  pitta:    { bg: 'bg-orange-50',  chip: 'bg-orange-600 text-white'  },
+  kapha:    { bg: 'bg-emerald-50', chip: 'bg-emerald-600 text-white' },
+  tridosha: { bg: 'bg-purple-50',  chip: 'bg-purple-600 text-white'  },
 }
 
 async function getFeaturedDoctors(): Promise<DoctorWithMeta[]> {
@@ -113,22 +107,6 @@ async function getFeaturedDoctors(): Promise<DoctorWithMeta[]> {
     return data.doctors ?? []
   } catch (err) {
     logServerFetchError('getFeaturedDoctors', err)
-    return []
-  }
-}
-
-async function getTestimonials(): Promise<TestimonialItem[]> {
-  // no-store so admin save / delete reflects on next page load.
-  try {
-    const res = await fetch(`${API}/testimonials?limit=12`, { cache: 'no-store' })
-    if (!res.ok) {
-      logServerFetchError('getTestimonials', `HTTP ${res.status}`)
-      return []
-    }
-    const data = (await res.json()) as { testimonials: TestimonialItem[] }
-    return Array.isArray(data.testimonials) ? data.testimonials : []
-  } catch (err) {
-    logServerFetchError('getTestimonials', err)
     return []
   }
 }
@@ -190,10 +168,9 @@ export const metadata = {
 }
 
 export default async function HomePage() {
-  const [featuredDoctors, healthTips, testimonials, stats] = await Promise.all([
+  const [featuredDoctors, healthTips, stats] = await Promise.all([
     getFeaturedDoctors(),
     getHealthTips(),
-    getTestimonials(),
     getHomepageStats(),
   ])
   // Pick the 4 stats with the strongest real numbers. If consultations is 0
@@ -372,8 +349,7 @@ export default async function HomePage() {
           <SectionHeader eyebrow="Heritage" title="Signature Kerala Treatments" subtitle="Classical therapies preserved unbroken for 5000 years." dark />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {TREATMENTS.map((t) => (
-              <div key={t.name} className="group bg-white/[0.06] border border-white/15 rounded-card p-6 backdrop-blur hover:bg-white/[0.10] hover:border-white/25 hover:-translate-y-1 transition-all duration-200">
-                <div className="text-4xl mb-3">{t.emoji}</div>
+              <div key={t.name} className="group bg-white/[0.06] border-l-4 border-l-gold-400 border-y border-r border-white/15 rounded-card p-6 backdrop-blur hover:bg-white/[0.10] hover:border-white/25 transition-colors duration-200">
                 <div className="flex items-center justify-between gap-2 mb-2">
                   <h3 className="font-serif text-2xl text-white leading-tight">{t.name}</h3>
                 </div>
@@ -400,14 +376,16 @@ export default async function HomePage() {
             {healthTips.map((tip) => {
               const tone = DOSHA_TONE[tip.dosha] ?? DOSHA_TONE.tridosha
               return (
-                <article key={tip.id} className={`${tone.bg} rounded-card p-7 border border-gray-100 hover:shadow-cardLg hover:-translate-y-1 transition-all duration-200`}>
+                <article key={tip.id} className="bg-white rounded-card border border-gray-100 overflow-hidden">
+                  <div className={`h-[3px] ${tone.chip.replace(/text-white/g, '').trim()}`} />
+                  <div className="p-7">
                   <div className="flex items-center gap-2 mb-4">
-                    <span className="text-3xl">{tone.emoji}</span>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${tone.chip}`}>{tip.dosha}</span>
                     {tip.season && <span className="text-[10px] uppercase text-gray-400 tracking-wider">{tip.season}</span>}
                   </div>
                   <h3 className="font-serif text-xl text-gray-900 leading-snug">{tip.title}</h3>
                   <p className="text-sm text-gray-700 mt-3 line-clamp-5 leading-relaxed">{tip.content}</p>
+                  </div>
                 </article>
               )
             })}

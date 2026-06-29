@@ -120,7 +120,6 @@ export default async function HealthTipsPage({ searchParams }: { searchParams: P
               return (
                 <article key={t.id} className={`${tone.bg} rounded-card p-6 border border-gray-100 hover:shadow-cardLg transition-shadow flex flex-col`}>
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-2xl">{tone.emoji}</span>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${tone.chip}`}>{t.dosha}</span>
                     {t.season && <span className="text-[10px] uppercase text-gray-500 tracking-wider ml-auto">{t.season}</span>}
                   </div>

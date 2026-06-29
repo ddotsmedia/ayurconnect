@@ -24,7 +24,7 @@ export default function TreatmentsIndex() {
       <GradientHero variant="green" size="lg">
         <div className="max-w-3xl mx-auto text-center">
           <span className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur rounded-full text-xs text-white/90 border border-white/20 mb-5">
-            🌿 Condition-led care
+            Condition-led care
           </span>
           <h1 className="font-serif text-4xl md:text-6xl text-white leading-tight">
             Specialised <span className="text-gold-400">Treatments</span>

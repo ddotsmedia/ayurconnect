@@ -93,7 +93,7 @@ export default function PanchakarmaPage() {
       <GradientHero variant="green" size="lg">
         <div className="text-center max-w-3xl mx-auto">
           <span className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 backdrop-blur rounded-full text-xs text-white/90 border border-white/20 mb-5">
-            🌿 Pancha karma — &ldquo;five actions&rdquo;
+            Pancha karma — &ldquo;five actions&rdquo;
           </span>
           <h1 className="font-serif text-4xl md:text-6xl text-white leading-tight">
             Panchakarma <span className="text-gold-400">Treatment Guide</span>
