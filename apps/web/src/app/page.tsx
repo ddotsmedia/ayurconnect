@@ -335,7 +335,7 @@ export default async function HomePage() {
         )}
         <div className="text-center mt-12">
           <Link href="/doctors" className="inline-flex items-center gap-2 px-6 py-3 border-2 border-kerala-700 text-kerala-700 hover:bg-kerala-700 hover:text-white font-semibold rounded-md transition-colors">
-            View all{stats.doctors > 0 ? ` ${statValue(stats.doctors)}` : ''} doctors <ArrowRight className="w-4 h-4" />
+            View all doctors <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>
