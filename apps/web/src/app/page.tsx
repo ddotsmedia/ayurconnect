@@ -3,7 +3,7 @@ import { headers as nextHeaders } from 'next/headers'
 import { DoctorCard, LeafPattern, LogoMark, t, type DoctorCardData } from '@ayurconnect/ui'
 import {
   Search, Stethoscope, Building2, Bot, MessageSquare, Briefcase, Leaf, Plane,
-  GraduationCap, ShieldCheck, Video, Sparkles, Users, MapPin, Lock, Star, ArrowRight, ChevronRight, BookOpen,
+  GraduationCap, ShieldCheck, Video, Sparkles, Users, MapPin, Lock, Star, ArrowRight, ChevronRight, BookOpen, Heart,
 } from 'lucide-react'
 import { API_INTERNAL as API, logServerFetchError } from '../lib/server-fetch'
 import { PersonalizedWelcome } from '../components/personalized-welcome'
@@ -36,12 +36,9 @@ const TREATMENTS = [
 ]
 
 const WHY = [
-  { icon: ShieldCheck, title: 'Verified', desc: 'Every doctor\'s credentials and qualifications are verified by our team before their profile goes live.' },
-  { icon: Video,       title: 'Video Consultations', desc: 'Connect with Kerala doctors from anywhere in the world.' },
-  { icon: Sparkles,    title: 'AI-Powered',  desc: 'AyurBot drafts personalised health insights in seconds, free.' },
-  { icon: Users,       title: 'Transparency', desc: 'Public reviews, qualifications, and registration numbers — nothing hidden.' },
-  { icon: MapPin,      title: 'Kerala Expertise', desc: 'Heritage practitioners trained in classical Kerala traditions.' },
-  { icon: Lock,        title: 'Safe & Private', desc: 'End-to-end encrypted consultations and health data.' },
+  { icon: ShieldCheck, title: 'Verified Credentials',          desc: 'Every doctor\'s BAMS/MD degree and KSMC registration verified manually before their profile goes live.' },
+  { icon: Leaf,        title: 'Classical Kerala Ayurveda',     desc: 'Rooted in Ashtavaidya tradition. Authentic Keraleeya Panchakarma — not generic wellness.' },
+  { icon: Heart,       title: 'Free, Forever',                 desc: 'No subscription for patients or doctors. No middlemen. Connect directly with practitioners.' },
 ]
 
 // FAQs surfaced on the homepage. These are simultaneously rendered as a
@@ -427,12 +424,12 @@ export default async function HomePage() {
       <section className="relative bg-cream py-20 overflow-hidden">
         <LeafPattern color="#155228" opacity={0.04} tile={80} />
         <div className="relative container mx-auto px-4">
-          <SectionHeader eyebrow="Why us" title="Built on Trust + Tradition" subtitle="Six pillars that make AyurConnect different." />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <SectionHeader eyebrow="Why us" title="Why Doctors Trust AyurConnect" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {WHY.map((w) => {
               const Icon = w.icon
               return (
-                <div key={w.title} className="bg-white p-7 rounded-card border border-gray-100 shadow-card hover:shadow-cardLg transition-shadow">
+                <div key={w.title} className="bg-white p-7 rounded-card border border-gray-100">
                   <span className="w-12 h-12 rounded-xl bg-kerala-50 text-kerala-700 flex items-center justify-center mb-4">
                     <Icon className="w-5 h-5" />
                   </span>
@@ -445,32 +442,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 9. TESTIMONIALS — hide the whole section when admin has none published. */}
-      {testimonials.length > 0 && (
-      <section className="container mx-auto px-4 py-20">
-        <SectionHeader eyebrow="Outcomes" title="Stories of Healing" subtitle="Real patients. Real outcomes." />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {testimonials.map((t) => (
-            <article key={t.id ?? t.name} className="relative bg-white p-7 rounded-card border border-gray-100 shadow-card hover:shadow-cardLg transition-shadow">
-              <span aria-hidden className="absolute top-4 right-5 text-7xl font-serif text-kerala-100 leading-none select-none">&ldquo;</span>
-              <div className="relative">
-                <div className="flex items-center gap-0.5 text-gold-400 mb-3">
-                  {Array.from({ length: t.stars }).map((_, i) => <Star key={i} className="w-4 h-4 fill-current" />)}
-                </div>
-                <blockquote className="text-gray-700 leading-relaxed text-[15px]">&ldquo;{t.quote}&rdquo;</blockquote>
-                <div className="flex items-center gap-3 mt-5 pt-5 border-t border-gray-100">
-                  <span className="w-10 h-10 rounded-full bg-kerala-700 text-white text-sm font-semibold flex items-center justify-center">{t.initials ?? t.name.split(/\s+/).slice(0,2).map((s) => s.charAt(0).toUpperCase()).join('')}</span>
-                  <div>
-                    <div className="font-semibold text-gray-900 text-sm">{t.name}</div>
-                    {t.condition && <div className="text-xs text-muted">{t.condition}</div>}
-                  </div>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-      )}
+      {/* Testimonials section removed — fake-quotes pattern hurts credibility on a young site. */}
 
       {/* 9.5 FAQ — must mirror the FAQPage JSON-LD emitted at the top of the page. */}
       <section className="bg-cream py-16">
