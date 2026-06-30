@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Briefcase, MapPin, Calendar, Star, AlertCircle, Globe } from 'lucide-react'
+import { Briefcase, MapPin, Calendar, Star, AlertCircle, Globe, Clock } from 'lucide-react'
 import type { JobListing } from '../../lib/types/jobs'
 import { deriveLogoInitials, deriveLogoColor, formatSalary } from '../../lib/data/jobs'
 
@@ -8,11 +8,37 @@ function fmt(d?: string | null): string {
   return new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
 }
 
+function relAge(iso?: string | null): string {
+  if (!iso) return ''
+  const ms = Date.now() - new Date(iso).getTime()
+  const d = Math.floor(ms / 86_400_000)
+  if (d < 1) return 'today'
+  if (d === 1) return '1 day ago'
+  if (d < 30) return `${d} days ago`
+  if (d < 365) return `${Math.floor(d / 30)} mo ago`
+  return `${Math.floor(d / 365)}y ago`
+}
+
+// Returns null if not urgent, else { label, tone } for the deadline pill.
+function deadlineBadge(iso?: string | null): { label: string; tone: string; pulse: boolean } | null {
+  if (!iso) return null
+  const ms = new Date(iso).getTime() - Date.now()
+  if (ms < 0) return null
+  const days = Math.floor(ms / 86_400_000)
+  if (days >= 7) return null
+  if (days <= 0)  return { label: 'Closes today',                    tone: 'bg-rose-100 text-rose-800',       pulse: true  }
+  if (days === 1) return { label: 'Closes tomorrow',                 tone: 'bg-rose-100 text-rose-800',       pulse: true  }
+  if (days <= 3)  return { label: `Closes in ${days} days`,          tone: 'bg-rose-100 text-rose-800',       pulse: false }
+  return              { label: `Closes in ${days} days`,             tone: 'bg-amber-100 text-amber-800',     pulse: false }
+}
+
 export function JobCard({ job }: { job: JobListing }) {
   const initials = job.logoInitials ?? deriveLogoInitials(job.clinic ?? job.title)
   const color    = job.logoColor    ?? deriveLogoColor(job.id)
   const salary   = job.salaryDisplay ?? job.salary ?? formatSalary(job.salaryMin, job.salaryMax, job.currency)
   const location = job.location ?? job.district ?? (job.remote ? 'Remote' : '')
+  const dl       = deadlineBadge(job.deadline)
+  const age      = relAge(job.createdAt)
 
   return (
     <Link
@@ -29,6 +55,8 @@ export function JobCard({ job }: { job: JobListing }) {
             {job.urgent && <span className="inline-flex items-center gap-0.5 text-[10px] uppercase tracking-wider px-1.5 py-0.5 bg-rose-100 text-rose-800 rounded font-bold"><AlertCircle className="w-3 h-3" /> Urgent</span>}
             {job.remote && <span className="inline-flex items-center gap-0.5 text-[10px] uppercase tracking-wider px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded"><Globe className="w-3 h-3" /> Remote</span>}
             {job.kind === 'availability' && <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 bg-emerald-50 text-emerald-700 rounded font-semibold">Doctor available</span>}
+            {dl && <span className={`inline-flex items-center gap-0.5 text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded font-bold ${dl.tone} ${dl.pulse ? 'animate-pulse' : ''}`}><Clock className="w-3 h-3" /> {dl.label}</span>}
+            {age && <span className="text-[10px] text-gray-500 ml-auto">{age}</span>}
           </div>
           <h3 className="font-serif text-lg text-ink leading-tight">{job.title}</h3>
           <p className="text-sm text-muted mt-0.5">{job.clinic ?? '—'}</p>

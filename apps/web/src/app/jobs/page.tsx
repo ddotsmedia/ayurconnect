@@ -77,7 +77,34 @@ export default async function JobsPage() {
             exclusive Ayurveda jobs board. Government posts, private clinics,
             international (Gulf / UK / US) openings.
           </p>
-          <div className="mt-5 flex flex-wrap gap-2">
+          <form action="/jobs/search" className="mt-5 flex flex-wrap gap-2 bg-white/10 backdrop-blur p-2 rounded-lg border border-white/15">
+            <input name="q" placeholder="Job title, skill, hospital..." className="flex-1 min-w-[180px] px-3 py-2 rounded text-sm text-ink bg-white" />
+            <select name="location" className="px-3 py-2 rounded text-sm text-ink bg-white">
+              <option value="">Any location</option>
+              <option value="kerala">Kerala</option>
+              <option value="uae">UAE</option>
+              <option value="qatar">Qatar</option>
+              <option value="saudi-arabia">Saudi Arabia</option>
+              <option value="uk">UK</option>
+              <option value="remote">Remote</option>
+            </select>
+            <select name="specialty" className="px-3 py-2 rounded text-sm text-ink bg-white">
+              <option value="">Any specialty</option>
+              <option value="panchakarma">Panchakarma</option>
+              <option value="kayachikitsa">Kayachikitsa</option>
+              <option value="shalya">Shalya</option>
+              <option value="prasuti-tantra">Prasuti Tantra</option>
+              <option value="wellness">Wellness</option>
+            </select>
+            <button className="px-4 py-2 bg-gold-500 hover:bg-gold-600 text-white text-sm font-semibold rounded">Search</button>
+          </form>
+          <div className="mt-4 flex flex-wrap items-center gap-1.5 text-xs text-white/85">
+            <span className="opacity-80">Trending:</span>
+            {['Panchakarma Dubai', 'BAMS Fresher Kerala', 'Telemedicine', 'Locum', 'DHA Licensed'].map((t) => (
+              <Link key={t} href={`/jobs/search?q=${encodeURIComponent(t)}`} className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-full border border-white/15">{t}</Link>
+            ))}
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
             <Link href="/jobs/post" className="inline-flex items-center gap-1.5 px-4 py-2 bg-white text-kerala-800 hover:bg-cream rounded-md text-sm font-semibold">
               Post a job
             </Link>
@@ -89,6 +116,21 @@ export default async function JobsPage() {
       </GradientHero>
 
       <div className="container mx-auto px-4 py-12">
+        {jobs.length > 0 && (() => {
+          const extra = jobs as unknown as Array<{ currency?: string | null; clinic?: string | null; salaryMin?: number | null; salaryMax?: number | null; user?: { name?: string | null } | null }>
+          const countries = new Set(extra.map((j) => j.currency === 'AED' ? 'UAE' : j.currency === 'USD' ? 'USA/UK' : 'India').filter(Boolean))
+          const employers = new Set(extra.map((j) => j.clinic ?? j.user?.name).filter(Boolean))
+          const salaries  = extra.filter((j) => j.salaryMin && j.salaryMax).map((j) => (j.salaryMin! + j.salaryMax!) / 2)
+          const avgSalary = salaries.length > 0 ? Math.round(salaries.reduce((a, b) => a + b, 0) / salaries.length) : null
+          return (
+            <section className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+              <div className="bg-white border border-gray-100 rounded-card p-3 text-center"><p className="text-2xl">🩺</p><p className="text-xl font-bold text-kerala-700">{jobs.length}</p><p className="text-[10px] uppercase tracking-wider text-gray-500">Active jobs</p></div>
+              <div className="bg-white border border-gray-100 rounded-card p-3 text-center"><p className="text-2xl">🏥</p><p className="text-xl font-bold text-kerala-700">{employers.size}</p><p className="text-[10px] uppercase tracking-wider text-gray-500">Employers</p></div>
+              <div className="bg-white border border-gray-100 rounded-card p-3 text-center"><p className="text-2xl">🌍</p><p className="text-xl font-bold text-kerala-700">{countries.size}</p><p className="text-[10px] uppercase tracking-wider text-gray-500">Regions</p></div>
+              <div className="bg-white border border-gray-100 rounded-card p-3 text-center"><p className="text-2xl">💰</p><p className="text-xl font-bold text-kerala-700">{avgSalary ? `₹${(avgSalary / 1000).toFixed(0)}K` : 'Varies'}</p><p className="text-[10px] uppercase tracking-wider text-gray-500">Avg salary</p></div>
+            </section>
+          )
+        })()}
         {jobs.length > 0 && <p className="text-sm text-muted mb-6"><strong className="text-ink">{jobs.length}</strong> open positions</p>}
 
         {jobs.length === 0 ? (
