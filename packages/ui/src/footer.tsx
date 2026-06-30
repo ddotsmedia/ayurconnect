@@ -36,6 +36,7 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
     links: [
       { href: '/doctors',             label: 'Doctors' },
       { href: '/hospitals',           label: 'Hospitals & Wellness' },
+      { href: '/offers',              label: 'Offers & Packages' },
       { href: '/online-consultation', label: 'Online Consultation' },
       { href: '/heal-in-kerala',      label: 'Heal in Kerala' },
       { href: '/doctor-match',        label: 'Doctor Match' },

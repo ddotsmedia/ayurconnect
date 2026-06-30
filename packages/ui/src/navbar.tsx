@@ -74,6 +74,7 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
         items: [
           { href: '/hospitals', label: 'Browse hospitals', desc: 'Govt + private + AYUSH certified', icon: Building2 },
           { href: '/hospitals/compare', label: 'Compare hospitals', desc: 'Side-by-side: accreditations, doctors, treatments', icon: Building2 },
+          { href: '/offers',            label: 'Offers & Packages', desc: 'Live offers + Panchakarma packages from hospitals', icon: Building2 },
           { href: '/panchakarma', label: 'Panchakarma centres', desc: 'Tourism-classified, verified', icon: HeartPulse },
           { href: '/clinic-portal', label: 'Clinic portal', desc: 'Manage your clinic listing', icon: Building },
         ],

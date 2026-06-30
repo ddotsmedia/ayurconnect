@@ -174,3 +174,62 @@ Next.js pages. Shipping atomic SEO + API filter extensions first because:
    stands alone.
 3. The 3 new query params on `/api/jobs` (urgent / tag / expMaxLte) are
    reusable building blocks for the deferred features.
+
+## Hospital offers/packages sprint (2026-06-30, fifth pass)
+
+### Decision: reuse existing schema, ship public-discovery surface
+The brief asked for a unified `HospitalPost` model with a `type`
+discriminator. We already have:
+- `HospitalPromotion` (title, subtitle, ctaLabel, ctaUrl, startsAt, endsAt, isActive)
+- `TreatmentPackage` (name, description, duration, priceFrom/To, currency, includes, treatments, isFeatured)
+- `HospitalInquiry` (full inquiry capture)
+- `/hospital/dashboard/{marketing,packages,inquiries}` (already built)
+
+Adding a new HospitalPost would duplicate those tables. Instead the
+public-discovery layer aggregates both into `/offers`.
+
+### Shipped this round
+- **`GET /api/hospitals-public/offers`** — cross-hospital feed merging
+  active HospitalPromotion (within validity window) + active
+  TreatmentPackage. Supports `?type=promotion|package`, `?district=`,
+  `?limit=`. No auth.
+- **`/offers`** — public listing page; cards show promotion or package
+  with hospital, price (packages), validity countdown (promotions
+  ending in ≤7 days), inquire CTA. CollectionPage + per-package Offer
+  schema, sitemap 0.9 daily.
+- **`/offers/promotion/[id]`** — promotion detail with Offer schema
+  (availabilityStarts/Ends, MedicalOrganization seller), WhatsApp
+  share, embedded inquiry form posting to existing
+  `/api/hospitals-public/:id/inquiry`.
+- **`/offers/package/[idOrSlug]`** — package detail with price, duration,
+  inclusions list (checkmarks), treatments chips, same inquiry form,
+  Offer schema with price + currency + seller.
+- **`InquiryForm` client** — name + phone + email + message → posts to
+  existing inquiry endpoint; WhatsApp fallback link.
+- **Nav**: + "Offers & Packages" under Hospitals group.
+- **Footer** Find Care col: + "Offers & Packages".
+- **Sitemap**: + /offers (0.9 daily).
+
+### Deferred — needs dedicated PR
+- **`HospitalFollow` model + notification flow**: new model + UI on
+  hospital profile + push notification path. Substantial UI and
+  notification-engine work.
+- **`/hospital/dashboard/posts` unified composer**: existing
+  `/hospital/dashboard/marketing` (HospitalPromotion CRUD with QR +
+  embed badge) + `/hospital/dashboard/packages` already cover the
+  posting paths. Unifying under one `/posts` UI is a redesign, not
+  additive.
+- **`/admin/hospital-posts` moderation page**: existing HospitalPromotion
+  has `isActive` flag admins can toggle via the existing admin surface.
+  Build a dedicated moderation queue only when content volume warrants.
+- **WhatsApp-on-inquiry to hospital + notify-on-new-offer to followers**:
+  needs Twilio job + opt-in flow. Foundations exist (`whatsapp.ts`
+  wrapper).
+- **Embedding "Latest offers" strips on /heal-in-kerala, /panchakarma,
+  /hospitals**: trivial repeat work once we want to surface offers
+  cross-site; not done this pass to avoid touching those pages.
+
+The public surface is the high-leverage piece (drives the SEO discovery
+that justifies hospitals posting in the first place). The hospital-side
+posting tools already exist in `/hospital/dashboard/marketing` and
+`/hospital/dashboard/packages`.

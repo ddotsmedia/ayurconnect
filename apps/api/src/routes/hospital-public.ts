@@ -7,6 +7,74 @@ import { rateLimitOk } from '../lib/rate-limit.js'
 export const autoPrefix = '/hospitals-public'
 
 const hospitalPublic: FastifyPluginAsync = async (fastify) => {
+  // Cross-hospital active-offer feed — aggregates HospitalPromotion + featured
+  // TreatmentPackage. No auth. Cached for 5 minutes via Next ISR on the
+  // consumer side.
+  fastify.get('/offers', async (request) => {
+    const q = request.query as { limit?: string; type?: string; district?: string }
+    const limit = Math.min(Math.max(parseInt(q.limit ?? '40', 10), 1), 100)
+    const now = new Date()
+    const hospitalWhere: Record<string, unknown> = {}
+    if (q.district) hospitalWhere.district = q.district
+
+    const wantPromotions = !q.type || q.type === 'promotion' || q.type === 'offer' || q.type === 'event' || q.type === 'announcement'
+    const wantPackages   = !q.type || q.type === 'package'
+
+    const [promos, packages] = await Promise.all([
+      wantPromotions ? fastify.prisma.hospitalPromotion.findMany({
+        where: {
+          isActive: true,
+          startsAt: { lte: now },
+          OR: [{ endsAt: null }, { endsAt: { gte: now } }],
+          ...(Object.keys(hospitalWhere).length > 0 ? { hospital: hospitalWhere } : {}),
+        },
+        orderBy: [{ startsAt: 'desc' }],
+        take: limit,
+        include: { hospital: { select: { id: true, name: true, slug: true, district: true, type: true, country: true } } },
+      }) : Promise.resolve([]),
+      wantPackages ? fastify.prisma.treatmentPackage.findMany({
+        where: {
+          isActive: true,
+          ...(Object.keys(hospitalWhere).length > 0 ? { hospital: hospitalWhere } : {}),
+        },
+        orderBy: [{ isFeatured: 'desc' }, { createdAt: 'desc' }],
+        take: limit,
+        include: { hospital: { select: { id: true, name: true, slug: true, district: true, type: true, country: true } } },
+      }) : Promise.resolve([]),
+    ])
+
+    return {
+      items: [
+        ...promos.map((p) => ({
+          kind: 'promotion' as const,
+          id: p.id,
+          title: p.title,
+          subtitle: p.subtitle,
+          ctaLabel: p.ctaLabel,
+          ctaUrl: p.ctaUrl,
+          startsAt: p.startsAt,
+          endsAt: p.endsAt,
+          hospital: p.hospital,
+        })),
+        ...packages.map((pkg) => ({
+          kind: 'package' as const,
+          id: pkg.id,
+          slug: pkg.slug,
+          title: pkg.name,
+          description: pkg.description,
+          duration: pkg.duration,
+          priceFrom: pkg.priceFrom,
+          priceTo: pkg.priceTo,
+          currency: pkg.currency,
+          includes: pkg.includes,
+          treatments: pkg.treatments,
+          isFeatured: pkg.isFeatured,
+          hospital: pkg.hospital,
+        })),
+      ],
+    }
+  })
+
   // Submit an inquiry — 5/hour per IP.
   fastify.post('/:id/inquiry', async (request, reply) => {
     if (!(await rateLimitOk(fastify, request, reply, {
