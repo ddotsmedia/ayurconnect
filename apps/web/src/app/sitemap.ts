@@ -206,6 +206,8 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/for-hospitals',                     priority: 0.9,  changeFrequency: 'monthly' },
   { path: '/for-hospitals/hire',                priority: 0.85, changeFrequency: 'monthly' },
   { path: '/for-hospitals/medical-tourism',     priority: 0.85, changeFrequency: 'monthly' },
+  { path: '/leaderboard',           priority: 0.6,  changeFrequency: 'daily'   },
+  { path: '/learn/community',       priority: 0.85, changeFrequency: 'daily'   },
   ...CONDITION_SLUGS.map((slug) => ({
     path: `/treatments/${slug}` as const,
     priority: 0.8,

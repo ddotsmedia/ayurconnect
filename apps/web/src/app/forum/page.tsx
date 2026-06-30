@@ -16,10 +16,14 @@ type Post = {
 }
 
 const CATEGORY: Record<string, { label: string; bg: string; text: string }> = {
-  'doctor-discussion': { label: 'Doctors',   bg: 'bg-kerala-50',  text: 'text-kerala-700'  },
-  'patient-forum':     { label: 'Patients',  bg: 'bg-blue-50',    text: 'text-blue-700'    },
-  'webinar':           { label: 'Webinar',   bg: 'bg-purple-50',  text: 'text-purple-700'  },
-  'research':          { label: 'Research',  bg: 'bg-amber-50',   text: 'text-amber-700'   },
+  'doctor-discussion':   { label: 'Doctors',              bg: 'bg-kerala-50',  text: 'text-kerala-700'  },
+  'clinical':            { label: 'Clinical (verified)',  bg: 'bg-rose-50',    text: 'text-rose-700'    },
+  'ask-a-senior':        { label: 'Ask a Senior',         bg: 'bg-emerald-50', text: 'text-emerald-700' },
+  'case-discussion':     { label: 'Case Discussion',      bg: 'bg-fuchsia-50', text: 'text-fuchsia-700' },
+  'patient-forum':       { label: 'Patients',             bg: 'bg-blue-50',    text: 'text-blue-700'    },
+  'webinar':             { label: 'Webinar',              bg: 'bg-purple-50',  text: 'text-purple-700'  },
+  'research':            { label: 'Research',             bg: 'bg-amber-50',   text: 'text-amber-700'   },
+  'general':             { label: 'General',              bg: 'bg-gray-100',   text: 'text-gray-700'    },
 }
 
 async function fetchPosts(): Promise<Post[]> {

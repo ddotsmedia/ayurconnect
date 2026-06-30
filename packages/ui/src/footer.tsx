@@ -61,6 +61,8 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
     links: [
       { href: '/qa',                     label: 'Q&A' },
       { href: '/forum',                  label: 'Forum' },
+      { href: '/learn/community',        label: 'Study Community' },
+      { href: '/leaderboard',            label: 'Leaderboard' },
       { href: '/community/malayalees',   label: 'Malayalees Abroad' },
       { href: '/doctors/ambassador',     label: 'Doctor Ambassador' },
       { href: '/jobs',                   label: 'Jobs' },

@@ -3,6 +3,8 @@ import { Suspense } from 'react'
 import { Cormorant_Garamond, Inter } from 'next/font/google'
 import { Navbar, Footer, AyurBotWidget, MobileBottomNav, ServiceWorkerRegister, CookieConsent, TopContactBar, type NavbarSession, type FooterSettings } from '@ayurconnect/ui'
 import { getServerSession } from '../lib/auth'
+import { StreakCheckIn } from '../components/streak-check-in'
+import { InstallPrompt } from '../components/install-prompt'
 import { organizationLd, websiteLd, speakableLd, siteNavigationLd, ldGraph, SITE_URL, AYURVEDA_KEYWORDS } from '../lib/seo'
 import { API_INTERNAL as API } from '../lib/server-fetch'
 import { PageViewTracker } from '../components/page-view-tracker'
@@ -214,6 +216,8 @@ export default async function RootLayout({
         <MobileBottomNav />
         <ServiceWorkerRegister />
         <CookieConsent />
+        <StreakCheckIn enabled={!!navSession} />
+        <InstallPrompt />
         <Suspense fallback={null}><PageViewTracker /></Suspense>
       </body>
     </html>

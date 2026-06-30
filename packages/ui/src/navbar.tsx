@@ -58,6 +58,8 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
   ]
   const DOCTOR_FOR_DOCTORS: RichItem[] = [
     { href: '/dr', label: 'Doctor dashboard', desc: 'Manage profile, view stats', icon: LayoutDashboard },
+    { href: '/doctors/today', label: 'Today', desc: 'Drug, MCQ, jobs, stats, referrals', icon: Sparkles },
+    { href: '/doctors/cme', label: 'CME tracker', desc: 'Log credits, KSMC progress, CSV export', icon: ScrollText },
     { href: '/colleges', label: 'College alumni', desc: 'Find your batchmates', icon: School },
   ]
   const DOCTOR_REGISTER: RichItem = { href: '/register/doctor', label: 'Register as doctor', desc: 'Free verified profile + patient leads', icon: UserPlus, highlight: true }
@@ -89,6 +91,8 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
             { href: '/learn/case-studies',    label: 'Case studies',     desc: '10 clinical cases',                   icon: Leaf },
             { href: '/learn/daily-challenge', label: 'Daily Challenge',  desc: '5 fresh MCQs every day · streak',     icon: ScrollText },
             { href: '/learn/exam-countdown',  label: 'Exam Countdown',   desc: 'AIAPGET, PSC, PG — days remaining',   icon: BookOpen },
+            { href: '/learn/community',       label: 'Community',        desc: 'Ask doubts, discuss subjects, free',  icon: MessagesSquare },
+            { href: '/leaderboard',           label: 'Leaderboard',      desc: 'Top contributors by points & streak', icon: ScrollText },
           ],
         },
         {

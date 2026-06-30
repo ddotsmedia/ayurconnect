@@ -80,6 +80,15 @@ model User {
   employerTeams    EmployerTeamMember[] @relation("EmployerTeamUser")
   candidateProfile CandidateProfile?    @relation("CandidateOwner")
   feedback         Feedback[]           @relation("UserFeedback")
+
+  // Gamification + referrals + weekly digest opt-out (2026-06-30)
+  weeklyDigestOptIn Boolean       @default(true)
+  streak            UserStreak?   @relation("UserStreakOwner")
+  pointLogs         PointLog[]    @relation("UserPointLog")
+  referralsMade     Referral[]    @relation("ReferrerUser")
+  referralsReceived Referral[]    @relation("ReferredUser")
+  studyThreads      StudyThread[] @relation("StudyThreadAuthor")
+  studyReplies      StudyReply[]  @relation("StudyReplyAuthor")
 }
 
 // ─── Patient health journal (added 2026-05-10) ────────────────────────────
@@ -2376,4 +2385,93 @@ model Feedback {
   @@index([status, createdAt(sort: Desc)])
   @@index([category])
   @@index([isRead])
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// Gamification + community (2026-06-30)
+// Streak/points reward daily return. Referrals attribute new registrations.
+// Anonymous search events drive hospital demand signals.
+// ──────────────────────────────────────────────────────────────────────────
+
+model UserStreak {
+  id             String    @id @default(cuid())
+  userId         String    @unique
+  currentStreak  Int       @default(0)
+  longestStreak  Int       @default(0)
+  lastActiveDate DateTime?
+  totalPoints    Int       @default(0)
+  level          String    @default("beginner")
+  updatedAt      DateTime  @updatedAt
+  user           User      @relation("UserStreakOwner", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PointLog {
+  id          String   @id @default(cuid())
+  userId      String
+  points      Int
+  action      String // login | daily_mcq | forum_answer | article_write | referral | profile_complete
+  description String?
+  earnedAt    DateTime @default(now())
+  user        User     @relation("UserPointLog", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, earnedAt(sort: Desc)])
+  @@index([earnedAt])
+}
+
+model Referral {
+  id             String   @id @default(cuid())
+  referrerId     String
+  referredUserId String   @unique
+  status         String   @default("registered") // registered | verified
+  createdAt      DateTime @default(now())
+  referrer       User     @relation("ReferrerUser", fields: [referrerId], references: [id], onDelete: Cascade)
+  referredUser   User     @relation("ReferredUser", fields: [referredUserId], references: [id], onDelete: Cascade)
+
+  @@index([referrerId])
+}
+
+model AnonymousSearchEvent {
+  id             String   @id @default(cuid())
+  query          String
+  specialization String?
+  district       String?
+  country        String?
+  source         String? // doctors_search | condition_view | herb_view
+  createdAt      DateTime @default(now())
+
+  @@index([district, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+}
+
+model StudyThread {
+  id          String       @id @default(cuid())
+  userId      String
+  subjectSlug String?
+  title       String
+  content     String
+  category    String       @default("discussion") // doubt | discussion | resource | tip
+  upvoteCount Int          @default(0)
+  replyCount  Int          @default(0)
+  isPinned    Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  author      User         @relation("StudyThreadAuthor", fields: [userId], references: [id], onDelete: Cascade)
+  replies     StudyReply[]
+
+  @@index([subjectSlug, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+}
+
+model StudyReply {
+  id          String      @id @default(cuid())
+  threadId    String
+  userId      String
+  content     String
+  upvoteCount Int         @default(0)
+  isAccepted  Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  thread      StudyThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  author      User        @relation("StudyReplyAuthor", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([threadId, createdAt])
 }

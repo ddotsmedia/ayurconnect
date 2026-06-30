@@ -36,3 +36,46 @@ No repo change required; live on production node.
 /hospitals/compare, /for-doctors + 4 sub, /for-students + 3 sub,
 /for-hospitals + 2 sub, 6 Malayalam audience pages, nav + sitemap updates,
 hospital marketing toolkit extensions.
+
+## Deferred-items sprint (2026-06-30, second pass)
+
+### Shipped this round (with new Prisma migration)
+- **Streak + gamification**: `UserStreak`, `PointLog`, `Referral` models + Fastify
+  `/api/streak/{me,checkin,award,leaderboard}` + `<StreakCheckIn>` client +
+  `/leaderboard` page + nav entry.
+- **CME tracker UI**: `/doctors/cme` + `/api/cme` reusing the existing
+  `CmeCredit` model (description ≈ event name, source ≈ category, sourceRefId
+  ≈ certificate URL). No new migration needed.
+- **/doctors/today**: drug-of-the-day (date-seeded formulation), MCQ-of-the-day
+  (awards `daily_mcq` +10 once per UTC day), stats (streak / points / level /
+  rank), recent jobs, latest article, referral link with WhatsApp share,
+  quick links.
+- **Hospital demand signals**: `AnonymousSearchEvent` model + `/api/search-events`
+  + `/api/search-events/demand-signals?district=...`. Ready for dashboard wiring
+  on the hospital side.
+- **Study community**: `StudyThread` + `StudyReply` models +
+  `/api/study-community/*` (threads, replies, upvote toggle, accepted answer) +
+  `/learn/community` page.
+- **Forum category enhancements**: added Clinical / Ask a Senior / Case
+  Discussion / General to the existing CATEGORY map; sidebar counts now show
+  them too. No schema change (existing `Post.category` is a free-form string).
+- **PWA install prompt**: new `<InstallPrompt>` client in root layout.
+  Reuses the existing `app/manifest.ts`; shows on mobile after 2nd visit;
+  handles `beforeinstallprompt` (Android/Chrome) and iOS Share→Add-to-Home.
+- **`User.weeklyDigestOptIn`**: new column (default `true`) ready for the
+  weekly-digest worker.
+
+### Still deferred (genuine infra gap)
+- **Weekly email digest worker**: needs `apps/worker` app (does not exist) +
+  BullMQ scheduler + `RESEND_API_KEY` on the VPS. Foundations in place:
+  `apps/api/src/lib/email.ts` Resend wrapper exists; `User.weeklyDigestOptIn`
+  now stored. Build a `apps/worker` package, register a BullMQ repeat job
+  (cron `0 9 * * 1 Asia/Kolkata`), assemble 3 digest variants (doctor /
+  student / hospital), and call `sendEmail()`.
+- **Search-event recording from the doctor-search handler**: the new
+  `POST /api/search-events` endpoint is live, but the existing /doctors
+  search UI does not yet fire it. Wire in the next pass.
+- **Hospital-dashboard demand-signals widget**: API ready, dashboard page
+  needs the card.
+- **Auto-redirect doctors to /today after login**: requires changes to the
+  auth callback handler; deferred to avoid touching the sign-in flow mid-sprint.
