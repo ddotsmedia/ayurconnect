@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { API_INTERNAL as API, logServerFetchError } from '../lib/server-fetch'
 import { PersonalizedWelcome } from '../components/personalized-welcome'
+import { EarlyAccessBanner } from '../components/early-access-banner'
 import { medicalBusinessLd, faqLd, ldGraph } from '../lib/seo'
 
 const DISTRICTS = [
@@ -121,6 +122,7 @@ export default async function HomePage() {
 
       {/* 0. Personalized welcome — renders nothing for anonymous visitors. */}
       <PersonalizedWelcome />
+      <EarlyAccessBanner />
 
       {/* 1. HERO — cinematic, with leaf-pattern overlay + faint logo watermark */}
       <section className="relative overflow-hidden bg-hero-green text-white">
