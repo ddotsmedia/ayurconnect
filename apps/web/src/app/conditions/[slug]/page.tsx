@@ -5,6 +5,11 @@ import { GradientHero } from '@ayurconnect/ui'
 import { Stethoscope, BookOpen, Sprout, AlertTriangle, ChevronRight, ArrowLeft } from 'lucide-react'
 import { CONDITIONS, getCondition } from '../_data/conditions'
 import { breadcrumbLd, ldGraph, AYURVEDA_KEYWORDS } from '@/lib/seo'
+import { ML_PAGES } from '../../ml/_data'
+
+const ML_BY_EN: Record<string, { slug: string; titleMl: string }> = Object.fromEntries(
+  ML_PAGES.filter((p) => p.relatedEnSlug).map((p) => [p.relatedEnSlug as string, { slug: p.slug, titleMl: p.titleMl }]),
+)
 
 export function generateStaticParams() {
   return CONDITIONS.map((c) => ({ slug: c.slug }))
@@ -72,6 +77,7 @@ export default async function ConditionPage({ params }: { params: Promise<{ slug
   const { slug } = await params
   const c = getCondition(slug)
   if (!c) notFound()
+  const mlVersion = ML_BY_EN[slug]
 
   // Combined JSON-LD: BreadcrumbList + MedicalCondition. One <script> tag.
   const ld = ldGraph(
@@ -109,6 +115,13 @@ export default async function ConditionPage({ params }: { params: Promise<{ slug
         <Link href="/conditions" className="inline-flex items-center gap-1 text-sm text-kerala-700 hover:underline mb-6">
           <ArrowLeft className="w-3.5 h-3.5" /> All conditions
         </Link>
+
+        {mlVersion && (
+          <div className="mb-6 p-3 bg-kerala-50 border border-kerala-100 rounded-card text-sm text-kerala-800">
+            <Link href={`/ml/${mlVersion.slug}`} className="font-semibold hover:underline">മലയാളത്തിൽ വായിക്കുക — {mlVersion.titleMl} →</Link>
+            <span className="text-xs text-gray-500 ml-2">(Read in Malayalam)</span>
+          </div>
+        )}
 
         {/* Dosha + prevalence header */}
         <div className="flex flex-wrap items-center gap-2 mb-8">

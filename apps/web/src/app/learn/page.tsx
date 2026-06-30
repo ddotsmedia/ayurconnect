@@ -12,8 +12,8 @@ import { EBOOKS } from './ebooks/_data'
 
 export const metadata: Metadata = pageMetadata({
   path: '/learn',
-  title: 'Free Ayurveda Learning Hub — BAMS Notes, MCQ, Question Papers | AyurConnect',
-  description: 'BAMS study notes, AIAPGET MCQs, solved question papers, clinical case studies, workshops, e-books — all free, no subscription needed.',
+  title: 'Free Ayurveda Learning Hub — BAMS പഠന സാമഗ്രികൾ | AyurConnect',
+  description: 'BAMS പഠന സാമഗ്രികൾ — BAMS study notes, AIAPGET MCQs, solved question papers, clinical case studies, workshops, e-books. All free, no subscription needed.',
   keywords: ['BAMS notes free', 'AIAPGET MCQ free', 'ayurveda learning hub', 'BAMS study material free', 'ayurveda education'],
 })
 

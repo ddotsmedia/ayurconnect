@@ -34,8 +34,8 @@ async function fetchCategories(): Promise<Array<{ id: string; count: number }>> 
 }
 
 export const metadata = {
-  title: 'Ayurveda Formulary — Classical Medicines & Their Uses | AyurConnect',
-  description: 'Searchable catalogue of classical Ayurvedic compound medicines: Yogaraj Guggulu, Triphala Choornam, Mahanarayan Taila, Chyavanaprasha, Ashwagandharishta and 25+ more. Indications, dosage, and contraindications.',
+  title: 'Ayurveda Formulary — ക്ലാസിക്കൽ ആയുർവേദ ഔഷധങ്ങൾ | AyurConnect',
+  description: 'ക്ലാസിക്കൽ ആയുർവേദ ഔഷധങ്ങൾ — searchable catalogue of classical compound medicines: Yogaraj Guggulu, Triphala Choornam, Mahanarayan Taila, Chyavanaprasha, Ashwagandharishta. Indications, dosage, contraindications.',
   alternates: { canonical: '/formulary' },
 }
 
