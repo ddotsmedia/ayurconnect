@@ -71,6 +71,7 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
       sections: [{
         items: [
           { href: '/hospitals', label: 'Browse hospitals', desc: 'Govt + private + AYUSH certified', icon: Building2 },
+          { href: '/hospitals/compare', label: 'Compare hospitals', desc: 'Side-by-side: accreditations, doctors, treatments', icon: Building2 },
           { href: '/panchakarma', label: 'Panchakarma centres', desc: 'Tourism-classified, verified', icon: HeartPulse },
           { href: '/clinic-portal', label: 'Clinic portal', desc: 'Manage your clinic listing', icon: Building },
         ],
@@ -86,11 +87,14 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
             { href: '/learn/notes',           label: 'BAMS Notes',       desc: '20+ notes across all years',         icon: BookOpen },
             { href: '/learn/mcq',             label: 'AIAPGET MCQ',      desc: '100+ practice questions',            icon: ScrollText },
             { href: '/learn/case-studies',    label: 'Case studies',     desc: '10 clinical cases',                   icon: Leaf },
+            { href: '/learn/daily-challenge', label: 'Daily Challenge',  desc: '5 fresh MCQs every day · streak',     icon: ScrollText },
+            { href: '/learn/exam-countdown',  label: 'Exam Countdown',   desc: 'AIAPGET, PSC, PG — days remaining',   icon: BookOpen },
           ],
         },
         {
           heading: 'Reference & tools',
           items: [
+            { href: '/quick-reference', label: 'Quick Reference', desc: 'Instant herb / formulation / condition lookup', icon: FlaskConical },
             { href: '/herbs', label: 'Herbs encyclopedia', desc: '150+ medicinal herbs', icon: Sprout },
             { href: '/formulary', label: 'Formulary', desc: 'Classical compounds', icon: FlaskConical },
             { href: '/interaction-checker', label: 'Interaction checker', desc: 'Herb-drug safety', icon: AlertTriangle },
