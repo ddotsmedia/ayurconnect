@@ -194,7 +194,9 @@ export default async function RootLayout({
         {/* hreflang — emitted at root for the homepage; per-page metadata
             (pageMetadata helper) overrides with the correct canonical path. */}
         <link rel="alternate" hrefLang="en-IN" href={SITE_URL} />
+        <link rel="alternate" hrefLang="ml-IN" href={SITE_URL} />
         <link rel="alternate" hrefLang="x-default" href={SITE_URL} />
+        <meta httpEquiv="content-language" content="en-IN, ml-IN" />
 
         {/* AI training opt-out hint mirrored in HTML (also enforced by robots.ts). */}
         <meta name="robots" content="max-image-preview:large" />
