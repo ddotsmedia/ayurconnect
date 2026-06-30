@@ -41,6 +41,9 @@ export default {
       // backlink to /blog or /blog/<slug> lands on the live page.
       { source: '/blog',          destination: '/articles',       permanent: true },
       { source: '/blog/:slug',    destination: '/articles/:slug', permanent: true },
+      // Backlink/alias slugs that 404'd in production.
+      { source: '/conditions/pcos-pcod', destination: '/conditions/pcos',          permanent: true },
+      { source: '/jobs/licensing/dha',   destination: '/jobs/licensing/dha-dubai', permanent: true },
     ]
   },
   async headers() {
