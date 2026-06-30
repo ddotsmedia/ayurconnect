@@ -10,6 +10,7 @@ import { NEWS_SLUGS } from '@/lib/data/news-seed'
 import { EVENT_SLUGS } from '@/lib/data/events-seed'
 import { DISTRICT_SLUGS as HOSPITAL_DISTRICT_SLUGS } from './hospitals/in/[district]/_slugs'
 import { TYPE_SLUGS as HOSPITAL_TYPE_SLUGS } from './hospitals/type/[type]/_slugs'
+import { ML_SLUGS } from './ml/_data'
 
 const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ayurconnect.com'
 
@@ -181,6 +182,12 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/roi-calculator', priority: 0.6,  changeFrequency: 'monthly' },
   { path: '/about/press',     priority: 0.55, changeFrequency: 'monthly' },
   { path: '/about/investors', priority: 0.55, changeFrequency: 'monthly' },
+  { path: '/ml',              priority: 0.9,  changeFrequency: 'weekly'  },
+  ...ML_SLUGS.map((slug) => ({
+    path: `/ml/${slug}` as const,
+    priority: 0.8,
+    changeFrequency: 'monthly' as const,
+  })),
   ...CONDITION_SLUGS.map((slug) => ({
     path: `/treatments/${slug}` as const,
     priority: 0.8,
