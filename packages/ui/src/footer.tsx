@@ -80,6 +80,7 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
       { href: '/ml',              label: 'മലയാളത്തിൽ (Malayalam)' },
       { href: '/contact',         label: 'Contact' },
       { href: '/feedback',        label: 'Feedback & Suggestions' },
+      { href: '/write-for-us',    label: 'Write for AyurConnect' },
       { href: '/privacy',         label: 'Privacy' },
       { href: '/terms',           label: 'Terms' },
       { href: '/sign-in',         label: 'Sign In' },

@@ -79,3 +79,20 @@ hospital marketing toolkit extensions.
   needs the card.
 - **Auto-redirect doctors to /today after login**: requires changes to the
   auth callback handler; deferred to avoid touching the sign-in flow mid-sprint.
+
+## Doctor viral growth sprint (2026-06-30, third pass)
+
+### Shipped this round (small, atomic, high-leverage)
+- **Digital visiting card** at `/doctors/[id]/card`: server-rendered printable card with deterministic SVG QR (Kerala-green), profile-photo or initials avatar, qualification + specialty + district + workplace + verified badge. WhatsApp share + print-friendly @page CSS (3.5"x2"). robots: noindex.
+- **/write-for-us SEO landing**: full audience-landing page (FAQPage + WebPage schema, speakable, max-snippet) authored by Sonnet — direct hook for BAMS/MD doctors who want bylined articles, ~600-word body + 5 FAQs.
+- **/doctors/colleges hub + 10 college alumni pages** at `/doctors/colleges/[slug]`: GAC Thiruvananthapuram, GAC Thrissur, VPSV Kottakkal, Amrita Ernakulam, AVS Kottakkal, Ashtamgam Vaikom, PK Das Palakkad, Mar Baselios Pathanamthitta, SDM Udupi, BHU Varanasi. Each emits `CollegeOrUniversity` + BreadcrumbList schema, fetches alumni via existing `/api/doctors?collegeSlug=...` (already supported), gracefully degrades to "register as alumnus" CTA when no doctors match.
+- **Profile share + visiting-card hooks** on `/doctors/[id]`: `Share profile` is now a real WhatsApp link (pre-filled with name + specialty + district + URL), new `Digital visiting card` link to `/doctors/[id]/card`.
+- **Sitemap** updated: `/write-for-us` (0.8 monthly), `/doctors/colleges` (0.75 monthly), and all 10 college slugs (0.65-0.7 weekly).
+- **Footer** AyurConnect column: + "Write for AyurConnect" link.
+
+### Still deferred (heavy surface — needs dedicated PR)
+- **Profile-edit dashboard** `/doctors/dashboard/profile`: 15+ Doctor fields editable (bio, qualification, photo upload, registration #, specializations, conditions, treatments, languages, location, consultation options, social links). Needs new Fastify route to mutate Doctor + storage policy for photo upload (S3 / MinIO / `/uploads/doctors`).
+- **Doctor article publishing**: KnowledgeArticle has no `authorId` (only free-text `reviewedBy`). Adding bylined publishing needs a migration to add `authorUserId` + author resolution on render + editor UI + admin review queue extension. Existing `/admin/articles` route exists but flow is different.
+- **Profile completeness score + soft-hide**: small Doctor-level computation, but the "soft-hide below 50%" gate needs server-side filtering in `/api/doctors` (touches the search handler), so deferred to avoid mid-flow side effects on the search UX.
+- **Multi-step `/doctors/register` flow + Day-0/1/3/7 in-app tips**: existing register page is functional; redesigning the flow is a larger UX swap.
+- **Condition-specific listing pages** (`/doctors/specialization/[s]`, `/doctors/location/[l]`, `/doctors/[s]/[l]`): some routes exist (`/ayurveda-doctors/[loc]`, `/doctors/in/[country]`); the brief's slug pattern is new and would create overlap — left for a single SEO-consolidation pass.

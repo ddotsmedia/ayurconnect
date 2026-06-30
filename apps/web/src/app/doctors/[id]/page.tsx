@@ -433,9 +433,12 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
                 <Phone className="w-4 h-4" /> {doctor.contact}
               </a>
             )}
-            <a href="#" className="flex items-center gap-2 text-gray-700 hover:text-kerala-700">
+            <a href={`https://wa.me/?text=${encodeURIComponent(`I recommend Dr. ${doctor.name.replace(/^Dr\.?\s*/i, '')} (${doctor.specialization}, ${doctor.district}). View profile: https://ayurconnect.com/doctors/${doctor.id}`)}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-gray-700 hover:text-kerala-700">
               <Share2 className="w-4 h-4" /> Share profile
             </a>
+            <Link href={`/doctors/${doctor.id}/card`} className="flex items-center gap-2 text-gray-700 hover:text-kerala-700">
+              <Share2 className="w-4 h-4" /> Digital visiting card
+            </Link>
             <a href="#" className="flex items-center gap-2 text-gray-500 hover:text-red-600">
               <Flag className="w-4 h-4" /> Report this doctor
             </a>
