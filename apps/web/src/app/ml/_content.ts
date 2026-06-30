@@ -901,5 +901,333 @@ export const ML_PAGES_DATA: Record<string, MlPage> = {
       }
     ],
     "relatedEnSlug": null
+  },
+  "doctor-registration": {
+    "slug": "doctor-registration",
+    "titleMl": "ആയുർവേദ ഡോക്ടർ രജിസ്ട്രേഷൻ — AyurConnect",
+    "titleEn": "Ayurveda Doctor Registration on AyurConnect",
+    "metaDescMl": "AyurConnect-ൽ BAMS / MD ആയുർവേദ ഡോക്ടർമാർ സൗജന്യമായി പ്രൊഫൈൽ തയ്യാറാക്കി രോഗി ലീഡുകൾ, CME, ജോലി അവസരങ്ങൾ, പ്രെസ്ക്രിപ്ഷൻ പാഡ് — 48 മണിക്കൂറിൽ വെരിഫൈഡ്.",
+    "conditionEn": "Doctor Registration",
+    "conditionMl": "ഡോക്ടർ രജിസ്ട്രേഷൻ",
+    "leadParagraph": "BAMS അല്ലെങ്കിൽ MD ആയുർവേദ ബിരുദമുള്ള ഏതൊരു ഡോക്ടർക്കും AyurConnect-ൽ സൗജന്യമായി രജിസ്റ്റർ ചെയ്യാം. വെരിഫൈഡ് പ്രൊഫൈൽ, രോഗി ലീഡുകൾ, ഡിജിറ്റൽ പ്രെസ്ക്രിപ്ഷൻ പാഡ് എന്നിവ 48 മണിക്കൂറിനുള്ളിൽ ലഭ്യമാകും. ഇന്ത്യയിലും ഗൾഫ് മേഖലയിലും ആയുർവേദ പ്രാക്ടീസ് വളർത്തുന്നതിനുള്ള ഏറ്റവും മികച്ച ഡിജിറ്റൽ പ്ലാറ്റ്ഫോം ഇതാണ്.",
+    "sections": [
+      {
+        "heading": "ആർക്ക് രജിസ്റ്റർ ചെയ്യാം?",
+        "body": "BAMS (Bachelor of Ayurvedic Medicine and Surgery) അല്ലെങ്കിൽ MD Ayurveda ബിരുദം നേടിയ ഡോക്ടർമാർക്ക് AyurConnect-ൽ ഡോക്ടർ പ്രൊഫൈൽ തുറക്കാം. Kerala State Medical Council (KSMC), Central Council of Indian Medicine (CCIM), അല്ലെങ്കിൽ ഇതര സംസ്ഥാന AYUSH കൗൺസിലുകളിൽ രജിസ്ട്രേഷൻ ഉള്ളവർ യോഗ്യരാണ്.\n\nഇന്റേൺഷിപ്പ് പൂർത്തിയാക്കിയ freshers-ഉം, ദീർഘ വർഷ അനുഭവമുള്ള സ്പെഷ്യലിസ്റ്റ് ഡോക്ടർമാരും, ഗൾഫ് രാജ്യങ്ങളിൽ ജോലി ചെയ്യുന്നവരും — ഒക്കെ AyurConnect-ൽ പ്രൊഫൈൽ നിർമ്മിക്കാം. വിദേശ ഡിഗ്രി ഉള്ളവർക്ക് CCIM-അംഗീകൃത ഡോക്യുമെന്റ് സമർപ്പിക്കണം."
+      },
+      {
+        "heading": "രജിസ്ട്രേഷൻ ഫ്രീ ആണോ? ഏതൊക്കെ ആനുകൂല്യങ്ങൾ?",
+        "body": "അതെ — AyurConnect-ൽ ഡോക്ടർ രജിസ്ട്രേഷൻ പൂർണ്ണ സൗജന്യമാണ്. രോഗി ലീഡുകൾ, ആശുപത്രി / ക്ലിനിക്ക് ലിസ്റ്റിംഗ്, ഡിജിറ്റൽ പ്രെസ്ക്രിപ്ഷൻ പാഡ് എന്നിവ ഉൾപ്പെടുന്ന Basic tier സൗജന്യമാണ്.\n\nവെരിഫൈഡ് ഡോക്ടർ ബാഡ്ജ് ലഭിക്കുന്നതോടെ Google Search-ൽ പ്രൊഫൈൽ ദൃശ്യമാകും. CME (Continuing Medical Education) credits ട്രാക്ക് ചെയ്യാൻ ഉള്ള ലേർണിംഗ് ഹബ്, Job portal-ൽ BAMS ജോലി അന്വേഷണം, AI Research Assistant — ഇവ എല്ലാം ഡോക്ടർ ഡാഷ്ബോർഡിൽ ലഭ്യമാണ്."
+      },
+      {
+        "heading": "എങ്ങനെ രജിസ്റ്റർ ചെയ്യാം — ഘട്ടം ഘട്ടമായി",
+        "body": "1. ayurconnect.com/dr/register — ൽ ക്ലിക്ക് ചെയ്ത് ഇ-മെയിൽ അല്ലെങ്കിൽ ഫോൺ നമ്പർ ഉപയോഗിച്ച് അക്കൗണ്ട് ഉണ്ടാക്കുക.\n\n2. BAMS / MD Ayurveda സർട്ടിഫിക്കറ്റ്, KSMC / CCIM രജിസ്ട്രേഷൻ, ഗവൺമെന്റ് ID (ആധാർ / പാസ്‌പോർട്ട്) — ഇവ അപ്‌ലോഡ് ചെയ്യുക. 3. AyurConnect ടീം 48 മണിക്കൂറിനുള്ളിൽ ഡോക്യുമെന്റ് പരിശോധിച്ച് അക്കൗണ്ട് ആക്ടിവേറ്റ് ചെയ്യും. 4. ഡാഷ്ബോർഡ് ആക്സസ് ലഭിക്കുന്നതോടെ പ്രൊഫൈൽ കംപ്ലീറ്റ് ചെയ്ത് ഉടൻ ആരംഭിക്കാം."
+      },
+      {
+        "heading": "മികച്ച പ്രൊഫൈൽ നിർമ്മിക്കുക — ടിപ്സ്",
+        "body": "പ്രൊഫഷണൽ ഫോട്ടോ, വ്യക്തമായ ബയോ, specialties (Panchakarma, Kizhi, Njavara, Rasayana, Prasooti Tantra — ഇങ്ങനെ), ഭാഷകൾ (Malayalam, English, Hindi), അനുഭവ വർഷങ്ങൾ, കൺസൾട്ടേഷൻ ഫീ — ഇവ ചേർക്കുക.\n\nPanchakarma treatments, Keraleeya ചികിത്സകൾ, ഹർബൽ ഫോർമുലേഷൻ — ഇവ specific keywords ആയി ചേർക്കുന്നത് Search ranking മെച്ചപ്പെടുത്തും. Telemedicine availability ON ആക്കിയാൽ ഓൺലൈൻ കൺസൾട്ടേഷൻ രോഗികൾ നേരിട്ട് ബുക്ക് ചെയ്യും."
+      },
+      {
+        "heading": "AyurConnect-ലൂടെ കൂടുതൽ രോഗികളിലേക്ക് എത്തുക",
+        "body": "ഒരു complete profile ഉള്ള ഡോക്ടർ incomplete profile ഉള്ളവരെ അപേക്ഷിച്ച് ശരാശരി 4 മടങ്ങ് കൂടുതൽ patient inquiries നേടുന്നു. Reviews ക്ഷണിക്കുക, CME badges ആഡ് ചെയ്യുക, Hospital association update ചെയ്യുക — ഇവ profile visibility ഉയർത്തും.\n\nAyurConnect-ന്റെ WhatsApp integration ഉള്ളതിനാൽ patient queries ഉടൻ ഫോണിൽ ലഭിക്കും. ഒരു notification misscheyyan ഇടയില്ല. Kerala, Karnataka, Tamil Nadu, Gulf countries — ഈ regions-ലെ Ayurveda-interested patients AyurConnect വഴി ഡോക്ടറെ search ചെയ്യുന്നു."
+      }
+    ],
+    "faqs": [
+      {
+        "q": "BAMS ഇന്റേൺഷിപ്പ് കഴിഞ്ഞ ഉടൻ രജിസ്റ്റർ ചെയ്യാമോ?",
+        "a": "അതെ. ഇന്റേൺഷിപ്പ് completion certificate ഉണ്ടെങ്കിൽ, CCIM / KSMC provisional registration ഉള്ളവർക്ക് AyurConnect-ൽ ഡോക്ടർ പ്രൊഫൈൽ ഉണ്ടാക്കാം. Final registration ലഭിക്കുന്ന മുറയ്ക്ക് update ചെയ്യുക."
+      },
+      {
+        "q": "Kerala-ക്ക് പുറത്ത് ജോലി ചെയ്യുന്ന ഡോക്ടർക്ക് ലിസ്റ്റ് ചെയ്യാമോ?",
+        "a": "തീർച്ചയായും. AyurConnect ദേശവ്യാപകമായ ആയുർവേദ ഡോക്ടർ ഡയറക്ടറി ആണ്. ഗൾഫ്, UK, USA — ഏത് രാജ്യത്ത് ഉള്ളവർക്കും DHA / HAAD / NMC registration document ഉപയോഗിച്ച് വെരിഫൈഡ് ബാഡ്ജ് ലഭ്യമാകും."
+      },
+      {
+        "q": "വെരിഫിക്കേഷൻ എത്ര ദിവസം എടുക്കും?",
+        "a": "Documents complete ആണെങ്കിൽ 48 മണിക്കൂറിനുള്ളിൽ വെരിഫിക്കേഷൻ പൂർണ്ണമാകും. Working days-ൽ submission ചെയ്യുക — weekends delay ആകാൻ ഇടയുണ്ട്."
+      },
+      {
+        "q": "AyurConnect-ൽ ഡോക്ടർ listing-ന് കമ്മീഷൻ ഉണ്ടോ?",
+        "a": "ഇല്ല. AyurConnect Basic tier-ൽ ഡോക്ടർ listing, patient leads, prescriptions — ഇവ commission-free ആണ്. Premium features upgrade ചെയ്യുകയാണെങ്കിൽ flat subscription fee മാത്രം."
+      },
+      {
+        "q": "MD Ayurveda specialization ഉള്ളവർക്ക് specialty badge കിട്ടുമോ?",
+        "a": "അതെ. Kayachikitsa, Panchakarma, Prasooti, Kaumara Bhritya, Shalakya — ഏത് MD specialization ആണെങ്കിലും verification-ന് ശേഷം specialty badge profile-ൽ കൃത്യമായി ദൃശ്യമാകും."
+      }
+    ],
+    "relatedEnSlug": null
+  },
+  "dha-exam-preparation": {
+    "slug": "dha-exam-preparation",
+    "titleMl": "DHA പരീക്ഷ തയ്യാറെടുപ്പ് — ആയുർവേദ ഡോക്ടർമാർക്ക്",
+    "titleEn": "DHA Exam Preparation for Ayurveda Doctors",
+    "metaDescMl": "BAMS ഡോക്ടർമാർക്കുള്ള DHA-Dubai പരീക്ഷ — യോഗ്യത, syllabus, Prometric centres, mock tests, ശമ്പള വിവരങ്ങൾ. AyurConnect-ൽ exam readiness assessment ഉപയോഗിക്കൂ.",
+    "conditionEn": "DHA Exam",
+    "conditionMl": "DHA പരീക്ഷ",
+    "leadParagraph": "Dubai Health Authority (DHA) ലൈസൻസ് BAMS ഡോക്ടർമാർക്ക് Dubai-ൽ ആയുർവേദ practitioner ആയി ജോലി ചെയ്യാൻ നിർബന്ധമാണ്. Prometric കേന്ദ്രങ്ങൾ വഴി India-യിൽ ഇരുന്ന് തന്നെ ഈ പരീക്ഷ എഴുതാം. AyurConnect-ൽ DHA exam readiness assessment ഉം, ചോദ്യ ബാങ്കും, study plan-ഉം സൗജന്യമായി ലഭ്യമാണ്.",
+    "sections": [
+      {
+        "heading": "DHA ലൈസൻസ്: BAMS ഡോക്ടർക്ക് എന്ത് യോഗ്യതകൾ വേണം?",
+        "body": "DHA-ൽ Ayurveda / Alternative Medicine practitioner ആയി ലൈസൻസ് ലഭിക്കാൻ BAMS ബിരുദം (4.5 years + 1 year internship), CCIM-registered qualification, ഇംഗ്ലീഷ് proficiency (IELTS / OET — ഓപ്ഷണൽ ആണ്; DHA category അനുസരിച്ച്), ചുരുങ്ങിയത് 2 വർഷം post-internship clinical experience — ഇവ ആവശ്യമാണ്.\n\nDHA DataFlow verification ആദ്യ ഘട്ടമാണ്. ഇതിനായി University, CCIM, internship hospital — ഇവ primary source verification ചെയ്യും. DataFlow process 6-12 ആഴ്ച എടുക്കും; നേരത്തെ ആരംഭിക്കുക."
+      },
+      {
+        "heading": "DHA Prometric പരീക്ഷ — Syllabus ഒറ്റനോട്ടത്തിൽ",
+        "body": "DHA Ayurveda exam-ൽ Ayurvedic fundamentals (Dosha, Dhatu, Mala, Nidana, Chikitsa), Panchakarma procedures, Pharmacology (Dravyaguna), Clinical Medicine, Patient safety & ethics — ഈ മേഖലകൾ ഉൾക്കൊള്ളുന്നു.\n\nആകെ ഏകദേശം 100 MCQs; 2 മണിക്കൂർ duration; passing score 60-65%. English medium. Negative marking ഇല്ല — ഉറപ്പില്ലാത്ത ഉത്തരങ്ങൾ educated guess ചെയ്യുക. AyurConnect-ൽ subject-wise MCQ bank DHA pattern-ൽ ക്രമീകരിച്ചിട്ടുണ്ട്."
+      },
+      {
+        "heading": "Prometric Centres — India-യിൽ നിന്ന് എവിടെ എഴുതാം?",
+        "body": "Kerala-ൽ Thiruvananthapuram, Kochi, Kozhikode — ഈ നഗരങ്ങളിൽ Prometric centres ഉണ്ട്. Chennai, Hyderabad, Bangalore, Mumbai — ഇവിടെയും slot book ചെയ്യാം. Pearson VUE / Prometric website വഴി online appointment ബുക്ക് ചെയ്ത്, ഫോട്ടോ ID ഉമായി arrive ആകണം.\n\nപരീക്ഷ fee ഏകദേശം $140-165 USD (AED 500-600) ആണ്. DHA portal-ൽ application submit ചെയ്ത ശേഷം voucher ലഭിക്കും; voucher ഉപയോഗിച്ച് Prometric slot confirm ചെയ്യണം."
+      },
+      {
+        "heading": "AyurConnect DHA Readiness Assessment",
+        "body": "AyurConnect-ന്റെ Learning Hub-ൽ DHA pattern-ൽ ഉള്ള 200+ MCQs, 3 full-length mock tests, subject-wise weakness analysis — ഇവ ലഭ്യമാണ്. Assessment കഴിഞ്ഞ് AI-generated study plan നിങ്ങളുടെ weak areas target ചെയ്ത് personalize ചെയ്ത് നൽകും.\n\nCharaka Samhita, Ashtanga Hridayam — ഇവ DHA context-ൽ review ചെയ്ത notes, clinical scenarios, Malayalam explanations — ഇവ doctor dashboard-ൽ ലഭ്യമാണ്. AyurConnect-ൽ registered ഡോക്ടർമാർക്ക് ഈ materials access ഫ്രീ ആണ്."
+      },
+      {
+        "heading": "Dubai-ൽ BAMS ഡോക്ടർ ശമ്പളം — യഥാർഥ ചിത്രം",
+        "body": "DHA-ലൈസൻസ്ഡ് Ayurveda Practitioner ആ Dubai-ൽ ശരാശരി AED 5,000 – 12,000 / month (INR 1.1 – 2.7 ലക്ഷം) വരെ നേടും. Kerala wellness resorts, Panchakarma specialty centres, integrative medicine clinics — ഇവ senior BAMS-ന് AED 15,000+ വരെ നൽകാറുണ്ട്.\n\nAyurConnect Job portal-ൽ Dubai, Abu Dhabi, Sharjah ജോലി listings available ആണ്. DHA pass ചെയ്ത ഡോക്ടർമാർക്ക് employer directly reach out ചെയ്യുന്ന verified badge feature ഉണ്ട്."
+      }
+    ],
+    "faqs": [
+      {
+        "q": "BAMS freshers-ന് DHA exam-ൽ apply ചെയ്യാമോ?",
+        "a": "DHA-ന് minimum 2 years post-internship experience ആവശ്യമാണ്. Fresh internship completers നേരിട്ട് apply ചെയ്യാൻ കഴിയില്ല. India-ൽ 2 വർഷം practice ചെയ്ത ശേഷം application ശ്രമിക്കുക."
+      },
+      {
+        "q": "DataFlow verification-ന് എത്ര ദിവസം വേണം?",
+        "a": "സാധാരണ 8-12 ആഴ്ച. Documents complete ആണെങ്കിൽ faster ആകും. DataFlow initiate ചെയ്ത ശേഷം Prometric study ആരംഭിക്കുക — waiting time നഷ്ടമാകരുത്."
+      },
+      {
+        "q": "DHA exam fail ആയാൽ retake ചെയ്യാമോ?",
+        "a": "അതെ. 3 attempts allowed. ഓരോ attempt-ഉം re-fee അടയ്ക്കണം. AyurConnect mock tests-ൽ 75%+ score achieve ചെയ്ത ശേഷം actual exam-ൽ ഇരിക്കുക — first attempt success rate ഉയർത്തും."
+      },
+      {
+        "q": "HAAD (Abu Dhabi) / DOH / MOH — ഇതിൽ DHA-ൽ നിന്ന് transfer ചെയ്യാമോ?",
+        "a": "ഓരോ emirate-ന്റെ authority-ക്കും separate exam ഉണ്ട്. DHA pass ആണെങ്കിൽ Dubai-ൽ മാത്രം practice ചെയ്യാം. Abu Dhabi-ക്ക് DOH exam / Dataflow separately ആവശ്യം. AyurConnect-ൽ ഓരോ emirate-ന്റെ prep materials separate ആയുണ്ട്."
+      },
+      {
+        "q": "AyurConnect-ൽ DHA study material മലയാളത്തിൽ ഉണ്ടോ?",
+        "a": "ഉണ്ട്. Dravyaguna, Panchakarma, Nidanasthana — ഇവ Malayalam explanations-സഹിതം. English MCQs-ക്ക് Malayalam hints ഉണ്ട്. Exam ഇംഗ്ലീഷ് ആണ് — concepts Malayalam-ൽ മനസ്സിലാക്കി English-ൽ answer ചെയ്യാൻ training ലഭ്യമാണ്."
+      }
+    ],
+    "relatedEnSlug": null
+  },
+  "bams-padana-samagrikal": {
+    "slug": "bams-padana-samagrikal",
+    "titleMl": "BAMS പഠന സാമഗ്രികൾ — സൗജന്യം",
+    "titleEn": "Free BAMS Study Material in Malayalam",
+    "metaDescMl": "BAMS 1st to 4th year notes, MCQ banks, solved question papers, Charaka–Sushruta references, case studies — Malayalam-ൽ login ഇല്ലാതെ, mobile-friendly ആയി download ചെയ്യൂ.",
+    "conditionEn": "BAMS Study Material",
+    "conditionMl": "BAMS പഠന സാമഗ്രികൾ",
+    "leadParagraph": "AyurConnect Learning Hub-ൽ BAMS 1st year മുതൽ 4th year വരെ ഉള്ള notes, MCQ banks, solved papers, clinical case studies — ഇവ Malayalam-ൽ സൗജന്യമായി ലഭ്യമാണ്. Login ആവശ്യമില്ല; mobile-ൽ നേരിട്ട് browse ചെയ്ത് download ചെയ്യാം. Kerala-ൽ BAMS പഠിക്കുന്ന വിദ്യാർഥികൾക്ക് ഏറ്റവും comprehensive ഡിജിറ്റൽ library ഇതാണ്.",
+    "sections": [
+      {
+        "heading": "1st Year BAMS — Padartha Vigyana, Sanskrit, Kriya Sharir",
+        "body": "ആദ്യ വർഷം ഏറ്റവും challenging ആണ് — Sanskrit terminology, Padartha Vigyana (Ayurvedic philosophy), Kriya Sharir (physiology), Rachana Sharir (anatomy) — ഇവ ഒരുമിച്ച് handle ചെയ്യണം. AyurConnect-ൽ Pancha Mahabhutha, Tridosha, Sapta Dhatu — ഇവ diagrams-സഹിതം Malayalam-ൽ explain ചെയ്ത notes ഉണ്ട്.\n\nSanskrit shloka pronunciation guide, word-by-word breakdown — ഇവ medical students-നു വേണ്ടി specifically prepare ചെയ്തിരിക്കുന്നു. 1st year previous question papers (Calicut University, RGUHS, Kerala University of Health Sciences) year-wise ക്രമീകരിച്ചിട്ടുണ്ട്."
+      },
+      {
+        "heading": "2nd & 3rd Year — Dravyaguna, Rasa Shastra, Charaka Samhita",
+        "body": "Dravyaguna — ഓരോ herb-ന്റെ Rasa, Guna, Virya, Vipaka, Prabhava, Malayalam ഔഷധസസ്യ നാമം — ഇവ quick-reference tables ആയി AyurConnect-ൽ ലഭ്യമാണ്. 500+ herbs ഉൾക്കൊള്ളുന്ന Malayalam glossary searchable ആണ്.\n\nCharaka Samhita — Sutrasthana, Nidanasthana, Chikitsa Sthana — chapter summaries, important shloka translations, exam-pattern Q&A ഇവ ഉണ്ട്. Sushruta Samhita surgical concepts, Shalya-Shalakya questions — ഇവ separately categorize ചെയ്തിരിക്കുന്നു. Ashtanga Hridayam key shloka notes MCQ format-ൽ practice ചെയ്യാം."
+      },
+      {
+        "heading": "4th Year & Final BAMS — Kayachikitsa, Panchakarma, Prasooti",
+        "body": "Clinical years-ൽ Kayachikitsa case presentations, Panchakarma procedures (Vamana, Virechana, Basti, Nasya, Raktamokshana), Prasooti & Stri Roga, Kaumara Bhritya — ഇവ case-based learning format-ൽ AyurConnect-ൽ ഉണ്ട്.\n\nModel case discussions — symptom → Nidana → Chikitsa → prescription ക്രമത്തിൽ Malayalam-ൽ walkthrough ചെയ്തിരിക്കുന്നു. Final BAMS exam-ന് most important topics, expected long essays, clinical viva tips — ഇവ separate section ആയി ലഭ്യം."
+      },
+      {
+        "heading": "MCQ Banks — University Pattern, AIAPGET, DHA",
+        "body": "AyurConnect-ൽ 2,500+ MCQs ഉണ്ട്: Kerala University pattern, RGUHS pattern, AIAPGET previous years, DHA Ayurveda pattern — ഇങ്ങനെ categorize ചെയ്തിരിക്കുന്നു. Subject-wise filter, difficulty level (Easy / Medium / Hard), timed mock mode — ഇവ available.\n\nഓരോ MCQ-ന്റെ explanation Malayalam-ൽ ഉണ്ട്. Wrong answers ആൽ auto-revision queue-ൽ include ആകും. Daily challenge — 10 questions per day — ഇത് consistent study ശീലമാക്കും."
+      },
+      {
+        "heading": "Classical Text References — Malayalam Glossary",
+        "body": "Charaka, Sushruta, Ashtanga Hridayam, Madhava Nidanam, Sarangadhara Samhita — ഇവ standard references ആണ്. AyurConnect-ൽ ഈ texts-ൽ നിന്ന് exam-relevant ഭാഗങ്ങൾ extract ചെയ്ത് Malayalam annotation-സഹിതം ലഭ്യമാണ്.\n\n500+ Ayurvedic terms-ന്റെ Malayalam glossary — Sanskrit term → transliteration → Malayalam meaning → clinical context — ഈ format-ൽ search ചെയ്യാം. Mobile browser-ൽ offline save ചെയ്ത് exam hall-ന്റെ തൊട്ടു മുൻപ് revise ചെയ്യാം."
+      }
+    ],
+    "faqs": [
+      {
+        "q": "Login ഇല്ലാതെ study material access ചെയ്യാമോ?",
+        "a": "ഉം. Notes, question papers, MCQ explanations — ഇവ login ഇല്ലാതെ browse ചെയ്യാം. MCQ timed mock, progress tracking, daily challenge — ഇവ free account (registration) ആവശ്യമാണ്."
+      },
+      {
+        "q": "Materials PDF ആയി download ചെയ്യാമോ?",
+        "a": "Select notes PDF-ആയി download available ആണ്. Print-friendly version ഉണ്ട്. Full e-book collection download-ൽ registered users-ന് priority access."
+      },
+      {
+        "q": "ഏത് university pattern ആണ് follow ചെയ്യുന്നത്?",
+        "a": "Kerala University of Health Sciences (KUHS), Rajiv Gandhi University of Health Sciences (RGUHS), Gujarat Ayurved University — ഇവ ഒക്കെ cover ചെയ്യുന്ന pattern-ൽ materials prepare ചെയ്തിരിക്കുന്നു. University name filter ഉപയോഗിക്കൂ."
+      },
+      {
+        "q": "Case studies കൂടി ഉണ്ടോ — clinical training-ൽ help ആകുമോ?",
+        "a": "ഉണ്ട്. 100+ clinical case studies — Nidana, Samprapti, Chikitsa format-ൽ. Hospital ward rounds-ന് മുൻപ് ഈ cases review ചെയ്തിരുന്നാൽ professor questions-ന് confident ആയി answer ചെയ്യാം."
+      },
+      {
+        "q": "Content regular update ആകുമോ?",
+        "a": "ഉം. AyurConnect academic team previous year paper updates, new MCQs, exam notification summaries — ഇവ regular ആയി add ചെയ്യുന്നു. Notification subscribe ചെയ്താൽ updates ഉടൻ ലഭിക്കും."
+      }
+    ],
+    "relatedEnSlug": null
+  },
+  "aiapget-pariksha": {
+    "slug": "aiapget-pariksha",
+    "titleMl": "AIAPGET പരീക്ഷ തയ്യാറെടുപ്പ് — MCQ + മോക്ക് ടെസ്റ്റ്",
+    "titleEn": "AIAPGET Exam Preparation — MCQ & Mock Tests in Malayalam",
+    "metaDescMl": "AIAPGET Ayurveda PG entrance — eligibility, syllabus, subject-wise MCQ banks, daily challenge, mock tests, scoring trends, MD Ayurveda admission guidance. Malayalam-ൽ complete guide.",
+    "conditionEn": "AIAPGET Exam",
+    "conditionMl": "AIAPGET പരീക്ഷ",
+    "leadParagraph": "All India Ayush Post Graduate Entrance Test (AIAPGET) BAMS ഡോക്ടർമാർക്ക് MD Ayurveda / MS Ayurveda / PG Diploma-ൽ പ്രവേശനം നേടാനുള്ള ദേശീയ entrance exam ആണ്. NTA (National Testing Agency) ഓർഗനൈസ് ചെയ്യുന്ന ഈ പരീക്ഷ ഒരൊറ്റ stage-ൽ 300 MCQs ഉൾക്കൊള്ളുന്നു. AyurConnect-ൽ Malayalam explanations-സഹിതം MCQ bank, mock tests, study planner — ഇവ ലഭ്യമാണ്.",
+    "sections": [
+      {
+        "heading": "AIAPGET — ആര്, എന്ത്, എങ്ങനെ?",
+        "body": "AIAPGET-ൽ apply ചെയ്യാൻ BAMS degree (CCIM recognized) + completed internship — ഇവ നിർബന്ധം. Final year BAMS appearing candidates-ൽ NTA approval-നനുസരിച്ച് conditional admission ലഭിക്കാറുണ്ട്.\n\nപരീക്ഷ online (CBT mode), ഒരൊറ്റ paper, 300 questions, 200 marks (ഒരോ ശരി ഉത്തരത്തിനും 4 marks; wrong answer-ന് -1 negative). Duration: 3.5 hours. Medium: English. Result — percentile basis. AIAPGET rank ആണ് MD seats allot ചെയ്യുന്ന basis."
+      },
+      {
+        "heading": "AIAPGET Syllabus — Subject-wise Breakdown",
+        "body": "Ayurvedic Fundamentals (Padartha Vigyana, Kriya Sharir, Rachana Sharir) — 20%; Dravyaguna & Rasa Shastra — 20%; Charaka Samhita, Sushruta Samhita, Ashtanga Hridayam — classical text questions — 15%; Kayachikitsa (medicine) — 15%; Shalya-Shalakya, Panchakarma — 10%; Prasooti Tantra, Kaumara Bhritya — 10%; Community Medicine / Swasthavritta — 10%.\n\nAyurConnect MCQ bank ഈ distribution-ൽ ക്രമീകരിച്ചിരിക്കുന്നു. Weak subject identify ചെയ്ത ശേഷം targeted practice ചെയ്ത് time efficiently use ചെയ്യാം."
+      },
+      {
+        "heading": "AyurConnect-ൽ AIAPGET Practice — എന്തൊക്കെ കിട്ടും?",
+        "body": "2,500+ subject-wise MCQs (AIAPGET previous years 2018-2024 included), Daily 10-question challenge, Timed full-length mock tests (3.5 hour simulation), Negative marking calculator, Wrong answer analysis & auto revision — ഇവ AyurConnect Learning Hub-ൽ ഉണ്ട്.\n\nMalayalam explanation ഓരോ question-ന്നും. Classical shloka reference link — answer-ന്റെ source directly Charaka / Ashtanga Hridayam-ൽ cross-check ചെയ്യാം. Score history graph — weekly progress track ചെയ്യാം."
+      },
+      {
+        "heading": "AIAPGET Score Trends — Cut-off വിവരങ്ങൾ",
+        "body": "General category-ൽ MD Kayachikitsa / Panchakarma seats-ൽ AIQ cut-off ഏകദേശം 55-65 percentile (recent trends). State quota (Kerala, Karnataka) — lower cut-off. Rare specialties (Shalya Tantra, Agada Tantra) — lower competition.\n\nAyurConnect-ൽ previous year AIAPGET score trends, subject-wise toppers analysis, specialty-wise seat availability — ഇവ data ആയി ലഭ്യമാണ്. ഇത് ഉപയോഗിച്ച് realistic target score set ചെയ്ത് prepare ചെയ്യുക."
+      },
+      {
+        "heading": "BAMS-ൽ നിന്ന് MD — ഏറ്റവും മികച്ച Career Paths",
+        "body": "MD Kayachikitsa — clinical practice-ൽ ഏറ്റവും scope. MD Panchakarma — wellness / resort sector-ൽ high demand, ഗൾഫ് / Europe jobs. MD Dravyaguna — pharma & research careers. MS Shalya Tantra — surgical specialization.\n\nAyurConnect Career Paths tool-ൽ AIAPGET rank range → expected specialty → career outlook — ഈ data-driven guidance ലഭ്യമാണ്. Mock interview questions, PG interview prep resources — ഇവ MD admission process-ൽ help ആകും."
+      }
+    ],
+    "faqs": [
+      {
+        "q": "AIAPGET-ന് apply ചെയ്യാൻ minimum percentage ഉണ്ടോ?",
+        "a": "BAMS-ൽ minimum 50% (SC/ST-ൽ 45%) ഉണ്ടായിരിക്കണം. University-wise variations ഉണ്ടാകാം — NTA notification official ആയി confirm ചെയ്യുക."
+      },
+      {
+        "q": "AIAPGET mock test-ൽ pass mark എത്ര നേടണം?",
+        "a": "AyurConnect mock-ൽ consistently 60%+ score ആണ് actual exam-ൽ competitive percentile-ൽ land ആകാൻ target. 75%+ ആണ് top specialties-ൽ admission ലഭിക്കാൻ generally ആവശ്യം."
+      },
+      {
+        "q": "State quota-ൽ Kerala-ൽ MD seat-ൽ AIAPGET rank-ന്റെ importance?",
+        "a": "Kerala state quota seats-ൽ AIAPGET rank ഒരു factor ആണ്. University entrance (KUHS PG entrance) ഒഴിവായി. AIAPGET rank + state rank — ഇവ combine ആകും. Official notification ഓരോ വർഷവും ശ്രദ്ധിക്കുക."
+      },
+      {
+        "q": "AyurConnect-ൽ AIAPGET material free ആണോ?",
+        "a": "ഉം. Notes, MCQ explanations, previous papers — ഇവ free. Timed mock tests, progress tracking, daily challenge — ഇവ free registration ഉള്ള users-ന് ലഭ്യം. Premium plan-ൽ unlimited mocks, personalized AI study plan."
+      },
+      {
+        "q": "Classical text questions-ൽ shloka-level preparation ആവശ്യമോ?",
+        "a": "Direct shloka memorization-ൽ AIAPGET ഫോക്കസ് ചെയ്യില്ല; concept-based questions ആണ്. AyurConnect-ൽ shloka-context MCQs ഉണ്ട് — shloka meaning → clinical application pattern-ൽ. ഇത് practice ചെയ്തിരുന്നാൽ classical text section easy ആകും."
+      }
+    ],
+    "relatedEnSlug": null
+  },
+  "ashupathri-registration": {
+    "slug": "ashupathri-registration",
+    "titleMl": "ആശുപത്രി രജിസ്ട്രേഷൻ — AyurConnect-ൽ സൗജന്യമായി ലിസ്റ്റ് ചെയ്യൂ",
+    "titleEn": "List Your Ayurveda Hospital — Free Registration",
+    "metaDescMl": "ആയുർവേദ ആശുപത്രികൾ, Panchakarma centres, wellness resorts — AyurConnect-ൽ AYUSH licence ഉപയോഗിച്ച് ലിസ്റ്റ് ചെയ്ത് patient inquiries, ഡോക്ടർ recruitment, commission-free.",
+    "conditionEn": "Hospital Registration",
+    "conditionMl": "ആശുപത്രി രജിസ്ട്രേഷൻ",
+    "leadParagraph": "AYUSH ലൈസൻസ് ഉള്ള ഏതൊരു ആയുർവേദ ആശുപത്രിക്കും, Panchakarma centre-ൽ, wellness resort-ൽ AyurConnect-ൽ സൗജന്യ ഡിജിറ്റൽ ലിസ്റ്റിംഗ് ലഭ്യമാണ്. Patient inquiry, doctor recruitment, treatment package marketing — ഇവ ഒരൊറ്റ dashboard-ൽ manage ചെയ്യാം. Commission ഇല്ല; hidden fees ഇല്ല.",
+    "sections": [
+      {
+        "heading": "ആർക്ക് ഹോസ്പിറ്റൽ ലിസ്റ്റ് ചെയ്യാം?",
+        "body": "AYUSH ലൈസൻസ് ഉള്ള ഈ categories-ൽ ഉള്ളവർക്ക് AyurConnect-ൽ register ചെയ്യാം: ആയുർവേദ hospitals (inpatient / outpatient), Panchakarma specialty centres, Kerala traditional chikitsa kalari / taravad centres, Ayurveda wellness resorts & retreat centres, integrative medicine clinics (Ayurveda + modern combination).\n\nKerala-ൽ government-aided Ayurveda hospitals-ഉം, private multi-specialty-ഉം, single-doctor small clinic-ഉം — ഒക്കെ register ചെയ്യാം. NABH accredited institutions-ന് premium badge ലഭ്യമാണ്."
+      },
+      {
+        "heading": "ആശുപത്രി ലിസ്റ്റ് ചെയ്യുന്നതിന്റെ ആനുകൂല്യങ്ങൾ",
+        "body": "Patient inquiries: Kerala, India, ഗൾഫ് medical tourists — AyurConnect-ൽ ആശുപത്രി search ചെയ്ത് directly contact ചെയ്യും. WhatsApp inquiry integration — patient questions ഉടൻ admin phone-ൽ ലഭിക്കും.\n\nDoctor recruitment: BAMS / MD verified doctors AyurConnect job portal-ൽ ആശുപത്രിയുടെ vacancy കാണും. Commission ഇല്ലാതെ direct hire ചെയ്യാം. Treatment packages: Panchakarma packages, seasonal wellness programs, rejuvenation packages — ഇവ pricing-സഹിതം list ചെയ്ത് online inquiries convert ചെയ്യാം."
+      },
+      {
+        "heading": "ആവശ്യമായ Documents — എന്തൊക്കെ?",
+        "body": "AYUSH ലൈസൻസ് / registration certificate, ആശുപത്രിയുടെ ഔദ്യോഗിക ID proof (GST / Udyam / Trust deed), Chief physician BAMS / MD certificate, ആശുപത്രി photograph (exterior + treatment rooms), treatment list — ഇവ submission-ൽ ആവശ്യം.\n\nMedical tourism / wellness resort ആണെങ്കിൽ Kerala Tourism ലൈസൻസ് (applicable ആണെങ്കിൽ) ഉം ആഡ് ചെയ്യുക. Verification 72 hours-ൽ complete ആകും."
+      },
+      {
+        "heading": "Hospital Dashboard — management tools",
+        "body": "AyurConnect Hospital Dashboard-ൽ: patient inquiries inbox, doctor application tracking, treatment package editor, photo gallery manager, review management, analytics (page views, inquiry count, popular treatments) — ഇവ ലഭ്യമാണ്.\n\nMarketing toolkit-ൽ printable QR code (AyurConnect profile link ആ), social media shareable cards, seasonal promotion templates — ഇവ ഉണ്ട്. Hospital-ൽ display ചെയ്യുന്ന QR scan ചെയ്ത് patients directly book inquiry ചെയ്യും."
+      },
+      {
+        "heading": "Commission-free — എങ്ങനെ ലാഭകരം?",
+        "body": "Traditional OTA (Online Travel Agent) / health portals 15-25% commission charge ചെയ്യും. AyurConnect-ൽ flat subscription model — basic listing free, premium features flat annual fee. Patient booking-ന് commission ഇല്ല.\n\nഒരു 14-day Panchakarma package-ന്റെ ഒരൊറ്റ booking-ൽ AyurConnect subscription fee recover ആകും. Unlimited inquiries, unlimited doctor recruitment posts — ഒരേ plan-ൽ."
+      }
+    ],
+    "faqs": [
+      {
+        "q": "Single-doctor small clinic-ൽ hospital listing ചെയ്യാമോ?",
+        "a": "ആകാം. Small outpatient clinic-ഉം ലിസ്റ്റ് ചെയ്യാം. Doctor profile + clinic profile — ഇവ link ആകും. Patient-ന് ഡോക്ടറെ കണ്ടെത്തി, clinic address-ഉം, consultation time-ഉം ഒരൊറ്റ page-ൽ ലഭിക്കും."
+      },
+      {
+        "q": "AYUSH ലൈസൻസ് renewal process-ൽ ഉള്ള hospital apply ചെയ്യാമോ?",
+        "a": "Existing valid license ഉണ്ടെങ്കിൽ, renewal application proof ആഡ് ചെയ്ത് register ചെയ്യാം. Renewal complete ആകുന്ന മുറയ്ക്ക് update ചെയ്യണം — until then profile active ആകും."
+      },
+      {
+        "q": "Kerala-ൽ Panchakarma centre — specific treatment category listing ഉണ്ടോ?",
+        "a": "ഉണ്ട്. Vamana, Virechana, Basti, Nasya, Raktamokshana — ഓരോ treatment tag ആയി add ചെയ്യാം. Patients specific treatment search ചെയ്താൽ hospital result-ൽ appear ആകും."
+      },
+      {
+        "q": "Medical tourism patients-ന് inquiries handle ചെയ്യാൻ support ഉണ്ടോ?",
+        "a": "AyurConnect WhatsApp integration ഉള്ളതിനാൽ Gulf / overseas patients directly hospital admin-ന് message ചെയ്യും. Multilingual inquiry (English, Arabic, Malayalam) auto-detect ആകും."
+      },
+      {
+        "q": "Hospital review management — negative reviews-ന് respond ചെയ്യാമോ?",
+        "a": "ആകാം. Dashboard-ൽ ഓരോ patient review-ൽ hospital admin public reply post ചെയ്യാം. Professional, transparent response — trust building-ൽ positive impact ഉണ്ടാക്കും."
+      }
+    ],
+    "relatedEnSlug": null
+  },
+  "job-post": {
+    "slug": "job-post",
+    "titleMl": "ആയുർവേദ ജോലി പോസ്റ്റ് ചെയ്യൂ — AyurConnect Jobs",
+    "titleEn": "Post Ayurveda Jobs Free — AyurConnect Jobs",
+    "metaDescMl": "ആയുർവേദ ആശുപത്രികൾ, ക്ലിനിക്കുകൾ — AyurConnect-ൽ ജോലി post ചെയ്ത് verified BAMS/MD candidates-ൽ നിന്ന് AI matching, applicant tracking, commission-free recruitment.",
+    "conditionEn": "Post a Job",
+    "conditionMl": "ജോലി പോസ്റ്റ്",
+    "leadParagraph": "AyurConnect Job Portal-ൽ ആശുപത്രികൾക്കും ക്ലിനിക്കുകൾക്കും ആയുർവേദ ജോലി vacancy സൗജന്യമായി post ചെയ്യാം. Verified BAMS / MD Ayurveda candidates — AI matching, resume score, applicant tracking — ഇവ ഒരൊറ്റ dashboard-ൽ. Commission ഇല്ല; no middleman.",
+    "sections": [
+      {
+        "heading": "ആർക്ക് Job Post ചെയ്യാം?",
+        "body": "AyurConnect-ൽ ആശുപത്രി / ക്ലിനിക്ക് / wellness centre registration ഉള്ള ഏതൊരു employer-ൽ ജോലി post ചെയ്യാം. Kerala-ൽ ഉള്ള Ayurveda hospitals, ഗൾഫ് / UAE / Saudi Ayurveda centres, India-ൽ ഉള്ള pharma companies (Ayurveda R&D), telemedicine platforms — ഇവ ഒക്കെ vacancy list ചെയ്യാം.\n\nHospital-registered employer-ന് unlimited job posts ആണ് Basic tier-ൽ. Profile verified institutions-ൽ ആണ് candidates trust ചെയ്ത് apply ചെയ്യുന്നത് — unverified listings-ൽ response rate കുറവാണ്."
+      },
+      {
+        "heading": "ഏതൊക്കെ Job Types List ചെയ്യാം?",
+        "body": "Full-time BAMS / MD physician positions, Part-time / locum consultant posts, Panchakarma therapist (Ayurveda nurse / technician), Research officer positions (pharma / academic), Telemedicine Ayurveda doctor (remote / online), Gulf / Middle East / Europe positions (visa sponsorship-സഹിതം), Internship / Junior Resident posts in teaching hospitals.\n\nOverseas jobs-ൽ DHA / HAAD / MOH license required ആണോ — ഇക്കാര്യം job description-ൽ specify ചെയ്യുക. AyurConnect-ൽ licensed candidates-ൽ filter apply ചെയ്ത് only eligible applicants shortlist ചെയ്യാം."
+      },
+      {
+        "heading": "AI Matching — ശരിയായ Candidate ഉടൻ കണ്ടെത്തൂ",
+        "body": "Job post submit ചെയ്ത ഉടൻ AyurConnect AI system — job requirements (specialty, experience, location, license) match ആകുന്ന verified candidates-ൽ notification അയക്കും. Passive candidates — actively job search ചെയ്യുന്നില്ലെങ്കിലും suitable posting-ൽ notification ലഭിക്കും.\n\nResume Score — ഓരോ applicant-ന്റെ BAMS percentage, internship hospital tier, skills, certifications — ഇവ weighted score ആയി display ആകും. Manual screening time-ൽ 70% savings ഉണ്ടാകും. Top-scored candidates auto-highlight ആകും."
+      },
+      {
+        "heading": "Applicant Tracking — Dashboard-ൽ",
+        "body": "AyurConnect employer dashboard-ൽ: Applied candidates list, resume download, one-click shortlist / reject, interview schedule integration (Google Meet / WhatsApp link send), offer letter template, status pipeline (Applied → Shortlisted → Interviewed → Hired) — ഇവ manage ചെയ്യാം.\n\nTeam collaboration — HR manager, senior doctor — ഒക്കെ same dashboard access ചെയ്ത് candidate review ചെയ്യാം. Candidate-ൽ notes add ചെയ്ത് internal communication ഒരൊറ്റ place-ൽ track ചെയ്യാം."
+      },
+      {
+        "heading": "Commission-free Hiring — Cost Saving",
+        "body": "Traditional recruitment agency commission: placed candidate-ന്റെ 1-2 months salary (INR 30,000 – 1,00,000). AyurConnect-ൽ flat subscription — job posts unlimited, candidates unlimited, commission zero.\n\nSmall clinics-ൽ ഒരൊറ്റ hiring-ൽ subscription cost recover ആകും. Large hospitals annual subscription-ൽ 10-20 hirings — significant cost savings. Gulf employers-ൽ local India recruitment agency fee ഒഴിവാക്കാം — directly verified candidates-ൽ reach out ചെയ്യാം."
+      },
+      {
+        "heading": "Job Post — Step-by-Step",
+        "body": "1. ayurconnect.com/employer — ൽ hospital login ചെയ്യുക. 2. \"Post a Job\" → Job title, specialty, experience required, salary range, location, job type select ചെയ്യുക. 3. Job description (Malayalam / English) ടൈപ്പ് ചെയ്യുക — required skills, perks, visa status ഉൾക്കൊള്ളിക്കുക. 4. Submit → ഉടൻ live ആകും; AI matching notifications candidates-ൽ ലഭിക്കും.\n\nApplication deadline, interview mode (in-person / online), joining date — ഇവ specify ചെയ്ത് quality applications attract ചെയ്യാം. Detailed JD ഉള്ള posts-ൽ 3x കൂടുതൽ applications ലഭിക്കുന്നു."
+      }
+    ],
+    "faqs": [
+      {
+        "q": "Hospital listing ഇല്ലാതെ job post ചെയ്യാമോ?",
+        "a": "Job post-ൽ hospital / employer verification ആവശ്യമാണ്. ആദ്യം Hospital registration (15 minutes) complete ചെയ്ത ശേഷം job posts unlimited ആയി create ചെയ്യാം."
+      },
+      {
+        "q": "Gulf job-ൽ visa sponsorship details add ചെയ്യാമോ?",
+        "a": "ആകാം. Job form-ൽ \"Visa Provided\" toggle, iquama / Emirates ID details, housing allowance — ഇവ structured fields ആയി add ചെയ്യാം. DHA / HAAD licensed candidates filter apply ചെയ്ത് only eligible applicants ലഭിക്കും."
+      },
+      {
+        "q": "Confidential hiring ആണ് — hospital name hide ചെയ്യാമോ?",
+        "a": "ആകാം. \"Confidential Employer\" option enable ചെയ്ത് hospital name hide ചെയ്ത് post ചെയ്യാം. Candidate apply ചെയ്ത ശേഷം employer identity reveal ആകും."
+      },
+      {
+        "q": "ഒരേ post-ൽ multiple specialties hire ചെയ്യണം — ഒരൊറ്റ post-ൽ ആകുമോ?",
+        "a": "Specialty ഓരോന്നിനും separate post recommend ചെയ്യുന്നു — AI matching accuracy ഉയരും. Bulk hiring mode-ൽ multiple posts ഒരൊറ്റ ക്ലിക്കിൽ duplicate ചെയ്ത് edit ചെയ്യാം."
+      },
+      {
+        "q": "Candidate contact details directly ലഭിക്കുമോ?",
+        "a": "Shortlist ചെയ്ത ശേഷം candidate phone / email dashboard-ൽ reveal ആകും. Direct WhatsApp / call ചെയ്ത് interview schedule ചെയ്യാം. AyurConnect middleman ആകില്ല — direct employer-candidate communication."
+      }
+    ],
+    "relatedEnSlug": null
   }
 }

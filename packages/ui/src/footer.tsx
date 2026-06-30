@@ -71,6 +71,10 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
     heading: 'AyurConnect',
     links: [
       { href: '/about',           label: 'About' },
+      { href: '/for-doctors',     label: 'For Doctors' },
+      { href: '/for-students',    label: 'For Students' },
+      { href: '/for-hospitals',   label: 'For Hospitals' },
+      { href: '/events',          label: 'Events' },
       { href: '/ml',              label: 'മലയാളത്തിൽ (Malayalam)' },
       { href: '/contact',         label: 'Contact' },
       { href: '/feedback',        label: 'Feedback & Suggestions' },
