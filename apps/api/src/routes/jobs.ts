@@ -31,7 +31,10 @@ const jobs: FastifyPluginAsync = async (fastify) => {
     if (q.specialty)   where.specialty = q.specialty
     if (q.kind)        where.kind = q.kind
     if (q.featured)    where.featured = q.featured === '1' || q.featured === 'true'
+    if (q.urgent)      where.urgent   = q.urgent   === '1' || q.urgent   === 'true'
     if (q.remote)      where.remote   = q.remote === '1' || q.remote === 'true'
+    if (q.tag)         where.tags = { has: q.tag }
+    if (q.expMaxLte)   where.expMin = { lte: Math.max(0, parseInt(q.expMaxLte, 10) || 0) }
     if (q.search) {
       where.OR = [
         { title:       { contains: q.search, mode: 'insensitive' as const } },

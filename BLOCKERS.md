@@ -96,3 +96,81 @@ hospital marketing toolkit extensions.
 - **Profile completeness score + soft-hide**: small Doctor-level computation, but the "soft-hide below 50%" gate needs server-side filtering in `/api/doctors` (touches the search handler), so deferred to avoid mid-flow side effects on the search UX.
 - **Multi-step `/doctors/register` flow + Day-0/1/3/7 in-app tips**: existing register page is functional; redesigning the flow is a larger UX swap.
 - **Condition-specific listing pages** (`/doctors/specialization/[s]`, `/doctors/location/[l]`, `/doctors/[s]/[l]`): some routes exist (`/ayurveda-doctors/[loc]`, `/doctors/in/[country]`); the brief's slug pattern is new and would create overlap — left for a single SEO-consolidation pass.
+
+## Advanced job-portal sprint (2026-06-30, fourth pass)
+
+### Shipped this round (atomic, no schema migration)
+- **4 SEO listing pages** at `/jobs/walk-in`, `/jobs/immediate-hiring`,
+  `/jobs/freshers`, `/jobs/remote` — each is a thin wrapper around a shared
+  `FilteredJobsList` component, server-fetches with the right filter query:
+  - walk-in: `tag=walk-in` (uses existing `Job.tags[]`; no migration needed)
+  - immediate-hiring: `urgent=1` (now supported by the jobs route handler)
+  - freshers: `expMaxLte=2` (now supported — `expMin <= 2`)
+  - remote: `remote=1` (already supported)
+- **`/jobs/salary-calculator`** — client-side calculator with seeded
+  benchmarks for 10 locations × 9 specializations × experience curve +
+  qualification + license multipliers. Honest about being estimates.
+- **Quick-filter strip** in /jobs hero (Walk-in / Urgent / Freshers /
+  Remote / Locum / Salary calculator) + a secondary Trending row.
+- **API extension**: `apps/api/src/routes/jobs.ts` now accepts `urgent`,
+  `tag`, and `expMaxLte` query params (additive, no breaking change).
+- **Sitemap**: +5 entries with appropriate priorities (0.85 daily for the
+  listing pages, 0.8 monthly for the calculator).
+
+### Still deferred (genuine schema/CRUD scope — need dedicated PRs)
+- **Phase 1 — Doctor availability system extension**: CandidateProfile
+  already has most of these fields (`availability`, `preferredLocations`,
+  `expectedSalary`, `willingToRelocate`, `openToTelemedicine`,
+  `openToLocum`). The brief asks for new ones (`availabilityType` enum,
+  `noticePeriodDays`, `availableFrom`, `preferredCountries`,
+  `preferredDistricts`, `minExpectedSalary`/`maxExpectedSalary`,
+  `isOpenToNightShift`, `isOpenToWeekendOnly`, `profileVideoUrl`,
+  `coverNote`). Additive migration is straightforward, but the UI
+  rewrite of `/jobs/profile` to surface them all is the bigger item.
+- **Phase 2 — Walk-in fields proper**: `isWalkIn`, `walkInDate`,
+  `walkInTime`, `walkInVenue`, `walkInDocuments`, `contactPerson`,
+  `contactPhone` on `Job`. The new `/jobs/walk-in` page works on the
+  `walk-in` tag today; switch to the dedicated columns after the
+  migration so we can render the date/venue/documents block per card.
+- **Phase 3 — Bulk apply + saved searches**: bulk apply needs an
+  endpoint mutating many `JobApplication` rows at once + per-job
+  profile-completeness gate. Saved searches need a `SavedSearch` model +
+  match-on-new-post cron + WhatsApp/email delivery.
+- **Phase 4 — Video introduction upload**: requires storage policy +
+  `profileVideoUrl` on `CandidateProfile` (additive) + upload UI.
+- **Phase 5 — Application follow-up reminders + timeline**: needs
+  BullMQ scheduled job for 7d / 14d follow-ups, plus a status-history
+  table to render the timeline.
+- **Phase 6 — Salary insight on /jobs/[id]**: cheap to add later (a
+  small server query against active jobs with same specialty + country
+  + experience band), but the brief asks for it on every job detail —
+  defer for a dedicated round of detail-page work.
+- **Phase 7 — Urgent-job WhatsApp burst + replacement finder**: needs
+  WhatsApp messaging job + employer-side `/jobs/employers/find-replacement`
+  page with real-time match query (high-touch UX, separate PR).
+- **Phase 8 — Candidate pool**: new `CandidatePool` model + employer-side
+  pool management UI.
+- **Phase 9 — Job templates + bulk CSV + multi-location**: new
+  `JobTemplate` model + CSV upload + per-location job-create loop.
+- **Phase 10 — In-platform messaging**: new `Message` model + WhatsApp-style
+  conversation UI on both sides.
+- **Phase 11 — Advanced hiring analytics**: funnel chart needs a
+  status-event log on `JobApplication`; competitor comparison needs
+  industry aggregations.
+- **Phase 12 — Two-way interest system**: new `InterestSignal` model +
+  employer-views-candidate hook + notification flow.
+- **Phase 13 — Smart recommendations with explanation**: the existing
+  match engine returns scores; surfacing the per-factor breakdown on
+  /jobs/[id] is small UI work, deferred until the messaging/notification
+  surface lands so all candidate-facing surfaces ship together.
+
+### Decision rationale
+The 15-phase brief is ~50 hours of focused work end-to-end with at least
+6 new Prisma models, 20+ new Fastify routes, and the same number of new
+Next.js pages. Shipping atomic SEO + API filter extensions first because:
+1. The 4 listing pages drive long-tail traffic immediately with zero
+   schema cost.
+2. The salary calculator is a high-conversion SEO + lead-gen page that
+   stands alone.
+3. The 3 new query params on `/api/jobs` (urgent / tag / expMaxLte) are
+   reusable building blocks for the deferred features.

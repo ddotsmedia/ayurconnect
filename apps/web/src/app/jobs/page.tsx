@@ -99,9 +99,18 @@ export default async function JobsPage() {
             <button className="px-4 py-2 bg-gold-500 hover:bg-gold-600 text-white text-sm font-semibold rounded">Search</button>
           </form>
           <div className="mt-4 flex flex-wrap items-center gap-1.5 text-xs text-white/85">
+            <span className="opacity-80">Quick filters:</span>
+            <Link href="/jobs/walk-in"          className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-full border border-white/15">📍 Walk-in</Link>
+            <Link href="/jobs/immediate-hiring" className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-full border border-white/15">🔴 Urgent</Link>
+            <Link href="/jobs/freshers"         className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-full border border-white/15">🎓 Freshers</Link>
+            <Link href="/jobs/remote"           className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-full border border-white/15">🏠 Remote</Link>
+            <Link href="/jobs/locum"            className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-full border border-white/15">⏱️ Locum</Link>
+            <Link href="/jobs/salary-calculator" className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-full border border-white/15">💰 Salary</Link>
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-white/70">
             <span className="opacity-80">Trending:</span>
             {['Panchakarma Dubai', 'BAMS Fresher Kerala', 'Telemedicine', 'Locum', 'DHA Licensed'].map((t) => (
-              <Link key={t} href={`/jobs/search?q=${encodeURIComponent(t)}`} className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-full border border-white/15">{t}</Link>
+              <Link key={t} href={`/jobs/search?q=${encodeURIComponent(t)}`} className="px-2.5 py-1 bg-white/5 hover:bg-white/15 rounded-full border border-white/10">{t}</Link>
             ))}
           </div>
           <div className="mt-4 flex flex-wrap gap-2">
