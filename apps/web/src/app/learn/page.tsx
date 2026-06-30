@@ -56,6 +56,25 @@ export default function LearnHubPage() {
         </div>
       </section>
 
+      {/* Daily challenge widget — top placement to drive return visits */}
+      <section className="container mx-auto px-4 pt-8 max-w-6xl">
+        <Link href="/learn/daily-challenge" className="flex items-center gap-4 p-4 bg-gradient-to-r from-amber-50 to-rose-50 border border-amber-200 rounded-card hover:border-amber-400 transition-colors">
+          <span className="text-3xl">🔥</span>
+          <div className="flex-1">
+            <p className="font-serif text-xl text-kerala-800">Today&rsquo;s AIAPGET Challenge</p>
+            <p className="text-sm text-gray-700">5 questions · 10 minutes · Build a daily streak →</p>
+          </div>
+          <span className="hidden md:inline text-sm text-kerala-700 font-semibold">Start →</span>
+        </Link>
+        <Link href="/learn/exam-countdown" className="mt-3 flex items-center gap-4 p-3 bg-white border border-gray-100 rounded-card hover:border-kerala-300 transition-colors">
+          <span className="text-2xl">📅</span>
+          <div className="flex-1">
+            <p className="font-semibold text-ink">Exam Countdown</p>
+            <p className="text-xs text-gray-500">AIAPGET, Kerala PSC, UPSC AYUSH, KUHS PG → days remaining + study links</p>
+          </div>
+        </Link>
+      </section>
+
       {/* 6-card grid */}
       <section className="container mx-auto px-4 py-12 max-w-6xl">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
