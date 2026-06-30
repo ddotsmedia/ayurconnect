@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ShieldCheck, MapPin, Star, Languages, Calendar } from 'lucide-react'
+import { ShieldCheck, MapPin, Star, Languages } from 'lucide-react'
 import { cn } from './lib/utils'
 
 const AVATAR_PALETTE = [
@@ -47,7 +47,6 @@ export function DoctorCard({ doctor, className }: { doctor: DoctorCardData; clas
   const moreSpecs = Math.max(0, specs.length - showSpecs.length)
   const langs = (doctor.languages ?? []).slice(0, 3)
   const moreLangs = Math.max(0, (doctor.languages?.length ?? 0) - langs.length)
-  const avail = (doctor.availableDays ?? []).length > 0
 
   return (
     <article
@@ -111,12 +110,6 @@ export function DoctorCard({ doctor, className }: { doctor: DoctorCardData; clas
             <span className="truncate">{langs.join(', ')}{moreLangs > 0 ? ` +${moreLangs}` : ''}</span>
           </div>
         )}
-        {avail && (
-          <div className="flex items-center gap-1.5 col-span-2 text-kerala-700">
-            <span className="w-1.5 h-1.5 rounded-full bg-kerala-500" />
-            <span>Available this week</span>
-          </div>
-        )}
       </div>
 
       <div className="mt-auto pt-4 flex items-center justify-end gap-2">
@@ -137,8 +130,6 @@ export function DoctorCard({ doctor, className }: { doctor: DoctorCardData; clas
         </Link>
       </div>
 
-      {/* Calendar icon import keeps eslint happy without affecting render */}
-      <Calendar className="w-0 h-0" aria-hidden />
     </article>
   )
 }

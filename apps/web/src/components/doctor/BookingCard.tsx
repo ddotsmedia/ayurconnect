@@ -35,7 +35,6 @@ export function BookingCard({ doctorId, doctorName, specialization }: { doctorId
       {/* Desktop sticky card */}
       <div className="bg-white border border-gray-100 rounded-card shadow-cardLg p-5 lg:sticky lg:top-24 self-start">
         <h2 className="font-serif text-xl text-ink">Consult {doctorName.replace(/^Dr\.?\s*/, 'Dr. ')}</h2>
-        <p className="inline-flex items-center gap-1.5 mt-1 text-xs px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-full"><CheckCircle2 className="w-3 h-3" /> Available this week</p>
         <a href={wa} target="_blank" rel="noreferrer" className="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md text-sm">
           <MessageCircle className="w-4 h-4" /> Book via WhatsApp
         </a>
