@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Suspense } from 'react'
+import Script from 'next/script'
 import { Cormorant_Garamond, Inter } from 'next/font/google'
 import { Navbar, Footer, AyurBotWidget, MobileBottomNav, ServiceWorkerRegister, CookieConsent, TopContactBar, type NavbarSession, type FooterSettings } from '@ayurconnect/ui'
 import { getServerSession } from '../lib/auth'
@@ -223,6 +224,8 @@ export default async function RootLayout({
         <StreakCheckIn enabled={!!navSession} />
         <InstallPrompt />
         <Suspense fallback={null}><PageViewTracker /></Suspense>
+        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-F6WDRDL0N5" strategy="afterInteractive" />
+        <Script id="ga4" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-F6WDRDL0N5');`}</Script>
       </body>
     </html>
   )
