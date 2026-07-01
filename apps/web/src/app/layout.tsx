@@ -48,6 +48,10 @@ export const metadata: Metadata = {
     siteName: 'AyurConnect',
     title: "AyurConnect — Kerala's #1 Ayurveda Platform",
     description: 'verified doctors, classical Panchakarma centres, herb encyclopedia, AyurBot AI.',
+    // Fallback OG image — pages with their own `opengraph-image.tsx` (route
+    // convention) override this. Rendered as SVG for crisp scaling; social
+    // crawlers that reject SVG fall through to app/opengraph-image.tsx.
+    images: [{ url: '/og-default.svg', width: 1200, height: 630, alt: 'AyurConnect — Kerala\'s #1 Ayurveda Platform' }],
   },
   twitter: { card: 'summary_large_image', title: 'AyurConnect', description: "Kerala's Ayurveda platform", site: '@ayurconnect' },
   alternates: {

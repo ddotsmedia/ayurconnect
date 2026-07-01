@@ -254,7 +254,11 @@ export function organizationLd() {
       },
     ],
     sameAs: [
-      // Add real social URLs here once they exist
+      'https://instagram.com/ayurconnect',
+      'https://linkedin.com/company/ayurconnect',
+      'https://facebook.com/ayurconnect',
+      'https://x.com/ayurconnect',
+      'https://youtube.com/@vaidyasala',
     ],
   }
 }

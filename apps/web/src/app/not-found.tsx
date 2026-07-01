@@ -47,17 +47,22 @@ export default function NotFound() {
           ))}
         </div>
 
+        <form action="/doctors" className="max-w-lg mx-auto bg-white border border-gray-100 rounded-card shadow-card p-3 flex items-center gap-2 mb-4">
+          <Search className="w-4 h-4 text-gray-400 ml-1" />
+          <input name="q" placeholder="Search doctors, conditions, herbs…" className="flex-1 px-1 py-2 text-sm focus:outline-none" />
+          <button className="px-4 py-2 bg-kerala-700 hover:bg-kerala-800 text-white text-xs font-semibold rounded">Search</button>
+        </form>
+
         <div className="text-center">
           <Link
-            href="/search"
+            href="/"
             className="inline-flex items-center gap-2 px-5 py-2.5 bg-kerala-700 hover:bg-kerala-800 text-white rounded text-sm font-semibold"
           >
-            <Search className="w-4 h-4" /> Search the site
+            <ArrowLeft className="w-4 h-4" /> Go to homepage
           </Link>
-          <p className="mt-4">
-            <Link href="/" className="text-xs text-kerala-700 hover:underline inline-flex items-center gap-1">
-              <ArrowLeft className="w-3 h-3" /> Back to home
-            </Link>
+          <p className="mt-4 text-xs text-gray-500">
+            Think this is a broken link?{' '}
+            <Link href="/feedback" className="text-kerala-700 hover:underline">Report it via feedback</Link>.
           </p>
         </div>
       </div>
