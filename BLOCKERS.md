@@ -233,3 +233,62 @@ The public surface is the high-leverage piece (drives the SEO discovery
 that justifies hospitals posting in the first place). The hospital-side
 posting tools already exist in `/hospital/dashboard/marketing` and
 `/hospital/dashboard/packages`.
+
+## Doctor viral-growth sprint (2026-07-01, sixth pass)
+
+Most of the brief already shipped in prior sessions (commits 2cf54ea +
+earlier). This pass added the 2 remaining SEO listing pages and stopped
+short of the DB-heavy items per rules.
+
+### Shipped this round
+- **/doctors/specialization/[slug]** — 12 static specializations
+  (Panchakarma, Kayachikitsa, Prasuti Tantra, Kaumarbhritya, Shalya,
+  Shalakya, Manasika, Rasashastra, Wellness, PCOS Treatment, Diabetes,
+  Back Pain). Uses existing `/api/doctors?specialization=` filter, no
+  migration. Physician schema per doctor (top 10) + BreadcrumbList.
+  Data-gated: <2 doctors → "Register as specialist" CTA.
+- **/doctors/location/[district]** — 17 locations (14 Kerala districts
+  + Dubai + Abu Dhabi + Sharjah). Uses existing
+  `/api/doctors?district=` filter. Same schema + data-gate pattern.
+- **Sitemap**: +12 specialization + +17 location URLs (all 0.8 weekly).
+  Note: `/doctors/in/[country]` (existing) covers the country tier;
+  new pages cover the specialty and district tiers. The
+  three-slug `/doctors/[specialization]/[location]` combo route in the
+  brief would need a new dynamic segment overlapping `/doctors/[id]`
+  — skipped to avoid the route collision.
+
+### Confirmed already-shipped (per prior sessions)
+- `/doctors/[id]/card` (digital visiting card) — commit 2cf54ea
+- `/write-for-us` — commit 2cf54ea
+- `/doctors/colleges` + 10 college slug pages — commit 2cf54ea
+- `/doctors/ambassador` — pre-existing
+- `/doctors/today` daily digest — earlier commit
+- `/leaderboard` — earlier commit (streak/gamification)
+- Physician schema on `/doctors/[id]` via `physicianLd` helper — pre-existing
+- Referral link + WhatsApp share on `/doctors/today` — earlier commit
+- Streak `award` points endpoint (`referral` action = 100 pts) —
+  earlier commit
+
+### Still deferred — need DB migration or heavy new UI
+- **DoctorArticle model + author FK**: `KnowledgeArticle` still uses
+  free-text `reviewedBy`. Needs migration adding `authorUserId` (FK to
+  User) + new admin review flow + `/doctors/dashboard/articles` +
+  `/doctors/dashboard/articles/new` editor + author cards on
+  `/articles/[slug]` + "Articles by Dr. X" section on doctor profile.
+  ClinicalCase (a separate model) already has `authorId` and could be a
+  starting analogue if we want to model DoctorArticle the same way.
+- **/doctors/dashboard/profile** editing UI + photo upload + mutation
+  API for 15+ Doctor fields. Needs `/api/doctor/profile` mutation route
+  + upload path (photoUrl → /uploads/doctors) or S3 bucket policy.
+- **Profile-completeness scoring + soft-hide in search**: small compute,
+  but the soft-hide gate lives in `/api/doctors` — deferred to avoid
+  mid-flow search-UX side effects.
+- **Multi-step register wizard + Day-0/1/3/7 tips**: existing
+  `/doctors/register` works; wizard redesign + tip state machine
+  deferred.
+- **"Published Author ✍️" / "Prolific Writer 📚" badges + article-count
+  column on /leaderboard**: dependent on DoctorArticle landing first.
+
+The 2 SEO pages ship long-tail traffic today; the DB-heavy items are
+best done as a single dedicated PR that also updates admin review, the
+leaderboard, and the /articles listing simultaneously.

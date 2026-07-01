@@ -215,6 +215,13 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/jobs/remote',           priority: 0.85, changeFrequency: 'daily'   },
   { path: '/jobs/salary-calculator',priority: 0.8,  changeFrequency: 'monthly' },
   { path: '/offers',                priority: 0.9,  changeFrequency: 'daily'   },
+  // Specialization + location doctor listing pages (SEO for long-tail).
+  ...['panchakarma','kayachikitsa','prasuti-tantra','kaumarbhritya','shalya','shalakya','manasika','rasashastra','wellness','pcos-treatment','diabetes','back-pain'].map((s) => ({
+    path: `/doctors/specialization/${s}` as const, priority: 0.8, changeFrequency: 'weekly' as const,
+  })),
+  ...['thiruvananthapuram','kollam','pathanamthitta','alappuzha','kottayam','idukki','ernakulam','thrissur','palakkad','malappuram','kozhikode','wayanad','kannur','kasaragod','dubai','abu-dhabi','sharjah'].map((d) => ({
+    path: `/doctors/location/${d}` as const, priority: 0.8, changeFrequency: 'weekly' as const,
+  })),
   { path: '/write-for-us',          priority: 0.8,  changeFrequency: 'monthly' },
   { path: '/doctors/colleges',      priority: 0.75, changeFrequency: 'monthly' },
   { path: '/doctors/colleges/government-ayurveda-college-thiruvananthapuram', priority: 0.7, changeFrequency: 'weekly' },
