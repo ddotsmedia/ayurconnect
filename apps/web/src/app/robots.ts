@@ -111,6 +111,7 @@ export default function robots(): MetadataRoute.Robots {
     ],
     sitemap: [
       `${BASE}/sitemap.xml`,
+      `${BASE}/sitemap-complete.xml`,
       `${BASE}/news-sitemap.xml`,
     ],
     host: BASE,

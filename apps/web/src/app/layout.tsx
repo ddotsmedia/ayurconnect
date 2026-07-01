@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', title: 'AyurConnect', description: "Kerala's Ayurveda platform", site: '@ayurconnect' },
   alternates: {
     canonical: '/',
-    languages: { 'en-IN': '/', 'x-default': '/' },
+    languages: { 'en-IN': '/', 'ml-IN': '/', 'x-default': '/' },
   },
   manifest: '/manifest.webmanifest',
   appleWebApp: {
