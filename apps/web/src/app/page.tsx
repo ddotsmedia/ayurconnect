@@ -75,6 +75,28 @@ const HOME_SERVICES_CATALOG = [
 
 type DoctorWithMeta = DoctorCardData
 
+async function getPlatformStats(): Promise<{ doctors: number; herbs: number; resources: number; licensing: number }> {
+  // Best-effort counts. Each request degrades independently — the section
+  // hides itself if all fail.
+  async function count(path: string, key: string): Promise<number> {
+    try {
+      const r = await fetch(`${API}${path}`, { next: { revalidate: 3600 } })
+      if (!r.ok) return 0
+      const d = await r.json() as Record<string, unknown>
+      return typeof d.total === 'number' ? d.total
+           : typeof d.count === 'number' ? d.count
+           : Array.isArray(d[key]) ? (d[key] as unknown[]).length : 0
+    } catch { return 0 }
+  }
+  const [doctors, herbs] = await Promise.all([
+    count('/doctors?limit=1', 'doctors'),
+    count('/herbs?limit=1', 'herbs'),
+  ])
+  // Study resources + licensing are static content — hard-coded because
+  // they're admin-authored surfaces without a runtime count endpoint.
+  return { doctors, herbs, resources: 155, licensing: 10 }
+}
+
 async function getFeaturedDoctors(): Promise<DoctorWithMeta[]> {
   const cookie = (await nextHeaders()).get('cookie') ?? ''
   try {
@@ -106,7 +128,7 @@ export const metadata = {
 }
 
 export default async function HomePage() {
-  const featuredDoctors = await getFeaturedDoctors()
+  const [featuredDoctors, stats] = await Promise.all([getFeaturedDoctors(), getPlatformStats()])
   // UI chrome is English-only. Malayalam appears solely in content/article
   // bodies (heritage, classical-text names, herb/treatment native names).
   const tr = t()
@@ -203,7 +225,28 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Stats bar removed — counts are too low to feel impressive; will return when meaningful. */}
+      {/* Real-number social proof — 145+ herbs + 155 study resources genuinely stand up. */}
+      {(stats.doctors > 0 || stats.herbs > 0) && (
+        <section className="border-y border-gray-100 bg-white">
+          <div className="container mx-auto px-4 py-6">
+            <p className="text-center text-xs uppercase tracking-wider text-gray-500 mb-4">AyurConnect in Numbers</p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 max-w-4xl mx-auto">
+              {[
+                { n: stats.doctors,   label: 'Verified Doctors',  sub: 'and growing weekly' },
+                { n: stats.herbs,     label: 'Medicinal Herbs',   sub: 'from classical texts' },
+                { n: stats.resources, label: 'Study Resources',   sub: 'BAMS notes + MCQs + papers' },
+                { n: stats.licensing, label: 'Licensing Guides',  sub: 'DHA, MOH, CNHC + more' },
+              ].map((s) => (
+                <div key={s.label} className="text-center px-2 py-3 border-l border-gray-100 first:border-l-0">
+                  <p className="font-serif text-3xl text-kerala-700 leading-none">{s.n}<span className="text-xl">+</span></p>
+                  <p className="text-sm text-ink font-semibold mt-1">{s.label}</p>
+                  <p className="text-[10px] text-gray-500 mt-0.5">{s.sub}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 4. FEATURED DOCTORS */}
       <section className="container mx-auto px-4 py-20">

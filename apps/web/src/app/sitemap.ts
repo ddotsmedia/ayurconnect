@@ -215,6 +215,7 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/jobs/remote',           priority: 0.85, changeFrequency: 'daily'   },
   { path: '/jobs/salary-calculator',priority: 0.8,  changeFrequency: 'monthly' },
   { path: '/offers',                priority: 0.9,  changeFrequency: 'daily'   },
+  // /welcome is a social-media landing (noindex) — not in sitemap.
   // Specialization + location doctor listing pages (SEO for long-tail).
   ...['panchakarma','kayachikitsa','prasuti-tantra','kaumarbhritya','shalya','shalakya','manasika','rasashastra','wellness','pcos-treatment','diabetes','back-pain'].map((s) => ({
     path: `/doctors/specialization/${s}` as const, priority: 0.8, changeFrequency: 'weekly' as const,

@@ -148,8 +148,12 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
           <Link href="/doctors" className="text-kerala-800 hover:underline ml-1 font-semibold">Browse verified doctors →</Link>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-gray-100 text-xs text-gray-400">
-          Published {new Date(article.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+        <div className="mt-8 pt-6 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs text-gray-400">Published {new Date(article.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+          <div className="flex flex-wrap gap-2">
+            <a href={`https://wa.me/?text=${encodeURIComponent(article.title + ' — https://ayurconnect.com/articles/' + article.id)}`} target="_blank" rel="noreferrer" className="text-xs px-3 py-1.5 bg-[#25D366] text-white rounded font-semibold">Share on WhatsApp</a>
+            <a href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://ayurconnect.com/articles/' + article.id)}`} target="_blank" rel="noreferrer" className="text-xs px-3 py-1.5 bg-[#0A66C2] text-white rounded font-semibold">LinkedIn</a>
+          </div>
         </div>
       </article>
 
