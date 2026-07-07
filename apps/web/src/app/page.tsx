@@ -264,6 +264,9 @@ export default async function HomePage() {
             <Link href="/ayurveda-hospitals-kerala"   className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">🏥 Kerala Hospitals</Link>
             <Link href="/interaction-checker"          className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">⚗️ Herb Interaction Checker</Link>
             <Link href="/formulary"                    className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">📖 Classical Formulary</Link>
+            <Link href="/amai"                         className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">🤝 AMAI</Link>
+            <Link href="/bams"                         className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">🎓 BAMS Guide</Link>
+            <Link href="/ayurveda-back-pain-treatment" className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">💆 Back Pain</Link>
           </div>
         </div>
       </section>

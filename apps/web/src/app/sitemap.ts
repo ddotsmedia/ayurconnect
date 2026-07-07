@@ -219,6 +219,17 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/ayurveda-hospitals-dubai',     priority: 0.9,  changeFrequency: 'weekly' },
   { path: '/best-ayurveda-doctors-kerala', priority: 0.9,  changeFrequency: 'weekly' },
   { path: '/ayurveda-hospitals-kerala',    priority: 0.9,  changeFrequency: 'weekly' },
+  // Topic landing pages (2026-07-07) — GSC targets: 'ayurveda doctor', 'BAMS', etc.
+  { path: '/ayurveda-doctor',              priority: 0.9,  changeFrequency: 'monthly' },
+  { path: '/bams',                         priority: 0.9,  changeFrequency: 'monthly' },
+  { path: '/ayurveda-treatment',           priority: 0.9,  changeFrequency: 'monthly' },
+  { path: '/ayurveda-back-pain-treatment', priority: 0.8,  changeFrequency: 'monthly' },
+  { path: '/ayurveda-gynaecology',         priority: 0.8,  changeFrequency: 'monthly' },
+  { path: '/ayurveda-lady-doctor',         priority: 0.8,  changeFrequency: 'monthly' },
+  // 14 AMAI district branch pages.
+  ...['thiruvananthapuram','kollam','pathanamthitta','alappuzha','kottayam','idukki','ernakulam','thrissur','palakkad','malappuram','kozhikode','wayanad','kannur','kasaragod'].map((d) => ({
+    path: `/amai/${d}` as const, priority: 0.7, changeFrequency: 'weekly' as const,
+  })),
   // Specialization + location doctor listing pages (SEO for long-tail).
   ...['panchakarma','kayachikitsa','prasuti-tantra','kaumarbhritya','shalya','shalakya','manasika','rasashastra','wellness','pcos-treatment','diabetes','back-pain'].map((s) => ({
     path: `/doctors/specialization/${s}` as const, priority: 0.8, changeFrequency: 'weekly' as const,

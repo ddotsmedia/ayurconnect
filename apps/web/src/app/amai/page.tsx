@@ -361,6 +361,58 @@ export default function AmaiPage() {
         </div>
       </section>
 
+      {/* AMAI District Branches — 14 Kerala district landing pages for GSC targeting */}
+      <section className="container mx-auto px-4 pb-8 max-w-5xl">
+        <h2 className="font-serif text-2xl text-kerala-700 mb-4">AMAI District Branches in Kerala</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+          {[
+            { slug: 'thiruvananthapuram', name: 'Thiruvananthapuram' },
+            { slug: 'kollam',             name: 'Kollam' },
+            { slug: 'pathanamthitta',     name: 'Pathanamthitta' },
+            { slug: 'alappuzha',          name: 'Alappuzha (Alleppey)' },
+            { slug: 'kottayam',           name: 'Kottayam' },
+            { slug: 'idukki',             name: 'Idukki' },
+            { slug: 'ernakulam',          name: 'Ernakulam (Kochi)' },
+            { slug: 'thrissur',           name: 'Thrissur' },
+            { slug: 'palakkad',           name: 'Palakkad' },
+            { slug: 'malappuram',         name: 'Malappuram (Kottakkal)' },
+            { slug: 'kozhikode',          name: 'Kozhikode (Calicut)' },
+            { slug: 'wayanad',            name: 'Wayanad' },
+            { slug: 'kannur',             name: 'Kannur' },
+            { slug: 'kasaragod',          name: 'Kasaragod' },
+          ].map((d) => (
+            <Link key={d.slug} href={`/amai/${d.slug}`} className="p-3 bg-white border border-gray-100 rounded-card text-sm font-semibold text-kerala-700 hover:border-kerala-300 hover:bg-kerala-50">
+              AMAI {d.name}
+            </Link>
+          ))}
+        </div>
+
+        <h2 className="font-serif text-2xl text-kerala-700 mt-10 mb-4">Frequently asked</h2>
+        <div className="space-y-3">
+          {[
+            { q: 'What is AMAI?', a: 'AMAI — Ayurveda Medical Association of India — is the largest professional body of qualified Ayurveda doctors in India. Founded in 1978, it represents over 10,000 BAMS + MD (Ayurveda) practitioners with a strong Kerala base and active district branches in all 14 Kerala districts.' },
+            { q: 'How to become an AMAI member?', a: 'Any BAMS or MD (Ayurveda) doctor with a valid state medical council registration (KSMC, TCMC, or equivalent) can apply for AMAI membership. Apply via the official AMAI website ayurveda-amai.org or through the nearest district branch.' },
+            { q: 'What does AMAI do?', a: 'AMAI advocates for the profession, organises CME, publishes research, coordinates with government AYUSH bodies, supports district-level clinical programmes, and runs wings like AMARF (research) and AMAI Vanitha (women physicians).' },
+            { q: 'Where is AMAI headquartered?', a: 'AMAI\'s central office is Ayurveda Bhavan, P.B. No 93, Angamaly 683572, Kerala. State and district branches operate across India, with the strongest concentration in Kerala.' },
+          ].map((f) => (
+            <details key={f.q} className="bg-cream/50 border border-gray-100 rounded-card p-4 open:bg-white">
+              <summary className="font-semibold text-kerala-800 cursor-pointer">{f.q}</summary>
+              <p className="mt-2 text-gray-800 leading-relaxed">{f.a}</p>
+            </details>
+          ))}
+        </div>
+
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+          '@context': 'https://schema.org', '@type': 'FAQPage',
+          mainEntity: [
+            { q: 'What is AMAI?', a: 'AMAI (Ayurveda Medical Association of India) — the largest professional body of qualified Ayurveda doctors in India, since 1978.' },
+            { q: 'How to become an AMAI member?', a: 'BAMS or MD (Ayurveda) doctors with valid state council registration can apply via ayurveda-amai.org or a district branch.' },
+            { q: 'What does AMAI do?', a: 'Advocacy, CME, research (AMARF), district-level clinical programmes, women physicians wing (AMAI Vanitha), and coordination with government AYUSH.' },
+            { q: 'Where is AMAI headquartered?', a: 'Ayurveda Bhavan, P.B. No 93, Angamaly 683572, Kerala, India.' },
+          ].map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+        }) }} />
+      </section>
+
       {/* Compliance footnote */}
       <section className="container mx-auto px-4 pb-12 max-w-3xl">
         <div className="p-5 rounded-card bg-amber-50 border border-amber-100 text-sm text-amber-900 leading-relaxed flex items-start gap-3">
