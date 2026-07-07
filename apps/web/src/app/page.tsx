@@ -83,7 +83,13 @@ async function getPlatformStats(): Promise<{ doctors: number; herbs: number; res
       const r = await fetch(`${API}${path}`, { next: { revalidate: 3600 } })
       if (!r.ok) return 0
       const d = await r.json() as Record<string, unknown>
-      return typeof d.total === 'number' ? d.total
+      // Our API returns { doctors: [...], pagination: { total: N } } —
+      // read pagination.total first, then top-level total/count, then
+      // fall back to the returned-array length (only correct when limit
+      // is unbounded).
+      const pag = d.pagination as { total?: unknown } | undefined
+      return typeof pag?.total === 'number' ? pag.total
+           : typeof d.total === 'number' ? d.total
            : typeof d.count === 'number' ? d.count
            : Array.isArray(d[key]) ? (d[key] as unknown[]).length : 0
     } catch { return 0 }
@@ -123,7 +129,7 @@ async function getFeaturedDoctors(): Promise<DoctorWithMeta[]> {
 // canonical are what matters here.
 export const metadata = {
   title: "AyurConnect — Verified Ayurveda Doctors Online | Kerala + UAE",
-  description: "AyurConnect connects you to verified Kerala Ayurveda doctors via online video consultation. Classical Panchakarma, AyurBot AI, 150+ herbs, 8+ condition guides. Serving India and the UAE diaspora.",
+  description: "Kerala's free Ayurveda platform — verified doctors, 145+ herbs, 100+ formulations, BAMS study resources, Ayurveda jobs, and DHA/MOH licensing guides. Free for all.",
   alternates: { canonical: '/' },
 }
 
@@ -238,7 +244,7 @@ export default async function HomePage() {
                 { n: stats.licensing, label: 'Licensing Guides',  sub: 'DHA, MOH, CNHC + more' },
               ].map((s) => (
                 <div key={s.label} className="text-center px-2 py-3 border-l border-gray-100 first:border-l-0">
-                  <p className="font-serif text-3xl text-kerala-700 leading-none">{s.n}<span className="text-xl">+</span></p>
+                  <p className="font-serif text-3xl text-kerala-700 leading-none">{s.n}{s.n > 50 && <span className="text-xl">+</span>}</p>
                   <p className="text-sm text-ink font-semibold mt-1">{s.label}</p>
                   <p className="text-[10px] text-gray-500 mt-0.5">{s.sub}</p>
                 </div>

@@ -6,7 +6,7 @@ export const STRINGS = {
     hero: {
       tag: 'Authentic Kerala Ayurveda, Online',
       title: 'Find verified Ayurveda doctors',
-      subtitle: 'Classical Panchakarma centres, 150+ medicinal herbs, and AI-assisted health insights — rooted in Kerala.',
+      subtitle: 'Classical Panchakarma centres, 145+ medicinal herbs, and AI-assisted health insights — rooted in Kerala.',
       ctaFindDoctor: 'Find a Doctor',
       ctaAskAyurBot: 'Ask AyurBot',
       ctaExploreHerbs: 'Explore Herbs',
@@ -18,7 +18,7 @@ export const STRINGS = {
     hero: {
       tag: 'യഥാർത്ഥ കേരള ആയുർവേദം, ഓൺലൈൻ',
       title: 'വെരിഫൈഡ് ആയുർവേദ ഡോക്ടർമാരെ കണ്ടെത്തുക',
-      subtitle: 'ക്ലാസിക്കൽ പഞ്ചകർമ്മ കേന്ദ്രങ്ങൾ, 150+ ഔഷധസസ്യങ്ങൾ, AI സഹായത്തോടെയുള്ള ആരോഗ്യ വിവരങ്ങൾ — കേരളത്തിന്റെ വേരുകളിൽ.',
+      subtitle: 'ക്ലാസിക്കൽ പഞ്ചകർമ്മ കേന്ദ്രങ്ങൾ, 145+ ഔഷധസസ്യങ്ങൾ, AI സഹായത്തോടെയുള്ള ആരോഗ്യ വിവരങ്ങൾ — കേരളത്തിന്റെ വേരുകളിൽ.',
       ctaFindDoctor: 'ഡോക്ടറെ കണ്ടെത്തുക',
       ctaAskAyurBot: 'ആയുർബോട്ടിനോട് ചോദിക്കുക',
       ctaExploreHerbs: 'ഔഷധസസ്യങ്ങൾ അന്വേഷിക്കുക',

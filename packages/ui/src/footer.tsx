@@ -86,7 +86,7 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
       { href: '/terms',           label: 'Terms' },
       { href: '/sign-in',         label: 'Sign In' },
       { href: '/register',        label: 'Register' },
-      { href: '/doctors/register',label: 'For Doctors' },
+      { href: '/doctors/register',label: 'Doctor Registration' },
     ],
   },
 ]

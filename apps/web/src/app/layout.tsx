@@ -6,7 +6,7 @@ import { Navbar, Footer, AyurBotWidget, MobileBottomNav, ServiceWorkerRegister, 
 import { getServerSession } from '../lib/auth'
 import { StreakCheckIn } from '../components/streak-check-in'
 import { InstallPrompt } from '../components/install-prompt'
-import { organizationLd, websiteLd, speakableLd, siteNavigationLd, ldGraph, SITE_URL, AYURVEDA_KEYWORDS } from '../lib/seo'
+import { organizationLd, websiteLd, speakableLd, siteNavigationLd, ldGraph, SITE_URL } from '../lib/seo'
 import { API_INTERNAL as API } from '../lib/server-fetch'
 import { PageViewTracker } from '../components/page-view-tracker'
 import { WhatsAppButton } from '../components/WhatsAppButton'
@@ -35,9 +35,8 @@ export const metadata: Metadata = {
     "Find verified Ayurveda doctors, classical Panchakarma centres, 150+ medicinal herbs, and AI-assisted health insights — rooted in Kerala, God's Own Country.",
   applicationName: 'AyurConnect',
   authors: [{ name: 'AyurConnect', url: SITE_URL }],
-  // Centralised in lib/seo.ts → AYURVEDA_KEYWORDS so per-route metadata can
-  // pull a category-specific subset rather than re-declaring strings.
-  keywords: AYURVEDA_KEYWORDS.all,
+  // meta keywords removed 2026-07-07 — Google + Bing have ignored the tag
+  // since 2009; the ~4KB keyword dump was pure page-weight bloat.
   creator: 'AyurConnect',
   publisher: 'AyurConnect',
   metadataBase: new URL(SITE_URL),
@@ -48,13 +47,13 @@ export const metadata: Metadata = {
     url: SITE_URL,
     siteName: 'AyurConnect',
     title: "AyurConnect — Kerala's #1 Ayurveda Platform",
-    description: 'verified doctors, classical Panchakarma centres, herb encyclopedia, AyurBot AI.',
+    description: "Kerala's free Ayurveda platform — find verified doctors, study BAMS for free, explore 145+ herbs, and search Ayurveda jobs worldwide.",
     // Fallback OG image — pages with their own `opengraph-image.tsx` (route
     // convention) override this. Rendered as SVG for crisp scaling; social
     // crawlers that reject SVG fall through to app/opengraph-image.tsx.
     images: [{ url: '/og-default.svg', width: 1200, height: 630, alt: 'AyurConnect — Kerala\'s #1 Ayurveda Platform' }],
   },
-  twitter: { card: 'summary_large_image', title: 'AyurConnect', description: "Kerala's Ayurveda platform", site: '@ayurconnect' },
+  twitter: { card: 'summary_large_image', title: 'AyurConnect', description: "Kerala's free Ayurveda platform — find verified doctors, study BAMS for free, explore 145+ herbs, and search Ayurveda jobs worldwide.", site: '@ayurconnect' },
   alternates: {
     canonical: '/',
     languages: { 'en-IN': '/', 'ml-IN': '/', 'x-default': '/' },

@@ -5,6 +5,9 @@ import { getServerSession } from '../../../lib/auth'
 
 export const dynamic = 'force-dynamic'
 
+// Whole /hospital/dashboard/* subtree — auth-gated, never index.
+export const metadata = { robots: { index: false, follow: false } }
+
 const NAV = [
   { href: '/hospital/dashboard',           label: 'Overview',      icon: LayoutDashboard },
   { href: '/hospital/dashboard/profile',   label: 'Profile',       icon: Building2 },

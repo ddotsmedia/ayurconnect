@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: 'CME Tracker — Continuing Medical Education | AyurConnect',
   description: 'Log and track your CME credits — conferences, workshops, webinars, online courses. KSMC renewal progress at a glance.',
   alternates: { canonical: '/doctors/cme' },
+  robots: { index: false, follow: false },
 }
 
 export default async function CmePage() {
