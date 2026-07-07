@@ -96,7 +96,10 @@ export default async function DoctorProfilePage({ params }: { params: Promise<{ 
   // Slug from the map maps back to the real seed id for data lookup.
   const id = LEGACY_SLUG_TO_SEED_ID[rawId] ?? rawId
   const [doctor, sess] = await Promise.all([fetchDoctor(id), getServerSession()])
-  if (!doctor) notFound()
+  // Doctor removed from DB (or old GSC-crawled CUID) → 301 to /doctors instead
+  // of 404. Recovers PageRank + keeps user experience useful. notFound() is
+  // still available for pathological invalid IDs by throwing above this line.
+  if (!doctor) redirect('/doctors')
 
   const related = await fetchRelated(doctor.district, doctor.id)
   const specs = doctor.specialization.split(/[,/|]/).map((s) => s.trim()).filter(Boolean)

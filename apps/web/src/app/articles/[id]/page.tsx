@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { ArrowLeft, BookOpen, Calendar, ScrollText, FlaskConical, Leaf } from 'lucide-react'
 import { API_INTERNAL as API } from '../../../lib/server-fetch'
@@ -83,7 +83,9 @@ function renderContent(content: string) {
 export default async function ArticleDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const article = await fetchArticle(id)
-  if (!article) notFound()
+  // Article deleted / old GSC slug (e.g. art-turmeric-curcumin-research) →
+  // 301 to /articles listing instead of 404. Recovers PageRank.
+  if (!article) redirect('/articles')
 
   const related = await fetchRelated(article.id, article.category)
 

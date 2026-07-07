@@ -44,6 +44,16 @@ export default {
       // Backlink/alias slugs that 404'd in production.
       { source: '/conditions/pcos-pcod', destination: '/conditions/pcos',          permanent: true },
       { source: '/jobs/licensing/dha',   destination: '/jobs/licensing/dha-dubai', permanent: true },
+      // 2026-07-07 — malformed URLs Google Search Console has crawled where
+      // the anchor text got concatenated onto the href. No source in the
+      // current codebase; likely from an old backlink or a 3rd-party scraper.
+      // Defensive 301 to the correct destinations.
+      { source: '/eventsEvents',             destination: '/events',      permanent: true },
+      { source: '/leaderboardLeaderboard',   destination: '/leaderboard', permanent: true },
+      // Old `art-*` article slugs from a previous CMS schema. The current
+      // /articles/[id] page also self-heals unknown ids by redirecting to
+      // /articles — this pattern short-circuits the DB round-trip.
+      { source: '/articles/art-:slug*',      destination: '/articles',    permanent: true },
     ]
   },
   async headers() {
