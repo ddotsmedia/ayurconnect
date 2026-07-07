@@ -254,6 +254,20 @@ export default async function HomePage() {
         </section>
       )}
 
+      {/* Popular Searches — internal-linking boost to GSC-targeting landing pages. */}
+      <section className="bg-cream border-b border-gray-100">
+        <div className="container mx-auto px-4 py-6">
+          <p className="text-center text-xs uppercase tracking-wider text-gray-500 mb-3">Popular searches</p>
+          <div className="flex flex-wrap gap-2 justify-center text-sm">
+            <Link href="/ayurveda-hospitals-dubai"    className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">🏥 Ayurveda Hospitals in Dubai</Link>
+            <Link href="/best-ayurveda-doctors-kerala" className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">👨‍⚕️ Best Doctors in Kerala</Link>
+            <Link href="/ayurveda-hospitals-kerala"   className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">🏥 Kerala Hospitals</Link>
+            <Link href="/interaction-checker"          className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">⚗️ Herb Interaction Checker</Link>
+            <Link href="/formulary"                    className="px-3 py-1.5 bg-white border border-kerala-200 rounded-full hover:bg-kerala-50">📖 Classical Formulary</Link>
+          </div>
+        </div>
+      </section>
+
       {/* 4. FEATURED DOCTORS */}
       <section className="container mx-auto px-4 py-20">
         <SectionHeader eyebrow="Practitioners" title="Featured Doctors" subtitle="Real doctors, verified credentials." />

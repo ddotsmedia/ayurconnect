@@ -50,8 +50,8 @@ async function fetchHospitalCountries(): Promise<CountryCount[]> {
 }
 
 export const metadata = {
-  title: 'Ayurveda Hospitals & Wellness Centres | AyurConnect',
-  description: 'verified, AYUSH-certified Ayurveda hospitals, Panchakarma centres, and wellness resorts. Filter by country, state, and district.',
+  title: 'Ayurveda Hospitals Near Me — Verified Kerala + UAE Centres | AyurConnect',
+  description: 'Find Ayurveda hospitals near you — AYUSH-certified, NABH-accredited hospitals and Panchakarma centres across Kerala, India, and UAE. Filter by country, state, and district.',
   keywords: [
     ...AYURVEDA_KEYWORDS.primary,
     ...AYURVEDA_KEYWORDS.treatments,
@@ -203,6 +203,48 @@ export default async function HospitalsPage({ searchParams }: { searchParams: Pr
               <Link href="/hospitals/why-join"  className="px-5 py-2 border border-white/40 text-white hover:bg-white/10 rounded text-sm text-center">Why join?</Link>
             </div>
           </div>
+        </section>
+
+        {/* Intro + FAQ — adds body-copy context Google's ranking algorithm rewards.
+            'ayurveda hospital near me' is a heavy long-tail query these help capture. */}
+        <section className="mt-12 container mx-auto px-4 max-w-3xl">
+          <h2 className="font-serif text-2xl text-kerala-700 mb-3">Find Ayurveda Hospitals Near You</h2>
+          <p className="text-gray-700 leading-relaxed">
+            Search verified Ayurveda hospitals across all 14 Kerala districts, the UAE, and international locations.
+            Every listed hospital carries valid AYUSH licensing (or the local equivalent), and NABH-accredited centres
+            are flagged where applicable. Filter by country, state, district, hospital type (government / private /
+            Panchakarma resort / wellness centre), or search by name to compare treatments, doctors, and facilities.
+          </p>
+          <p className="text-gray-700 leading-relaxed mt-3">
+            Regional specialty pages:{' '}
+            <Link href="/ayurveda-hospitals-kerala" className="text-kerala-700 font-semibold hover:underline">Kerala hospitals</Link>{' '}·{' '}
+            <Link href="/ayurveda-hospitals-dubai" className="text-kerala-700 font-semibold hover:underline">Dubai hospitals</Link>{' '}·{' '}
+            <Link href="/hospitals/compare" className="text-kerala-700 font-semibold hover:underline">Compare 2-3 side-by-side</Link>.
+          </p>
+
+          <h2 className="font-serif text-2xl text-kerala-700 mt-8 mb-3">Frequently asked</h2>
+          <div className="space-y-2">
+            {[
+              { q: 'How do I find Ayurveda hospitals near me?', a: 'Use the country + district filters above. Set your country first (India / UAE / other), then narrow by district. Every hospital card shows location, type (government / private / Panchakarma / wellness), and a link to view treatments + doctors on staff.' },
+              { q: 'What certifications should an Ayurveda hospital have?', a: 'India: valid AYUSH state licence + preferably NABH-Ayurveda accreditation (voluntary but signals clinical quality). UAE: DHA or DOH or MOH licensing depending on the emirate, with individual practitioners holding valid DHA/MOH permits.' },
+              { q: 'Are government Ayurveda hospitals good in Kerala?', a: 'Yes — all 14 Kerala districts have Government Ayurveda Hospitals under the Directorate of Ayurveda. Treatment fees are heavily subsidised and physicians are BAMS/MD-qualified. Waiting times can be longer than private hospitals, especially for Panchakarma.' },
+              { q: 'Can international patients visit Kerala for Ayurveda treatment?', a: 'Yes — several Kerala hospitals hold medical-tourism accreditation. See our Heal in Kerala guide at /heal-in-kerala for hospital packages, visa help, and 15-country diaspora resources.' },
+            ].map((f) => (
+              <details key={f.q} className="bg-white border border-gray-100 rounded-card p-4">
+                <summary className="font-semibold text-ink cursor-pointer">{f.q}</summary>
+                <p className="text-sm text-gray-700 mt-2 leading-relaxed">{f.a}</p>
+              </details>
+            ))}
+          </div>
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify({
+            '@context': 'https://schema.org', '@type': 'FAQPage',
+            mainEntity: [
+              { q: 'How do I find Ayurveda hospitals near me?', a: 'Use the country + district filters. Set your country (India / UAE / other), then narrow by district.' },
+              { q: 'What certifications should an Ayurveda hospital have?', a: 'India: AYUSH state licence + NABH-Ayurveda accreditation (voluntary). UAE: DHA, DOH, or MOH licensing.' },
+              { q: 'Are government Ayurveda hospitals good in Kerala?', a: 'Yes — all 14 districts have Government Ayurveda Hospitals with heavily subsidised fees.' },
+              { q: 'Can international patients visit Kerala for Ayurveda treatment?', a: 'Yes — several Kerala hospitals hold medical-tourism accreditation via the Heal in Kerala programme.' },
+            ].map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+          }) }} />
         </section>
       </div>
     </>
