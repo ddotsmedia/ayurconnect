@@ -42,6 +42,7 @@ async function fetchDoctorCountries(): Promise<CountryCount[]> {
 export const metadata = {
   title: 'Find Ayurveda Doctors in Kerala — Verified | ആയുർവേദ ഡോക്ടർ | AyurConnect',
   description: 'Verified Ayurveda doctors across all 14 Kerala districts. ആയുർവേദ ഡോക്ടറെ കണ്ടെത്തുക — filter by district, specialization, language, and availability.',
+  alternates: { canonical: '/doctors' },
   keywords: [
     ...AYURVEDA_KEYWORDS.primary,
     ...AYURVEDA_KEYWORDS.specialisations,

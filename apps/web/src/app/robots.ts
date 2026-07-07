@@ -18,9 +18,14 @@ const DISALLOW_ALL = [
   '/cart/',
   '/auth/',
   '/*?*utm_',      // dedupe tracking-parameter URLs
-  '/*?*ref=',
   '/*?*fbclid=',
   '/*?*gclid=',
+  // Removed 2026-07-07: '/*?*ref=' — the referral/ambassador system
+  // uses ?ref= for legitimate registration links (/doctors/register?ref=<id>,
+  // /register/doctor?ref=ambassador). Blocking them was causing 33 GSC
+  // "blocked by robots" reports for URLs that we WANT crawled + indexed.
+  // Canonical tags on the target pages strip the query param so Google
+  // doesn't index the variants as duplicates.
 ]
 
 // Heavy/aggressive AI training crawlers — Allow only the ones we explicitly

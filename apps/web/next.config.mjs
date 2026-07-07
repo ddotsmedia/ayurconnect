@@ -54,6 +54,18 @@ export default {
       // /articles/[id] page also self-heals unknown ids by redirecting to
       // /articles — this pattern short-circuits the DB round-trip.
       { source: '/articles/:slug(art-.*)',   destination: '/articles',    permanent: true },
+      // 2026-07-07 pt.2 — additional legacy-URL cleanup found in GSC.
+      // Old /book/* CMS: none of the current app uses this prefix; funnel
+      // to the closest current surface (/learn/ebooks).
+      { source: '/book',                     destination: '/learn/ebooks', permanent: true },
+      { source: '/book/:path*',              destination: '/learn/ebooks', permanent: true },
+      // Old /news/* CMS: current news lives under /articles + /articles/[id].
+      { source: '/news',                     destination: '/articles',    permanent: true },
+      { source: '/news/:path*',              destination: '/articles',    permanent: true },
+      // Old doctor CUIDs starting with 'cmp' (from a previous DB) — safe to
+      // blackhole because current live doctors use 'cmq' and 'cmr' prefixes.
+      // Verified before adding to avoid killing live profiles.
+      { source: '/doctors/:id(cmp.*)',       destination: '/doctors',     permanent: true },
     ]
   },
   async headers() {
