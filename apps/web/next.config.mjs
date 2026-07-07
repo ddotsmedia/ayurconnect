@@ -53,7 +53,7 @@ export default {
       // Old `art-*` article slugs from a previous CMS schema. The current
       // /articles/[id] page also self-heals unknown ids by redirecting to
       // /articles — this pattern short-circuits the DB round-trip.
-      { source: '/articles/art-:slug*',      destination: '/articles',    permanent: true },
+      { source: '/articles/:slug(art-.*)',   destination: '/articles',    permanent: true },
     ]
   },
   async headers() {
