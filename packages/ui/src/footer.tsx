@@ -48,6 +48,7 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
     heading: 'Learn',
     links: [
       { href: '/articles',               label: 'Articles' },
+      { href: '/videos',                 label: 'Health Videos' },
       { href: '/herbs',                  label: 'Herbs' },
       { href: '/formulary',              label: 'Formulary' },
       { href: '/health-tips',            label: 'Health Tips' },
