@@ -5,7 +5,7 @@ import { API_INTERNAL as API, logServerFetchError } from '@/lib/server-fetch'
 import { breadcrumbLd, ldGraph } from '@/lib/seo'
 
 export const metadata: Metadata = {
-  title: 'Ayurveda Offers & Treatment Packages — Kerala Hospitals | AyurConnect',
+  title: 'Ayurveda Offers & Treatment Packages — Kerala Hospitals',
   description: 'Live Ayurveda offers + treatment packages from verified Kerala hospitals. Panchakarma packages, seasonal offers, free consultations, health camps. Inquire free.',
   alternates: { canonical: '/offers' },
   keywords: ['ayurveda offers kerala', 'panchakarma packages', 'ayurveda treatment offers', 'kerala wellness packages', 'panchakarma price'],

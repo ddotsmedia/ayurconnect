@@ -35,7 +35,7 @@ async function fetchHerbs(): Promise<Herb[]> {
 }
 
 export const metadata = {
-  title: 'Kerala Ayurvedic Herb Database — ആയുർവേദ ഔഷധ സസ്യങ്ങൾ | AyurConnect',
+  title: 'Kerala Ayurvedic Herb Database — ആയുർവേദ ഔഷധ സസ്യങ്ങൾ',
   description: 'ആയുർവേദ ഔഷധ സസ്യങ്ങൾ — comprehensive Ayurvedic herb encyclopedia with Sanskrit, Malayalam, English names; Rasa-Guna-Virya-Vipaka properties and classical uses from Charaka Samhita.',
   keywords: [
     ...AYURVEDA_KEYWORDS.herbs,

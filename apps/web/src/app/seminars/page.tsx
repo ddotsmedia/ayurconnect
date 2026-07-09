@@ -21,7 +21,7 @@ async function fetchSeminars(tab: 'upcoming' | 'past'): Promise<Seminar[]> {
 }
 
 export const metadata: Metadata = {
-  title: 'Ayurveda Seminars & Webinars — Live + On-Demand | AyurConnect',
+  title: 'Ayurveda Seminars & Webinars — Live + On-Demand',
   description: 'Live + recorded Ayurveda seminars: classical Panchakarma technique, modern clinical correlations, AYUSH research updates. CME-credit-eligible for verified doctors. Open to the public.',
   alternates: { canonical: '/seminars' },
 }

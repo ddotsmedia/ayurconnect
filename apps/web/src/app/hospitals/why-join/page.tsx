@@ -6,7 +6,7 @@ import { pageMetadata } from '../../../lib/seo'
 
 export const metadata: Metadata = pageMetadata({
   path:        '/hospitals/why-join',
-  title:       'List Your Ayurveda Hospital — Free Registration | AyurConnect',
+  title:       'List Your Ayurveda Hospital — Free Registration',
   description: 'Free professional profile, patient inquiries to your dashboard, WhatsApp integration, verification badges, analytics, marketing tools. Built for Kerala-tradition Ayurveda hospitals.',
   keywords:    ['list ayurveda hospital free', 'ayurveda hospital directory', 'register panchakarma centre', 'kerala ayurveda listing', 'attract international patients'],
 })

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { FilteredJobsList, FilterPageHeader, fetchFilteredJobs } from '../_filtered/FilteredJobsList'
 
 export const metadata: Metadata = {
-  title: "BAMS Fresher Jobs — Entry Level Ayurveda Careers | AyurConnect",
+  title: "BAMS Fresher Jobs — Entry Level Ayurveda Careers",
   description: "BAMS fresher jobs across Kerala, UAE, India. Entry-level Ayurveda doctor vacancies for 0-2 years experience. Apply free.",
   alternates: { canonical: '/jobs/freshers' },
   keywords: ["BAMS fresher job","ayurveda fresher vacancy 2026","BAMS entry level job","BAMS first job","fresh BAMS job kerala"],

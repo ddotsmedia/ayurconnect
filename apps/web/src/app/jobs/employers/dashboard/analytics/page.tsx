@@ -4,7 +4,7 @@ import { Briefcase, TrendingUp, Users, CheckCircle2 } from 'lucide-react'
 import { getServerSession } from '../../../../../lib/auth'
 import { API_INTERNAL } from '../../../../../lib/server-fetch'
 
-export const metadata = { title: 'Employer Analytics | AyurConnect', robots: { index: false, follow: false } }
+export const metadata = { title: 'Employer Analytics', robots: { index: false, follow: false } }
 export const dynamic = 'force-dynamic'
 
 type Dash = {

@@ -3,7 +3,7 @@ import { GradientHero } from '@ayurconnect/ui'
 import { ChevronRight, Atom, Leaf, AlertCircle, ShieldCheck } from 'lucide-react'
 
 export const metadata = {
-  title: 'Why Ayurveda Works (and Where It Doesn\'t) | AyurConnect',
+  title: 'Why Ayurveda Works (and Where It Doesn\'t)',
   description: 'A rigorous, non-romantic look at what Ayurveda is, where the modern evidence supports it, and where it should never substitute conventional medicine.',
   alternates: { canonical: '/about/why-ayurveda-works' },
 }

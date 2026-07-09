@@ -7,7 +7,7 @@ import { FeedbackForm } from './_client'
 
 export const metadata: Metadata = pageMetadata({
   path: '/feedback',
-  title: 'Feedback & Suggestions | AyurConnect',
+  title: 'Feedback & Suggestions',
   description: 'Share feedback, suggestions, bug reports, or feature requests. Help us improve AyurConnect.',
   keywords: ['ayurconnect feedback', 'feedback form', 'suggestions'],
 })

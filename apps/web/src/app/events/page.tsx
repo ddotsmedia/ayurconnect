@@ -9,7 +9,7 @@ import { EventsClient } from './_client'
 
 export const metadata: Metadata = pageMetadata({
   path:        '/events',
-  title:       'Ayurveda Events — Conferences, Workshops, Retreats | AyurConnect',
+  title:       'Ayurveda Events — Conferences, Workshops, Retreats',
   description: 'Upcoming Ayurveda conferences, CME workshops, Panchakarma retreats, online webinars + community health camps. Kerala + UAE + international.',
   keywords:    ['ayurveda events', 'panchakarma retreat', 'CME workshop', 'kerala conference', 'webinar'],
 })

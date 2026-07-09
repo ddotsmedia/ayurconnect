@@ -4,7 +4,7 @@ import { RegisterLanding } from '../../register-landing/_landing'
 
 export const metadata: Metadata = pageMetadata({
   path: '/doctors/register/dubai',
-  title: 'Ayurveda Doctors in Dubai — Get Verified Free | AyurConnect',
+  title: 'Ayurveda Doctors in Dubai — Get Verified Free',
   description: 'Free verified profile for Ayurveda doctors in Dubai. DHA verification, direct patient inquiries from Karama, JLT, Bur Dubai, DSO, Marina, Deira.',
   keywords: ['ayurveda doctor dubai registration', 'DHA ayurveda doctor', 'ayurveda clinic dubai', 'BAMS dubai', 'register ayurveda doctor dubai'],
 })

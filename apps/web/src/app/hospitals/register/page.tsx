@@ -6,7 +6,7 @@ import { RegisterClient } from './_client'
 
 export const metadata: Metadata = pageMetadata({
   path:        '/hospitals/register',
-  title:       'List Your Ayurveda Hospital — Free Registration | AyurConnect',
+  title:       'List Your Ayurveda Hospital — Free Registration',
   description: 'Register your Ayurveda hospital, clinic, Panchakarma centre, or wellness resort on AyurConnect. Free professional profile, patient inquiries, verification badges.',
   keywords:    ['list ayurveda hospital', 'register ayurveda clinic', 'panchakarma centre registration', 'kerala hospital directory'],
 })

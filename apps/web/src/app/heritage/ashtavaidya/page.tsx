@@ -6,7 +6,7 @@ import { breadcrumbLd, ldGraph, articleLd, pageMetadata } from '../../../lib/seo
 import { ASHTAVAIDYAS } from '../_data'
 
 export const metadata: Metadata = pageMetadata({
-  title: 'The Ashtavaidya Families — Kerala\'s Eight Hereditary Physician Lineages | AyurConnect',
+  title: 'The Ashtavaidya Families — Kerala\'s Eight Hereditary Physician Lineages',
   description:
     'The eight Ashtavaidya (അഷ്ടവൈദ്യർ) Namboodiri families of Kerala — Pulamanthole, Vaidyamadham, Thaikkattu, Elayidath Thaikkattu, Chirattamon, Kuttanchery, Ollur and Pazhangadu Mooss — their specialties, surviving institutions and historical significance.',
   path: '/heritage/ashtavaidya',

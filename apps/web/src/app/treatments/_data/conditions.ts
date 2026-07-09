@@ -30,7 +30,7 @@ export const CONDITIONS: Record<string, Condition> = {
     name: 'PCOS / PCOD',
     sanskrit: 'अर्तव दुष्टि',
     tagline: 'Polycystic Ovary Syndrome — managed at the root, not just the symptoms',
-    metaTitle: 'PCOS Ayurvedic Treatment in Kerala | AyurConnect',
+    metaTitle: 'PCOS Ayurvedic Treatment in Kerala',
     metaDescription: 'Evidence-informed Ayurvedic management of PCOS / PCOD — Shodhana protocols, herbal formulations, diet & lifestyle. Find verified Kerala specialists.',
     overview: 'PCOS affects roughly 1 in 10 women of reproductive age. Conventional management is largely symptomatic (oral contraceptives, metformin, ovulation induction). Ayurveda views PCOS as a multi-system Kapha-Vata disorder with Pitta involvement, and offers a Shodhana (cleansing) → Shamana (palliation) → Rasayana (rejuvenation) sequence aimed at restoring cycle regularity, ovulation, insulin sensitivity, and androgen balance — typically over 3–6 months.',
     symptoms: [
@@ -67,7 +67,7 @@ export const CONDITIONS: Record<string, Condition> = {
     name: 'Arthritis & Joint Pain',
     sanskrit: 'सन्धिवात / आमवात',
     tagline: 'Sandhivata, Amavata, Vatarakta — Ayurveda excels at chronic joint disease',
-    metaTitle: 'Arthritis Ayurvedic Treatment Kerala — Sandhivata, Amavata, RA | AyurConnect',
+    metaTitle: 'Arthritis Ayurvedic Treatment Kerala — Sandhivata, Amavata, RA',
     metaDescription: 'Classical Ayurveda for osteoarthritis, rheumatoid arthritis, ankylosing spondylitis. Kati-Basti, Janu-Basti, Pizhichil, internal medicines. Kerala CCIM specialists.',
     overview: 'Kerala Panchakarma is widely regarded as the gold standard for chronic joint disease. The classical texts identify three patterns: Sandhivata (osteoarthritis — Vata-dominant), Amavata (rheumatoid arthritis — Ama + Vata), and Vatarakta (gout — Pitta + Vata in the rakta-dhatu). Each demands a different protocol — using the wrong one for the wrong pattern is the most common reason "Ayurveda did not work" elsewhere.',
     symptoms: [
@@ -104,7 +104,7 @@ export const CONDITIONS: Record<string, Condition> = {
     name: 'Stress, Anxiety & Insomnia',
     sanskrit: 'चिन्ता / अनिद्रा',
     tagline: 'Chitta-vrtti — calming the mind through Shirodhara and Medhya Rasayana',
-    metaTitle: 'Stress, Anxiety & Insomnia — Ayurvedic Treatment Kerala | AyurConnect',
+    metaTitle: 'Stress, Anxiety & Insomnia — Ayurvedic Treatment Kerala',
     metaDescription: 'Shirodhara, Takradhara, Medhya Rasayana herbs (Brahmi, Shankhpushpi, Jatamansi), and Manasika Chikitsa for chronic stress, GAD, depression and insomnia.',
     overview: 'Stress is the single biggest reason urban Indians and international visitors seek Kerala Panchakarma. Ayurvedic psychiatry (Manasika Chikitsa) treats Chitta-Vrtti (mental fluctuations) as a Vata-dominant condition with Sattva-rajas-tamas balance disturbance. The signature protocol — Shirodhara — has been clinically studied; multiple Indian trials show reduction in serum cortisol, improved sleep latency, and reduced GAD scores.',
     symptoms: [
@@ -141,7 +141,7 @@ export const CONDITIONS: Record<string, Condition> = {
     name: 'Diabetes (Madhumeha / Prameha)',
     sanskrit: 'मधुमेह / प्रमेह',
     tagline: 'Prameha — managed via lifestyle, herbs, and Shodhana before complications set in',
-    metaTitle: 'Diabetes Ayurvedic Treatment Kerala — Madhumeha, Prameha | AyurConnect',
+    metaTitle: 'Diabetes Ayurvedic Treatment Kerala — Madhumeha, Prameha',
     metaDescription: 'Type-2 diabetes Ayurveda management: Vasant Kusumakar, Nishakathakadi, Gudmar, Vijayasar, Triphala. Kerala CCIM diabetologist directory.',
     overview: 'Charaka classifies 20 types of Prameha (urinary disorders). Type 2 diabetes maps most closely to Kapha-dominant Prameha with Vata involvement in advanced stages. Ayurveda does not "cure" established type 2 diabetes — but it consistently improves insulin sensitivity, reduces medication dose, prevents micro-vascular complications (retinopathy, nephropathy, neuropathy), and arrests progression. Integration with conventional endocrinology is the norm, not the exception.',
     symptoms: [
@@ -179,7 +179,7 @@ export const CONDITIONS: Record<string, Condition> = {
     name: 'Weight Management (Sthaulya)',
     sanskrit: 'स्थौल्य',
     tagline: 'Sustainable Medo-Vriddhi reversal — without crash diets or surgery',
-    metaTitle: 'Weight Loss Ayurvedic Treatment Kerala — Sthaulya, Medoroga | AyurConnect',
+    metaTitle: 'Weight Loss Ayurvedic Treatment Kerala — Sthaulya, Medoroga',
     metaDescription: 'Udwarthanam, Lekhana-Basti, Triphala-Guggulu, lifestyle-led weight management — Kerala CCIM doctors. Sustainable, no surgery, no crash diets.',
     overview: 'Charaka dedicated an entire chapter (Ashtau-ninditiya) to "the eight conditions of dispraise" — five forms of obesity head the list, calling Sthaulya the most difficult to treat among them. Ayurveda treats obesity as Medo-dhatu (adipose) hypertrophy combined with depleted Mamsa (muscle) and Asthi (bone) nutrition — which is why crash-dieting fails. The classical approach: rebuild Agni, deplete excess Medas, preserve Bala (strength).',
     symptoms: [
@@ -217,7 +217,7 @@ export const CONDITIONS: Record<string, Condition> = {
     name: 'Skin Disorders (Twak Vikara)',
     sanskrit: 'त्वक् विकार',
     tagline: 'Psoriasis, eczema, acne, vitiligo — root-cause Ayurvedic dermatology',
-    metaTitle: 'Skin Disease Ayurvedic Treatment Kerala — Psoriasis, Eczema, Vitiligo | AyurConnect',
+    metaTitle: 'Skin Disease Ayurvedic Treatment Kerala — Psoriasis, Eczema, Vitiligo',
     metaDescription: 'Kerala Ayurveda for psoriasis (Kushta), eczema, acne, vitiligo (Shvitra). Virechana, Raktamokshana, Mahatikta Ghrita. CCIM specialists.',
     overview: 'Charaka classified seven varieties of Kushta (skin disease), each with distinct Rasa-Rakta-Mamsa-Medas involvement and seasonal patterns. Kerala has a 200+ year tradition of treating psoriasis and chronic eczema with Panchakarma — and modern dermatology literature increasingly cites Indian RCT data on Mahatikta Ghrita and turmeric-curcumin in plaque psoriasis. Vitiligo (Shvitra) is harder; partial repigmentation is realistic with combined internal + sun-exposure therapy.',
     symptoms: [
@@ -255,7 +255,7 @@ export const CONDITIONS: Record<string, Condition> = {
     name: 'Fertility (Female & Male)',
     sanskrit: 'वन्ध्यत्व / Vandhyatva',
     tagline: 'Vajeekarana + Rasayana — classical Ayurvedic approach to conception support',
-    metaTitle: 'Fertility Ayurvedic Treatment Kerala — Vajeekarana, Rasayana | AyurConnect',
+    metaTitle: 'Fertility Ayurvedic Treatment Kerala — Vajeekarana, Rasayana',
     metaDescription: 'Evidence-informed Ayurveda for female + male fertility — Uttara-Basti, Phala Ghrita, Vajeekarana herbs, Vajeekarana Tantra. Kerala CCIM specialists.',
     overview: 'Ayurveda has dedicated branches for reproductive medicine — Prasuti Tantra (female) and Vajeekarana Tantra (male/virility). The classical framework treats fertility as the integrity of four factors: Ritu (timing/ovulation), Kshetra (uterine receptivity), Ambu (nutritional support), and Bija (gamete quality). Modern Ayurvedic fertility care combines Shodhana (cleansing), Rasayana (rejuvenation), and Vajeekarana (reproductive tonic) — often successful where 2–3 IVF cycles have failed, particularly in unexplained infertility and PCOS-related anovulation.',
     symptoms: [
@@ -292,7 +292,7 @@ export const CONDITIONS: Record<string, Condition> = {
     name: 'Mental Wellness (Depression, OCD, Bipolar Support)',
     sanskrit: 'मानसिक चिकित्सा / Manasika Chikitsa',
     tagline: 'Manasika Chikitsa — Ayurvedic psychiatry as adjunct to modern care',
-    metaTitle: 'Mental Health Ayurveda Kerala — Depression, OCD, Anxiety | AyurConnect',
+    metaTitle: 'Mental Health Ayurveda Kerala — Depression, OCD, Anxiety',
     metaDescription: 'Integrative Ayurvedic care for depression, anxiety, OCD, bipolar — Medhya Rasayana, Shirodhara, Manasika Chikitsa. Adjunct to psychiatric care, never substitute.',
     overview: 'Ayurveda has a full branch — Bhuta Vidya / Manasika Chikitsa — dedicated to mental health. Modern Ayurvedic psychiatry never positions itself as a substitute for SSRIs, mood stabilisers, or antipsychotics. It positions itself as a meaningful adjunct that often allows lower medication doses, faster recovery, fewer side effects, and improved quality of life. The strongest evidence is in depression, GAD, and stress-related conditions; OCD and bipolar respond when integrated with psychiatric care.',
     symptoms: [
@@ -329,7 +329,7 @@ export const CONDITIONS: Record<string, Condition> = {
     name: 'Postnatal Care (Sutika Paricharya)',
     sanskrit: 'सूतिका परिचर्या',
     tagline: 'Sutika Paricharya — Kerala\'s 45-day classical postpartum protocol',
-    metaTitle: 'Postnatal / Postpartum Ayurveda Kerala — Sutika Paricharya | AyurConnect',
+    metaTitle: 'Postnatal / Postpartum Ayurveda Kerala — Sutika Paricharya',
     metaDescription: 'Classical Kerala postpartum care — 45-day Sutika Paricharya protocol with herbal baths, internal medicines, dietary regimen, abdominal binding, and breastfeeding support.',
     overview: 'Kerala\'s Sutika Paricharya is arguably the most well-developed postpartum tradition in the world. The classical 45-day protocol (sometimes extended to 90 days) is designed around a single principle: in the postpartum period, Vata is maximally aggravated, the abdomen is empty (avakasha), and the mother needs structured Brmhana (nourishing) care to recover bone density, restore Ojas, support lactation, and prevent the long tail of postpartum depression, joint pain, hair fall, and weakness that affects many women lifelong.',
     symptoms: [
@@ -367,7 +367,7 @@ export const CONDITIONS: Record<string, Condition> = {
     name: 'Annual Detox (Ritu-Shodhana)',
     sanskrit: 'ऋतु-शोधन',
     tagline: 'Seasonal Panchakarma — preventive cleansing aligned to nature\'s rhythm',
-    metaTitle: 'Annual Ayurvedic Detox Kerala — Ritu Shodhana, Panchakarma | AyurConnect',
+    metaTitle: 'Annual Ayurvedic Detox Kerala — Ritu Shodhana, Panchakarma',
     metaDescription: 'Classical seasonal Panchakarma for healthy adults — autumn Virechana, spring Vamana, monsoon Basti. Preventive care, not symptom treatment. Kerala centres.',
     overview: 'Modern wellness sells "detox" as juice cleanses and 3-day water fasts — most of which have no physiological basis. Classical Ayurveda has a different concept entirely: Ritu-Shodhana, season-specific Panchakarma performed proactively in healthy adults to clear accumulated metabolic residue (Ama), reset Agni, and prevent the slow drift toward chronic disease. Done correctly, it is one of the most cost-effective preventive health interventions available — a 7-day annual investment that often heads off years of medication-dependent disease.',
     symptoms: [

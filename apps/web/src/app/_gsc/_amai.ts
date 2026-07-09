@@ -365,7 +365,7 @@ export const AMAI_DISTRICTS: Record<string, AmaiDistrictContent> = {
     "district": "Thrissur",
     "displayName": "AMAI Thrissur",
     "aliasNote": "",
-    "title": "AMAI Thrissur — Ayurveda Doctors & Hospitals | AyurConnect",
+    "title": "AMAI Thrissur — Ayurveda Doctors & Hospitals",
     "metaDescription": "AMAI's Thrissur branch connects Ayurveda doctors, colleges and hospitals in Kerala's cultural capital. Find BAMS physicians, join AMAI, register your practice.",
     "keywords": [
       "AMAI Thrissur",
@@ -418,7 +418,7 @@ export const AMAI_DISTRICTS: Record<string, AmaiDistrictContent> = {
     "district": "Palakkad",
     "displayName": "AMAI Palakkad",
     "aliasNote": "",
-    "title": "AMAI Palakkad — Ayurveda Doctors & Wellness Centres | AyurConnect",
+    "title": "AMAI Palakkad — Ayurveda Doctors & Wellness Centres",
     "metaDescription": "AMAI's Palakkad branch connects Ayurveda physicians in Kerala's rice bowl — home to Kairali Ayurvedic wellness tourism and the historic Poomully Mana tradition.",
     "keywords": [
       "AMAI Palakkad",
@@ -471,7 +471,7 @@ export const AMAI_DISTRICTS: Record<string, AmaiDistrictContent> = {
     "district": "Malappuram",
     "displayName": "AMAI Malappuram",
     "aliasNote": "",
-    "title": "AMAI Malappuram — Kottakkal & Ayurveda Doctors | AyurConnect",
+    "title": "AMAI Malappuram — Kottakkal & Ayurveda Doctors",
     "metaDescription": "AMAI's Malappuram branch, home to Kottakkal's Arya Vaidya Sala and VPSV Ayurveda College — the highest concentration of Ayurveda physicians anywhere in Kerala.",
     "keywords": [
       "AMAI Malappuram",
@@ -524,7 +524,7 @@ export const AMAI_DISTRICTS: Record<string, AmaiDistrictContent> = {
     "district": "Kozhikode",
     "displayName": "AMAI Kozhikode",
     "aliasNote": "(Calicut)",
-    "title": "AMAI Kozhikode (Calicut) — Ayurveda Doctors & Hospitals | AyurConnect",
+    "title": "AMAI Kozhikode (Calicut) — Ayurveda Doctors & Hospitals",
     "metaDescription": "AMAI's Kozhikode (Calicut) branch connects Ayurveda physicians in this coastal district, known for its blend of Ayurveda and Unani wellness traditions.",
     "keywords": [
       "AMAI Kozhikode",
@@ -577,7 +577,7 @@ export const AMAI_DISTRICTS: Record<string, AmaiDistrictContent> = {
     "district": "Wayanad",
     "displayName": "AMAI Wayanad",
     "aliasNote": "",
-    "title": "AMAI Wayanad — Ayurveda Doctors & Wellness | AyurConnect",
+    "title": "AMAI Wayanad — Ayurveda Doctors & Wellness",
     "metaDescription": "AMAI's Wayanad branch connects Ayurveda physicians in Kerala's hill district, rich in herbal biodiversity, tribal medicine heritage and emerging wellness tourism.",
     "keywords": [
       "AMAI Wayanad",
@@ -630,7 +630,7 @@ export const AMAI_DISTRICTS: Record<string, AmaiDistrictContent> = {
     "district": "Kannur",
     "displayName": "AMAI Kannur",
     "aliasNote": "",
-    "title": "AMAI Kannur — Ayurveda Doctors & Hospitals | AyurConnect",
+    "title": "AMAI Kannur — Ayurveda Doctors & Hospitals",
     "metaDescription": "AMAI's Kannur branch connects Ayurveda physicians in North Kerala's handloom and tourism hub, home to several established private Ayurveda hospitals.",
     "keywords": [
       "AMAI Kannur",
@@ -683,7 +683,7 @@ export const AMAI_DISTRICTS: Record<string, AmaiDistrictContent> = {
     "district": "Kasaragod",
     "displayName": "AMAI Kasaragod",
     "aliasNote": "",
-    "title": "AMAI Kasaragod — Ayurveda Doctors & Hospitals | AyurConnect",
+    "title": "AMAI Kasaragod — Ayurveda Doctors & Hospitals",
     "metaDescription": "AMAI's Kasaragod branch connects Ayurveda physicians in Kerala's northernmost district, bordering Karnataka near Mangaluru and Udupi's Ayurveda institutions.",
     "keywords": [
       "AMAI Kasaragod",

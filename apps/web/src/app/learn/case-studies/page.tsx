@@ -7,7 +7,7 @@ import { CASES } from './_data'
 
 export const metadata: Metadata = pageMetadata({
   path: '/learn/case-studies',
-  title: 'Ayurveda Clinical Case Studies — Free | AyurConnect',
+  title: 'Ayurveda Clinical Case Studies — Free',
   description: 'Real Ayurveda clinical cases with progressive disclosure. Kayachikitsa, Panchakarma, Prasuti, Shalya. Learn from senior physician case discussions.',
   keywords: ['ayurveda case study', 'BAMS clinical cases', 'kayachikitsa cases', 'panchakarma case'],
 })

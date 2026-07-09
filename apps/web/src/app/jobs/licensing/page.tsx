@@ -7,7 +7,7 @@ import { GUIDES } from './_data'
 
 export const metadata: Metadata = pageMetadata({
   path: '/jobs/licensing',
-  title: 'International Licensing Guides for Ayurveda Doctors | AyurConnect',
+  title: 'International Licensing Guides for Ayurveda Doctors',
   description: 'Step-by-step licensing guides for Ayurveda doctors moving abroad: DHA, DOH, MOH, QCHP, SCFHS, UK, Germany, Australia. Eligibility, exams, fees, timelines.',
   keywords: ['DHA ayurveda license', 'DOH ayurveda', 'QCHP ayurveda', 'SCFHS ayurveda', 'ayurveda doctor abroad licensing'],
 })

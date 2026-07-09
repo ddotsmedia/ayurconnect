@@ -4,7 +4,7 @@ import { API_INTERNAL as API, logServerFetchError } from '@/lib/server-fetch'
 import { breadcrumbLd, ldGraph } from '@/lib/seo'
 
 export const metadata: Metadata = {
-  title: 'Compare Ayurveda Hospitals in Kerala | AyurConnect',
+  title: 'Compare Ayurveda Hospitals in Kerala',
   description: 'Side-by-side comparison of Ayurveda hospitals — accreditations, doctors, treatments, ratings, locations. Pick 2 or 3 to compare.',
   alternates: { canonical: '/hospitals/compare' },
   keywords: ['compare ayurveda hospitals', 'ayurveda hospital comparison kerala', 'panchakarma centre comparison'],

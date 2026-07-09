@@ -5,7 +5,7 @@ import { ScoreClient } from './_client'
 
 export const metadata = pageMetadata({
   path: '/jobs/resume-score',
-  title: 'AI Resume Score — Free Ayurveda Doctor Resume Analyzer | AyurConnect',
+  title: 'AI Resume Score — Free Ayurveda Doctor Resume Analyzer',
   description: 'Paste your resume. Get an AI score (0-100), section-by-section feedback, ATS compatibility check. Free and instant.',
   keywords: ['ayurveda resume scoring', 'BAMS resume checker', 'ATS resume analyzer', 'free resume score'],
 })

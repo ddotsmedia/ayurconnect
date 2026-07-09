@@ -3,7 +3,7 @@ import { CommunityClient } from './_client'
 import { API_INTERNAL as API, logServerFetchError } from '@/lib/server-fetch'
 
 export const metadata: Metadata = {
-  title: 'BAMS Study Community — Free Discussion + Doubts | AyurConnect',
+  title: 'BAMS Study Community — Free Discussion + Doubts',
   description: 'Ask doubts, share resources, discuss BAMS subjects with peers and verified doctors. Free, no subscription.',
   alternates: { canonical: '/learn/community' },
   keywords: ['BAMS doubt clarification', 'BAMS study group', 'ayurveda student community'],

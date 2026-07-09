@@ -3,7 +3,7 @@ import { FileSearch, ShieldCheck, Clock, ChevronRight } from 'lucide-react'
 import { SecondOpinionForm } from './_form'
 
 export const metadata = {
-  title: 'Ayurveda Second Opinion — From Verified Specialists | AyurConnect',
+  title: 'Ayurveda Second Opinion — From Verified Specialists',
   description: 'Get an independent Ayurvedic second opinion on your diagnosis or treatment plan. Senior verified specialists review your case within 72 hours.',
   alternates: { canonical: '/second-opinion' },
 }

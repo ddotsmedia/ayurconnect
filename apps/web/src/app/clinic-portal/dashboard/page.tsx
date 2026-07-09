@@ -6,7 +6,7 @@ import { getServerSession } from '../../../lib/auth'
 import { DemoTabs } from './_demo-tabs'
 
 export const metadata = {
-  title: 'Clinic Portal — Demo Dashboard | AyurConnect',
+  title: 'Clinic Portal — Demo Dashboard',
   description: 'Demo of the AyurConnect Clinic Portal dashboard. Patient intake, treatment scheduling, OPD/IPD tracking. localStorage-only sandbox — your data stays on your device.',
   robots: { index: false, follow: true },
   alternates: { canonical: '/clinic-portal/dashboard' },

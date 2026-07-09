@@ -6,7 +6,7 @@ import { breadcrumbLd, ldGraph, pageMetadata } from '../../../lib/seo'
 
 export const metadata: Metadata = pageMetadata({
   path:        '/learn/tridosha',
-  title:       'Tridosha in Ayurveda — ത്രിദോഷം | AyurConnect',
+  title:       'Tridosha in Ayurveda — ത്രിദോഷം',
   description: 'Complete Tridosha resource — Vata, Pitta, Kapha. 7 in-depth articles in Malayalam + English, with classical shlokas from Ashtanga Hridayam + Charaka Samhita. Kerala-tradition therapies for each dosha.',
   keywords:    ['tridosha', 'vata pitta kapha', 'ayurveda doshas', 'ത്രിദോഷം', 'വാത പിത്ത കഫ', 'kerala ayurveda doshas', 'ashtanga hridayam', 'charaka samhita'],
 })

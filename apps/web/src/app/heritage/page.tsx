@@ -7,7 +7,7 @@ import { ASHTAVAIDYAS, CLASSICAL_TEXTS } from './_data'
 import { Breadcrumbs } from '../../components/Breadcrumbs'
 
 export const metadata: Metadata = pageMetadata({
-  title: 'The Living Tradition of Kerala Ayurveda — Heritage & Culture | AyurConnect',
+  title: 'The Living Tradition of Kerala Ayurveda — Heritage & Culture',
   description:
     'Kerala Ayurveda heritage: the eight Ashtavaidya physician families (അഷ്ടവൈദ്യർ), the classical texts (Ashtanga Hridayam, Charaka & Sushruta Samhita, Sahasrayogam), the history from Dhanvantari to modern AYUSH, and the Dhanvantari temples of Kerala.',
   path: '/heritage',

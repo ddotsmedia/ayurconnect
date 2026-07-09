@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { FilteredJobsList, FilterPageHeader, fetchFilteredJobs } from '../_filtered/FilteredJobsList'
 
 export const metadata: Metadata = {
-  title: "Remote Ayurveda Jobs — Telemedicine & Work from Home | AyurConnect",
+  title: "Remote Ayurveda Jobs — Telemedicine & Work from Home",
   description: "Remote Ayurveda doctor jobs. Telemedicine, online consultation, work-from-home BAMS/MD roles. Apply free on AyurConnect.",
   alternates: { canonical: '/jobs/remote' },
   keywords: ["ayurveda doctor work from home","online ayurveda consultation job","telemedicine ayurveda doctor","remote BAMS job"],

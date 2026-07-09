@@ -7,7 +7,7 @@ import { TodayClient } from './_client'
 import { Calendar, BookOpen, Briefcase, MessageCircle, Stethoscope, Award } from 'lucide-react'
 
 export const metadata = {
-  title: 'Your AyurConnect Today | AyurConnect',
+  title: 'Your AyurConnect Today',
   description: 'Personalized daily dashboard — drug of the day, MCQ challenge, stats, jobs, events, referrals.',
   alternates: { canonical: '/doctors/today' },
   robots: { index: false, follow: false },

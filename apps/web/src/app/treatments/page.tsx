@@ -5,7 +5,7 @@ import { CONDITIONS } from './_data/conditions'
 import { AYURVEDA_KEYWORDS } from '../../lib/seo'
 
 export const metadata = {
-  title: 'Specialised Ayurvedic Treatments — Kerala | AyurConnect',
+  title: 'Specialised Ayurvedic Treatments — Kerala',
   description: 'Evidence-informed Ayurvedic treatment guides for PCOS, arthritis, stress, diabetes, weight management, and chronic skin disease. Find a verified Kerala specialist.',
   alternates: { canonical: '/treatments' },
   keywords: [

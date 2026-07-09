@@ -5,7 +5,7 @@ import { headers as nextHeaders } from 'next/headers'
 import { getServerSession } from '../../../../lib/auth'
 import { API_INTERNAL } from '../../../../lib/server-fetch'
 
-export const metadata = { title: 'Your monthly visibility report | AyurConnect', robots: { index: false, follow: false } }
+export const metadata = { title: 'Your monthly visibility report', robots: { index: false, follow: false } }
 
 type Vis = { profileViews30d: number; searchAppearances30d: number; inquiries30d: number }
 

@@ -5,7 +5,7 @@ import { pageMetadata } from '../../../lib/seo'
 
 export const metadata = pageMetadata({
   path: '/jobs/locum',
-  title: 'Ayurveda Locum Doctor Jobs — Short-term Cover | AyurConnect',
+  title: 'Ayurveda Locum Doctor Jobs — Short-term Cover',
   description: 'Find locum Ayurveda doctor positions. Daily rate cover, weekend cover, leave cover at Kerala + UAE hospitals.',
   keywords: ['ayurveda locum', 'BAMS locum', 'locum doctor kerala', 'short term ayurveda job'],
 })

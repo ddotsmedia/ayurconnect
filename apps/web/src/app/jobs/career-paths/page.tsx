@@ -7,7 +7,7 @@ import { PATHS } from './_data'
 
 export const metadata: Metadata = pageMetadata({
   path: '/jobs/career-paths',
-  title: 'Ayurveda Career Paths — Plan Your Journey | AyurConnect',
+  title: 'Ayurveda Career Paths — Plan Your Journey',
   description: '5 Ayurveda career paths visualised: clinical, academic, GCC, wellness, telemedicine. Salary + qualifications per stage.',
   keywords: ['ayurveda career path', 'BAMS career planning', 'GCC career', 'ayurveda specialisation'],
 })

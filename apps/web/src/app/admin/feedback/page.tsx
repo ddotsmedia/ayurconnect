@@ -4,7 +4,7 @@ import { getServerSession } from '../../../lib/auth'
 import { API_INTERNAL } from '../../../lib/server-fetch'
 import { FeedbackAdminClient, type FeedbackItem, type Stats } from './_client'
 
-export const metadata = { title: 'Feedback Admin | AyurConnect', robots: { index: false, follow: false } }
+export const metadata = { title: 'Feedback Admin', robots: { index: false, follow: false } }
 export const dynamic = 'force-dynamic'
 
 async function fetchAll(): Promise<{ items: FeedbackItem[]; stats: Stats } | null> {

@@ -4,7 +4,7 @@ export const TOPIC_PAGES: Record<string, LandingContent> = {
   "ayurveda-doctor": {
     "slug": "ayurveda-doctor",
     "title": "Ayurveda Doctor — Find Verified Practitioners Online",
-    "metaTitle": "Ayurveda Doctor — Find Verified BAMS & MD Doctors | AyurConnect",
+    "metaTitle": "Ayurveda Doctor — Find Verified BAMS & MD Doctors",
     "metaDescription": "Find qualified Ayurveda doctors online. Verified BAMS and MD practitioners from Kerala, Dubai, UAE. Book consultation free.",
     "keywords": [
       "ayurveda doctor",
@@ -77,7 +77,7 @@ export const TOPIC_PAGES: Record<string, LandingContent> = {
   "bams": {
     "slug": "bams",
     "title": "BAMS — Bachelor of Ayurvedic Medicine and Surgery",
-    "metaTitle": "BAMS — Course, Syllabus, Career, Salary Guide 2026 | AyurConnect",
+    "metaTitle": "BAMS — Course, Syllabus, Career, Salary Guide 2026",
     "metaDescription": "Complete BAMS guide — admission, syllabus, career options, salary, PG entrance. Free study resources for BAMS students.",
     "keywords": [
       "BAMS",
@@ -154,7 +154,7 @@ export const TOPIC_PAGES: Record<string, LandingContent> = {
   "ayurveda-treatment": {
     "slug": "ayurveda-treatment",
     "title": "Ayurveda Treatment — Classical Therapies & Modern Applications",
-    "metaTitle": "Ayurveda Treatment — Panchakarma, Kayachikitsa, Kerala Therapies | AyurConnect",
+    "metaTitle": "Ayurveda Treatment — Panchakarma, Kayachikitsa, Kerala Therapies",
     "metaDescription": "Explore authentic Ayurveda treatments — Panchakarma, Pizhichil, Sirodhara, Njavarakizhi. Find verified treatment centres in Kerala and Dubai.",
     "keywords": [
       "ayurveda treatment",
@@ -227,7 +227,7 @@ export const TOPIC_PAGES: Record<string, LandingContent> = {
   "ayurveda-back-pain-treatment": {
     "slug": "ayurveda-back-pain-treatment",
     "title": "Ayurvedic Treatment for Back Pain — Kerala Panchakarma & Natural Relief",
-    "metaTitle": "Ayurvedic Treatment for Back Pain — Panchakarma, Kati Basti | AyurConnect",
+    "metaTitle": "Ayurvedic Treatment for Back Pain — Panchakarma, Kati Basti",
     "metaDescription": "Effective Ayurvedic treatments for back pain — Kati Basti, Pizhichil, Kizhi, herbal medicines. Find verified Ayurveda doctors for back pain in Kerala and Dubai.",
     "keywords": [
       "ayurveda back pain treatment",
@@ -294,7 +294,7 @@ export const TOPIC_PAGES: Record<string, LandingContent> = {
   "ayurveda-gynaecology": {
     "slug": "ayurveda-gynaecology",
     "title": "Ayurvedic Gynaecology — Women's Health & Prasuti Tantra",
-    "metaTitle": "Ayurvedic Gynaecology Treatment — PCOS, Fertility, Pregnancy Care | AyurConnect",
+    "metaTitle": "Ayurvedic Gynaecology Treatment — PCOS, Fertility, Pregnancy Care",
     "metaDescription": "Ayurvedic gynaecology (Prasuti Tantra & Stree Roga) — treatments for PCOS, infertility, menstrual disorders, pregnancy care, menopause. Find lady Ayurveda doctors.",
     "keywords": [
       "ayurveda gynaecology",
@@ -366,7 +366,7 @@ export const TOPIC_PAGES: Record<string, LandingContent> = {
   "ayurveda-lady-doctor": {
     "slug": "ayurveda-lady-doctor",
     "title": "Ayurveda Lady Doctor — Find Female Ayurveda Specialists",
-    "metaTitle": "Ayurveda Lady Doctor — Female BAMS/MD Doctors for Women's Health | AyurConnect",
+    "metaTitle": "Ayurveda Lady Doctor — Female BAMS/MD Doctors for Women's Health",
     "metaDescription": "Find verified Ayurveda lady doctors for women's health, PCOS, pregnancy, gynaecology. Female Ayurveda specialists in Kerala, Dubai, UAE. Book consultation.",
     "keywords": [
       "ayurveda lady doctor",

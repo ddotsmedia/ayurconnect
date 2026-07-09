@@ -10,7 +10,7 @@ import { NewsletterSignup } from '../../components/news/NewsletterSignup'
 
 export const metadata: Metadata = pageMetadata({
   path:        '/news',
-  title:       'Ayurveda News — Industry, Research, Policy | AyurConnect',
+  title:       'Ayurveda News — Industry, Research, Policy',
   description: 'Latest Ayurveda news from Kerala + the diaspora — industry, clinical research, AYUSH policy, community events, international recognition. Curated weekly.',
   keywords:    ['ayurveda news', 'AYUSH policy', 'kerala ayurveda', 'CCRAS research', 'BAMS news'],
 })

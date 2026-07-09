@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { FilteredJobsList, FilterPageHeader, fetchFilteredJobs } from '../_filtered/FilteredJobsList'
 
 export const metadata: Metadata = {
-  title: "Ayurveda Walk-in Interviews — Upcoming Job Walks | AyurConnect",
+  title: "Ayurveda Walk-in Interviews — Upcoming Job Walks",
   description: "Upcoming Ayurveda walk-in interviews across Kerala and India. Date, time, venue, documents to bring.",
   alternates: { canonical: '/jobs/walk-in' },
   keywords: ["ayurveda walk-in interview","walk-in ayurveda job","BAMS walk-in","ayurveda direct interview"],

@@ -6,7 +6,7 @@ import { BmiClient } from './_client'
 
 export const metadata: Metadata = pageMetadata({
   path:        '/tools/bmi-calculator',
-  title:       'BMI Calculator with Ayurvedic Perspective | AyurConnect',
+  title:       'BMI Calculator with Ayurvedic Perspective',
   description: 'Free BMI calculator + Ayurvedic interpretation. Maps BMI category to dosha tendency, diet, and Kerala therapies. Educational, not diagnostic.',
   keywords:    ['bmi calculator', 'ayurvedic bmi', 'dosha bmi', 'kerala ayurveda weight'],
 })

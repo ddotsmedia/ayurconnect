@@ -43,7 +43,7 @@ async function fetchRelated(category: string | null, excludeId: string): Promise
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const v = await fetchVideo(id)
-  if (!v) return { title: 'Video not found | AyurConnect' }
+  if (!v) return { title: 'Video not found' }
   return {
     title:       `${v.title} | AyurConnect Videos`,
     description: clip(v.description ?? `Watch ${v.title} — curated Ayurveda video on AyurConnect.`, 160),

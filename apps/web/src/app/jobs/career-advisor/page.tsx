@@ -6,7 +6,7 @@ import { AdvisorClient } from './_client'
 
 export const metadata = pageMetadata({
   path: '/jobs/career-advisor',
-  title: 'AI Career Advisor for Ayurveda Doctors | AyurConnect',
+  title: 'AI Career Advisor for Ayurveda Doctors',
   description: 'AI career guidance for BAMS graduates and Ayurveda professionals. Salary info, licensing pathways, interview prep, specialty selection.',
   keywords: ['ayurveda career advisor', 'BAMS career guidance', 'ayurveda doctor career', 'AYUSH career'],
 })

@@ -4,7 +4,7 @@ import { getServerSession } from '@/lib/auth'
 import { CmeClient } from './_client'
 
 export const metadata: Metadata = {
-  title: 'CME Tracker — Continuing Medical Education | AyurConnect',
+  title: 'CME Tracker — Continuing Medical Education',
   description: 'Log and track your CME credits — conferences, workshops, webinars, online courses. KSMC renewal progress at a glance.',
   alternates: { canonical: '/doctors/cme' },
   robots: { index: false, follow: false },

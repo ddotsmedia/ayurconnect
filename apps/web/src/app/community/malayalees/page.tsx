@@ -15,7 +15,7 @@ const LOCATIONS = [
 
 export const metadata = pageMetadata({
   path:        '/community/malayalees',
-  title:       'Kerala Ayurveda for Malayalees Abroad | AyurConnect',
+  title:       'Kerala Ayurveda for Malayalees Abroad',
   description: 'Kerala Ayurveda for the Malayali diaspora — UAE, Dubai, Abu Dhabi, Qatar, Kuwait, UK, Canada. Malayalam-speaking doctors, teleconsult, Heal-in-Kerala packages.',
   keywords:    ['kerala ayurveda diaspora', 'malayali ayurveda', 'malayalam ayurveda doctor', 'teleconsult kerala diaspora'],
 })

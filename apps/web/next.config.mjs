@@ -66,6 +66,14 @@ export default {
       // blackhole because current live doctors use 'cmq' and 'cmr' prefixes.
       // Verified before adding to avoid killing live profiles.
       { source: '/doctors/:id(cmp.*)',       destination: '/doctors',     permanent: true },
+      // 2026-07-08 — Screaming Frog audit 404s. Treatment slugs never had
+      // dedicated pages; funnel to /panchakarma (the closest current surface).
+      { source: '/treatments/pizhichil',     destination: '/panchakarma', permanent: true },
+      { source: '/treatments/panchakarma',   destination: '/panchakarma', permanent: true },
+      { source: '/treatments/sirodhara',     destination: '/panchakarma', permanent: true },
+      { source: '/treatments/njavarakizhi',  destination: '/panchakarma', permanent: true },
+      { source: '/treatments/rasayana',      destination: '/panchakarma', permanent: true },
+      { source: '/consult',                  destination: '/online-consultation', permanent: true },
     ]
   },
   async headers() {

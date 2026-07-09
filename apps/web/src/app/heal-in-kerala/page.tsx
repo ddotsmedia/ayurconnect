@@ -9,7 +9,7 @@ import { Breadcrumbs } from '../../components/Breadcrumbs'
 
 export const metadata: Metadata = pageMetadata({
   path: '/heal-in-kerala',
-  title:       'Ayurvedic Treatment in Kerala — International Patient Guide | AyurConnect',
+  title:       'Ayurvedic Treatment in Kerala — International Patient Guide',
   description: 'Plan authentic Ayurvedic treatment in Kerala from 15+ countries. Verified centres, classical Panchakarma + Pizhichil + Sirodhara, e-Ayush visa guidance, cost ranges, logistics. Built for the diaspora.',
   keywords: ['ayurveda treatment kerala', 'panchakarma retreat kerala', 'medical tourism kerala', 'e-ayush visa', 'monsoon ayurveda kerala', 'heal in kerala', 'authentic kerala ayurveda'],
 })

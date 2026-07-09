@@ -4,7 +4,7 @@ import { RegisterLanding } from '../../register-landing/_landing'
 
 export const metadata: Metadata = pageMetadata({
   path: '/doctors/register/kerala',
-  title: 'Kerala Ayurveda Doctors — Join Free | AyurConnect',
+  title: 'Kerala Ayurveda Doctors — Join Free',
   description: 'Free verified profile for Kerala Ayurveda doctors. KSMC verification, patient leads, college alumni networking, teleconsult bookings.',
   keywords: ['kerala ayurveda doctor registration', 'kerala BAMS directory', 'ayurveda doctor kerala', 'register ayurveda doctor kerala', 'KSMC verified doctor'],
 })

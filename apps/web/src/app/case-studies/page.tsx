@@ -4,7 +4,7 @@ import { ChevronRight, Clock, User, MapPin, AlertCircle } from 'lucide-react'
 import { CASE_STUDIES } from './_data/cases'
 
 export const metadata = {
-  title: 'Patient Case Studies — Real Treatment Outcomes | AyurConnect',
+  title: 'Patient Case Studies — Real Treatment Outcomes',
   description: 'Detailed clinical case studies — psoriasis remission, PCOS fertility, RA medication reduction, executive burnout, postpartum recovery. Real protocols, real timelines, real outcomes.',
   alternates: { canonical: '/case-studies' },
 }

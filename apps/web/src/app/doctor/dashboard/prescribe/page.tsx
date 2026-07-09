@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { getServerSession } from '../../../../lib/auth'
 import { PrescribeClient } from './_client'
 
-export const metadata = { title: 'Prescription pad | AyurConnect', robots: { index: false, follow: false } }
+export const metadata = { title: 'Prescription pad', robots: { index: false, follow: false } }
 
 export default async function PrescribePage() {
   const session = await getServerSession()

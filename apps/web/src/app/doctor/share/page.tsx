@@ -8,7 +8,7 @@ import { API_INTERNAL as API } from '../../../lib/server-fetch'
 import { DoctorShareClient } from './_client'
 
 export const metadata = {
-  title: 'Share your profile + invite colleagues | AyurConnect',
+  title: 'Share your profile + invite colleagues',
   robots: { index: false, follow: false },
 }
 

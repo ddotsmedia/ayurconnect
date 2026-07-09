@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { QuickRefClient } from './_client'
 
 export const metadata: Metadata = {
-  title: 'Quick Reference — Herbs, Formulations, Conditions | AyurConnect',
+  title: 'Quick Reference — Herbs, Formulations, Conditions',
   description: 'Instant Ayurveda clinical reference: 145+ herbs, classical formulations, condition guides. Search by name, indication, dosha. Built for doctors.',
   alternates: { canonical: '/quick-reference' },
   keywords: ['ayurveda quick reference', 'ayurveda herb lookup', 'classical formulation dosage', 'ayurveda clinical reference'],

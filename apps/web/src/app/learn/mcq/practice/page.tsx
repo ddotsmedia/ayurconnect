@@ -2,7 +2,7 @@ import { GradientHero } from '@ayurconnect/ui'
 import { MCQS } from '../_data'
 import { PracticeClient } from './_client'
 
-export const metadata = { title: 'MCQ Practice | AyurConnect', robots: { index: false } }
+export const metadata = { title: 'MCQ Practice', robots: { index: false } }
 
 export default async function PracticePage({ searchParams }: { searchParams: Promise<{ subject?: string; mode?: string }> }) {
   const { subject } = await searchParams

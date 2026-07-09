@@ -6,7 +6,7 @@ import { breadcrumbLd, ldGraph, articleLd, pageMetadata } from '../../../lib/seo
 import { HISTORY_TIMELINE } from '../_data'
 
 export const metadata: Metadata = pageMetadata({
-  title: 'History of Ayurveda in Kerala — From Dhanvantari to Modern AYUSH | AyurConnect',
+  title: 'History of Ayurveda in Kerala — From Dhanvantari to Modern AYUSH',
   description:
     'A timeline of Ayurveda in Kerala: Dhanvantari and the divine origin, the classical Samhitas, Vagbhata\'s Ashtanga Hridayam, the Ashtavaidya establishment, colonial-era revival, and the modern AYUSH/CCIM system.',
   path: '/heritage/history',

@@ -5,7 +5,7 @@ import { CATEGORIES, PRODUCTS } from './_data/products'
 import { VendorInquiryForm } from './_vendor-form'
 
 export const metadata = {
-  title: 'Ayurvedic Marketplace — GMP-Certified Pharmacy Products | AyurConnect',
+  title: 'Ayurvedic Marketplace — GMP-Certified Pharmacy Products',
   description: 'Curated catalogue of classical formulations, medicated oils, herbs, and Panchakarma kits from Kottakkal, Vaidyaratnam, AVP, and other GMP-certified Kerala pharmacies.',
   alternates: { canonical: '/marketplace' },
 }

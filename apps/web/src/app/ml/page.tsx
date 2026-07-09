@@ -5,12 +5,12 @@ import { ML_PAGES } from './_data'
 import { breadcrumbLd, ldGraph } from '@/lib/seo'
 
 export const metadata: Metadata = {
-  title: 'ആയുർവേദം — മലയാളത്തിൽ | AyurConnect',
+  title: 'ആയുർവേദം — മലയാളത്തിൽ',
   description: 'ആയുർവേദ ചികിത്സ, ഔഷധങ്ങൾ, ആരോഗ്യ ടിപ്പുകൾ — എല്ലാം മലയാളത്തിൽ. പ്രമേഹം, PCOS, സന്ധിവാതം, മുടികൊഴിച്ചിൽ തുടങ്ങി 15 ആരോഗ്യ വിഷയങ്ങൾ.',
   alternates: { canonical: '/ml', languages: { 'ml-IN': '/ml', 'en-IN': '/' } },
   keywords: ['ആയുർവേദം മലയാളം', 'ayurveda malayalam', 'ayurveda kerala malayalam', 'ആരോഗ്യം മലയാളം'],
   openGraph: {
-    title: 'ആയുർവേദം — മലയാളത്തിൽ | AyurConnect',
+    title: 'ആയുർവേദം — മലയാളത്തിൽ',
     description: 'ആയുർവേദ ചികിത്സ, ഔഷധങ്ങൾ, ആരോഗ്യ ടിപ്പുകൾ — എല്ലാം മലയാളത്തിൽ.',
     locale: 'ml_IN',
     url: '/ml',

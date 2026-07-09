@@ -7,7 +7,7 @@ import { AskTheClassicsForm } from './_form'
 import { ANSWERED_QA } from './_answered'
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Ask the Classics — Grounded Answers from the Ayurvedic Samhitas | AyurConnect',
+  title: 'Ask the Classics — Grounded Answers from the Ayurvedic Samhitas',
   description:
     'Ask questions and get answers grounded strictly in the classical Ayurvedic texts — Charaka Samhita, Ashtanga Hridayam, Sushruta Samhita, Sahasrayogam and Chikitsamanjari — with inline verse citations. Educational; consult a doctor for personal advice.',
   path: '/learn/ask-the-classics',

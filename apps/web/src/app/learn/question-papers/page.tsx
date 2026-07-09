@@ -8,7 +8,7 @@ import { PAPERS } from './_data'
 
 export const metadata: Metadata = pageMetadata({
   path: '/learn/question-papers',
-  title: 'BAMS Previous Year Question Papers — Solved | AyurConnect',
+  title: 'BAMS Previous Year Question Papers — Solved',
   description: 'Previous year + model BAMS question papers across all subjects and universities (KUHS, RGUHS, MUHS). Solved + unsolved. Free download.',
   keywords: ['BAMS question paper', 'KUHS BAMS paper', 'BAMS previous year', 'BAMS model paper', 'BAMS solved paper'],
 })

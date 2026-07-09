@@ -44,7 +44,7 @@ function relTime(iso: string): string {
 }
 
 export const metadata: Metadata = {
-  title: 'Search Ayurveda Jobs | AyurConnect',
+  title: 'Search Ayurveda Jobs',
   description: 'Search Ayurveda jobs by keyword, location, and specialization. BAMS, MD, Panchakarma, telemedicine, and international roles.',
   alternates: { canonical: '/jobs/search' },
 }

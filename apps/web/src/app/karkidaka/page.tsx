@@ -5,7 +5,7 @@ import { Droplets, Leaf, Soup, CalendarDays, ChevronRight, ShieldCheck } from 'l
 import { breadcrumbLd, ldGraph, articleLd, faqLd, pageMetadata } from '../../lib/seo'
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Karkidaka Chikitsa — Kerala\'s Sacred Monsoon Healing Season | AyurConnect',
+  title: 'Karkidaka Chikitsa — Kerala\'s Sacred Monsoon Healing Season',
   description:
     'Karkidaka Chikitsa (കർക്കിടക ചികിത്സ) — Kerala\'s monsoon rejuvenation season. Why the monsoon is ideal for Ayurveda, traditional Panchakarma & Rasayana protocols, the Karkidaka Kanji recipe (കർക്കിടക കഞ്ഞി), and verified centres for treatment.',
   path: '/karkidaka',

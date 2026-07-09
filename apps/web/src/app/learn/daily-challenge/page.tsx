@@ -4,7 +4,7 @@ import { DailyChallengeClient } from './_client'
 import { faqLd, ldGraph, breadcrumbLd } from '@/lib/seo'
 
 export const metadata: Metadata = {
-  title: "Today's AIAPGET Challenge — 5 MCQs Free | AyurConnect",
+  title: "Today's AIAPGET Challenge — 5 MCQs Free",
   description: '5 fresh AIAPGET MCQs every day. Build a daily study streak. Free, no login required. Built for BAMS students and Ayurveda PG aspirants.',
   alternates: { canonical: '/learn/daily-challenge' },
   keywords: ['AIAPGET daily MCQ', 'daily ayurveda quiz', 'BAMS daily challenge', 'AIAPGET MCQ free'],

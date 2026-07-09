@@ -50,7 +50,7 @@ async function fetchHospitalCountries(): Promise<CountryCount[]> {
 }
 
 export const metadata = {
-  title: 'Ayurveda Hospitals Near Me — Verified Kerala + UAE Centres | AyurConnect',
+  title: 'Ayurveda Hospitals Near Me — Verified Kerala + UAE Centres',
   description: 'Find Ayurveda hospitals near you — AYUSH-certified, NABH-accredited hospitals and Panchakarma centres across Kerala, India, and UAE. Filter by country, state, and district.',
   keywords: [
     ...AYURVEDA_KEYWORDS.primary,

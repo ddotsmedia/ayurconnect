@@ -5,7 +5,7 @@ import { pageMetadata } from '../../../lib/seo'
 
 export const metadata: Metadata = pageMetadata({
   path: '/jobs/insights',
-  title: 'Ayurveda Job Market Insights 2026 | AyurConnect',
+  title: 'Ayurveda Job Market Insights 2026',
   description: 'Salary trends, top hiring locations, in-demand specializations, employer types. 2026 Ayurveda job market data.',
   keywords: ['ayurveda job market', 'BAMS salary trend', 'GCC ayurveda hiring', 'ayurveda employment 2026'],
 })

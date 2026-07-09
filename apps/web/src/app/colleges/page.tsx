@@ -31,7 +31,7 @@ async function fetchColleges(): Promise<College[]> {
 }
 
 export const metadata = {
-  title: 'Ayurveda Medical Colleges in Kerala — BAMS & MD | AyurConnect',
+  title: 'Ayurveda Medical Colleges in Kerala — BAMS & MD',
   description: 'CCIM-affiliated BAMS and MD Ayurveda colleges across Kerala. Government and private. Established 1889 onwards.',
 }
 

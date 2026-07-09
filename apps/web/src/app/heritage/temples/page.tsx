@@ -6,7 +6,7 @@ import { breadcrumbLd, ldGraph, articleLd, pageMetadata } from '../../../lib/seo
 import { DHANVANTARI_TEMPLES } from '../_data'
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Dhanvantari Temples of Kerala — Healing Shrines of Ayurveda | AyurConnect',
+  title: 'Dhanvantari Temples of Kerala — Healing Shrines of Ayurveda',
   description:
     'The Dhanvantari (ധന്വന്തരി) temples of Kerala — Thottuva, Nelluvai, Prayikkara and Mararikulam — shrines to the deity of Ayurveda where devotees pray for health and recovery.',
   path: '/heritage/temples',

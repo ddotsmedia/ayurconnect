@@ -6,7 +6,7 @@ import { Breadcrumbs } from '../../components/Breadcrumbs'
 
 export const metadata = pageMetadata({
   path:        '/tools',
-  title:       'Free Ayurveda Tools | AyurConnect',
+  title:       'Free Ayurveda Tools',
   description: 'Free Ayurveda tools — BMI calculator, symptom checker, prakriti quiz, interaction checker, seasonal regimen, diet planner, cost estimator. Educational, doctor-in-the-loop.',
 })
 

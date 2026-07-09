@@ -6,7 +6,7 @@ import { breadcrumbLd, ldGraph, pageMetadata } from '../../../lib/seo'
 import { PlannerForm } from './_form'
 
 export const metadata: Metadata = pageMetadata({
-  title: 'AI Ayurveda Trip Planner — Plan Your Kerala Treatment | AyurConnect',
+  title: 'AI Ayurveda Trip Planner — Plan Your Kerala Treatment',
   description:
     'Tell us your condition, dates, budget and origin city and get a structured Kerala Ayurveda treatment package — recommended therapy, duration, accredited-centre guidance, stay, visa and indicative cost. A reviewable plan, not a payment.',
   path: '/heal-in-kerala/plan',

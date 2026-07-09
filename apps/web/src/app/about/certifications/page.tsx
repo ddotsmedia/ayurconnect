@@ -3,7 +3,7 @@ import { GradientHero } from '@ayurconnect/ui'
 import { ChevronRight, ShieldCheck, Award, Building2, Stethoscope, AlertTriangle } from 'lucide-react'
 
 export const metadata = {
-  title: 'Certifications & Trust — CCIM, AYUSH, NABH | AyurConnect',
+  title: 'Certifications & Trust — CCIM, AYUSH, NABH',
   description: 'How India regulates Ayurvedic doctors and hospitals — CCIM, AYUSH, NABH explained — and how AyurConnect verifies every listing against the public registers.',
   alternates: { canonical: '/about/certifications' },
 }

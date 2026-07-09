@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 
 export const metadata = {
-  title: 'Register as Ayurveda Doctor — Kerala’s Comprehensive Directory | AyurConnect',
+  title: 'Register as Ayurveda Doctor — Kerala’s Comprehensive Directory',
   description: 'Join Kerala’s most comprehensive Ayurveda doctor directory. Free, verified. For Kerala-trained doctors practicing anywhere in the world — Kerala, Gulf, UK, US, Europe, APAC.',
   openGraph: {
     title:       'Register as an Ayurveda Doctor — Join Kerala’s Comprehensive Directory',

@@ -5,7 +5,7 @@ import { CONDITIONS, CONDITION_SLUGS } from '../treatments/_data/conditions'
 import { API_INTERNAL } from '@/lib/server-fetch'
 
 export const metadata = {
-  title: 'Ayurveda Knowledge Hub — Treatments, Herbs, Research | AyurConnect',
+  title: 'Ayurveda Knowledge Hub — Treatments, Herbs, Research',
   description: 'A single index of everything we know — specialised treatments, the 150+ herb database, classical research citations, health tips, dosha guides, and AI tools. Curated by verified practitioners.',
   alternates: { canonical: '/knowledge' },
 }

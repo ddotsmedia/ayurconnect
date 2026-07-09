@@ -7,7 +7,7 @@ import { WORKSHOPS } from './_data'
 
 export const metadata: Metadata = pageMetadata({
   path: '/learn/workshops',
-  title: 'Ayurveda Workshops & Webinars — Free | AyurConnect',
+  title: 'Ayurveda Workshops & Webinars — Free',
   description: 'Free recorded + upcoming Ayurveda workshops on Panchakarma, Nadi Pariksha, DHA prep, career, formulation identification.',
   keywords: ['ayurveda workshops', 'ayurveda webinar', 'BAMS workshop', 'panchakarma training'],
 })

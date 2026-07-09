@@ -6,7 +6,7 @@ import { RitucharyaForm } from './_form'
 
 export const metadata: Metadata = pageMetadata({
   path:  '/ritucharya',
-  title: 'Ritucharya — Personalized Seasonal Regimen | AyurConnect',
+  title: 'Ritucharya — Personalized Seasonal Regimen',
   description: 'Your seasonal Ayurvedic regimen, tuned to your prakriti AND your local climate. Built for diaspora patients: Gulf, UK, US, Australia climates supported, not just Kerala. Ahara, Vihara, Dinacharya, herbs.',
   keywords: ['ritucharya', 'seasonal regimen', 'dinacharya', 'ayurveda gulf summer', 'ayurveda winter regimen', 'panchakarma season'],
 })

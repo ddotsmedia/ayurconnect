@@ -5,7 +5,7 @@ import { breadcrumbLd, ldGraph, pageMetadata } from '../../lib/seo'
 import { VerifyForm } from './_form'
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Verify Product Authenticity — Batch & QR Check | AyurConnect',
+  title: 'Verify Product Authenticity — Batch & QR Check',
   description:
     'Check whether your Ayurvedic medicine is genuine. Enter the batch code printed on the pack (or scan the QR) to confirm the manufacturer, AYUSH licence and GMP certification.',
   path: '/verify',

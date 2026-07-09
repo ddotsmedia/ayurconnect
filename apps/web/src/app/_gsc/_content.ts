@@ -5,7 +5,7 @@ export const LANDINGS: Record<string, LandingContent> = {
   "ayurveda-hospitals-dubai": {
     "slug": "ayurveda-hospitals-dubai",
     "title": "Best Ayurveda Hospitals in Dubai — 2026 Guide",
-    "metaTitle": "Best Ayurveda Hospitals in Dubai (2026 Guide) | AyurConnect",
+    "metaTitle": "Best Ayurveda Hospitals in Dubai (2026 Guide)",
     "metaDescription": "Find DHA-licensed Ayurveda hospitals and clinics in Dubai. Compare treatments, verify credentials, and understand Panchakarma costs before you book.",
     "keywords": [
       "ayurveda hospitals dubai",
@@ -59,7 +59,7 @@ export const LANDINGS: Record<string, LandingContent> = {
   "best-ayurveda-doctors-kerala": {
     "slug": "best-ayurveda-doctors-kerala",
     "title": "Best Ayurveda Doctors in Kerala — Verified Specialists",
-    "metaTitle": "Best Ayurveda Doctors in Kerala — Verified Specialists | AyurConnect",
+    "metaTitle": "Best Ayurveda Doctors in Kerala — Verified Specialists",
     "metaDescription": "Find verified Ayurveda doctors across Kerala by specialization and district. Learn how AyurConnect checks CCIM/KSMC registration and qualifications.",
     "keywords": [
       "best ayurveda doctors kerala",
@@ -117,7 +117,7 @@ export const LANDINGS: Record<string, LandingContent> = {
   "ayurveda-hospitals-kerala": {
     "slug": "ayurveda-hospitals-kerala",
     "title": "Best Ayurveda Hospitals in Kerala — 2026 Verified List",
-    "metaTitle": "Best Ayurveda Hospitals in Kerala — 2026 Verified List | AyurConnect",
+    "metaTitle": "Best Ayurveda Hospitals in Kerala — 2026 Verified List",
     "metaDescription": "Explore verified government, NABH-accredited, and private Ayurveda hospitals across Kerala, including Panchakarma centres and medical tourism options.",
     "keywords": [
       "ayurveda hospitals kerala",

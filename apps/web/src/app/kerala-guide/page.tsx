@@ -5,7 +5,7 @@ import { MapPin, Calendar, Stethoscope, Plane, Hospital, Sun, Droplets, ChevronR
 import { breadcrumbLd, ldGraph } from '../../lib/seo'
 
 export const metadata: Metadata = {
-  title: 'Kerala Ayurveda Guide — Districts, Hospitals, Best Season | AyurConnect',
+  title: 'Kerala Ayurveda Guide — Districts, Hospitals, Best Season',
   description: 'Complete Kerala Ayurveda guide: famous institutions in all 14 districts, when to visit (Karkidaka — July/August), top 10 classical hospitals, and travel tips for UAE + GCC visitors.',
   alternates: { canonical: '/kerala-guide' },
 }

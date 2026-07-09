@@ -7,7 +7,7 @@ import { ASSESSMENTS } from './_data'
 
 export const metadata: Metadata = pageMetadata({
   path: '/jobs/assessments',
-  title: 'Ayurveda Skill Assessments — Free Certification | AyurConnect',
+  title: 'Ayurveda Skill Assessments — Free Certification',
   description: 'Free skill assessments for Ayurveda doctors. Panchakarma, Kayachikitsa, Dravyaguna, Clinical Reasoning, DHA prep. Earn shareable certificates.',
   keywords: ['ayurveda skill assessment', 'BAMS certification', 'panchakarma test', 'DHA exam practice'],
 })

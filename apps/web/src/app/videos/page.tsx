@@ -21,7 +21,7 @@ type Video = {
 }
 
 export const metadata = {
-  title: 'Ayurveda Health Videos — Curated YouTube Library | AyurConnect',
+  title: 'Ayurveda Health Videos — Curated YouTube Library',
   description: 'Curated YouTube videos on Panchakarma, yoga, herbs, lifestyle, and classical Ayurveda — vetted for accuracy by verified doctors. Free, ad-supported on YouTube.',
   alternates: { canonical: '/videos' },
   keywords: [

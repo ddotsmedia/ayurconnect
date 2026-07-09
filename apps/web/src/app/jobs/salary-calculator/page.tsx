@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { SalaryCalcClient } from './_client'
 
 export const metadata: Metadata = {
-  title: 'Ayurveda Doctor Salary Calculator | AyurConnect',
+  title: 'Ayurveda Doctor Salary Calculator',
   description: 'What should an Ayurveda doctor earn? Estimate salary range by specialization, experience, location, and licenses. Based on real Ayurveda job postings.',
   alternates: { canonical: '/jobs/salary-calculator' },
   keywords: ['ayurveda doctor salary', 'BAMS salary calculator', 'panchakarma doctor salary', 'ayurveda doctor salary dubai', 'ayurveda doctor salary kerala', 'MD ayurveda salary'],

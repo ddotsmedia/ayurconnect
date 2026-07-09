@@ -35,7 +35,7 @@ async function fetchPrograms(): Promise<Program[]> {
 }
 
 export const metadata = {
-  title: 'Wellness Programs — Structured Ayurveda Journeys | AyurConnect',
+  title: 'Wellness Programs — Structured Ayurveda Journeys',
   description: '21-day stress reset, 6-week PCOS protocol, 14-day Karkidaka Chikitsa, 90-day diabetes companion. Daily Ayurvedic check-ins with classical formulations + lifestyle protocols.',
   alternates: { canonical: '/programs' },
 }

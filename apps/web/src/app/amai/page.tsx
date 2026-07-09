@@ -12,7 +12,7 @@ import { breadcrumbLd, faqLd, ldGraph, pageMetadata } from '../../lib/seo'
 
 export const metadata: Metadata = pageMetadata({
   path:  '/amai',
-  title: 'AMAI — Ayurveda Medical Association of India | AyurConnect',
+  title: 'AMAI — Ayurveda Medical Association of India',
   description: 'Official AMAI page on AyurConnect. Learn about the Ayurveda Medical Association of India — Kerala\'s largest organization of 10,000+ qualified Ayurveda doctors since 1978. Membership, events, leadership, initiatives.',
   keywords: ['AMAI', 'Ayurveda Medical Association of India', 'Kerala ayurveda doctors', 'BAMS association', 'AMAI membership', 'Angamaly ayurveda', 'AMARF', 'AMAI Vanitha', 'AMAI Yuvatha'],
 })

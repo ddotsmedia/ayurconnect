@@ -7,7 +7,7 @@ import { InterviewPrepClient } from './_client'
 
 export const metadata: Metadata = pageMetadata({
   path: '/jobs/interview-prep',
-  title: 'Ayurveda Interview Preparation — 30 Q&A + AI Mock | AyurConnect',
+  title: 'Ayurveda Interview Preparation — 30 Q&A + AI Mock',
   description: '30 real Ayurveda interview questions with model answers. Plus AI-powered mock interview. Free.',
   keywords: ['ayurveda interview prep', 'BAMS interview questions', 'DHA interview', 'GCC ayurveda interview'],
 })

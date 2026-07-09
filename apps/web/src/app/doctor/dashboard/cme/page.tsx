@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { getServerSession } from '../../../../lib/auth'
 import { CmeClient } from './_client'
 
-export const metadata = { title: 'CME tracker | AyurConnect', robots: { index: false, follow: false } }
+export const metadata = { title: 'CME tracker', robots: { index: false, follow: false } }
 
 export default async function CmePage() {
   const session = await getServerSession()

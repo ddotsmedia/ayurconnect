@@ -11,7 +11,10 @@ const DISALLOW_ALL = [
   '/api/',
   '/sign-in',
   '/dr/',          // private doctor surface
-  '/_next/',
+  // '/_next/' removed 2026-07-08 — was blocking /_next/static/*.css and
+  // /_next/static/*.js which Google needs to render the page. Still block
+  // /_next/data/ (JSON payloads for RSC / server actions).
+  '/_next/data/',
   '/static/',
   '/*.json$',
   '/checkout/',

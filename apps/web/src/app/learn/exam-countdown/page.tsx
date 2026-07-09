@@ -33,7 +33,7 @@ const EXAMS = [
 ]
 
 export const metadata: Metadata = {
-  title: 'AIAPGET 2026 Countdown + Study Planner | AyurConnect',
+  title: 'AIAPGET 2026 Countdown + Study Planner',
   description: 'Days remaining until AIAPGET, Kerala PSC AMO, UPSC AYUSH, KUHS PG, RGUHS PG. Auto-calculated countdown with subject-wise study resources.',
   alternates: { canonical: '/learn/exam-countdown' },
   keywords: ['AIAPGET 2026 date', 'AIAPGET countdown', 'kerala psc ayurveda exam date', 'ayurveda PG entrance schedule'],

@@ -6,7 +6,7 @@ import { SymptomClient } from './_client'
 
 export const metadata: Metadata = pageMetadata({
   path:        '/tools/symptom-checker',
-  title:       'Ayurvedic Symptom Checker | AyurConnect',
+  title:       'Ayurvedic Symptom Checker',
   description: 'Free Ayurvedic symptom checker. Maps your symptoms to possible classical conditions with verified Kerala doctors to consult. Educational — not a diagnosis.',
   keywords:    ['ayurvedic symptom checker', 'symptom analyzer', 'dosha symptoms', 'kerala ayurveda symptoms'],
 })

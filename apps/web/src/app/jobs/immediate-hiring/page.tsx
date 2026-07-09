@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { FilteredJobsList, FilterPageHeader, fetchFilteredJobs } from '../_filtered/FilteredJobsList'
 
 export const metadata: Metadata = {
-  title: "Urgent Ayurveda Jobs — Immediate Hiring | AyurConnect",
+  title: "Urgent Ayurveda Jobs — Immediate Hiring",
   description: "Ayurveda doctor urgent requirements. Hospitals and clinics hiring immediately. BAMS, MD, Panchakarma roles across India and GCC.",
   alternates: { canonical: '/jobs/immediate-hiring' },
   keywords: ["ayurveda doctor urgent requirement","immediate ayurveda job vacancy","urgent BAMS hiring","urgent panchakarma doctor"],

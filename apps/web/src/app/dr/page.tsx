@@ -28,7 +28,7 @@ async function fetchPortal(): Promise<PortalResp | null> {
   } catch { return null }
 }
 
-export const metadata = { title: 'Doctor Hub | AyurConnect', robots: { index: false, follow: false } }
+export const metadata = { title: 'Doctor Hub', robots: { index: false, follow: false } }
 
 export default async function DrPortalHome() {
   const data = await fetchPortal()

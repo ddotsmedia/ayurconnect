@@ -2,7 +2,7 @@ import { GradientHero } from '@ayurconnect/ui'
 import { MCQS } from '../_data'
 import { MockTestClient } from './_client'
 
-export const metadata = { title: 'AIAPGET Mock Test | AyurConnect', robots: { index: false } }
+export const metadata = { title: 'AIAPGET Mock Test', robots: { index: false } }
 
 export default function MockTestPage() {
   return (

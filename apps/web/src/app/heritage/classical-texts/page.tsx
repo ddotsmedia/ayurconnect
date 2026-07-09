@@ -6,7 +6,7 @@ import { breadcrumbLd, ldGraph, articleLd, pageMetadata } from '../../../lib/seo
 import { CLASSICAL_TEXTS } from '../_data'
 
 export const metadata: Metadata = pageMetadata({
-  title: 'The Classical Texts of Kerala Ayurveda — Ashtanga Hridayam, Charaka, Sushruta | AyurConnect',
+  title: 'The Classical Texts of Kerala Ayurveda — Ashtanga Hridayam, Charaka, Sushruta',
   description:
     'The foundational texts of Kerala Ayurveda: Ashtanga Hridayam (അഷ്ടാംഗഹൃദയം), Charaka Samhita, Sushruta Samhita, Sahasrayogam and Chikitsamanjari — author, era, and significance of each.',
   path: '/heritage/classical-texts',

@@ -8,7 +8,7 @@ import { NOTES } from './_data'
 
 export const metadata: Metadata = pageMetadata({
   path: '/learn/notes',
-  title: 'BAMS Study Notes — Free for All Years | AyurConnect',
+  title: 'BAMS Study Notes — Free for All Years',
   description: 'Complete BAMS study notes for 1st year through final year + PG. Padartha, Dravyaguna, Rasashastra, Kayachikitsa, Panchakarma. Free, no signup.',
   keywords: ['BAMS notes', 'ayurveda study notes', 'BAMS 1st year notes', 'BAMS final year notes', 'AIAPGET preparation'],
 })

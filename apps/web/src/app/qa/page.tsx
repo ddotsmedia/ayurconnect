@@ -52,7 +52,7 @@ async function fetchCategories(): Promise<CategoryFacet[]> {
 }
 
 export const metadata = {
-  title: 'Ayurveda Q&A — Free Answers from Verified Doctors | AyurConnect',
+  title: 'Ayurveda Q&A — Free Answers from Verified Doctors',
   description: 'Ask any Ayurveda question — answered free by verified Kerala doctors. Browse thousands of patient questions on PCOS, diabetes, joint pain, skin, stress, and more.',
   alternates: { canonical: '/qa' },
 }

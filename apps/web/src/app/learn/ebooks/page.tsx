@@ -7,7 +7,7 @@ import { EBOOKS } from './_data'
 
 export const metadata: Metadata = pageMetadata({
   path: '/learn/ebooks',
-  title: 'Ayurveda E-Books — Free Download | AyurConnect',
+  title: 'Ayurveda E-Books — Free Download',
   description: 'Classical Ayurveda texts (Charaka, Ashtanga Hridayam, Sahasrayogam) + modern study guides + practical manuals. Free downloads.',
   keywords: ['ayurveda ebooks', 'charaka samhita pdf', 'ashtanga hridayam pdf', 'sahasrayogam', 'free ayurveda books'],
 })

@@ -29,7 +29,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: {
     default: "AyurConnect — Kerala's #1 Ayurveda Platform",
-    template: '%s | AyurConnect',
+    template: '%s',
   },
   description:
     "Find verified Ayurveda doctors, classical Panchakarma centres, 150+ medicinal herbs, and AI-assisted health insights — rooted in Kerala, God's Own Country.",
@@ -55,7 +55,10 @@ export const metadata: Metadata = {
   },
   twitter: { card: 'summary_large_image', title: 'AyurConnect', description: "Kerala's free Ayurveda platform — find verified doctors, study BAMS for free, explore 145+ herbs, and search Ayurveda jobs worldwide.", site: '@ayurconnect' },
   alternates: {
-    canonical: '/',
+    // canonical removed 2026-07-08 — hardcoded '/' propagates to every child
+    // page that doesn't set its own canonical, causing Google to see 89+
+    // "duplicate without user-selected canonical" reports pointing to '/'.
+    // Homepage itself has canonical=/ via its own page.tsx metadata.
     languages: { 'en-IN': '/', 'ml-IN': '/', 'x-default': '/' },
   },
   manifest: '/manifest.webmanifest',

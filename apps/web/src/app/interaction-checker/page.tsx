@@ -7,7 +7,7 @@ import { InteractionCheckerForm } from './_form'
 
 export const metadata: Metadata = pageMetadata({
   path: '/interaction-checker',
-  title:       'Herb–Drug Interaction Checker | Ayurvedic Safety | AyurConnect',
+  title:       'Herb–Drug Interaction Checker | Ayurvedic Safety',
   description: 'Check whether your Ayurvedic herbs interact with allopathic medications. Curated clinical pairs (Ashwagandha + thyroxine, Guggulu + statins, turmeric + warfarin, more). Educational only — confirm with a verified doctor.',
   keywords:    ['herb drug interaction', 'ayurveda interactions', 'ashwagandha thyroxine', 'turmeric warfarin', 'safety checker'],
 })

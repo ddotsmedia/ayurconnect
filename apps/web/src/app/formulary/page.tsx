@@ -34,7 +34,7 @@ async function fetchCategories(): Promise<Array<{ id: string; count: number }>> 
 }
 
 export const metadata = {
-  title: 'Classical Ayurveda Formulary — Sahasrayogam, Chikitsamanjari | AyurConnect',
+  title: 'Classical Ayurveda Formulary — Sahasrayogam, Chikitsamanjari',
   description: 'Complete reference of classical Ayurveda formulations from Sahasrayogam, Chikitsamanjari, Yogamrutam, and Sahasrayoga. Yogaraj Guggulu, Triphala, Mahanarayan Taila, Chyavanaprasha and more.',
   alternates: { canonical: '/formulary' },
 }

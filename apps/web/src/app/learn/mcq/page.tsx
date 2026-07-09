@@ -8,7 +8,7 @@ import { MCQS } from './_data'
 
 export const metadata: Metadata = pageMetadata({
   path: '/learn/mcq',
-  title: 'AIAPGET MCQ Practice — Free Unlimited Questions | AyurConnect',
+  title: 'AIAPGET MCQ Practice — Free Unlimited Questions',
   description: `${MCQS.length}+ AIAPGET-style multiple choice questions across all BAMS subjects. Practice mode, mock test, immediate explanations. Free.`,
   keywords: ['AIAPGET MCQ', 'BAMS MCQ', 'ayurveda mcq practice', 'AIAPGET preparation', 'PG entrance ayurveda'],
 })

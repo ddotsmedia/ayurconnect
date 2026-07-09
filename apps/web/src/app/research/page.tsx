@@ -24,7 +24,7 @@ async function fetchAggregates(): Promise<AggregateResponse | null> {
 }
 
 export const metadata = {
-  title: 'Clinical Research on Ayurveda — Curated Evidence | AyurConnect',
+  title: 'Clinical Research on Ayurveda — Curated Evidence',
   description: 'Peer-reviewed studies on classical Ayurvedic interventions — Boswellia, curcumin, ashwagandha, Shirodhara, Pizhichil — organised by condition. PubMed-citation style summaries.',
   alternates: { canonical: '/research' },
 }
