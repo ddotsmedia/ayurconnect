@@ -37,6 +37,7 @@ async function fetchPosts(): Promise<Post[]> {
 
 export const metadata = {
   title: 'AyurConnect Community Forum — Doctors & Patients',
+  alternates: { canonical: '/forum' },
   description: 'Discussions on classical Ayurveda cases, herbs, treatments, and patient questions. verified doctors and patients from across Kerala.',
 }
 

@@ -56,6 +56,7 @@ async function fetchTips(params: SP): Promise<Tip[]> {
 
 export const metadata = {
   title: 'Daily Ayurveda Health Tips — Dosha + Seasonal Guidance',
+  alternates: { canonical: '/health-tips' },
   description: 'Bite-sized classical Ayurveda guidance: Dinacharya, Ritucharya, Vata/Pitta/Kapha balance, herb suggestions. Sourced from Charaka Samhita and Ashtanga Hridayam.',
   keywords: [
     ...AYURVEDA_KEYWORDS.concepts,

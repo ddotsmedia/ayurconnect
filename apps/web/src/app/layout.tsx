@@ -29,7 +29,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: {
     default: "AyurConnect — Kerala's #1 Ayurveda Platform",
-    template: '%s',
+    template: '%s | AyurConnect',
   },
   description:
     "Find verified Ayurveda doctors, classical Panchakarma centres, 150+ medicinal herbs, and AI-assisted health insights — rooted in Kerala, God's Own Country.",

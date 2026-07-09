@@ -36,6 +36,7 @@ async function fetchJobs(): Promise<Job[]> {
 
 export const metadata = {
   title: 'Ayurveda Jobs in Kerala — Doctors, Therapists, Pharmacists',
+  alternates: { canonical: '/jobs' },
   description: "Kerala's largest Ayurveda jobs board. BAMS doctors, Panchakarma therapists, AYUSH pharmacists, government posts, Gulf openings. Updated daily.",
 }
 
