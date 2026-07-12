@@ -6,7 +6,7 @@ import { breadcrumbLd, ldGraph } from '@/lib/seo'
 
 export const metadata: Metadata = {
   title: 'ആയുർവേദം — മലയാളത്തിൽ',
-  description: 'ആയുർവേദ ചികിത്സ, ഔഷധങ്ങൾ, ആരോഗ്യ ടിപ്പുകൾ — എല്ലാം മലയാളത്തിൽ. പ്രമേഹം, PCOS, സന്ധിവാതം, മുടികൊഴിച്ചിൽ തുടങ്ങി 15 ആരോഗ്യ വിഷയങ്ങൾ.',
+  description: 'ആയുർവേദ ചികിത്സ, ഔഷധങ്ങൾ, ആരോഗ്യ ടിപ്പുകൾ — എല്ലാം മലയാളത്തിൽ. പ്രമേഹം, PCOS, തൈറോയ്ഡ്, ആസ്ത്മ, മലബന്ധം, ശിരോധാര, അശ്വഗന്ധ തുടങ്ങി 29 ആരോഗ്യ വിഷയങ്ങൾ.',
   alternates: { canonical: '/ml', languages: { 'ml-IN': '/ml', 'en-IN': '/' } },
   keywords: ['ആയുർവേദം മലയാളം', 'ayurveda malayalam', 'ayurveda kerala malayalam', 'ആരോഗ്യം മലയാളം'],
   openGraph: {
@@ -41,7 +41,7 @@ export default function MlHubPage() {
           <h1 className="font-serif text-3xl md:text-5xl text-white leading-tight">ആയുർവേദം — മലയാളത്തിൽ</h1>
           <p className="mt-3 text-white/85 text-sm md:text-base" lang="en">Authentic Kerala Ayurveda — articles, treatments, and FAQs in Malayalam.</p>
           <p className="mt-4 text-white/90 max-w-2xl mx-auto" data-speakable>
-            പ്രമേഹം, PCOS, സന്ധിവാതം, മുടികൊഴിച്ചിൽ, തൈറോയ്ഡ് തുടങ്ങി 15 ആരോഗ്യ വിഷയങ്ങളിൽ ക്ലാസിക്കൽ ആയുർവേദ ചികിത്സയുടെ പൂർണ്ണ വിവരണം.
+            പ്രമേഹം, PCOS, തൈറോയ്ഡ്, ആസ്ത്മ, മലബന്ധം, ആർത്തവ പ്രശ്നങ്ങൾ, ശിരോധാര, അശ്വഗന്ധ തുടങ്ങി 28 ആരോഗ്യ വിഷയങ്ങളിൽ ക്ലാസിക്കൽ ആയുർവേദ ചികിത്സയുടെ പൂർണ്ണ വിവരണം.
           </p>
           <div className="mt-6 flex flex-wrap gap-3 justify-center">
             <Link href="/doctors" className="inline-flex items-center gap-2 px-6 py-3 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md">
