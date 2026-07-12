@@ -226,6 +226,17 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/ayurveda-back-pain-treatment', priority: 0.8,  changeFrequency: 'monthly' },
   { path: '/ayurveda-gynaecology',         priority: 0.8,  changeFrequency: 'monthly' },
   { path: '/ayurveda-lady-doctor',         priority: 0.8,  changeFrequency: 'monthly' },
+  // Doctor-keyword landing pages (2026-07-13) — career, salary, licensing, clinical protocols.
+  { path: '/bams-vs-mbbs',                        priority: 0.8, changeFrequency: 'monthly' },
+  { path: '/jobs/government-ayurveda-jobs',       priority: 0.8, changeFrequency: 'monthly' },
+  { path: '/jobs/kerala-psc-ayurveda',            priority: 0.8, changeFrequency: 'monthly' },
+  { path: '/jobs/bams-salary-india',              priority: 0.8, changeFrequency: 'monthly' },
+  { path: '/jobs/bams-salary-uae',                priority: 0.8, changeFrequency: 'monthly' },
+  { path: '/jobs/licensing/dha-exam-questions',   priority: 0.8, changeFrequency: 'monthly' },
+  { path: '/learn/aiapget-syllabus',              priority: 0.8, changeFrequency: 'monthly' },
+  { path: '/for-doctors/start-ayurveda-clinic',   priority: 0.8, changeFrequency: 'monthly' },
+  { path: '/for-doctors/bams-prescribing-rights', priority: 0.8, changeFrequency: 'monthly' },
+  { path: '/for-doctors/panchakarma-protocol',    priority: 0.8, changeFrequency: 'monthly' },
   // 14 AMAI district branch pages.
   ...['thiruvananthapuram','kollam','pathanamthitta','alappuzha','kottayam','idukki','ernakulam','thrissur','palakkad','malappuram','kozhikode','wayanad','kannur','kasaragod'].map((d) => ({
     path: `/amai/${d}` as const, priority: 0.7, changeFrequency: 'weekly' as const,
