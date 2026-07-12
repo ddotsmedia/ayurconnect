@@ -56,6 +56,9 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
       { href: '/karkidaka',              label: 'Karkidaka' },
       { href: '/learn/tridosha',         label: 'Tridosha' },
       { href: '/tools',                  label: 'Free Tools' },
+      { href: '/learn/notes',            label: 'BAMS Notes' },
+      { href: '/learn/mcq',              label: 'MCQ Practice' },
+      { href: '/learn/ebooks',           label: 'E-Books (43 PDFs)' },
     ],
   },
   {
@@ -109,7 +112,7 @@ export function Footer({ settings = {} }: { settings?: FooterSettings } = {}) {
               <LogoCircular size={120} className="block group-hover:opacity-95 transition-opacity" />
             </Link>
             <p className="mt-5 text-sm text-white/70 leading-relaxed">
-              {tagline}. Verified Ayurveda doctors, classical Panchakarma centres, 150+ medicinal herbs,
+              {tagline}. Verified Ayurveda doctors, classical Panchakarma centres, 145+ medicinal herbs,
               AI-assisted health insights — rooted in God&apos;s Own Country.
             </p>
             {/* Contact bits — only render keys that admin has filled */}
