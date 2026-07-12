@@ -100,7 +100,7 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
           heading: 'Reference & tools',
           items: [
             { href: '/quick-reference', label: 'Quick Reference', desc: 'Instant herb / formulation / condition lookup', icon: FlaskConical },
-            { href: '/herbs', label: 'Herbs encyclopedia', desc: '150+ medicinal herbs', icon: Sprout },
+            { href: '/herbs', label: 'Herbs encyclopedia', desc: '145+ medicinal herbs', icon: Sprout },
             { href: '/formulary', label: 'Formulary', desc: 'Classical compounds', icon: FlaskConical },
             { href: '/interaction-checker', label: 'Interaction checker', desc: 'Herb-drug safety', icon: AlertTriangle },
             { href: '/ritucharya', label: 'Ritucharya planner', desc: 'Personalized seasonal regimen', icon: Sun },

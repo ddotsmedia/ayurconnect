@@ -15,7 +15,7 @@ const QUICK_LINKS = [
   { href: '/doctors',      icon: Stethoscope,  title: 'Browse doctors',           desc: '500+ verified Ayurveda doctors across Kerala + UAE.' },
   { href: '/conditions',   icon: BookOpen,     title: 'Conditions library',       desc: '8 in-depth Ayurvedic treatment guides — PCOS, arthritis, diabetes, more.' },
   { href: '/hospitals',    icon: Building2,    title: 'Hospitals & Panchakarma',  desc: 'Classical Panchakarma centres across the 14 Kerala districts.' },
-  { href: '/herbs',        icon: Sprout,       title: 'Herb database',            desc: '150+ medicinal herbs with classical Sanskrit citations.' },
+  { href: '/herbs',        icon: Sprout,       title: 'Herb database',            desc: '145+ medicinal herbs with classical Sanskrit citations.' },
 ]
 
 export default function NotFound() {

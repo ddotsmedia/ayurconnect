@@ -13,7 +13,7 @@ const FACTS = [
   { label: 'Headquarters',             value: 'Kerala, India' },
   { label: 'verified doctors',    value: '500+' },
   { label: 'Hospitals & wellness centres', value: '200+' },
-  { label: 'Herb database',            value: '150+ medicinal herbs with classical citations' },
+  { label: 'Herb database',            value: '145+ medicinal herbs with classical citations' },
   { label: 'Languages',                value: 'English + Malayalam (Arabic + Hindi planned)' },
   { label: 'Markets served',           value: 'India primarily; international patients via medical tourism vertical' },
   { label: 'Backbone',                 value: 'Open-source — Next.js, Fastify, PostgreSQL, pgvector, Better Auth' },

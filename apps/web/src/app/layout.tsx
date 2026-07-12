@@ -32,7 +32,7 @@ export const metadata: Metadata = {
     template: '%s | AyurConnect',
   },
   description:
-    "Find verified Ayurveda doctors, classical Panchakarma centres, 150+ medicinal herbs, and AI-assisted health insights — rooted in Kerala, God's Own Country.",
+    "Find verified Ayurveda doctors, classical Panchakarma centres, 145+ medicinal herbs, and AI-assisted health insights — rooted in Kerala, God's Own Country.",
   applicationName: 'AyurConnect',
   authors: [{ name: 'AyurConnect', url: SITE_URL }],
   // meta keywords removed 2026-07-07 — Google + Bing have ignored the tag
