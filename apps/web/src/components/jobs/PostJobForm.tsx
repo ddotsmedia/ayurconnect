@@ -32,7 +32,7 @@ export function PostJobForm({ role: rawRole }: { role?: string | null }) {
         <p className="text-sm text-muted mt-2">Job posting is gated to verified doctors and clinics.</p>
         <div className="mt-5 flex justify-center gap-2 flex-wrap">
           <Link href="/sign-in?next=/jobs/post" className="px-5 py-2.5 bg-kerala-700 hover:bg-kerala-800 text-white rounded-md text-sm font-semibold">Sign in</Link>
-          <Link href="/register/doctor" className="px-5 py-2.5 border border-gray-200 text-gray-700 rounded-md text-sm hover:bg-gray-50">Join as Doctor</Link>
+          <Link href="/register/doctor" className="px-5 py-2.5 border border-gray-200 text-gray-700 rounded-md text-sm hover:bg-gray-50">Register as Doctor</Link>
           <Link href="/register/hospital" className="px-5 py-2.5 border border-gray-200 text-gray-700 rounded-md text-sm hover:bg-gray-50">Join as Hospital</Link>
         </div>
       </div>
@@ -44,7 +44,7 @@ export function PostJobForm({ role: rawRole }: { role?: string | null }) {
         <h2 className="font-serif text-2xl text-ink">Job posting is for doctors + clinics</h2>
         <p className="text-sm text-muted mt-2">Your account isn&apos;t set up to post jobs. Register as a doctor or hospital to continue.</p>
         <div className="mt-5 flex justify-center gap-2 flex-wrap">
-          <Link href="/register/doctor" className="px-5 py-2.5 border border-gray-200 text-gray-700 rounded-md text-sm hover:bg-gray-50">Join as Doctor</Link>
+          <Link href="/register/doctor" className="px-5 py-2.5 border border-gray-200 text-gray-700 rounded-md text-sm hover:bg-gray-50">Register as Doctor</Link>
           <Link href="/register/hospital" className="px-5 py-2.5 border border-gray-200 text-gray-700 rounded-md text-sm hover:bg-gray-50">Join as Hospital</Link>
         </div>
       </div>

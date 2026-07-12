@@ -3,8 +3,9 @@ import type { Metadata } from 'next'
 import { User, Stethoscope, Building2, ShieldCheck, ArrowRight } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Join AyurConnect',
-  description: 'Register as a patient, doctor, or hospital — get the right tools for your role.',
+  title: 'Register — Join AyurConnect Free',
+  description: 'Join AyurConnect for free. Register as a doctor, patient, or hospital. Verified Ayurveda platform for Kerala and UAE.',
+  alternates: { canonical: '/register' },
 }
 
 const ROLES = [

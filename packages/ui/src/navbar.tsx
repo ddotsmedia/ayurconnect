@@ -446,8 +446,8 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                   <Link href="/sign-in" className="px-3 py-1.5 text-sm font-semibold text-gray-700 hover:text-kerala-700 transition-colors">
                     Sign In
                   </Link>
-                  <Link href="/doctors/register" className="px-4 py-1.5 text-sm font-semibold bg-gold-500 text-white rounded-md hover:bg-gold-600 transition-colors">
-                    Join as Doctor
+                  <Link href="/register" className="px-4 py-1.5 text-sm font-semibold bg-gold-500 text-white rounded-md hover:bg-gold-600 transition-colors">
+                    Register
                   </Link>
                 </>
               )}
@@ -554,8 +554,8 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
                 </>
               ) : (
                 <>
-                  <Link href="/doctors/register" onClick={() => setMobileOpen(false)} className="block w-full px-4 py-2 text-center bg-gold-500 text-white rounded-md hover:bg-gold-600 font-semibold">
-                    Join as Doctor
+                  <Link href="/register" onClick={() => setMobileOpen(false)} className="block w-full px-4 py-2 text-center bg-gold-500 text-white rounded-md hover:bg-gold-600 font-semibold">
+                    Register
                   </Link>
                   <Link href="/sign-in" onClick={() => setMobileOpen(false)} className="block w-full px-4 py-2 text-center border border-gray-200 hover:bg-gray-50 text-gray-700 rounded-md text-sm">
                     Sign In
