@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { GradientHero } from '@ayurconnect/ui'
-import { BookOpen, FileText, Target, Heart, GraduationCap, Library, ArrowRight, Sparkles } from 'lucide-react'
+import { BookOpen, FileText, Target, Heart, GraduationCap, Library, ArrowRight, Sparkles, FlaskConical } from 'lucide-react'
 import { pageMetadata } from '../../lib/seo'
 import { NOTES } from './notes/_data'
 import { PAPERS } from './question-papers/_data'
@@ -9,6 +9,7 @@ import { MCQS } from './mcq/_data'
 import { CASES } from './case-studies/_data'
 import { WORKSHOPS } from './workshops/_data'
 import { EBOOKS } from './ebooks/_data'
+import { MEDICINES } from './medicines/_data'
 
 export const metadata: Metadata = pageMetadata({
   path: '/learn',
@@ -25,6 +26,7 @@ export default function LearnHubPage() {
     { icon: Heart,         label: 'Case Studies',    href: '/learn/case-studies',    count: CASES.length,    sub: 'clinical cases', emoji: '🏥' },
     { icon: GraduationCap, label: 'Workshops',       href: '/learn/workshops',       count: WORKSHOPS.length,sub: 'free workshops', emoji: '🎓' },
     { icon: Library,       label: 'E-Books',         href: '/learn/ebooks',          count: EBOOKS.length,   sub: 'downloadable resources', emoji: '📖' },
+    { icon: FlaskConical,  label: 'Medicines',       href: '/learn/medicines',       count: MEDICINES.length,sub: 'classical formulations · Malayalam + English', emoji: '⚗️' },
   ]
   const recent = [
     ...NOTES.slice(0, 2).map((n) => ({ kind: 'Note',  title: n.title, href: `/learn/notes/${n.slug}` })),

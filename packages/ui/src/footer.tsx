@@ -59,6 +59,7 @@ const COLS: Array<{ heading: string; links: Array<{ href: string; label: string 
       { href: '/learn/notes',            label: 'BAMS Notes' },
       { href: '/learn/mcq',              label: 'MCQ Practice' },
       { href: '/learn/aiapget-syllabus', label: 'AIAPGET Prep' },
+      { href: '/learn/medicines',        label: 'Medicines (135+)' },
       { href: '/learn/ebooks',           label: 'E-Books (43 PDFs)' },
     ],
   },

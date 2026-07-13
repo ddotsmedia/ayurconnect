@@ -74,6 +74,18 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/learn/case-studies',          priority: 0.85, changeFrequency: 'weekly'  },
   { path: '/learn/workshops',             priority: 0.8,  changeFrequency: 'weekly'  },
   { path: '/learn/ebooks',                priority: 0.8,  changeFrequency: 'monthly' },
+  // Classical Ayurvedic Medicines library (2026-07-13) — hub + 10 category pages.
+  { path: '/learn/medicines',                     priority: 0.9,  changeFrequency: 'monthly' },
+  { path: '/learn/medicines/kashayam',            priority: 0.8,  changeFrequency: 'monthly' },
+  { path: '/learn/medicines/arishtam-asavam',     priority: 0.8,  changeFrequency: 'monthly' },
+  { path: '/learn/medicines/churnam',             priority: 0.8,  changeFrequency: 'monthly' },
+  { path: '/learn/medicines/gulika-vati',         priority: 0.8,  changeFrequency: 'monthly' },
+  { path: '/learn/medicines/lehyam',              priority: 0.8,  changeFrequency: 'monthly' },
+  { path: '/learn/medicines/tailam',              priority: 0.8,  changeFrequency: 'monthly' },
+  { path: '/learn/medicines/ghritam',             priority: 0.8,  changeFrequency: 'monthly' },
+  { path: '/learn/medicines/guggulu',             priority: 0.8,  changeFrequency: 'monthly' },
+  { path: '/learn/medicines/bhasmam',             priority: 0.8,  changeFrequency: 'monthly' },
+  { path: '/learn/medicines/rasaushadhi',         priority: 0.8,  changeFrequency: 'monthly' },
   // Article category pages — generated for the 16 default ArticleCategory slugs.
   { path: '/articles/category/lifestyle',       priority: 0.75, changeFrequency: 'weekly' },
   { path: '/articles/category/herbs',           priority: 0.75, changeFrequency: 'weekly' },
