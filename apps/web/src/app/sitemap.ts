@@ -11,6 +11,7 @@ import { EVENT_SLUGS } from '@/lib/data/events-seed'
 import { DISTRICT_SLUGS as HOSPITAL_DISTRICT_SLUGS } from './hospitals/in/[district]/_slugs'
 import { TYPE_SLUGS as HOSPITAL_TYPE_SLUGS } from './hospitals/type/[type]/_slugs'
 import { ML_SLUGS } from './ml/_data'
+import { MEDICINES } from './learn/medicines/_data'
 
 const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ayurconnect.com'
 
@@ -198,6 +199,12 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   ...ML_SLUGS.map((slug) => ({
     path: `/ml/${slug}` as const,
     priority: 0.8,
+    changeFrequency: 'monthly' as const,
+  })),
+  // Individual medicine pages — one URL per formulation, all 135 medicines.
+  ...MEDICINES.map((m) => ({
+    path: `/medicine/${m.id}` as const,
+    priority: 0.7,
     changeFrequency: 'monthly' as const,
   })),
   // Daily-return tools (Section A/B/C build).

@@ -51,7 +51,7 @@ export function GlobalSearch({ all, categories }: { all: Medicine[]; categories:
         <ul className="mt-3 bg-white border border-gray-100 rounded-card shadow-card divide-y divide-gray-100 max-h-96 overflow-y-auto">
           {results.map((m) => (
             <li key={m.id}>
-              <Link href={`/learn/medicines/${m.category}#${m.id}`} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-kerala-50">
+              <Link href={`/medicine/${m.id}`} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-kerala-50">
                 <div className="min-w-0">
                   <p className="text-sm text-ink font-semibold truncate">{m.name}</p>
                   <p className="text-xs text-gray-500 truncate">{m.nameMl} · {m.indications.slice(0, 2).join(' · ')}</p>
@@ -157,6 +157,15 @@ export function CategoryMedicineList({ medicines, categorySlug }: { medicines: M
                   </div>
 
                   <p className="text-[10px] text-gray-500 mt-3">Reference: <span className="text-gray-700">{m.reference}</span></p>
+
+                  <div className="mt-4 flex justify-end">
+                    <Link
+                      href={`/medicine/${m.id}`}
+                      className="inline-flex items-center gap-1 text-xs font-semibold text-kerala-700 hover:underline"
+                    >
+                      View full details →
+                    </Link>
+                  </div>
                 </div>
               )}
             </li>

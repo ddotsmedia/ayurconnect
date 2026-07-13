@@ -1,10 +1,19 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { ArrowRight, BookOpen } from 'lucide-react'
+import { ArrowRight, BookOpen, Sparkles } from 'lucide-react'
 import { GradientHero } from '@ayurconnect/ui'
 import { CATEGORIES, MEDICINES } from './_data'
 import { GlobalSearch } from './_client'
 import { breadcrumbLd, ldGraph } from '@/lib/seo'
+
+// Deterministic day-of-year selection so the pick rotates daily but is stable within a single day.
+function medicineOfTheDay() {
+  const now = new Date()
+  const start = new Date(Date.UTC(now.getUTCFullYear(), 0, 0))
+  const diff = now.getTime() - start.getTime()
+  const dayOfYear = Math.floor(diff / 86400000)
+  return MEDICINES[dayOfYear % MEDICINES.length]
+}
 
 export const metadata: Metadata = {
   title: 'Ayurvedic Medicines — 135+ Classical Formulations Reference',
@@ -23,6 +32,8 @@ export const metadata: Metadata = {
 export default function MedicinesHubPage() {
   const countByCategory: Record<string, number> = {}
   for (const m of MEDICINES) countByCategory[m.category] = (countByCategory[m.category] ?? 0) + 1
+  const motd = medicineOfTheDay()
+  const motdCategory = CATEGORIES.find((c) => c.slug === motd.category)
 
   const jsonLd = ldGraph(
     breadcrumbLd([
@@ -71,6 +82,29 @@ export default function MedicinesHubPage() {
       {/* Search */}
       <section className="container mx-auto px-4 -mt-6 max-w-4xl relative z-10">
         <GlobalSearch all={MEDICINES} categories={CATEGORIES} />
+      </section>
+
+      {/* Medicine of the Day */}
+      <section className="container mx-auto px-4 mt-8 max-w-4xl">
+        <Link
+          href={`/medicine/${motd.id}`}
+          className="group block bg-gradient-to-r from-amber-50 via-cream to-kerala-50 border border-amber-200 rounded-card p-5 hover:border-amber-400 transition-colors shadow-card"
+        >
+          <p className="text-[10px] uppercase tracking-wider text-amber-800 font-bold inline-flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5" /> Medicine of the day
+          </p>
+          <div className="mt-2 flex items-start gap-4">
+            <span className="text-4xl flex-shrink-0" aria-hidden>{motdCategory?.icon ?? '⚗️'}</span>
+            <div className="flex-1 min-w-0">
+              <p className="font-serif text-xl text-kerala-800 leading-tight">{motd.name}</p>
+              <p className="text-sm text-gray-600" lang="ml">{motd.nameMl}</p>
+              <p className="text-xs text-gray-500 mt-1">{motdCategory?.name ?? motd.category} · {motd.indications.slice(0, 2).join(' · ')}</p>
+            </div>
+            <span className="hidden md:inline text-sm text-kerala-700 font-semibold group-hover:translate-x-0.5 transition-transform inline-flex items-center gap-1 flex-shrink-0 self-center">
+              Learn more <ArrowRight className="w-4 h-4" />
+            </span>
+          </div>
+        </Link>
       </section>
 
       <nav className="text-xs text-gray-600 container mx-auto px-4 mt-6 max-w-6xl">
