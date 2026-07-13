@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const title = `${cat.name} — ${count} Classical Ayurvedic Medicines`
   const description = `${count} classical ${cat.name} formulations with Malayalam names, ingredients, dosage, anupana, and contraindications. ${cat.description}`
   return {
-    title: `${title} | AyurConnect`,
+    title,
     description,
     alternates: { canonical: `/learn/medicines/${slug}` },
     keywords: [cat.name, `${cat.name} list`, `ayurvedic ${cat.name.toLowerCase()}`, 'kerala ayurveda', 'malayalam medicine names'],

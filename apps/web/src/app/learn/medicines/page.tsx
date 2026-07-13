@@ -7,7 +7,7 @@ import { GlobalSearch } from './_client'
 import { breadcrumbLd, ldGraph } from '@/lib/seo'
 
 export const metadata: Metadata = {
-  title: 'Ayurvedic Medicines — 135+ Classical Formulations Reference | AyurConnect',
+  title: 'Ayurvedic Medicines — 135+ Classical Formulations Reference',
   description: 'Complete reference of 135+ classical Ayurvedic medicines — Kashayam, Arishtam, Churnam, Tailam, Ghritam, Lehyam, Guggulu, Bhasmam. Names in English & Malayalam.',
   alternates: { canonical: '/learn/medicines' },
   keywords: ['ayurvedic medicines', 'kashayam list', 'arishtam list', 'ayurveda formulations', 'kerala ayurveda medicines', 'malayalam ayurvedic medicine names', 'AFI', 'Sahasrayogam'],
