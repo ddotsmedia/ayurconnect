@@ -6,6 +6,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 /** @type {import('next').NextConfig} */
 export default {
   reactStrictMode: true,
+  poweredByHeader: false,
   outputFileTracingRoot: resolve(__dirname, '../..'),
   transpilePackages: ['@ayurconnect/ui'],
   async rewrites() {

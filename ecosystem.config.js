@@ -19,7 +19,7 @@ module.exports = {
       name: 'ayurconnect-web',
       cwd: './apps/web',
       script: 'node_modules/next/dist/bin/next',
-      args: 'start -p 3100',
+      args: 'start -p 3100 -H 127.0.0.1',
       interpreter: 'node',
       env: { NODE_ENV: 'production' },
       max_memory_restart: '512M',
