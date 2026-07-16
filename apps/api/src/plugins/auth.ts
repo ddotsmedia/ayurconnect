@@ -51,6 +51,14 @@ export default fp(async (fastify) => {
       },
       useSecureCookies: isProd,
       crossSubDomainCookies: { enabled: false },
+      // Behind nginx on 127.0.0.1 → Fastify; without this, Better Auth's rate
+      // limiter buckets every request into one shared "127.0.0.1" IP. Reading
+      // the client IP from the standard proxy headers scopes limits per real
+      // client. Only trust the header when the immediate hop is loopback.
+      ipAddress: {
+        ipAddressHeaders: ['x-forwarded-for', 'x-real-ip'],
+        trustedProxies: ['127.0.0.1'],
+      },
     },
     emailAndPassword: {
       enabled: true,
