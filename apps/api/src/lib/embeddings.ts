@@ -9,7 +9,16 @@ const MODEL   = process.env.GEMINI_EMBEDDING_MODEL ?? 'gemini-embedding-001'
 const TASK    = 'SEMANTIC_SIMILARITY'
 const DIM     = 768
 
-export const embeddingsEnabled = (): boolean => Boolean(KEY) && /^AIza/.test(KEY)
+// Kill-switch: set EMBEDDINGS_DISABLED=true to short-circuit the whole
+// pipeline when the Google API key is present but rejected upstream
+// (e.g. billing suspended, key revoked). Prevents the boot-time reindexAll +
+// on-write embed calls from crash-looping the api with 400s. Downstream
+// callers (embedText, embedTexts, admin routes, search-sync) already gate
+// on embeddingsEnabled() so one flag disables the whole surface.
+export const embeddingsEnabled = (): boolean =>
+  process.env.EMBEDDINGS_DISABLED !== 'true'
+  && Boolean(KEY)
+  && /^AIza/.test(KEY)
 
 export async function embedText(text: string): Promise<number[] | null> {
   if (!embeddingsEnabled()) return null

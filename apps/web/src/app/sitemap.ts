@@ -6,7 +6,6 @@ import { CASE_STUDY_SLUGS } from './case-studies/_data/cases'
 import { CONDITIONS as SEO_CONDITIONS } from './conditions/_data/conditions'
 import { CITIES as SEO_CITIES } from './conditions/_data/cities'
 import { ANSWERED_QA } from './learn/ask-the-classics/_answered'
-import { NEWS_SLUGS } from '@/lib/data/news-seed'
 import { EVENT_SLUGS } from '@/lib/data/events-seed'
 import { DISTRICT_SLUGS as HOSPITAL_DISTRICT_SLUGS } from './hospitals/in/[district]/_slugs'
 import { TYPE_SLUGS as HOSPITAL_TYPE_SLUGS } from './hospitals/type/[type]/_slugs'
@@ -151,10 +150,10 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/jobs/articles/telemedicine-ayurveda-doctors',           priority: 0.75, changeFrequency: 'monthly' },
   { path: '/jobs/articles/interview-tips-gcc-ayurveda',             priority: 0.7, changeFrequency: 'monthly' },
   { path: '/jobs/articles/locum-ayurveda-doctor-how-to-start',      priority: 0.7, changeFrequency: 'monthly' },
-  { path: '/jobs/settings/notifications',  priority: 0.5, changeFrequency: 'monthly' },
-  { path: '/jobs/profile/analytics',       priority: 0.5, changeFrequency: 'monthly' },
-  { path: '/jobs/employers/dashboard/analytics', priority: 0.5, changeFrequency: 'monthly' },
-  { path: '/admin/jobs/verification',       priority: 0.3, changeFrequency: 'weekly' },
+  // Auth-gated / admin routes removed from sitemap (2026-07-16) — they 307
+  // to /sign-in, polluting Google Search Console with "redirect" flags.
+  // Keeping them out of sitemap doesn't remove them from the site — they
+  // still work for signed-in users; they just aren't crawled.
   { path: '/jobs/specialization/panchakarma',         priority: 0.85, changeFrequency: 'daily' },
   { path: '/jobs/specialization/kayachikitsa',        priority: 0.85, changeFrequency: 'daily' },
   { path: '/jobs/specialization/shalya',              priority: 0.8, changeFrequency: 'daily' },
@@ -384,15 +383,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
 
   // Mark the qa variable as used (it's a parallel-fetch byproduct).
-  void qa; void programs; void formulations
+  void qa; void programs; void formulations; void healthTips
 
   return [
     ...staticEntries,
-    ...dynamic('/doctors', doctors, 0.7),
+    // Filter out seed-doctor-* entries — those are DB-seeded test/demo
+    // records that resolve to a redirect, not real doctor pages.
+    ...dynamic('/doctors', doctors.filter((d) => !d.id.startsWith('seed-doctor-')), 0.7),
     ...dynamic('/hospitals', hospitals, 0.6),
     ...dynamic('/herbs', herbs, 0.5),
     ...dynamic('/articles', articles, 0.5),
-    ...dynamic('/health-tips', healthTips, 0.5),
+    // Individual /health-tips/[id] pages don't exist as a route — only the
+    // /health-tips index. Removed the dynamic entry (2026-07-16) — was
+    // shipping 8 hard 404s (tip-{vata,pitta,kapha,tridosha}-{1,2}).
+    // ...dynamic('/health-tips', healthTips, 0.5),
     ...dynamic('/forum', forum, 0.4),
     ...dynamic('/videos', videos, 0.6),
     ...dynamicBySlug('/qa',         qaSlugs,         0.6),
@@ -463,13 +467,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     })),
-    // /news/[slug] + /events/[slug] — static seed data.
-    ...NEWS_SLUGS.map((slug) => ({
-      url: `${BASE}/news/${slug}`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.7,
-    })),
+    // /news/[slug] entries removed from sitemap (2026-07-16) — every URL
+    // 308s to /articles/[slug]. Sitemap should list the canonical target,
+    // not the redirect source. The /news root remains listed above.
+    // ...NEWS_SLUGS.map((slug) => ({ url: `${BASE}/news/${slug}`, ... })),
     ...EVENT_SLUGS.map((slug) => ({
       url: `${BASE}/events/${slug}`,
       lastModified: now,
