@@ -646,6 +646,12 @@ model Job {
   contactKind       String? // 'email' | 'whatsapp' | 'phone'
   contactValue      String?
 
+  // Enhanced walk-in fields (2026-07-16). All nullable — only set for walk-in postings.
+  walkInLastDate     DateTime?
+  walkInContactPhone String?
+  walkInRequiredDocs String?
+  walkInMapUrl       String?
+
   user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   applications JobApplication[]
 
@@ -2474,4 +2480,29 @@ model StudyReply {
   author      User        @relation("StudyReplyAuthor", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([threadId, createdAt])
+}
+
+// Anonymous job submissions from /jobs/quick-post — no auth required.
+// Admin reviews via /admin panel and can publish into the main Job table.
+model QuickJobSubmission {
+  id              String   @id @default(cuid())
+  title           String
+  location        String
+  contactWhatsapp String
+  salary          String?
+  specialty       String?
+  description     String?
+  isWalkIn        Boolean  @default(false)
+  walkInDate      String?
+  walkInTime      String?
+  walkInVenue     String?
+  source          String   @default("quick-post")
+  status          String   @default("pending") // pending | approved | rejected
+  reviewedAt      DateTime?
+  reviewedById    String?
+  publishedJobId  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status, createdAt(sort: Desc)])
 }

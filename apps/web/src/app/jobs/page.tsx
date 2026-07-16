@@ -126,6 +126,24 @@ export default async function JobsPage() {
       </GradientHero>
 
       <div className="container mx-auto px-4 py-12">
+        {/* 3-way posting banner — Full Form · Upload Poster · Quick Post (2026-07-16) */}
+        <section className="max-w-6xl mx-auto mb-8 grid grid-cols-1 md:grid-cols-3 gap-3">
+          {[
+            { href: '/jobs/employers/post', emoji: '📝', title: 'Full Form',    sub: 'All fields · employer login' },
+            { href: '/jobs/upload-poster',  emoji: '📋', title: 'Upload Poster', sub: 'AI reads image · auto-fills' },
+            { href: '/jobs/quick-post',     emoji: '⚡', title: 'Quick Post',    sub: '30 seconds · no login' },
+          ].map((c) => (
+            <Link key={c.href} href={c.href} className="group bg-white border border-gray-100 rounded-card p-4 shadow-card hover:border-kerala-300 flex items-center gap-3">
+              <span className="text-3xl" aria-hidden>{c.emoji}</span>
+              <div className="flex-1 min-w-0">
+                <p className="font-serif text-base text-kerala-800 leading-tight">{c.title}</p>
+                <p className="text-xs text-gray-600">{c.sub}</p>
+              </div>
+              <span className="text-kerala-700 group-hover:translate-x-0.5 transition-transform text-sm font-semibold">→</span>
+            </Link>
+          ))}
+        </section>
+
         {jobs.length > 0 && (() => {
           const extra = jobs as unknown as Array<{ currency?: string | null; clinic?: string | null; salaryMin?: number | null; salaryMax?: number | null; user?: { name?: string | null } | null }>
           const countries = new Set(extra.map((j) => j.currency === 'AED' ? 'UAE' : j.currency === 'USD' ? 'USA/UK' : 'India').filter(Boolean))

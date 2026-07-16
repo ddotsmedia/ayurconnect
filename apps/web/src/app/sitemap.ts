@@ -233,6 +233,11 @@ const STATIC: Array<{ path: string; priority: number; changeFrequency: MetadataR
   { path: '/jobs/freshers',         priority: 0.85, changeFrequency: 'daily'   },
   { path: '/jobs/remote',           priority: 0.85, changeFrequency: 'daily'   },
   { path: '/jobs/salary-calculator',priority: 0.8,  changeFrequency: 'monthly' },
+  // AI job features (2026-07-16).
+  { path: '/jobs/upload-poster',        priority: 0.85, changeFrequency: 'monthly' },
+  { path: '/jobs/quick-post',           priority: 0.85, changeFrequency: 'monthly' },
+  { path: '/jobs/talent',               priority: 0.8,  changeFrequency: 'weekly'  },
+  { path: '/jobs/interview-questions',  priority: 0.8,  changeFrequency: 'monthly' },
   { path: '/offers',                priority: 0.9,  changeFrequency: 'daily'   },
   // /welcome is a social-media landing (noindex) — not in sitemap.
   { path: '/ayurveda-hospitals-dubai',     priority: 0.9,  changeFrequency: 'weekly' },
