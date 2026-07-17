@@ -127,13 +127,14 @@ export default async function JobsPage() {
 
       <div className="container mx-auto px-4 py-12">
         {/* 3-way posting banner — Full Form · Upload Poster · Quick Post (2026-07-16) */}
-        <section className="max-w-6xl mx-auto mb-8 grid grid-cols-1 md:grid-cols-3 gap-3">
+        <section className="max-w-6xl mx-auto mb-6 grid grid-cols-1 md:grid-cols-3 gap-3">
           {[
-            { href: '/jobs/employers/post', emoji: '📝', title: 'Full Form',    sub: 'All fields · employer login' },
-            { href: '/jobs/upload-poster',  emoji: '📋', title: 'Upload Poster', sub: 'AI reads image · auto-fills' },
-            { href: '/jobs/quick-post',     emoji: '⚡', title: 'Quick Post',    sub: '30 seconds · no login' },
+            { href: '/jobs/employers/post', emoji: '📝', title: 'Full Form',    sub: 'All fields · employer login', badge: null },
+            { href: '/jobs/upload-poster',  emoji: '📋', title: 'Upload Poster', sub: 'AI reads image · auto-fills', badge: 'NEW' },
+            { href: '/jobs/quick-post',     emoji: '⚡', title: 'Quick Post',    sub: '30 seconds · no login',        badge: 'NEW' },
           ].map((c) => (
-            <Link key={c.href} href={c.href} className="group bg-white border border-gray-100 rounded-card p-4 shadow-card hover:border-kerala-300 flex items-center gap-3">
+            <Link key={c.href} href={c.href} className="group relative bg-white border border-gray-100 rounded-card p-4 shadow-card hover:border-kerala-300 flex items-center gap-3">
+              {c.badge && <span className="absolute -top-2 -right-2 px-1.5 py-0.5 bg-amber-500 text-white text-[10px] font-bold rounded-full shadow-sm">{c.badge}</span>}
               <span className="text-3xl" aria-hidden>{c.emoji}</span>
               <div className="flex-1 min-w-0">
                 <p className="font-serif text-base text-kerala-800 leading-tight">{c.title}</p>
@@ -142,6 +143,25 @@ export default async function JobsPage() {
               <span className="text-kerala-700 group-hover:translate-x-0.5 transition-transform text-sm font-semibold">→</span>
             </Link>
           ))}
+        </section>
+
+        {/* Job Tools strip — high-signal AI/utility surfaces (2026-07-17) */}
+        <section aria-label="Job tools" className="max-w-6xl mx-auto mb-8">
+          <p className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-2">Job Tools</p>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { href: '/jobs/talent',              label: '🎯 Talent Directory',       badge: 'NEW' },
+              { href: '/jobs/interview-questions', label: '💬 Interview Questions',     badge: 'AI' },
+              { href: '/jobs/salary-calculator',   label: '💰 Salary Calculator',       badge: null  },
+              { href: '/jobs/resume-builder',      label: '📄 Resume Builder',          badge: null  },
+              { href: '/jobs/career-advisor',      label: '🧭 Career Advisor',          badge: 'AI'  },
+            ].map((t) => (
+              <Link key={t.href} href={t.href} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-kerala-200 rounded-full text-xs hover:bg-kerala-50 hover:border-kerala-400 transition-colors">
+                <span>{t.label}</span>
+                {t.badge && <span className="px-1.5 py-0.5 bg-kerala-100 text-kerala-800 text-[9px] font-bold rounded-full leading-none">{t.badge}</span>}
+              </Link>
+            ))}
+          </div>
         </section>
 
         {jobs.length > 0 && (() => {

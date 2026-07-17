@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { CheckCircle2, Loader2, Save } from 'lucide-react'
 
 const SPECS = ['Panchakarma','Kayachikitsa','Shalya','Shalakya','Prasuti Tantra','Kaumarbhritya','Manasika','Rasashastra','Dravyaguna','Roganidana','General']
@@ -44,7 +45,20 @@ export function JobPostClient() {
   }
 
   return (
-    <form onSubmit={submit} className="mt-5 bg-white border border-gray-100 rounded-card shadow-card p-5 space-y-3">
+    <>
+      {/* 3-way method tabs — Manual is current page; other two are dedicated routes */}
+      <div className="mt-5 flex flex-wrap gap-2 border-b border-gray-200">
+        <span className="inline-flex items-center gap-1.5 px-4 py-2 border-b-2 border-kerala-700 text-kerala-800 font-semibold text-sm">
+          📝 Manual form
+        </span>
+        <Link href="/jobs/upload-poster" className="inline-flex items-center gap-1.5 px-4 py-2 border-b-2 border-transparent text-gray-600 hover:text-kerala-700 hover:border-kerala-300 text-sm">
+          📋 Upload poster <span className="px-1.5 py-0.5 bg-amber-500 text-white text-[9px] font-bold rounded-full leading-none">NEW</span>
+        </Link>
+        <Link href="/jobs/quick-post" className="inline-flex items-center gap-1.5 px-4 py-2 border-b-2 border-transparent text-gray-600 hover:text-kerala-700 hover:border-kerala-300 text-sm">
+          ⚡ Paste text <span className="px-1.5 py-0.5 bg-amber-500 text-white text-[9px] font-bold rounded-full leading-none">NEW</span>
+        </Link>
+      </div>
+    <form onSubmit={submit} className="mt-4 bg-white border border-gray-100 rounded-card shadow-card p-5 space-y-3">
       <L l="Job title *"><input required className="input" value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} placeholder="e.g. Senior Panchakarma Physician" /></L>
       <L l="Description *"><textarea required rows={4} className="input" value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></L>
       <div className="grid grid-cols-2 gap-3">
@@ -76,6 +90,7 @@ export function JobPostClient() {
       </button>
       <style jsx global>{`.input{width:100%;border:1px solid #e5e7eb;border-radius:0.375rem;padding:0.5rem 0.75rem;font-size:14px;background:white}.input:focus{outline:none;box-shadow:0 0 0 1px #155228;border-color:#155228}`}</style>
     </form>
+    </>
   )
 }
 
