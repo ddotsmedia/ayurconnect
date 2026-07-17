@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ShieldCheck, MapPin, Star, Languages } from 'lucide-react'
+import { ShieldCheck, MapPin, Star, Languages, Clock } from 'lucide-react'
 import { cn } from './lib/utils'
 
 const AVATAR_PALETTE = [
@@ -19,6 +19,8 @@ export type DoctorCardData = {
   photoUrl?: string | null
   availableDays?: string[] | null
   availableForOnline?: boolean | null
+  availableToday?: boolean | null
+  respondsWithin?: string | null
   averageRating?: number | null
   reviewsCount?: number | null
   profile?: string | null
@@ -81,6 +83,17 @@ export function DoctorCard({ doctor, className }: { doctor: DoctorCardData; clas
       </div>
 
       <div className="mt-3 flex flex-wrap gap-1.5">
+        {doctor.availableToday ? (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] bg-emerald-50 text-emerald-700 rounded-full border border-emerald-200 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden />
+            Available today
+          </span>
+        ) : doctor.respondsWithin ? (
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] bg-gray-50 text-gray-700 rounded-full border border-gray-200">
+            <Clock className="w-3 h-3" aria-hidden />
+            Responds in ~{doctor.respondsWithin}
+          </span>
+        ) : null}
         {showSpecs.map((s) => (
           <span key={s} className="px-2 py-0.5 text-[11px] bg-kerala-50 text-kerala-700 rounded-full border border-kerala-100">{s}</span>
         ))}

@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
 import { faqLd, breadcrumbLd, ldGraph, SITE_URL, AYURVEDA_KEYWORDS } from '../../lib/seo'
+import { ConsultationRequestForm } from './_request-form'
 
 export const metadata = {
   title: 'Online Ayurvedic Consultation UAE — Book Kerala Doctors Online',
@@ -252,6 +253,14 @@ const WHEN_IN_PERSON = [
 
 // ─── FAQs (extended) ────────────────────────────────────────────────────
 const FAQS = [
+  { q: 'How much does an online Ayurveda consultation cost?', a: 'Fees vary by doctor and case complexity — many practitioners on AyurConnect offer affordable rates for first consultations. The exact fee is shown on each doctor\'s profile before you book, and any follow-up cost is discussed on the call. Some doctors offer a free 10-minute orientation call — look for the "Free intro" tag.' },
+  { q: 'Is the prescription valid in UAE or abroad?', a: 'The prescription is educational clinical guidance from a qualified Ayurvedic doctor — most classical Ayurvedic medicines named in it are generally available over the counter through Ayurvedic pharmacies in India, the UAE, and other countries. Some formulations (controlled or hospital-only items) may need to be sourced through a local Ayurveda hospital or a pharmacy that follows the destination country\'s rules. If you\'re abroad, mention your country during the call and the doctor will substitute anything that isn\'t easily available where you live.' },
+  { q: 'Which languages are available?', a: 'Consultations are available in Malayalam, English, Hindi, Arabic, and Tamil, plus additional languages (Kannada, Marathi, and more) depending on the doctor. Filter by language on the doctor directory to see the exact list, or pick a preferred language on the callback form and we\'ll match you accordingly.' },
+  { q: 'How fast can I get a consultation?', a: 'Usually the same day. When you submit a callback request or WhatsApp our concierge, we typically match you with a suitable verified doctor within about an hour during IST business hours (9 AM – 9 PM). Direct bookings from a doctor\'s profile happen as soon as the next open slot they have — often within 24 hours.' },
+  { q: 'Can I get Ayurvedic medicines delivered?', a: 'Your doctor will guide you to trusted Ayurvedic pharmacies, and larger hospitals in Kerala can arrange courier dispatch domestically and internationally (customs and country-specific rules apply). Availability of specific classical medicines outside India varies — the doctor will help you find equivalents where needed.' },
+  { q: 'Is my health information private?', a: 'Yes. Consultation calls run on an end-to-end encrypted video room (Daily.co) with time-bounded access — only you and the assigned doctor can join. The doctor\'s clinical notes are private to the doctor; your patient-facing prescription and follow-up notes are visible only to you in your dashboard. We never share your details with third parties for marketing.' },
+  { q: 'What if I need lab tests?', a: 'If lab work or imaging would help, the doctor will recommend specific tests you can get done locally and share the reports during a follow-up call (or upload them to your dashboard). If you already have recent reports, share them at the start of the consultation — screen-share or file upload both work.' },
+  { q: 'Can I book a follow-up with the same doctor?', a: 'Yes — always. After your first consultation the doctor stays on your record, and you can book follow-ups directly from their profile at any time. Many patients continue with the same practitioner for months or years so care is continuous.' },
   {
     q: 'Can I just request a doctor connection on WhatsApp instead of browsing the site?',
     a: 'Yes. WhatsApp our concierge on +971 55 448 5169 with your concern and preferred language — we\'ll match you to a verified doctor and either set up the consultation booking or have the doctor reach out to you directly, usually within an hour during IST business hours. The number is the AyurConnect concierge, not any single doctor\'s line.',
@@ -396,6 +405,42 @@ export default async function OnlineConsultationPage() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* HOW IT WORKS — 4-step visual ribbon (2026-07-17) */}
+      <section aria-label="How it works" className="container mx-auto px-4 pt-8 max-w-5xl">
+        <div className="bg-white rounded-card border border-gray-100 shadow-card p-4 md:p-5">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            {[
+              { emoji: '📝', title: 'Tell us your concern',           desc: 'Describe your symptom or need — 30 seconds.' },
+              { emoji: '🤝', title: 'We match a verified doctor',      desc: 'Language + specialty + timezone.' },
+              { emoji: '📱', title: 'Consult via video, audio or chat', desc: 'On WhatsApp or in-browser video room.' },
+              { emoji: '📋', title: 'Get your prescription & plan',    desc: 'Structured Rx + follow-up in your dashboard.' },
+            ].map((s, i) => (
+              <div key={s.title} className="relative flex md:flex-col items-start gap-3 p-3 rounded-md bg-cream/40 md:bg-transparent">
+                <div className="flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-full bg-kerala-700 text-white font-serif text-sm flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                  <span className="text-2xl md:hidden" aria-hidden>{s.emoji}</span>
+                </div>
+                <div>
+                  <div className="hidden md:block text-3xl mb-1" aria-hidden>{s.emoji}</div>
+                  <h3 className="font-serif text-sm md:text-base text-kerala-800 leading-tight">{s.title}</h3>
+                  <p className="text-xs text-gray-600 mt-1 leading-snug">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CALLBACK REQUEST FORM (2026-07-17) — writes to ConsultationRequest;
+          admin CRM at /admin/consultation-requests. */}
+      <section className="container mx-auto px-4 pt-8 max-w-3xl">
+        <header className="text-center mb-4">
+          <h2 className="font-serif text-2xl md:text-3xl text-kerala-700">Prefer a form? Request a callback</h2>
+          <p className="text-sm text-muted mt-1">We&apos;ll WhatsApp you within a few hours (IST business hours).</p>
+        </header>
+        <ConsultationRequestForm />
       </section>
 
       {/* CONCERNS GRID — "What are you facing?" */}

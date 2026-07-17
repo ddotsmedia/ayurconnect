@@ -304,6 +304,11 @@ model Doctor {
   degreeCertUrl            String?
   regCertUrl               String?
   photoIdUrl               String?
+  // ─── Availability signals (2026-07-17) ─────────────────────────────────
+  // Surfaced as green-dot badges on /doctors cards and the /online-consultation
+  // "Available today" strip. Doctors toggle these on the profile edit form.
+  respondsWithin           String?
+  availableToday           Boolean   @default(false)
 
   // Index for queue sorting: oldest pending first.
   @@index([moderationStatus, createdAt])
@@ -2503,6 +2508,26 @@ model QuickJobSubmission {
   publishedJobId  String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([status, createdAt(sort: Desc)])
+}
+
+// Public /online-consultation "Request a callback" form submissions.
+// Anonymous — no auth required. Rate-limited at the API layer.
+// Admin CRM at /admin/consultation-requests works this table.
+model ConsultationRequest {
+  id                String   @id @default(cuid())
+  name              String
+  phone             String
+  email             String?
+  concern           String
+  preferredLanguage String
+  preferredTime     String   @default("Any")
+  country           String?
+  status            String   @default("NEW") // NEW | CONTACTED | MATCHED | CLOSED
+  adminNotes        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   @@index([status, createdAt(sort: Desc)])
 }

@@ -20,6 +20,7 @@ const me: FastifyPluginAsync = async (fastify) => {
             id: true, name: true, specialization: true, district: true,
             ccimVerified: true, qualification: true, experienceYears: true,
             languages: true, availableDays: true, availableForOnline: true,
+            availableToday: true, respondsWithin: true,
             profile: true, bio: true, photoUrl: true,
             websiteUrl: true, linkedinUrl: true, facebookUrl: true,
             instagramUrl: true, twitterUrl: true, youtubeUrl: true,
@@ -301,6 +302,13 @@ const me: FastifyPluginAsync = async (fastify) => {
     setStrOrNull('photoUrl')
     setIntOrNull('experienceYears')
     setBool('availableForOnline')
+    setBool('availableToday')
+    // respondsWithin is a short user-picked label (e.g. "2 hours").
+    if (body.respondsWithin !== undefined) {
+      data.respondsWithin = typeof body.respondsWithin === 'string' && body.respondsWithin.trim()
+        ? body.respondsWithin.trim().slice(0, 40)
+        : null
+    }
     setStrArray('languages')
     setStrArray('availableDays')
     setUrlOrNull('websiteUrl')

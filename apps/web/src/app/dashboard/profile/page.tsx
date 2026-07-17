@@ -20,7 +20,10 @@ type DoctorOwned = SocialFields & {
   qualification: string | null; experienceYears: number | null;
   ccimVerified: boolean;
   languages: string[] | null; availableDays: string[] | null;
-  availableForOnline: boolean | null; profile: string | null;
+  availableForOnline: boolean | null;
+  availableToday: boolean | null;
+  respondsWithin: string | null;
+  profile: string | null;
   bio: string | null; photoUrl: string | null;
   workplace: string | null; workplaceUrl: string | null;
   featuredArticles: FeaturedArticle[] | null;
@@ -190,6 +193,8 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
     languages: (doctor.languages ?? []).join(', '),
     availableDays: new Set(doctor.availableDays ?? []),
     availableForOnline: doctor.availableForOnline ?? true,
+    availableToday: doctor.availableToday ?? false,
+    respondsWithin: doctor.respondsWithin ?? '',
     profile: doctor.profile ?? '',
     bio: doctor.bio ?? '',
     photoUrl: doctor.photoUrl ?? '',
@@ -226,6 +231,8 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
         languages: d.languages.split(',').map((s) => s.trim()).filter(Boolean),
         availableDays: Array.from(d.availableDays),
         availableForOnline: d.availableForOnline,
+        availableToday: d.availableToday,
+        respondsWithin: d.respondsWithin ? d.respondsWithin.trim() : null,
         profile: d.profile,
         bio: d.bio,
         photoUrl: d.photoUrl,
@@ -291,6 +298,23 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
         <input type="checkbox" checked={d.availableForOnline} onChange={(e) => setD({ ...d, availableForOnline: e.target.checked })} />
         Available for online consultations
       </label>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+        <label className="flex items-center gap-2 text-sm mt-3">
+          <input type="checkbox" checked={d.availableToday} onChange={(e) => setD({ ...d, availableToday: e.target.checked })} />
+          Available for consultations <strong>today</strong>
+          <span className="text-[11px] text-gray-500 ml-1">(shows a green &quot;Available today&quot; badge)</span>
+        </label>
+        <Field label="Typical response time">
+          <select value={d.respondsWithin} onChange={(e) => setD({ ...d, respondsWithin: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm bg-white">
+            <option value="">— not set —</option>
+            <option value="1 hour">Within 1 hour</option>
+            <option value="2 hours">Within 2 hours</option>
+            <option value="same day">Same day</option>
+            <option value="24 hours">Within 24 hours</option>
+          </select>
+        </Field>
+      </div>
 
       <div className="pt-3 border-t border-gray-100">
         <span className="block text-sm font-semibold text-gray-700 mb-2">Social links <span className="font-normal text-gray-400 text-xs">— all optional</span></span>
