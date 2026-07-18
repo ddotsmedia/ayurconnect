@@ -59,7 +59,11 @@ export const metadata: Metadata = {
     // page that doesn't set its own canonical, causing Google to see 89+
     // "duplicate without user-selected canonical" reports pointing to '/'.
     // Homepage itself has canonical=/ via its own page.tsx metadata.
-    languages: { 'en-IN': '/', 'ml-IN': '/ml', 'x-default': '/' },
+    languages: {
+      'en-IN':     'https://ayurconnect.com',
+      'ml-IN':     'https://ayurconnect.com/ml',
+      'x-default': 'https://ayurconnect.com',
+    },
   },
   manifest: '/manifest.webmanifest',
   appleWebApp: {
