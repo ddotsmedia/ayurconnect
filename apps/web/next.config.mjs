@@ -75,6 +75,12 @@ export default {
       { source: '/treatments/njavarakizhi',  destination: '/panchakarma', permanent: true },
       { source: '/treatments/rasayana',      destination: '/panchakarma', permanent: true },
       { source: '/consult',                  destination: '/online-consultation', permanent: true },
+      // 2026-07-18 — /medicine/* slugs that appeared in outbound audits but
+      // never existed in _data.ts. Dasamoolarishta is a fermented preparation
+      // of the same dashamoola roots as our Dasamoolakashayam entry; the
+      // pizhichil oil is dhanwantharam. 301 to the closest existing entries.
+      { source: '/medicine/dasamoolarishtam', destination: '/medicine/dasamoolakashayam',   permanent: true },
+      { source: '/medicine/pizhichil-tailam', destination: '/medicine/dhanwantharam-tailam', permanent: true },
     ]
   },
   async headers() {
