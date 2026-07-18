@@ -12,7 +12,11 @@ type Parsed = {
   salary_max?: number | null
   currency?: string | null
   job_type?: string | null
+  role_type?: 'doctor' | 'therapist' | 'consultant' | null
+  therapist_type?: string | null
+  certifications?: string[]
   experience_required?: string | null
+  experience_years?: number | null
   qualifications?: string[]
   specialization?: string | null
   description?: string
@@ -89,7 +93,17 @@ export function PosterUploader() {
     if (parsed.company) q.set('clinic', parsed.company)
     if (parsed.location) q.set('location', parsed.location)
     if (parsed.description) q.set('description', parsed.description)
-    if (parsed.specialization) q.set('specialty', parsed.specialization)
+    // Prefer the therapist-specific specialization when parser flagged a
+    // therapist poster — /jobs/employers/post switches its specialization
+    // list based on roleType, so passing the therapist type here lands the
+    // user on the matching option.
+    const spec = parsed.role_type === 'therapist' && parsed.therapist_type
+      ? `${parsed.therapist_type} Therapist`
+      : parsed.specialization
+    if (spec) q.set('specialty', spec)
+    if (parsed.role_type) q.set('roleType', parsed.role_type)
+    if (parsed.certifications?.length) q.set('certifications', parsed.certifications.join(', '))
+    if (parsed.experience_years != null) q.set('experienceMin', String(parsed.experience_years))
     if (parsed.salary_min != null) q.set('salaryMin', String(parsed.salary_min))
     if (parsed.salary_max != null) q.set('salaryMax', String(parsed.salary_max))
     if (parsed.currency) q.set('currency', parsed.currency)
@@ -169,11 +183,15 @@ export function PosterUploader() {
             <p className="text-xs text-gray-600 mb-4">Review, edit, and submit on the next screen. AI can miss things — always double-check before publishing.</p>
 
             <Field label="Title"          value={parsed.title} />
+            <Field label="Role"           value={parsed.role_type ? parsed.role_type[0].toUpperCase() + parsed.role_type.slice(1) : null} />
+            <Field label="Therapist type" value={parsed.therapist_type} />
             <Field label="Company / Clinic" value={parsed.company} />
             <Field label="Location"       value={parsed.location} />
             <Field label="Specialization" value={parsed.specialization} />
             <Field label="Job Type"       value={parsed.job_type} />
             <Field label="Experience"     value={parsed.experience_required} />
+            <Field label="Experience (years)" value={parsed.experience_years} />
+            <Field label="Certifications" value={parsed.certifications?.length ? parsed.certifications.join(', ') : null} />
             <Field label="Salary"         value={parsed.salary_min || parsed.salary_max
               ? `${parsed.currency ?? ''} ${parsed.salary_min ?? '?'} – ${parsed.salary_max ?? '?'}`.trim()
               : null} />
