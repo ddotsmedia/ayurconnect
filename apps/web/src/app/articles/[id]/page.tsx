@@ -15,6 +15,12 @@ type Article = {
   language: string
   createdAt: string
   updatedAt: string
+  featuredImage?:    string | null
+  featuredImageAlt?: string | null
+  seoTitle?:         string | null
+  seoDescription?:   string | null
+  seoKeywords?:      string | null
+  readTimeMinutes?:  number | null
 }
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -54,19 +60,23 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const a = await fetchArticle(id)
   if (!a) return { title: 'Article not found' }
 
-  const title = a.title
-  const description = clip(a.content, 200)
+  const title       = a.seoTitle       ?? a.title
+  const description = a.seoDescription  ?? clip(a.content, 200)
+  const ogImage     = a.featuredImage
+    ? { url: a.featuredImage.startsWith('http') ? a.featuredImage : `${SITE_URL}${a.featuredImage}`, width: 1200, height: 600, alt: a.featuredImageAlt ?? a.title }
+    : { url: '/opengraph-image', width: 1200, height: 630 }
   return {
     title: `${title}`,
     description,
+    keywords: a.seoKeywords ? a.seoKeywords.split(',').map((k) => k.trim()).filter(Boolean) : undefined,
     alternates: { canonical: `/articles/${a.id}` },
     openGraph: {
       title, description,
       url: `${SITE_URL}/articles/${a.id}`,
       type: 'article',
-      images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
+      images: [ogImage],
     },
-    twitter: { card: 'summary_large_image', title, description },
+    twitter: { card: 'summary_large_image', title, description, images: [ogImage.url] },
   }
 }
 
