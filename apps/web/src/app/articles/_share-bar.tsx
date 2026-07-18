@@ -17,8 +17,15 @@ export function ArticleShareBar({ id, title }: { id: string; title: string }) {
     { key: 'facebook', href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,                                 label: 'Facebook', bg: 'bg-[#1877F2] hover:opacity-90 text-white',    icon: Facebook },
     // Twitter/X — lucide has no X-brand icon; use a styled 𝕏 glyph.
     { key: 'twitter',  href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,                     label: 'Twitter',  bg: 'bg-black hover:opacity-90 text-white',        icon: null      },
-    { key: 'email',    href: `mailto:?subject=${encodedTitle}&body=${encodedUrl}`,                                          label: 'Email',    bg: 'bg-gray-700 hover:bg-gray-800 text-white',    icon: Mail },
   ]
+
+  // Cloudflare's Email Address Obfuscation rewrites <a href="mailto:*"> to a
+  // /cdn-cgi/l/email-protection JS-decoder link — which breaks the share
+  // flow because there's no address to hide. We open the mailto: URL on
+  // click instead so Cloudflare has nothing to intercept in the HTML.
+  function shareEmail() {
+    window.location.href = `mailto:?subject=${encodedTitle}&body=${encodedUrl}`
+  }
 
   async function copyLink() {
     try {
@@ -38,7 +45,7 @@ export function ArticleShareBar({ id, title }: { id: string; title: string }) {
             <a
               key={t.key}
               href={t.href}
-              target={t.key === 'email' ? '_self' : '_blank'}
+              target="_blank"
               rel="noopener noreferrer"
               className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded ${t.bg}`}
               aria-label={`Share on ${t.label}`}
@@ -48,6 +55,14 @@ export function ArticleShareBar({ id, title }: { id: string; title: string }) {
             </a>
           )
         })}
+        <button
+          type="button"
+          onClick={shareEmail}
+          className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded bg-gray-700 hover:bg-gray-800 text-white"
+          aria-label="Share via Email"
+        >
+          <Mail className="w-3.5 h-3.5" /> Email
+        </button>
         <button
           type="button"
           onClick={copyLink}
