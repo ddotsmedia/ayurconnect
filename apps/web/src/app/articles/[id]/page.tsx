@@ -87,14 +87,111 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   }
 }
 
-// Render plain-text article content as a series of paragraphs. Authors paste
-// content into the admin form; we don't accept Markdown/HTML yet, so this is
-// intentionally simple: split on blank lines, keep line breaks within blocks.
+// Minimal Markdown → React renderer. Purpose-built for the article editor's
+// output (image upload emits ![alt](url); AI-optimize may emit links, bold,
+// italic, headings, bullet lists). No 3rd-party dep — pulling react-markdown
+// would add ~150KB to the bundle for this thin surface. Returns React
+// elements only, never dangerouslySetInnerHTML, so untrusted content
+// can never inject <script> or event handlers even if the API bypasses
+// its 200KB length cap.
+//
+// Supported:
+//   ![alt](url)            → <img src="url" alt="alt" loading="lazy" />
+//   [text](url)            → <a href="url">text</a>  (only http(s)/mailto/tel/# schemes)
+//   **bold** / __bold__   → <strong>
+//   *em* / _em_            → <em>
+//   `code`                 → <code>
+//   ## heading (1-4 #)     → <h2>…<h5>
+//   -/* bullet             → <ul><li>
+//   blank line             → paragraph break
+//
+// Everything else renders as plain text.
+
+function safeUrl(u: string): string | null {
+  const trimmed = u.trim()
+  if (!trimmed) return null
+  if (trimmed.startsWith('/') || trimmed.startsWith('#')) return trimmed
+  if (/^(https?:|mailto:|tel:)/i.test(trimmed)) return trimmed
+  return null
+}
+
+// Parse inline markdown (bold/italic/code/link/image) → React nodes.
+function renderInline(text: string, keyBase: string): React.ReactNode[] {
+  // Token order: image → link → bold → italic → code. We use a single
+  // combined regex + walk to keep O(n) rather than nested passes.
+  const RX = /(!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\))|(\[([^\]]+)\]\(([^)\s]+)(?:\s+"[^"]*")?\))|(\*\*([^*]+)\*\*|__([^_]+)__)|(\*([^*\n]+)\*|_([^_\n]+)_)|(`([^`]+)`)/g
+  const out: React.ReactNode[] = []
+  let last = 0
+  let m: RegExpExecArray | null
+  let n = 0
+  while ((m = RX.exec(text)) !== null) {
+    if (m.index > last) out.push(text.slice(last, m.index))
+    const key = `${keyBase}-${n++}`
+    if (m[1]) {
+      // Image
+      const url = safeUrl(m[3])
+      if (url) out.push(<img key={key} src={url} alt={m[2] || ''} loading="lazy" className="my-4 rounded max-w-full h-auto" />)
+      else out.push(m[0])
+    } else if (m[4]) {
+      // Link
+      const url = safeUrl(m[6])
+      if (url) {
+        const external = /^https?:/i.test(url) && !url.includes('ayurconnect.com')
+        out.push(<a key={key} href={url} className="text-kerala-700 hover:underline" {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}>{m[5]}</a>)
+      } else out.push(m[0])
+    } else if (m[7]) {
+      out.push(<strong key={key}>{m[8] ?? m[9]}</strong>)
+    } else if (m[10]) {
+      out.push(<em key={key}>{m[11] ?? m[12]}</em>)
+    } else if (m[13]) {
+      out.push(<code key={key} className="px-1 py-0.5 rounded bg-gray-100 text-[13px] font-mono">{m[14]}</code>)
+    }
+    last = m.index + m[0].length
+  }
+  if (last < text.length) out.push(text.slice(last))
+  return out
+}
+
 function renderContent(content: string) {
   const blocks = content.split(/\n\s*\n+/).map((b) => b.trim()).filter(Boolean)
-  return blocks.map((b, i) => (
-    <p key={i} className="leading-relaxed whitespace-pre-line">{b}</p>
-  ))
+  return blocks.map((block, i) => {
+    // Heading: 1-4 leading '#'
+    const h = /^(#{1,4})\s+(.+)$/.exec(block)
+    if (h) {
+      const level = h[1].length + 1 // # → h2, ## → h3, etc (h1 is the page title)
+      const Tag = (`h${Math.min(level, 5)}`) as 'h2' | 'h3' | 'h4' | 'h5'
+      const cls = level === 2 ? 'font-serif text-2xl text-kerala-800 mt-6 mb-2'
+                : level === 3 ? 'font-serif text-xl text-kerala-800 mt-5 mb-2'
+                              : 'font-serif text-lg text-kerala-800 mt-4 mb-2'
+      return <Tag key={i} className={cls}>{renderInline(h[2], `h${i}`)}</Tag>
+    }
+
+    // Bullet list: every line begins with '- ' or '* '
+    const lines = block.split(/\n/)
+    if (lines.every((l) => /^\s*[-*]\s+/.test(l))) {
+      return (
+        <ul key={i} className="list-disc pl-5 space-y-1">
+          {lines.map((l, j) => (
+            <li key={j}>{renderInline(l.replace(/^\s*[-*]\s+/, ''), `li${i}-${j}`)}</li>
+          ))}
+        </ul>
+      )
+    }
+
+    // Paragraph — preserve intra-block line breaks. Detect "standalone-image"
+    // paragraphs (only a ![alt](url) inside) and render without <p> wrapper so
+    // the browser doesn't complain about <img> inside <p> (still valid, but
+    // block styling reads better without).
+    const isJustImage = /^!\[([^\]]*)\]\(([^)\s]+)(?:\s+"[^"]*")?\)\s*$/.test(block)
+    if (isJustImage) {
+      return <div key={i}>{renderInline(block, `p${i}`)}</div>
+    }
+    return (
+      <p key={i} className="leading-relaxed whitespace-pre-line">
+        {renderInline(block, `p${i}`)}
+      </p>
+    )
+  })
 }
 
 export default async function ArticleDetailPage({ params }: { params: Promise<{ id: string }> }) {
