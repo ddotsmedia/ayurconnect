@@ -1,10 +1,27 @@
 import { ImageResponse } from 'next/og'
+import { API_INTERNAL as API } from '../lib/server-fetch'
 
 // Node runtime (PM2-friendly). 'edge' would also work on Vercel.
 export const runtime = 'nodejs'
 export const alt = "AyurConnect — Kerala's #1 Ayurveda Platform"
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
+
+type Stats = {
+  doctors:   { total: number; verified: number }
+  herbs:     number
+  medicines: number
+}
+
+async function fetchStats(): Promise<Stats> {
+  try {
+    const r = await fetch(`${API}/stats`, { next: { revalidate: 300 } })
+    if (r.ok) return await r.json() as Stats
+  } catch { /* fall through */ }
+  // Conservative floor so social cards never render "0 doctors" during an
+  // outage. Numbers reflect the 2026-07-18 baseline.
+  return { doctors: { total: 38, verified: 32 }, herbs: 145, medicines: 135 }
+}
 
 const DARK = '#155228'
 const LIGHT = '#3da041'
@@ -51,6 +68,7 @@ function TreeSvg({ size }: { size: number }) {
 }
 
 export default async function Image() {
+  const stats = await fetchStats()
   return new ImageResponse(
     (
       <div
@@ -81,11 +99,11 @@ export default async function Image() {
           </div>
         </div>
         <div style={{ marginTop: 40, display: 'flex', gap: 36, fontSize: 22, color: 'rgba(255,255,255,0.85)' }}>
-          <span>500+ Verified doctors</span>
+          <span>{stats.doctors.verified} verified doctors</span>
           <span>•</span>
-          <span>150+ herbs</span>
+          <span>{stats.herbs}+ herbs</span>
           <span>•</span>
-          <span>Classical Panchakarma</span>
+          <span>{stats.medicines} medicines</span>
           <span>•</span>
           <span>AyurBot AI</span>
         </div>

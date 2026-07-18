@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { GradientHero } from '@ayurconnect/ui'
 import { ChevronRight, Mail, Download, Newspaper, FileText, Image as ImageIcon, Quote } from 'lucide-react'
+import { API_INTERNAL as API } from '../../../lib/server-fetch'
 
 export const metadata = {
   title: 'Press & Media — AyurConnect Press Kit',
@@ -8,16 +9,15 @@ export const metadata = {
   alternates: { canonical: '/about/press' },
 }
 
-const FACTS = [
-  { label: 'Founded',                  value: '2024' },
-  { label: 'Headquarters',             value: 'Kerala, India' },
-  { label: 'verified doctors',    value: '500+' },
-  { label: 'Hospitals & wellness centres', value: '200+' },
-  { label: 'Herb database',            value: '145+ medicinal herbs with classical citations' },
-  { label: 'Languages',                value: 'English + Malayalam (Arabic + Hindi planned)' },
-  { label: 'Markets served',           value: 'India primarily; international patients via medical tourism vertical' },
-  { label: 'Backbone',                 value: 'Open-source — Next.js, Fastify, PostgreSQL, pgvector, Better Auth' },
-]
+type Stats = { doctors: { verified: number }; herbs: number; medicines: number; hospitals: number }
+
+async function fetchStats(): Promise<Stats> {
+  try {
+    const r = await fetch(`${API}/stats`, { next: { revalidate: 300 } })
+    if (r.ok) return await r.json() as Stats
+  } catch { /* fall through */ }
+  return { doctors: { verified: 32 }, herbs: 145, medicines: 135, hospitals: 33 }
+}
 
 const QUOTES = [
   {
@@ -30,7 +30,19 @@ const QUOTES = [
   },
 ]
 
-export default function PressPage() {
+export default async function PressPage() {
+  const stats = await fetchStats()
+  const FACTS = [
+    { label: 'Founded',                       value: '2024' },
+    { label: 'Headquarters',                  value: 'Kerala, India' },
+    { label: 'Verified doctors',              value: `${stats.doctors.verified}+` },
+    { label: 'Hospitals & wellness centres',  value: `${stats.hospitals}+` },
+    { label: 'Herb database',                 value: `${stats.herbs}+ medicinal herbs with classical citations` },
+    { label: 'Classical medicines',           value: `${stats.medicines} formulations documented` },
+    { label: 'Languages',                     value: 'English + Malayalam (Arabic + Hindi planned)' },
+    { label: 'Markets served',                value: 'India primarily; international patients via medical tourism vertical' },
+    { label: 'Backbone',                      value: 'Open-source — Next.js, Fastify, PostgreSQL, pgvector, Better Auth' },
+  ]
   return (
     <>
       <GradientHero variant="green" size="lg">

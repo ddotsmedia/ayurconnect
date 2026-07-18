@@ -72,9 +72,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   // Facebook / LinkedIn recommend 1200x630 (1.91:1). Sharp resizes the upload
   // as 1200x600 (2:1) which is close enough; declaring 1200x630 here lets
   // Facebook fit-with-borders instead of substituting its own thumbnail.
+  //
+  // Fallback (no featured image set) is the per-article generated OG at
+  // /articles/[id]/opengraph-image — that route renders the article title
+  // + category on a gradient card, so we NEVER show the root "500+ verified
+  // doctors" cover image on an article share.
   const ogImage     = a.featuredImage
     ? { url: a.featuredImage.startsWith('http') ? a.featuredImage : `${SITE_URL}${a.featuredImage}`, width: 1200, height: 630, alt: a.featuredImageAlt ?? a.title }
-    : { url: `${SITE_URL}/opengraph-image`, width: 1200, height: 630 }
+    : { url: `${SITE_URL}/articles/${a.id}/opengraph-image`, width: 1200, height: 630, alt: a.title }
   return {
     title: `${title}`,
     description,
@@ -272,11 +277,11 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
             <img
               src={article.featuredImage}
               srcSet={buildSrcSet(article.featuredImage)}
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 90vw, 1200px"
               alt={article.featuredImageAlt ?? article.title}
               width={1200}
               height={630}
-              className="w-full h-auto object-cover rounded-lg"
+              className="w-full h-auto object-cover rounded-lg max-h-96"
               fetchPriority="high"
               loading="eager"
             />
