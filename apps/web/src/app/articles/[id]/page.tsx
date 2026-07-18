@@ -22,6 +22,7 @@ type Article = {
   seoDescription?:   string | null
   seoKeywords?:      string | null
   readTimeMinutes?:  number | null
+  publishedAt?:      string | null
 }
 
 const CATEGORY_LABEL: Record<string, string> = {
@@ -69,6 +70,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const title       = a.seoTitle       ?? a.title
   const description = a.seoDescription  ?? clip(a.content, 200)
+  const categoryLabel = CATEGORY_LABEL[a.category] ?? a.category
+  // OG title = "<article> | <category> | AyurConnect". Root template already
+  // appends "| AyurConnect"; use `title.absolute` to bypass and set the full
+  // string ourselves so Facebook shows category + brand without doubling.
+  const ogTitle = `${title} | ${categoryLabel} | AyurConnect`
+  const locale  = a.language === 'ml' ? 'ml_IN' : 'en_IN'
+  const tagList = a.seoKeywords
+    ? a.seoKeywords.split(',').map((k) => k.trim()).filter(Boolean).slice(0, 10)
+    : ['Ayurveda', categoryLabel]
+
   // Facebook / LinkedIn recommend 1200x630 (1.91:1). Sharp resizes the upload
   // as 1200x600 (2:1) which is close enough; declaring 1200x630 here lets
   // Facebook fit-with-borders instead of substituting its own thumbnail.
@@ -86,12 +97,20 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
     keywords: a.seoKeywords ? a.seoKeywords.split(',').map((k) => k.trim()).filter(Boolean) : undefined,
     alternates: { canonical: `/articles/${a.id}` },
     openGraph: {
-      title, description,
+      title: ogTitle,
+      description,
       url: `${SITE_URL}/articles/${a.id}`,
       type: 'article',
+      locale,
+      alternateLocale: [a.language === 'ml' ? 'en_IN' : 'ml_IN'],
+      publishedTime: a.publishedAt ?? a.createdAt,
+      modifiedTime:  a.updatedAt,
+      authors: a.source ? [a.source] : ['AyurConnect Editorial'],
+      section: categoryLabel,
+      tags: tagList,
       images: [ogImage],
     },
-    twitter: { card: 'summary_large_image', title, description, images: [ogImage.url] },
+    twitter: { card: 'summary_large_image', title: ogTitle, description, images: [ogImage.url] },
   }
 }
 
