@@ -210,7 +210,10 @@ const route: FastifyPluginAsync = async (fastify) => {
     } catch (err: unknown) {
       const { code, message, canRetry } = classifyError(err)
       request.log.error({ err: err instanceof Error ? err.message : String(err), code }, 'jobs-ai parse-poster failed')
-      return reply.code(502).send({ ok: false, code, message, canRetry })
+      // 422 (not 502) — Cloudflare / nginx intercept 5xx responses with
+      // their own text/plain error pages, losing our JSON body. 422 is
+      // in the client-error range and passes through unchanged.
+      return reply.code(422).send({ ok: false, code, message, canRetry })
     }
   })
 
@@ -233,7 +236,10 @@ const route: FastifyPluginAsync = async (fastify) => {
     } catch (err: unknown) {
       const { code, message, canRetry } = classifyError(err)
       request.log.error({ err: err instanceof Error ? err.message : String(err), code }, 'jobs-ai parse-text failed')
-      return reply.code(502).send({ ok: false, code, message, canRetry })
+      // 422 (not 502) — Cloudflare / nginx intercept 5xx responses with
+      // their own text/plain error pages, losing our JSON body. 422 is
+      // in the client-error range and passes through unchanged.
+      return reply.code(422).send({ ok: false, code, message, canRetry })
     }
   })
 
