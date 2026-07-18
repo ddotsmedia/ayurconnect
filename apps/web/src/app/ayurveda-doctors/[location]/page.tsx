@@ -51,7 +51,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   const meta = pageMetadata({
     path: `/ayurveda-doctors/${slug}`,
     title:       `Ayurveda Doctors in ${loc} | Verified BAMS Doctors`,
-    description: `Find verified Ayurveda doctors in ${loc}. 500+ BAMS and MD practitioners across Kerala available for online and in-person consultation. CCIM cross-checked.`,
+    description: `Find verified Ayurveda doctors in ${loc}. BAMS and MD practitioners across Kerala available for online and in-person consultation. CCIM cross-checked.`,
     keywords:    ['ayurveda doctors', loc, 'BAMS', 'Kerala', 'online consultation'],
   })
   if (doctors.length < 3) meta.robots = { index: false, follow: true, googleBot: { index: false, follow: true } }

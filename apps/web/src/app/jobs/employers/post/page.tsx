@@ -11,7 +11,7 @@ export default async function PostJobPage() {
     <div className="min-h-screen bg-cream py-8">
       <div className="container mx-auto px-4 max-w-3xl">
         <h1 className="font-serif text-3xl text-ink">Post a Job</h1>
-        <p className="text-sm text-gray-600 mt-1">Reach 500+ verified Ayurveda doctors. First job is free.</p>
+        <p className="text-sm text-gray-600 mt-1">Reach verified Ayurveda doctors across Kerala + UAE. First job is free.</p>
         <JobPostClient />
       </div>
     </div>
