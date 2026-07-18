@@ -69,9 +69,12 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   const title       = a.seoTitle       ?? a.title
   const description = a.seoDescription  ?? clip(a.content, 200)
+  // Facebook / LinkedIn recommend 1200x630 (1.91:1). Sharp resizes the upload
+  // as 1200x600 (2:1) which is close enough; declaring 1200x630 here lets
+  // Facebook fit-with-borders instead of substituting its own thumbnail.
   const ogImage     = a.featuredImage
-    ? { url: a.featuredImage.startsWith('http') ? a.featuredImage : `${SITE_URL}${a.featuredImage}`, width: 1200, height: 600, alt: a.featuredImageAlt ?? a.title }
-    : { url: '/opengraph-image', width: 1200, height: 630 }
+    ? { url: a.featuredImage.startsWith('http') ? a.featuredImage : `${SITE_URL}${a.featuredImage}`, width: 1200, height: 630, alt: a.featuredImageAlt ?? a.title }
+    : { url: `${SITE_URL}/opengraph-image`, width: 1200, height: 630 }
   return {
     title: `${title}`,
     description,
@@ -106,6 +109,16 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 //   blank line             → paragraph break
 //
 // Everything else renders as plain text.
+
+// Article upload API generates 3 sizes (1200 / 800 / 400) with the base URL
+// ending in "-1200.webp". Derive a srcset so featured images pick the smallest
+// variant on mobile. Legacy featuredImage URLs that don't match the pattern
+// just fall back to the single-image src.
+function buildSrcSet(url: string): string | undefined {
+  if (!url.endsWith('-1200.webp')) return undefined
+  const base = url.slice(0, -'-1200.webp'.length)
+  return `${base}-400.webp 400w, ${base}-800.webp 800w, ${base}-1200.webp 1200w`
+}
 
 function safeUrl(u: string): string | null {
   const trimmed = u.trim()
@@ -253,18 +266,38 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
           <p className="text-sm text-gray-500 italic mb-6">Source: {article.source}</p>
         )}
 
+        {article.featuredImage && (
+          <figure className="mb-6">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={article.featuredImage}
+              srcSet={buildSrcSet(article.featuredImage)}
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
+              alt={article.featuredImageAlt ?? article.title}
+              width={1200}
+              height={630}
+              className="w-full h-auto object-cover rounded-lg"
+              fetchPriority="high"
+              loading="eager"
+            />
+            {article.featuredImageAlt && (
+              <figcaption className="text-xs text-gray-500 mt-2 text-center italic">{article.featuredImageAlt}</figcaption>
+            )}
+          </figure>
+        )}
+
         <div className="prose prose-kerala max-w-none text-gray-800 space-y-4 text-[15px]">
           {renderContent(article.content)}
         </div>
 
         <ArticleEngagement id={article.id} title={article.title} />
 
-        <div className="mt-4 p-4 rounded-card bg-amber-50 border border-amber-100 text-sm text-amber-900">
+        <ArticleShareBar id={article.id} title={article.title} />
+
+        <div className="mt-6 p-4 rounded-card bg-amber-50 border border-amber-100 text-sm text-amber-900">
           <strong>Consult a doctor about this topic.</strong> Articles are educational. For diagnosis + personalised treatment, talk to a verified Ayurveda doctor.
           <Link href="/doctors" className="text-kerala-800 hover:underline ml-1 font-semibold">Browse verified doctors →</Link>
         </div>
-
-        <ArticleShareBar id={article.id} title={article.title} />
 
         <p className="mt-4 text-xs text-gray-400">Published {new Date(article.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
       </article>
