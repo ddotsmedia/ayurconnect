@@ -429,7 +429,7 @@ export const TOPIC_PAGES: Record<string, LandingContent> = {
 "bams-vs-mbbs": {
   "slug": "bams-vs-mbbs",
   "title": "BAMS vs MBBS — Complete Comparison for Medical Students",
-  "metaTitle": "BAMS vs MBBS — Salary, Scope, Career Comparison 2026 | AyurConnect",
+  "metaTitle": "BAMS vs MBBS — Salary, Scope, Career Comparison 2026",
   "metaDescription": "Honest BAMS vs MBBS comparison — duration, fees, salary, scope, prescribing rights, career options. Make an informed decision.",
   "keywords": ["BAMS vs MBBS", "BAMS vs MBBS salary", "BAMS vs MBBS scope", "which is better BAMS or MBBS", "BAMS or MBBS which is best"],
   "leadHtml": "Every year, lakhs of NEET-UG aspirants face the same fork in the road — BAMS or MBBS. Both are 5.5-year full-time medical degrees recognized under Indian law, both require a qualifying NEET-UG score, and both end with a compulsory one-year rotatory internship before independent practice. But once you look past that surface similarity, the two systems of medicine, career trajectories, and earning potential diverge significantly.\n\nThis comparison lays out duration, fees, curriculum, salary bands in India and abroad, and legal prescribing rights without favoring either side, so the decision can rest on your own aptitude and goals rather than cutoff rank or family pressure.\n\nNeither degree is a fallback for the other. A student drawn to herbal pharmacology, Panchakarma, and a whole-systems view of the body will find BAMS genuinely rewarding in ways MBBS cannot replicate — and the reverse holds for someone drawn to acute care, surgery, and lab-driven diagnostics.",
@@ -475,7 +475,7 @@ export const TOPIC_PAGES: Record<string, LandingContent> = {
 "jobs/government-ayurveda-jobs": {
   "slug": "jobs/government-ayurveda-jobs",
   "title": "Government Ayurveda Jobs — AYUSH Medical Officer, PSC & Central Posts",
-  "metaTitle": "Government Ayurveda Jobs 2026 — AYUSH Medical Officer, PSC Posts | AyurConnect",
+  "metaTitle": "Government Ayurveda Jobs 2026 — AYUSH Medical Officer, PSC Posts",
   "metaDescription": "Complete list of government ayurveda jobs — AYUSH Medical Officer salary, PSC recruitment, central posts (Railway, NHM). BAMS government job guide.",
   "keywords": ["BAMS government job", "ayurveda government job", "AYUSH medical officer", "AYUSH medical officer recruitment", "government job for BAMS doctors"],
   "leadHtml": "A BAMS degree opens a far wider government job market than most students realize — it isn't limited to state Ayurveda dispensaries. Between state Public Service Commissions, the National Health Mission, the AYUSH Ministry's own institutions, defence medical services, and railway health cadres, there are dozens of distinct recruitment channels a registered Ayurveda doctor can apply through.\n\nGovernment roles come with the usual trade-offs against private practice — lower ceiling on take-home pay early in your career, but pension benefits (for older recruitment schemes), predictable promotions, job security, and — for teaching and research posts — a path into academia or CCRAS-funded research work.\n\nThis guide maps out the post types, recruiting bodies, state-wise quirks, pay scales, and how to prepare, so you can target the right exam instead of applying at random.",
@@ -520,7 +520,7 @@ export const TOPIC_PAGES: Record<string, LandingContent> = {
 "jobs/kerala-psc-ayurveda": {
   "slug": "jobs/kerala-psc-ayurveda",
   "title": "Kerala PSC Ayurveda Medical Officer — Syllabus, Papers & Preparation",
-  "metaTitle": "Kerala PSC Ayurveda Medical Officer 2026 — Syllabus, Previous Papers | AyurConnect",
+  "metaTitle": "Kerala PSC Ayurveda Medical Officer 2026 — Syllabus, Previous Papers",
   "metaDescription": "Kerala PSC Ayurveda Medical Officer 2026 — full syllabus, exam pattern, salary (Level 23, ₹44,900-99,400), preparation strategy, previous paper analysis.",
   "keywords": ["Kerala PSC ayurveda medical officer", "Kerala PSC ayurveda syllabus", "PSC ayurveda previous questions", "Kerala PSC ayurveda salary", "Kerala Insurance Medical Officer ayurveda"],
   "leadHtml": "Kerala runs one of India's largest and most active government Ayurveda recruitment pipelines, with the Kerala Public Service Commission (PSC) regularly notifying vacancies for Ayurveda Medical Officer and Insurance Medical Officer (Ayurveda) posts across district hospitals, PHCs, CHCs, and ESI dispensaries.\n\nBecause Kerala treats Ayurveda as a mainstream part of its public health system rather than a token AYUSH add-on, these posts are genuinely competitive — cutoffs are high and the syllabus spans both classical Ayurveda subjects and modern-medicine basics in real depth.\n\nThis guide covers eligibility, the exact exam pattern, a full syllabus breakdown, previous-year topic trends, a month-by-month study plan, and the current pay scale, so you can prepare against the real exam rather than generic AYUSH-exam advice.",
@@ -573,7 +573,7 @@ export const TOPIC_PAGES: Record<string, LandingContent> = {
 "jobs/bams-salary-india": {
   "slug": "jobs/bams-salary-india",
   "title": "BAMS Doctor Salary in India — Fresher to Senior (2026 Guide)",
-  "metaTitle": "BAMS Doctor Salary India 2026 — Fresher to Senior, Govt vs Private | AyurConnect",
+  "metaTitle": "BAMS Doctor Salary India 2026 — Fresher to Senior, Govt vs Private",
   "metaDescription": "BAMS doctor salary in India 2026 — fresher, junior, senior, specialist ranges. Government vs private sector, state-wise, top-paying specializations.",
   "keywords": ["BAMS salary in India", "ayurveda doctor salary", "BAMS fresher salary", "BAMS doctor income", "BAMS government salary"],
   "leadHtml": "BAMS doctor salaries in India vary more widely than most other medical degrees, because the income ceiling depends heavily on whether you choose government service, private hospital employment, your own clinic, or a specialization like Panchakarma that commands premium rates in the wellness industry.\n\nThis guide breaks down realistic salary ranges by experience level, sector, state, and specialization, plus the specific moves — postgraduate specialization, GCC licensing, starting your own practice — that meaningfully raise earning potential over a career.\n\nFigures below are broad market ranges based on typical Indian metro and tier-2 city compensation as of 2026; actual pay varies by employer, city cost of living, and individual negotiation.",
@@ -618,7 +618,7 @@ export const TOPIC_PAGES: Record<string, LandingContent> = {
 "jobs/bams-salary-uae": {
   "slug": "jobs/bams-salary-uae",
   "title": "BAMS Doctor Salary in UAE — Dubai, Abu Dhabi & GCC (2026)",
-  "metaTitle": "BAMS Doctor Salary UAE 2026 — Dubai, Abu Dhabi, GCC | AyurConnect",
+  "metaTitle": "BAMS Doctor Salary UAE 2026 — Dubai, Abu Dhabi, GCC",
   "metaDescription": "BAMS doctor salary in Dubai, Abu Dhabi, Sharjah, Qatar, Saudi 2026 — fresher to specialist AED ranges, hiring process, DHA/DOH licensing, benefits, tax advantage.",
   "keywords": ["BAMS salary in Dubai", "ayurveda doctor salary UAE", "BAMS salary Gulf", "ayurveda doctor Dubai salary", "BAMS doctor Abu Dhabi salary"],
   "leadHtml": "The UAE and wider GCC have become one of the most attractive destinations for licensed BAMS doctors, driven by a large South Asian expatriate population, a regulated wellness and traditional-medicine sector, and tax-free salaries that stretch further than equivalent Indian pay once you factor in take-home income.\n\nBut getting there requires clearing a real regulatory bar — Dataflow primary-source verification, a licensing exam through the relevant health authority, and a formal license before you can practice, not just a job offer.\n\nThis guide covers realistic AED salary ranges by experience and employer type, the licensing roadmap, benefits beyond base pay, and what take-home income actually looks like once cost of living is factored in.",
@@ -667,7 +667,7 @@ export const TOPIC_PAGES: Record<string, LandingContent> = {
 "jobs/licensing/dha-exam-questions": {
   "slug": "jobs/licensing/dha-exam-questions",
   "title": "DHA Exam Questions for Ayurveda — Sample Papers & Practice MCQs",
-  "metaTitle": "DHA Exam Questions Ayurveda 2026 — Sample Papers, MCQs & Study Guide | AyurConnect",
+  "metaTitle": "DHA Exam Questions Ayurveda 2026 — Sample Papers, MCQs & Study Guide",
   "metaDescription": "DHA exam pattern for ayurveda doctors — 20 practice MCQs with explanations, subject weightage, 3-month study plan, exam-day tips.",
   "keywords": ["DHA exam questions ayurveda", "DHA ayurveda MCQ", "DHA exam sample papers", "DHA ayurveda syllabus", "DHA prometric ayurveda"],
   "leadHtml": "The Dubai Health Authority (DHA) licensing exam for Ayurveda practitioners is a Prometric-delivered computer-based test that every BAMS or MD Ayurveda doctor must clear before practising in Dubai. It tests clinical Ayurveda knowledge across all major subjects alongside UAE-specific health regulations and ethics, and is widely regarded as tougher in format (strict timing, single-best-answer MCQs, no partial credit) than most Indian university exams.\n\nThis guide breaks down the exact exam pattern, subject-wise weightage, and gives you 20 original practice MCQs with explanations so you can gauge your readiness. It also includes a realistic 3-month study plan, book recommendations, and exam-day tips from candidates who have already cleared it.\n\nFor the full licensing process — eligibility, DataFlow verification, and document checklist — see the complete [DHA Dubai guide](/jobs/licensing/dha-dubai).",
@@ -712,7 +712,7 @@ export const TOPIC_PAGES: Record<string, LandingContent> = {
 "learn/aiapget-syllabus": {
   "slug": "learn/aiapget-syllabus",
   "title": "AIAPGET 2026 Syllabus — Complete Exam Pattern & Preparation Guide",
-  "metaTitle": "AIAPGET Syllabus 2026 — Exam Pattern, Study Plan & MCQ Practice | AyurConnect",
+  "metaTitle": "AIAPGET Syllabus 2026 — Exam Pattern, Study Plan & MCQ Practice",
   "metaDescription": "AIAPGET 2026 syllabus — 120 MCQs, subject-wise topics, 6-month study plan, previous year analysis, MD Ayurveda entrance guide.",
   "keywords": ["AIAPGET syllabus 2026", "AIAPGET exam pattern", "AIAPGET preparation", "MD ayurveda entrance", "AIAPGET previous year analysis"],
   "leadHtml": "AIAPGET (All India AYUSH Post Graduate Entrance Test) is the single national entrance examination conducted by the National Testing Agency (NTA) for admission to MD/MS postgraduate seats across the AYUSH streams — Ayurveda, Unani, Siddha, and Homoeopathy. Ayurveda is by far the largest cohort within AIAPGET, given the number of BAMS graduates and MD/MS Ayurveda seats available nationally each year.\n\nBecause it is a single window exam, your AIAPGET rank determines eligibility for both All India Quota and, in most states, state counselling rounds, which makes preparation strategy and time management across fourteen subjects genuinely high-stakes.\n\nThis guide covers the current exam pattern, subject-wise syllabus, a month-by-month 6-month study plan, and where repeated question themes tend to cluster year over year.",
@@ -765,7 +765,7 @@ export const TOPIC_PAGES: Record<string, LandingContent> = {
 "for-doctors/start-ayurveda-clinic": {
   "slug": "for-doctors/start-ayurveda-clinic",
   "title": "How to Start Your Own Ayurveda Clinic — Complete Guide (2026)",
-  "metaTitle": "How to Start Ayurveda Clinic — Setup Cost, License, Steps | AyurConnect",
+  "metaTitle": "How to Start Ayurveda Clinic — Setup Cost, License, Steps",
   "metaDescription": "Complete step-by-step guide to starting your own ayurveda clinic in India — licenses, budget (₹5L-2Cr), setup, staff, marketing, common pitfalls.",
   "keywords": ["how to start ayurveda clinic", "ayurveda clinic setup", "open ayurveda hospital", "ayurveda clinic license", "start ayurveda practice"],
   "leadHtml": "Starting an independent Ayurveda clinic is one of the most common career goals among BAMS and MD Ayurveda graduates, but the gap between clinical training and the practical realities of licensing, budgeting, and running a small healthcare business trips up a large share of first-time clinic owners. Most of the friction is avoidable with a clear checklist done in the right order.\n\nThis guide walks through the process step by step — qualifications, legal requirements, location, layout, equipment, staffing, budget, registrations, marketing, insurance, and growth — with realistic Indian cost ranges at each stage, and closes with the mistakes that most often derail a first clinic.\n\nIf you are still deciding between solo practice and salaried employment, or want to benchmark staff costs, see [BAMS salary in India](/jobs/bams-salary-india) alongside this guide.",
@@ -830,7 +830,7 @@ export const TOPIC_PAGES: Record<string, LandingContent> = {
 "for-doctors/bams-prescribing-rights": {
   "slug": "for-doctors/bams-prescribing-rights",
   "title": "BAMS Doctor Prescribing Rights — What You Can & Cannot Do Legally",
-  "metaTitle": "BAMS Doctor Legal Rights — Prescribing, Surgery, Practice Rules 2026 | AyurConnect",
+  "metaTitle": "BAMS Doctor Legal Rights — Prescribing, Surgery, Practice Rules 2026",
   "metaDescription": "BAMS doctor prescribing rights explained — Supreme Court ruling, state-wise cross-practice rules, what BAMS can prescribe, surgery scope, NCISM guidelines.",
   "keywords": ["can BAMS prescribe allopathy", "BAMS doctor legal rights", "BAMS practice rights India", "BAMS prescribing scope", "NCISM BAMS practice"],
   "leadHtml": "Few questions generate more confusion among BAMS graduates than what exactly they are legally permitted to prescribe and perform, particularly around cross-practice with allopathic medicine. The confusion is not entirely the doctors' fault — India's framework for this is genuinely a patchwork of a central Supreme Court precedent overlaid with differing state-level notifications, several of which change or get challenged periodically.\n\nThis guide lays out the legal foundation, what is broadly permitted everywhere versus what depends on your specific state's current notification, and what BAMS doctors can and cannot do without additional qualification.\n\nThis is educational content, not legal advice — the closing section carries a full disclaimer, and you should always confirm current rules with your own State Medical Council for Indian Medicine before making a practice decision.",
@@ -883,7 +883,7 @@ export const TOPIC_PAGES: Record<string, LandingContent> = {
 "for-doctors/panchakarma-protocol": {
   "slug": "for-doctors/panchakarma-protocol",
   "title": "Panchakarma Protocol — Standard Operating Procedures for Practitioners",
-  "metaTitle": "Panchakarma Protocol & SOP — Complete Procedure Guide for Practitioners | AyurConnect",
+  "metaTitle": "Panchakarma Protocol & SOP — Complete Procedure Guide for Practitioners",
   "metaDescription": "Panchakarma SOP for practitioners — Poorvakarma, Pradhanakarma (Vamana, Virechana, Basti, Nasya, Raktamokshana), Paschatkarma, contraindications, documentation.",
   "keywords": ["panchakarma procedure protocol", "panchakarma SOP", "panchakarma treatment steps", "panchakarma indications contraindications", "samsarjana krama"],
   "leadHtml": "Panchakarma is Ayurveda's structured bio-purification protocol, built around three sequential phases — preparatory (Poorvakarma), the main purification procedures themselves (Pradhanakarma), and post-procedure recovery (Paschatkarma). Each phase has well-defined classical procedures, dosing patterns, and completion signs (Shuddhi Lakshana) that experienced practitioners rely on to judge whether a therapy has been administered correctly and safely.\n\nThis guide is written as a working reference for practitioners — covering Poorvakarma (Snehana and Swedana), each of the five Pradhanakarma procedures (Vamana, Virechana, Basti, Nasya, Raktamokshana), the Paschatkarma dietary progression (Samsarjana Krama), and closes with contraindications and documentation practices worth building into your clinic's standard workflow.\n\nFor day-to-day clinical drug lookups, see the [quick reference guide](/quick-reference), and for setting up your own Panchakarma-capable clinic from scratch, see [starting an Ayurveda clinic](/for-doctors/start-ayurveda-clinic).",
