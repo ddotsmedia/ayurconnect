@@ -100,6 +100,12 @@ export default async function JobsPage() {
             <button className="px-4 py-2 bg-gold-500 hover:bg-gold-600 text-white text-sm font-semibold rounded">Search</button>
           </form>
           <div className="mt-4 flex flex-wrap items-center gap-1.5 text-xs text-white/85">
+            <span className="opacity-80">Job type:</span>
+            <Link href="/jobs"           className="px-2.5 py-1 bg-white/15 hover:bg-white/25 rounded-full border border-white/25 font-semibold">All</Link>
+            <Link href="/jobs/doctor"    className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-full border border-white/15">👨‍⚕️ Doctor</Link>
+            <Link href="/jobs/therapist" className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-full border border-white/15">💆 Therapist</Link>
+          </div>
+          <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-white/85">
             <span className="opacity-80">Quick filters:</span>
             <Link href="/jobs/walk-in"          className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-full border border-white/15">📍 Walk-in</Link>
             <Link href="/jobs/immediate-hiring" className="px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-full border border-white/15">🔴 Urgent</Link>

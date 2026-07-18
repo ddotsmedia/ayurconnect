@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Sparkles, Check, RefreshCw, AlertCircle } from 'lucide-react'
+import { ROLE_TYPES, specializationsFor, type RoleType } from '../_role-constants'
 
 const LOCATIONS = [
   'Thiruvananthapuram', 'Kollam', 'Alappuzha', 'Kottayam', 'Ernakulam',
@@ -11,12 +12,13 @@ const LOCATIONS = [
   'Dubai', 'Abu Dhabi', 'Sharjah', 'Doha, Qatar', 'Muscat, Oman', 'Riyadh, Saudi Arabia',
   'London, UK', 'Other',
 ]
-const SPECIALIZATIONS = ['General BAMS', 'Kayachikitsa', 'Panchakarma', 'Prasuti & Stree Roga', 'Kaumarabhritya', 'Shalya Tantra', 'Shalakya Tantra', 'Rasashastra', 'Wellness / Spa', 'Locum']
 
 export function QuickPostForm() {
   const [state, setState] = useState<'form' | 'submitting' | 'done' | 'error'>('form')
   const [error, setError] = useState<string | null>(null)
   const [isWalkIn, setIsWalkIn] = useState(false)
+  const [roleType, setRoleType] = useState<RoleType>('doctor')
+  const specs = specializationsFor(roleType)
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -36,6 +38,7 @@ export function QuickPostForm() {
       walkInVenue:     isWalkIn ? String(fd.get('walkInVenue') || '').trim() : undefined,
       status:          'pending',
       source:          'quick-post',
+      roleType,
     }
 
     if (!payload.title || !payload.location || !payload.contactWhatsapp) {
@@ -80,8 +83,25 @@ export function QuickPostForm() {
   return (
     <form onSubmit={onSubmit} className="bg-white border border-gray-100 rounded-card p-6 shadow-card space-y-4">
       <div>
+        <label className="block text-xs font-semibold text-kerala-700 uppercase tracking-wider mb-2">Who are you hiring? *</label>
+        <div className="grid grid-cols-3 gap-2">
+          {ROLE_TYPES.map((rt) => (
+            <button
+              type="button"
+              key={rt.value}
+              onClick={() => setRoleType(rt.value)}
+              className={`px-3 py-2 rounded border text-sm font-medium transition-colors text-left ${roleType === rt.value ? 'bg-kerala-700 text-white border-kerala-700' : 'bg-white text-gray-700 border-gray-200 hover:border-kerala-300'}`}
+            >
+              <span className="text-lg mr-1.5" aria-hidden>{rt.emoji}</span>{rt.label}
+            </button>
+          ))}
+        </div>
+        <p className="mt-1.5 text-[11px] text-gray-500">{ROLE_TYPES.find((r) => r.value === roleType)?.blurb}</p>
+      </div>
+
+      <div>
         <label className="block text-xs font-semibold text-kerala-700 uppercase tracking-wider mb-1">Job title *</label>
-        <input name="title" required placeholder="e.g. BAMS Doctor for Ayurveda Clinic" className="w-full px-3 py-2 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-kerala-300" maxLength={200} />
+        <input name="title" required placeholder={roleType === 'therapist' ? 'e.g. Panchakarma Therapist — Kottakkal Clinic' : roleType === 'consultant' ? 'e.g. Wellness Consultant — Dubai Resort' : 'e.g. BAMS Doctor for Ayurveda Clinic'} className="w-full px-3 py-2 border border-gray-200 rounded focus:outline-none focus:ring-2 focus:ring-kerala-300" maxLength={200} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -107,7 +127,7 @@ export function QuickPostForm() {
           <label className="block text-xs font-semibold text-kerala-700 uppercase tracking-wider mb-1">Specialization (optional)</label>
           <select name="specialty" className="w-full px-3 py-2 border border-gray-200 rounded bg-white focus:outline-none focus:ring-2 focus:ring-kerala-300" defaultValue="">
             <option value="">Any / General</option>
-            {SPECIALIZATIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+            {specs.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
         </div>
       </div>

@@ -4,22 +4,32 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { CheckCircle2, Loader2, Save } from 'lucide-react'
-
-const SPECS = ['Panchakarma','Kayachikitsa','Shalya','Shalakya','Prasuti Tantra','Kaumarbhritya','Manasika','Rasashastra','Dravyaguna','Roganidana','General']
+import { ROLE_TYPES, specializationsFor, type RoleType } from '../../_role-constants'
 const JOB_TYPES = ['full_time','part_time','contract','locum','internship','telemedicine']
 const WORK_MODES = ['onsite','remote','hybrid']
 
 export function JobPostClient() {
   const router = useRouter()
+  const [roleType, setRoleType] = useState<RoleType>('doctor')
+  const specs = specializationsFor(roleType)
   const [f, setF] = useState({
     title: '', description: '', jobType: 'full_time', workMode: 'onsite',
-    specialization: 'Panchakarma', companyName: '', location: '', district: '', country: 'IN',
+    specialization: specs[0], companyName: '', location: '', district: '', country: 'IN',
     experienceMin: '0', experienceMax: '', salaryCurrency: 'INR', salaryMin: '', salaryMax: '',
     skills: '', requirements: '', benefits: '', contactEmail: '', applicationDeadline: '',
     isUrgent: false, isFeatured: false,
+    certifications: '', // therapist-specific: e.g. "CPR, First Aid, AYTC certified"
   })
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+
+  function switchRole(next: RoleType) {
+    setRoleType(next)
+    // Reset specialization to the first of the new role's list so the select
+    // never renders an option that's not in its own <option> list.
+    const nextSpecs = specializationsFor(next)
+    if (!nextSpecs.includes(f.specialization)) setF({ ...f, specialization: nextSpecs[0] })
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -30,12 +40,23 @@ export function JobPostClient() {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           ...f,
+          // Job.type is the doctor/therapist/consultant discriminator on the
+          // main Job row (already accepted by the DB column since 2026-05-19).
+          type: roleType,
           experienceMin: Number(f.experienceMin) || 0,
           experienceMax: f.experienceMax ? Number(f.experienceMax) : null,
           salaryMin: f.salaryMin ? Number(f.salaryMin) : null,
           salaryMax: f.salaryMax ? Number(f.salaryMax) : null,
           skills: f.skills.split(',').map((s) => s.trim()).filter(Boolean),
-          requirements: f.requirements.split('\n').map((s) => s.trim()).filter(Boolean),
+          // Therapist certifications get folded into requirements[] so the
+          // Job model doesn't need a new column. Prefix each line so admins
+          // can quickly filter cert-related requirements in the pipeline.
+          requirements: [
+            ...f.requirements.split('\n').map((s) => s.trim()).filter(Boolean),
+            ...(roleType === 'therapist' && f.certifications.trim()
+              ? f.certifications.split(',').map((s) => `Certification: ${s.trim()}`).filter((s) => s !== 'Certification: ')
+              : []),
+          ],
           benefits: f.benefits.split(',').map((s) => s.trim()).filter(Boolean),
         }),
       })
@@ -59,10 +80,26 @@ export function JobPostClient() {
         </Link>
       </div>
     <form onSubmit={submit} className="mt-4 bg-white border border-gray-100 rounded-card shadow-card p-5 space-y-3">
-      <L l="Job title *"><input required className="input" value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} placeholder="e.g. Senior Panchakarma Physician" /></L>
+      <div>
+        <label className="block text-xs font-medium text-gray-700 mb-1.5">Hiring a</label>
+        <div className="grid grid-cols-3 gap-2">
+          {ROLE_TYPES.map((rt) => (
+            <button
+              type="button"
+              key={rt.value}
+              onClick={() => switchRole(rt.value)}
+              className={`px-3 py-2 rounded border text-sm font-medium text-left transition-colors ${roleType === rt.value ? 'bg-kerala-700 text-white border-kerala-700' : 'bg-white text-gray-700 border-gray-200 hover:border-kerala-300'}`}
+            >
+              <span className="text-lg mr-1.5" aria-hidden>{rt.emoji}</span>{rt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <L l="Job title *"><input required className="input" value={f.title} onChange={(e) => setF({ ...f, title: e.target.value })} placeholder={roleType === 'therapist' ? 'e.g. Senior Panchakarma Therapist' : roleType === 'consultant' ? 'e.g. Wellness Consultant' : 'e.g. Senior Panchakarma Physician'} /></L>
       <L l="Description *"><textarea required rows={4} className="input" value={f.description} onChange={(e) => setF({ ...f, description: e.target.value })} /></L>
       <div className="grid grid-cols-2 gap-3">
-        <L l="Specialization"><select className="input" value={f.specialization} onChange={(e) => setF({ ...f, specialization: e.target.value })}>{SPECS.map((s) => <option key={s}>{s}</option>)}</select></L>
+        <L l="Specialization"><select className="input" value={f.specialization} onChange={(e) => setF({ ...f, specialization: e.target.value })}>{specs.map((s) => <option key={s}>{s}</option>)}</select></L>
         <L l="Job type"><select className="input" value={f.jobType} onChange={(e) => setF({ ...f, jobType: e.target.value })}>{JOB_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}</select></L>
         <L l="Work mode"><select className="input" value={f.workMode} onChange={(e) => setF({ ...f, workMode: e.target.value })}>{WORK_MODES.map((t) => <option key={t} value={t}>{t}</option>)}</select></L>
         <L l="Country (ISO-2)"><input className="input" maxLength={2} value={f.country} onChange={(e) => setF({ ...f, country: e.target.value.toUpperCase() })} /></L>
@@ -77,6 +114,11 @@ export function JobPostClient() {
       </div>
       <L l="Skills (comma-separated)"><input className="input" value={f.skills} onChange={(e) => setF({ ...f, skills: e.target.value })} placeholder="Pizhichil, Nasya, Patient counseling" /></L>
       <L l="Requirements (one per line)"><textarea rows={3} className="input" value={f.requirements} onChange={(e) => setF({ ...f, requirements: e.target.value })} /></L>
+      {roleType === 'therapist' && (
+        <L l="Certifications (comma-separated) — for therapist roles">
+          <input className="input" value={f.certifications} onChange={(e) => setF({ ...f, certifications: e.target.value })} placeholder="AYTC certified, CPR, First Aid, on-the-job trained" />
+        </L>
+      )}
       <L l="Benefits (comma-separated)"><input className="input" value={f.benefits} onChange={(e) => setF({ ...f, benefits: e.target.value })} placeholder="Accommodation, Meals, Visa sponsorship" /></L>
       <L l="Contact email"><input type="email" className="input" value={f.contactEmail} onChange={(e) => setF({ ...f, contactEmail: e.target.value })} /></L>
       <div className="flex gap-3">

@@ -27,6 +27,9 @@ const route: FastifyPluginAsync = async (fastify) => {
         walkInTime:  typeof b.walkInTime  === 'string' ? b.walkInTime.trim().slice(0, 40)   : null,
         walkInVenue: typeof b.walkInVenue === 'string' ? b.walkInVenue.trim().slice(0, 200) : null,
         source:      typeof b.source      === 'string' ? b.source.trim().slice(0, 40)       : 'quick-post',
+        // 2026-07-19: role_type (doctor | therapist | consultant). Anything
+        // else is coerced to null so bad clients can't inject arbitrary values.
+        roleType:    (typeof b.roleType === 'string' && ['doctor', 'therapist', 'consultant'].includes(b.roleType)) ? b.roleType : null,
       },
       select: { id: true, status: true, createdAt: true },
     })

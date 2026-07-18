@@ -2504,6 +2504,7 @@ model QuickJobSubmission {
   walkInTime      String?
   walkInVenue     String?
   source          String   @default("quick-post")
+  roleType        String? // 'doctor' | 'therapist' | 'consultant' (2026-07-19)
   status          String   @default("pending") // pending | approved | rejected
   reviewedAt      DateTime?
   reviewedById    String?

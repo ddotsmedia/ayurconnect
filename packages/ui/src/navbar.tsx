@@ -149,6 +149,8 @@ export function Navbar({ session = null }: { session?: NavbarSession } = {}) {
       sections: [{
         items: [
           { href: '/jobs',                     label: 'Jobs board',           desc: 'BAMS, therapists, pharmacists — all openings', icon: Briefcase },
+          { href: '/jobs/doctor',              label: 'Doctor jobs',          desc: 'BAMS + MD Ayurveda vacancies',                   icon: Stethoscope },
+          { href: '/jobs/therapist',           label: 'Therapist jobs',       desc: 'Panchakarma, Abhyanga, Shirodhara — certified',  icon: HeartPulse },
           { href: '/jobs/employers/post',      label: 'Post a job',           desc: 'Full form · employer login',                    icon: FileText },
           { href: '/jobs/upload-poster',       label: 'Upload poster (AI)',   desc: 'AI reads your image · auto-fills',              icon: Sparkles },
           { href: '/jobs/quick-post',          label: 'Quick post',           desc: '30 seconds · no login',                          icon: Sparkles },
