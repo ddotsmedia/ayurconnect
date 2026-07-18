@@ -1,4 +1,4 @@
-import { Mail, Phone } from 'lucide-react'
+import { Mail, MessageCircle } from 'lucide-react'
 
 type Settings = { 'contact.phone'?: string; 'contact.email'?: string }
 
@@ -6,23 +6,29 @@ type Settings = { 'contact.phone'?: string; 'contact.email'?: string }
 // (admin-editable via /admin/settings). Renders nothing if both values are
 // missing — we don't want a blank bar in dev.
 //
-// Mobile: shows only phone (email link removed to save space). Desktop: both.
+// Phone links to WhatsApp (wa.me/<digits>), not tel: — the admin-configured
+// number is the AyurConnect concierge/care-coordinator, which we want people
+// to message rather than call.
 export function TopContactBar({ settings = {} }: { settings?: Settings } = {}) {
   const phone = (settings['contact.phone'] ?? '').trim()
   const email = (settings['contact.email'] ?? '').trim()
   if (!phone && !email) return null
 
+  const waDigits = phone.replace(/\D/g, '')
+
   return (
     <div className="bg-kerala-800 text-white/90 text-xs">
       <div className="container mx-auto px-4 py-2 flex items-center justify-end gap-5">
-        {phone && (
+        {phone && waDigits && (
           <a
-            href={`tel:${phone.replace(/\s+/g, '')}`}
+            href={`https://wa.me/${waDigits}`}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 hover:text-white transition-colors"
-            aria-label="Call AyurConnect"
+            aria-label="WhatsApp AyurConnect"
           >
-            <Phone className="w-3.5 h-3.5 text-gold-400" />
-            <span className="tabular-nums">{phone}</span>
+            <MessageCircle className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="tabular-nums">WhatsApp: {phone}</span>
           </a>
         )}
         {email && (

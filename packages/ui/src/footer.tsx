@@ -128,9 +128,23 @@ export function Footer({ settings = {} }: { settings?: FooterSettings } = {}) {
                 {settings['contact.email'] && (
                   <li className="flex items-center gap-2"><Mail className="w-4 h-4 text-gold-400" /><a href={`mailto:${settings['contact.email']}`} className="hover:text-white">{settings['contact.email']}</a></li>
                 )}
-                {settings['contact.phone'] && (
-                  <li className="flex items-center gap-2"><Phone className="w-4 h-4 text-gold-400" /><a href={`tel:${settings['contact.phone'].replace(/\s+/g, '')}`} className="hover:text-white">{settings['contact.phone']}</a></li>
-                )}
+                {settings['contact.phone'] && (() => {
+                  const digits = settings['contact.phone']!.replace(/\D/g, '')
+                  return (
+                    <li className="flex items-center gap-2">
+                      <MessageCircle className="w-4 h-4 text-emerald-400" />
+                      <a
+                        href={`https://wa.me/${digits}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-white"
+                        aria-label="WhatsApp AyurConnect"
+                      >
+                        WhatsApp: {settings['contact.phone']}
+                      </a>
+                    </li>
+                  )
+                })()}
                 {settings['contact.address'] && (
                   <li className="flex items-start gap-2"><MapPin className="w-4 h-4 text-gold-400 mt-0.5 flex-shrink-0" /><span>{settings['contact.address']}</span></li>
                 )}
