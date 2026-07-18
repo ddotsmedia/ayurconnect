@@ -69,7 +69,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   if (!a) return { title: 'Article not found' }
 
   const title       = a.seoTitle       ?? a.title
-  const description = a.seoDescription  ?? clip(a.content, 200)
+  // Description priority: seoDescription → first 200 chars of content → title.
+  // Final fallback to title (never undefined) so Facebook can never fall
+  // through to the site-wide default 'Kerala's #1 Ayurveda Platform…'
+  // description on an article with no seoDescription + empty content.
+  const description = (a.seoDescription?.trim() || clip(a.content, 200) || a.title).slice(0, 300)
   const categoryLabel = CATEGORY_LABEL[a.category] ?? a.category
   // OG title = "<article> | <category> | AyurConnect". Root template already
   // appends "| AyurConnect"; use `title.absolute` to bypass and set the full
