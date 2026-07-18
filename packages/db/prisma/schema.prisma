@@ -837,6 +837,8 @@ model KnowledgeArticle {
   shareCount        Int       @default(0)
   seoTitle          String?
   seoDescription    String?
+  seoKeywords       String?
+  featuredImageAlt  String?
   relatedArticleIds String[]  @default([])
   reviewedBy        String? // doctor name (free-text v1; FK to Doctor in v2)
   reviewedAt        DateTime?
