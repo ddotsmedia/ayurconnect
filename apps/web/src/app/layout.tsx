@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     // page that doesn't set its own canonical, causing Google to see 89+
     // "duplicate without user-selected canonical" reports pointing to '/'.
     // Homepage itself has canonical=/ via its own page.tsx metadata.
-    languages: { 'en-IN': '/', 'ml-IN': '/', 'x-default': '/' },
+    languages: { 'en-IN': '/', 'ml-IN': '/ml', 'x-default': '/' },
   },
   manifest: '/manifest.webmanifest',
   appleWebApp: {
@@ -200,10 +200,10 @@ export default async function RootLayout({
         <link rel="alternate" type="application/atom+xml" title="AyurConnect — Atom" href="/atom.xml" />
         <link rel="search"    type="application/opensearchdescription+xml" title="AyurConnect" href="/opensearch.xml" />
 
-        {/* hreflang — emitted at root for the homepage; per-page metadata
-            (pageMetadata helper) overrides with the correct canonical path. */}
-        <link rel="alternate" hrefLang="en-IN" href={SITE_URL} />
-        <link rel="alternate" hrefLang="ml-IN" href={SITE_URL} />
+        {/* hreflang — site-wide default pairing (en-IN homepage ↔ ml-IN /ml).
+            Individual pages override via metadata.alternates.languages. */}
+        <link rel="alternate" hrefLang="en-IN"     href={SITE_URL} />
+        <link rel="alternate" hrefLang="ml-IN"     href={`${SITE_URL}/ml`} />
         <link rel="alternate" hrefLang="x-default" href={SITE_URL} />
         <meta httpEquiv="content-language" content="en-IN, ml-IN" />
 
