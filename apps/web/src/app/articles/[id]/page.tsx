@@ -47,11 +47,17 @@ async function fetchArticle(id: string): Promise<Article | null> {
 
 async function fetchRelated(currentId: string, category: string): Promise<Article[]> {
   try {
-    const res = await fetch(`${API}/articles?category=${encodeURIComponent(category)}&limit=8`, { next: { revalidate: 600 } })
-    if (!res.ok) return []
-    const data = await res.json() as { articles?: Article[] }
-    const items = data.articles ?? []
-    return items.filter((a) => a.id !== currentId).slice(0, 4)
+    // Prefer the scored /related endpoint (tag + keyword + source scoring).
+    const res = await fetch(`${API}/articles/${currentId}/related`, { next: { revalidate: 600 } })
+    if (res.ok) {
+      const data = await res.json() as { articles?: Article[] }
+      if (data.articles?.length) return data.articles.slice(0, 4)
+    }
+    // Fallback: category-only listing.
+    const fallback = await fetch(`${API}/articles?category=${encodeURIComponent(category)}&limit=8`, { next: { revalidate: 600 } })
+    if (!fallback.ok) return []
+    const data = await fallback.json() as { articles?: Article[] }
+    return (data.articles ?? []).filter((a) => a.id !== currentId).slice(0, 4)
   } catch { return [] }
 }
 
@@ -172,16 +178,28 @@ export default async function ArticleDetailPage({ params }: { params: Promise<{ 
       {related.length > 0 && (
         <section className="bg-gray-50 border-t border-gray-100 py-10">
           <div className="container mx-auto px-4 max-w-5xl">
-            <h2 className="font-serif text-2xl text-ink mb-5">More in {categoryLabel}</h2>
+            <h2 className="font-serif text-2xl text-ink mb-5">More Ayurveda Articles</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {related.map((a) => (
                 <Link
                   key={a.id}
                   href={`/articles/${a.id}`}
-                  className="bg-white rounded-card border border-gray-100 shadow-card hover:shadow-cardLg transition-shadow p-4"
+                  className="group bg-white rounded-card border border-gray-100 shadow-card hover:shadow-cardLg transition-shadow overflow-hidden flex flex-col"
                 >
-                  <h3 className="font-serif text-base text-ink leading-snug line-clamp-2 hover:text-kerala-700 transition-colors">{a.title}</h3>
-                  <p className="text-xs text-gray-500 mt-2 line-clamp-2">{clip(a.content, 100)}</p>
+                  {a.featuredImage && (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={a.featuredImage} alt={a.featuredImageAlt ?? ''} className="w-full h-32 object-cover" />
+                  )}
+                  <div className="p-4 flex-1 flex flex-col">
+                    <h3 className="font-serif text-base text-ink leading-snug line-clamp-2 group-hover:text-kerala-700 transition-colors">{a.title}</h3>
+                    <p className="text-xs text-gray-500 mt-2 line-clamp-2 flex-1">{clip(a.content, 100)}</p>
+                    <p className="mt-3 text-[11px] text-gray-400 flex items-center gap-2">
+                      <span>{a.source ?? 'AyurConnect'}</span>
+                      <span aria-hidden>·</span>
+                      <span>{new Date(a.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
+                      {a.readTimeMinutes ? <><span aria-hidden>·</span><span>{a.readTimeMinutes} min</span></> : null}
+                    </p>
+                  </div>
                 </Link>
               ))}
             </div>
