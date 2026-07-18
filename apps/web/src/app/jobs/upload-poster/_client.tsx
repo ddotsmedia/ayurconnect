@@ -30,7 +30,17 @@ type Parsed = {
   is_urgent?: boolean
   visa_sponsorship?: boolean
   confidence?: number
+  confidence_by_field?: {
+    title?:          number
+    location?:       number
+    salary?:         number
+    role_type?:      number
+    specialization?: number
+    contact?:        number
+  }
 }
+
+type ExtractError = { code: string; message: string; canRetry: boolean }
 
 function ConfidenceBadge({ score }: { score: number }) {
   const label = score >= 80 ? 'High' : score >= 55 ? 'Medium' : 'Low'
@@ -40,26 +50,58 @@ function ConfidenceBadge({ score }: { score: number }) {
   return <span className={`text-[10px] px-2 py-0.5 rounded border font-semibold ${tone}`}>{label} confidence · {score}%</span>
 }
 
-function Field({ label, value, ml }: { label: string; value?: string | number | null; ml?: string }) {
-  if (value === undefined || value === null || value === '') return null
+// Small dot next to a field label showing 0-100 per-field confidence.
+// Green ≥80, amber 55-79, rose <55. Omitted when we don't have a score.
+function FieldConfidence({ score }: { score?: number }) {
+  if (score === undefined || score === null) return null
+  const tone = score >= 80 ? 'bg-emerald-500' : score >= 55 ? 'bg-amber-500' : 'bg-rose-500'
+  return <span title={`AI confidence: ${score}%`} className={`inline-block w-1.5 h-1.5 rounded-full ${tone}`} />
+}
+
+function EditableField({
+  label, value, onChange, placeholder, confidence, required,
+}: {
+  label:        string
+  value:        string
+  onChange:     (v: string) => void
+  placeholder?: string
+  confidence?:  number
+  required?:    boolean
+}) {
+  const missing = required && !value.trim()
   return (
     <div className="border-b border-gray-100 py-2">
-      <p className="text-[10px] uppercase tracking-wider text-kerala-700 font-semibold">{label}{ml ? ` · ${ml}` : ''}</p>
-      <p className="text-sm text-gray-800 mt-0.5 break-words">{String(value)}</p>
+      <div className="flex items-center gap-1.5 mb-0.5">
+        <p className="text-[10px] uppercase tracking-wider text-kerala-700 font-semibold">{label}{required ? ' *' : ''}</p>
+        <FieldConfidence score={confidence} />
+        {missing && <span className="text-[10px] text-rose-600 font-semibold">required</span>}
+      </div>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder ?? '—'}
+        className={`w-full text-sm px-2 py-1.5 border rounded bg-white ${missing ? 'border-rose-300' : 'border-gray-200 hover:border-kerala-300 focus:border-kerala-500'} focus:outline-none`}
+      />
     </div>
   )
 }
+
+// Fields that must be present before the user can advance to /jobs/employers/post.
+// AI can miss things; we won't let empty required values through.
+const REQUIRED = ['title', 'location'] as const
+const REQUIRED_CONTACT = ['contact_whatsapp', 'contact_phone', 'contact_email'] as const
 
 export function PosterUploader() {
   const [status, setStatus] = useState<'idle' | 'uploading' | 'parsing' | 'done' | 'error'>('idle')
   const [preview, setPreview] = useState<string | null>(null)
   const [parsed, setParsed]   = useState<Parsed | null>(null)
-  const [error, setError]     = useState<string | null>(null)
+  const [edited, setEdited]   = useState<Parsed | null>(null)
+  const [errorInfo, setErrorInfo] = useState<ExtractError | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   async function handleFile(f: File) {
-    setError(null)
-    setParsed(null)
+    setErrorInfo(null)
+    setParsed(null); setEdited(null)
     setPreview(URL.createObjectURL(f))
     setStatus('uploading')
     const fd = new FormData()
@@ -67,53 +109,67 @@ export function PosterUploader() {
     try {
       setStatus('parsing')
       const rsp = await fetch('/api/jobs-portal/ai/parse-poster', { method: 'POST', body: fd })
-      const j = await rsp.json()
-      if (!rsp.ok || !j.ok) throw new Error(j.error || `HTTP ${rsp.status}`)
-      setParsed(j.parsed as Parsed)
+      const j = await rsp.json() as { ok: boolean; parsed?: Parsed; code?: string; message?: string; canRetry?: boolean; error?: string }
+      if (!rsp.ok || !j.ok) {
+        // API now returns { ok:false, code, message, canRetry } — surface the
+        // friendly message. Legacy error shape (older API) is caught too.
+        throw { code: j.code ?? 'upstream-error', message: j.message ?? j.error ?? `HTTP ${rsp.status}`, canRetry: j.canRetry ?? true } as ExtractError
+      }
+      const p = j.parsed as Parsed
+      setParsed(p)
+      setEdited(p) // start editable state from AI output
       setStatus('done')
     } catch (e: unknown) {
-      const message = e instanceof Error ? e.message : String(e)
-      setError(message)
+      const info: ExtractError = (e && typeof e === 'object' && 'code' in e)
+        ? e as ExtractError
+        : { code: 'upstream-error', message: e instanceof Error ? e.message : String(e), canRetry: true }
+      setErrorInfo(info)
       setStatus('error')
     }
   }
 
   function reset() {
     setStatus('idle')
-    setParsed(null)
+    setParsed(null); setEdited(null)
     setPreview(null)
-    setError(null)
+    setErrorInfo(null)
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
 
+  function patch(k: keyof Parsed, v: string) {
+    setEdited((cur) => (cur ? { ...cur, [k]: v } : cur))
+  }
+
+  const missingRequired: string[] = !edited ? [] : [
+    ...REQUIRED.filter((k) => !((edited[k] as string | null | undefined) ?? '').toString().trim()),
+    ...(REQUIRED_CONTACT.every((k) => !((edited[k] as string | null | undefined) ?? '').toString().trim()) ? ['contact (WhatsApp / phone / email)'] : []),
+  ]
+
   function buildPrefillUrl() {
-    if (!parsed) return '/jobs/employers/post'
+    const src = edited ?? parsed
+    if (!src) return '/jobs/employers/post'
     const q = new URLSearchParams()
-    if (parsed.title) q.set('title', parsed.title)
-    if (parsed.company) q.set('clinic', parsed.company)
-    if (parsed.location) q.set('location', parsed.location)
-    if (parsed.description) q.set('description', parsed.description)
-    // Prefer the therapist-specific specialization when parser flagged a
-    // therapist poster — /jobs/employers/post switches its specialization
-    // list based on roleType, so passing the therapist type here lands the
-    // user on the matching option.
-    const spec = parsed.role_type === 'therapist' && parsed.therapist_type
-      ? `${parsed.therapist_type} Therapist`
-      : parsed.specialization
+    if (src.title)       q.set('title',       src.title)
+    if (src.company)     q.set('clinic',      src.company)
+    if (src.location)    q.set('location',    src.location)
+    if (src.description) q.set('description', src.description)
+    const spec = src.role_type === 'therapist' && src.therapist_type
+      ? `${src.therapist_type} Therapist`
+      : src.specialization
     if (spec) q.set('specialty', spec)
-    if (parsed.role_type) q.set('roleType', parsed.role_type)
-    if (parsed.certifications?.length) q.set('certifications', parsed.certifications.join(', '))
-    if (parsed.experience_years != null) q.set('experienceMin', String(parsed.experience_years))
-    if (parsed.salary_min != null) q.set('salaryMin', String(parsed.salary_min))
-    if (parsed.salary_max != null) q.set('salaryMax', String(parsed.salary_max))
-    if (parsed.currency) q.set('currency', parsed.currency)
-    if (parsed.contact_phone) q.set('contactPhone', parsed.contact_phone)
-    if (parsed.contact_email) q.set('contactEmail', parsed.contact_email)
-    if (parsed.contact_whatsapp) q.set('contactWhatsapp', parsed.contact_whatsapp)
-    if (parsed.walk_in_date) q.set('walkInDate', parsed.walk_in_date)
-    if (parsed.walk_in_time) q.set('walkInTime', parsed.walk_in_time)
-    if (parsed.walk_in_venue) q.set('walkInVenue', parsed.walk_in_venue)
-    if (parsed.is_urgent) q.set('urgent', '1')
+    if (src.role_type) q.set('roleType', src.role_type)
+    if (src.certifications?.length) q.set('certifications', src.certifications.join(', '))
+    if (src.experience_years != null) q.set('experienceMin', String(src.experience_years))
+    if (src.salary_min != null) q.set('salaryMin', String(src.salary_min))
+    if (src.salary_max != null) q.set('salaryMax', String(src.salary_max))
+    if (src.currency)         q.set('currency', src.currency)
+    if (src.contact_phone)    q.set('contactPhone', src.contact_phone)
+    if (src.contact_email)    q.set('contactEmail', src.contact_email)
+    if (src.contact_whatsapp) q.set('contactWhatsapp', src.contact_whatsapp)
+    if (src.walk_in_date)     q.set('walkInDate', src.walk_in_date)
+    if (src.walk_in_time)     q.set('walkInTime', src.walk_in_time)
+    if (src.walk_in_venue)    q.set('walkInVenue', src.walk_in_venue)
+    if (src.is_urgent)        q.set('urgent', '1')
     return `/jobs/employers/post?${q.toString()}`
   }
 
@@ -150,27 +206,37 @@ export function PosterUploader() {
         </div>
       )}
 
-      {status === 'error' && (
+      {status === 'error' && errorInfo && (
         <div className="bg-rose-50 border border-rose-200 rounded-card p-6">
           <div className="flex items-start gap-3">
             <AlertCircle className="w-6 h-6 text-rose-700 flex-shrink-0" />
             <div className="flex-1">
               <p className="font-semibold text-rose-900">Couldn&apos;t read the poster</p>
-              <p className="text-sm text-rose-800 mt-1">{error}</p>
-              <button onClick={reset} className="mt-3 text-sm text-rose-900 underline">Try another image</button>
+              <p className="text-sm text-rose-800 mt-1">{errorInfo.message}</p>
+              <p className="text-[10px] text-rose-700/70 mt-1 font-mono">code: {errorInfo.code}</p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                {errorInfo.canRetry && (
+                  <button onClick={reset} className="text-sm px-4 py-1.5 bg-white border border-rose-300 text-rose-900 rounded font-semibold hover:bg-rose-100">
+                    Try another image
+                  </button>
+                )}
+                <Link href="/jobs/employers/post" className="text-sm px-4 py-1.5 bg-kerala-700 text-white rounded font-semibold hover:bg-kerala-800">
+                  Enter details manually →
+                </Link>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {status === 'done' && parsed && (
+      {status === 'done' && edited && (
         <div className="grid grid-cols-1 md:grid-cols-[220px_1fr] gap-6">
           <div>
             {preview && <img src={preview} alt="Poster" className="w-full rounded border border-gray-200" />}
             <div className="mt-3 flex flex-col gap-2">
-              <ConfidenceBadge score={parsed.confidence ?? 60} />
-              {parsed.is_urgent && <span className="text-[10px] px-2 py-0.5 rounded border font-semibold bg-rose-100 text-rose-800 border-rose-200 inline-block w-fit">Urgent hiring</span>}
-              {parsed.visa_sponsorship && <span className="text-[10px] px-2 py-0.5 rounded border font-semibold bg-blue-100 text-blue-800 border-blue-200 inline-block w-fit">Visa sponsored</span>}
+              <ConfidenceBadge score={edited.confidence ?? 60} />
+              {edited.is_urgent && <span className="text-[10px] px-2 py-0.5 rounded border font-semibold bg-rose-100 text-rose-800 border-rose-200 inline-block w-fit">Urgent hiring</span>}
+              {edited.visa_sponsorship && <span className="text-[10px] px-2 py-0.5 rounded border font-semibold bg-blue-100 text-blue-800 border-blue-200 inline-block w-fit">Visa sponsored</span>}
             </div>
             <button onClick={reset} className="mt-3 text-xs text-kerala-700 underline">Upload a different image</button>
           </div>
@@ -178,40 +244,40 @@ export function PosterUploader() {
           <div className="bg-white border border-gray-100 rounded-card p-5">
             <div className="flex items-baseline gap-2 mb-2">
               <Check className="w-5 h-5 text-emerald-600" />
-              <h2 className="font-serif text-xl text-kerala-800">AI extracted these details</h2>
+              <h2 className="font-serif text-xl text-kerala-800">Review &amp; edit the extracted details</h2>
             </div>
-            <p className="text-xs text-gray-600 mb-4">Review, edit, and submit on the next screen. AI can miss things — always double-check before publishing.</p>
+            <p className="text-xs text-gray-600 mb-4">AI can miss things — edit any field below before continuing. Fields with * are required.</p>
 
-            <Field label="Title"          value={parsed.title} />
-            <Field label="Role"           value={parsed.role_type ? parsed.role_type[0].toUpperCase() + parsed.role_type.slice(1) : null} />
-            <Field label="Therapist type" value={parsed.therapist_type} />
-            <Field label="Company / Clinic" value={parsed.company} />
-            <Field label="Location"       value={parsed.location} />
-            <Field label="Specialization" value={parsed.specialization} />
-            <Field label="Job Type"       value={parsed.job_type} />
-            <Field label="Experience"     value={parsed.experience_required} />
-            <Field label="Experience (years)" value={parsed.experience_years} />
-            <Field label="Certifications" value={parsed.certifications?.length ? parsed.certifications.join(', ') : null} />
-            <Field label="Salary"         value={parsed.salary_min || parsed.salary_max
-              ? `${parsed.currency ?? ''} ${parsed.salary_min ?? '?'} – ${parsed.salary_max ?? '?'}`.trim()
-              : null} />
-            <Field label="Qualifications" value={parsed.qualifications?.length ? parsed.qualifications.join(', ') : null} />
-            <Field label="Walk-in date"   value={parsed.walk_in_date} />
-            <Field label="Walk-in time"   value={parsed.walk_in_time} />
-            <Field label="Walk-in venue"  value={parsed.walk_in_venue} />
-            <Field label="Required documents" value={parsed.required_documents} />
-            <Field label="Contact phone"     value={parsed.contact_phone} />
-            <Field label="Contact WhatsApp"  value={parsed.contact_whatsapp} />
-            <Field label="Contact email"     value={parsed.contact_email} />
-            <Field label="Description"    value={parsed.description} />
+            <EditableField label="Title"            value={edited.title ?? ''}               onChange={(v) => patch('title', v)}         required confidence={edited.confidence_by_field?.title} />
+            <EditableField label="Location"         value={edited.location ?? ''}            onChange={(v) => patch('location', v)}      required confidence={edited.confidence_by_field?.location} />
+            <EditableField label="Contact WhatsApp" value={edited.contact_whatsapp ?? ''}    onChange={(v) => patch('contact_whatsapp', v)} confidence={edited.confidence_by_field?.contact} placeholder="+91 98765 43210" />
+            <EditableField label="Contact phone"    value={edited.contact_phone ?? ''}       onChange={(v) => patch('contact_phone', v)} />
+            <EditableField label="Contact email"    value={edited.contact_email ?? ''}       onChange={(v) => patch('contact_email', v)} />
+            <EditableField label="Role"             value={edited.role_type ?? ''}           onChange={(v) => patch('role_type', v)}     confidence={edited.confidence_by_field?.role_type} placeholder="doctor / therapist / consultant" />
+            <EditableField label="Therapist type"   value={edited.therapist_type ?? ''}      onChange={(v) => patch('therapist_type', v)} />
+            <EditableField label="Company / Clinic" value={edited.company ?? ''}             onChange={(v) => patch('company', v)} />
+            <EditableField label="Specialization"   value={edited.specialization ?? ''}      onChange={(v) => patch('specialization', v)} confidence={edited.confidence_by_field?.specialization} />
+            <EditableField label="Job type"         value={edited.job_type ?? ''}            onChange={(v) => patch('job_type', v)}      placeholder="full-time / part-time / locum / walk-in" />
+            <EditableField label="Experience"       value={edited.experience_required ?? ''} onChange={(v) => patch('experience_required', v)} />
+            <EditableField label="Certifications"   value={(edited.certifications ?? []).join(', ')} onChange={(v) => setEdited((c) => c ? { ...c, certifications: v.split(',').map((s) => s.trim()).filter(Boolean) } : c)} placeholder="AYTC, CPR, First Aid" />
+            <EditableField label="Description"      value={edited.description ?? ''}         onChange={(v) => patch('description', v)} />
+
+            {missingRequired.length > 0 && (
+              <p className="mt-3 text-xs text-rose-700 bg-rose-50 border border-rose-100 rounded p-2">
+                Fill in required fields before continuing: {missingRequired.join(', ')}.
+              </p>
+            )}
 
             <div className="mt-5 flex flex-wrap gap-3">
-              <Link
-                href={buildPrefillUrl()}
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-kerala-700 hover:bg-kerala-800 text-white rounded font-semibold text-sm"
-              >
-                <Sparkles className="w-4 h-4" /> Edit &amp; Submit <ArrowRight className="w-4 h-4" />
-              </Link>
+              {missingRequired.length === 0 ? (
+                <Link href={buildPrefillUrl()} className="inline-flex items-center gap-2 px-5 py-2.5 bg-kerala-700 hover:bg-kerala-800 text-white rounded font-semibold text-sm">
+                  <Sparkles className="w-4 h-4" /> Continue to full form <ArrowRight className="w-4 h-4" />
+                </Link>
+              ) : (
+                <button disabled className="inline-flex items-center gap-2 px-5 py-2.5 bg-gray-300 text-gray-500 rounded font-semibold text-sm cursor-not-allowed" title="Fill required fields first">
+                  <Sparkles className="w-4 h-4" /> Continue to full form <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
               <button onClick={reset} className="px-5 py-2.5 border-2 border-kerala-700 text-kerala-700 rounded font-semibold text-sm hover:bg-kerala-50">
                 Upload another
               </button>

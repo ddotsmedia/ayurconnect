@@ -42,11 +42,13 @@ Return ONLY a JSON object (no prose, no code fence) with this exact shape:
   "required_documents": string|null,
   "is_urgent": boolean,
   "visa_sponsorship": boolean,
-  "confidence": number
+  "confidence": number,
+  "confidence_by_field": { "title": number, "location": number, "salary": number, "role_type": number, "specialization": number, "contact": number }
 }
 
 Rules:
 - role_type inference: if the poster asks for BAMS / MD Ayurveda / a "Doctor" title → "doctor". If it asks for a therapist / masseur / operator of Panchakarma procedures → "therapist". Wellness consultant / dietician / yoga instructor → "consultant". Null only if truly ambiguous.
+- confidence_by_field: 0-100 per-field score. 0 = not present in source; 50 = ambiguous / inferred; 100 = explicit exact quote.
 - therapist_type: populate ONLY when role_type = "therapist". Use one of: "Panchakarma", "Abhyanga", "Shirodhara", "Nasya", "Swedana", "Vazhichil", "Pizhichil", "Njavarakizhi", "Kizhi", "Marma", "General Ayurveda". Null for non-therapist postings.
 - certifications: array of certification tokens visible on the poster (e.g. "AYTC", "BNYS", "CPR", "First Aid", "yoga certified", "on-the-job trained"). Empty array if none.
 - experience_years: numeric years extracted from "X years experience" style copy. If a range ("2-5 years"), pick the minimum.
@@ -78,10 +80,12 @@ Return ONLY a JSON object (no prose, no code fence):
   "walk_in_time": string|null,
   "walk_in_venue": string|null,
   "is_urgent": boolean,
-  "confidence": number
+  "confidence": number,
+  "confidence_by_field": { "title": number, "location": number, "salary": number, "role_type": number, "specialization": number, "contact": number }
 }
 
 Rules:
+- confidence_by_field: 0-100 per-field score. 0 = not present in source; 50 = ambiguous / inferred; 100 = explicit exact quote.
 - role_type: "doctor" for BAMS / MD Ayurveda / Physician postings; "therapist" for Panchakarma / Abhyanga / Shirodhara / Kizhi / massage operator postings; "consultant" for wellness / nutrition / yoga / BNYS roles. Null only if ambiguous.
 - therapist_type: only when role_type = "therapist". One of: "Panchakarma", "Abhyanga", "Shirodhara", "Nasya", "Swedana", "Vazhichil", "Pizhichil", "Njavarakizhi", "Kizhi", "Marma", "General Ayurveda". Null otherwise.
 - certifications: string array (AYTC, BNYS, CPR, First Aid, yoga certified, on-the-job trained, etc.). [] if none.
@@ -118,8 +122,14 @@ function extractJson(text: string): unknown {
 }
 
 async function callHaiku(fastify: import('fastify').FastifyInstance, systemPrompt: string, userContent: unknown, maxTokens = 2000) {
+  return callModel(fastify, HAIKU, systemPrompt, userContent, maxTokens)
+}
+
+const SONNET = process.env.ANTHROPIC_SONNET_MODEL ?? 'claude-sonnet-5'
+
+async function callModel(fastify: import('fastify').FastifyInstance, model: string, systemPrompt: string, userContent: unknown, maxTokens: number) {
   const rsp = await fastify.anthropic.messages.create({
-    model: HAIKU,
+    model,
     max_tokens: maxTokens,
     system: systemPrompt,
     messages: [{ role: 'user', content: userContent as never }],
@@ -128,7 +138,50 @@ async function callHaiku(fastify: import('fastify').FastifyInstance, systemPromp
     .filter((b: { type: string }) => b.type === 'text')
     .map((b: { type: string; text?: string }) => b.text ?? '')
     .join('\n')
-  return { text, usage: rsp.usage }
+  return { text, usage: rsp.usage, model }
+}
+
+// Classify an Anthropic error message → friendly code the client can react to.
+type ExtractErrorCode = 'no-credits' | 'rate-limited' | 'auth-failed' | 'invalid-json' | 'upstream-error'
+
+function classifyError(err: unknown): { code: ExtractErrorCode; message: string; canRetry: boolean } {
+  const raw = err instanceof Error ? err.message : String(err)
+  const low = raw.toLowerCase()
+  if (low.includes('credit balance is too low') || low.includes('billing') || low.includes('402')) {
+    return { code: 'no-credits',    message: "AI service is temporarily out of credits — please enter details manually below.", canRetry: false }
+  }
+  if (low.includes('rate limit') || low.includes('429')) {
+    return { code: 'rate-limited',  message: "Too many AI requests — please wait a moment and try again.",                     canRetry: true  }
+  }
+  if (low.includes('authentication') || low.includes('401') || low.includes('invalid api key')) {
+    return { code: 'auth-failed',   message: "AI service authentication failed — please enter details manually.",              canRetry: false }
+  }
+  if (low.includes('no json in reply') || low.includes('unexpected token')) {
+    return { code: 'invalid-json',  message: "AI returned an unreadable response — please enter details manually.",             canRetry: true  }
+  }
+  return   { code: 'upstream-error', message: "AI extraction failed — please enter details manually below.",                    canRetry: true  }
+}
+
+// Try Haiku first; if it fails with an error class where Sonnet has a chance
+// (upstream-error, invalid-json), retry once with Sonnet. Skip retry on
+// no-credits / auth-failed (Sonnet uses the same key so it would just fail
+// the same way at 3–4x the cost).
+async function callHaikuWithSonnetFallback(fastify: import('fastify').FastifyInstance, systemPrompt: string, userContent: unknown, maxTokens = 2000) {
+  try {
+    return { ...(await callHaiku(fastify, systemPrompt, userContent, maxTokens)), fallbackUsed: false }
+  } catch (haikuErr) {
+    const { code } = classifyError(haikuErr)
+    if (code === 'no-credits' || code === 'auth-failed') throw haikuErr
+    fastify.log.warn({ err: haikuErr instanceof Error ? haikuErr.message : haikuErr, retryWith: SONNET }, 'jobs-ai: Haiku failed, retrying with Sonnet')
+    try {
+      return { ...(await callModel(fastify, SONNET, systemPrompt, userContent, maxTokens)), fallbackUsed: true }
+    } catch (sonnetErr) {
+      // Rethrow ORIGINAL Haiku error so the friendly-error classifier sees
+      // the primary failure reason (Sonnet often fails the same way for the
+      // same cause).
+      throw haikuErr
+    }
+  }
 }
 
 const route: FastifyPluginAsync = async (fastify) => {
@@ -143,7 +196,7 @@ const route: FastifyPluginAsync = async (fastify) => {
     if (buf.length > 8 * 1024 * 1024) return reply.code(413).send({ error: 'image too large (max 8 MB)' })
     const b64 = buf.toString('base64')
     try {
-      const { text, usage } = await callHaiku(
+      const { text, usage, model, fallbackUsed } = await callHaikuWithSonnetFallback(
         fastify,
         POSTER_SCHEMA_PROMPT,
         [
@@ -153,11 +206,11 @@ const route: FastifyPluginAsync = async (fastify) => {
         2000,
       )
       const parsed = extractJson(text) as Record<string, unknown>
-      return { ok: true, parsed, rawTextLength: text.length, usage }
+      return { ok: true, parsed, rawTextLength: text.length, usage, model, fallbackUsed }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err)
-      request.log.error({ err: message }, 'jobs-ai parse-poster failed')
-      return reply.code(500).send({ error: 'failed to parse poster', detail: message })
+      const { code, message, canRetry } = classifyError(err)
+      request.log.error({ err: err instanceof Error ? err.message : String(err), code }, 'jobs-ai parse-poster failed')
+      return reply.code(502).send({ ok: false, code, message, canRetry })
     }
   })
 
@@ -169,18 +222,18 @@ const route: FastifyPluginAsync = async (fastify) => {
     if (raw.length < 20) return reply.code(400).send({ error: 'text too short (min 20 chars)' })
     if (raw.length > 8000) return reply.code(413).send({ error: 'text too long (max 8000 chars)' })
     try {
-      const { text, usage } = await callHaiku(
+      const { text, usage, model, fallbackUsed } = await callHaikuWithSonnetFallback(
         fastify,
         TEXT_SCHEMA_PROMPT,
         [{ type: 'text', text: raw }],
         1500,
       )
       const parsed = extractJson(text) as Record<string, unknown>
-      return { ok: true, parsed, usage }
+      return { ok: true, parsed, usage, model, fallbackUsed }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err)
-      request.log.error({ err: message }, 'jobs-ai parse-text failed')
-      return reply.code(500).send({ error: 'failed to parse text', detail: message })
+      const { code, message, canRetry } = classifyError(err)
+      request.log.error({ err: err instanceof Error ? err.message : String(err), code }, 'jobs-ai parse-text failed')
+      return reply.code(502).send({ ok: false, code, message, canRetry })
     }
   })
 
