@@ -50,7 +50,7 @@ export async function generateMetadata({ params }: { params: Promise<{ country: 
   const doctors = await fetchDoctorsInCountry(c.code)
   const meta = pageMetadata({
     path:        `/doctors/in/${country}`,
-    title:       `Kerala-Trained Ayurveda Doctors in ${c.name} — Teleconsult & In-Person | AyurConnect`,
+    title:       `Kerala-Trained Ayurveda Doctors in ${c.name} — Teleconsult & In-Person`,
     description: `Kerala-trained Ayurveda doctors practicing in ${c.name}. Verified credentials (KSMC + local body), teleconsult availability, Malayalam-speaking practitioners. Free directory.`,
     keywords:    [`ayurveda doctor ${c.name.toLowerCase()}`, `kerala ayurveda ${c.name.toLowerCase()}`, `BAMS ${c.name.toLowerCase()}`, 'malayali ayurveda doctor', 'kerala-trained ayurveda diaspora'],
   })

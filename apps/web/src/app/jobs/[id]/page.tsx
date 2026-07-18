@@ -33,7 +33,7 @@ async function fetchSimilar(job: JobListing): Promise<JobListing[]> {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
   const job = await fetchJob(id)
-  if (!job) return { title: 'Job not found — AyurConnect' }
+  if (!job) return { title: 'Job not found' }
   return {
     title:       `${job.title}${job.clinic ? ` at ${job.clinic}` : ''} — AyurConnect`,
     description: (job.description ?? '').slice(0, 160),

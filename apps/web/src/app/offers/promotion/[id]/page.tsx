@@ -22,7 +22,7 @@ async function fetchPromotion(id: string): Promise<Promotion | null> {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
   const p = await fetchPromotion(id)
-  if (!p) return { title: 'Offer not found — AyurConnect' }
+  if (!p) return { title: 'Offer not found' }
   return {
     title: `${p.title} at ${p.hospital.name} | AyurConnect Offers`,
     description: (p.subtitle ?? `Active offer from ${p.hospital.name}, ${p.hospital.district}.`).slice(0, 160),

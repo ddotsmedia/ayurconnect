@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ country: 
   if (!c) return { title: 'Not found' }
   return pageMetadata({
     path: `/jobs/ayurveda-jobs/${country}`,
-    title: `Ayurveda Jobs in ${c.label} | AyurConnect`,
+    title: `Ayurveda Jobs in ${c.label}`,
     description: `Latest Ayurveda doctor + therapist + wellness jobs in ${c.label}. BAMS, MD/MS, Panchakarma roles.`,
     keywords: [`ayurveda jobs ${c.label}`, `BAMS ${c.label}`, `panchakarma jobs ${c.label}`],
   })

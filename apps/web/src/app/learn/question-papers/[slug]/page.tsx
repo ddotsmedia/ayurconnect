@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!p) return { title: 'Not found' }
   return pageMetadata({
     path: `/learn/question-papers/${slug}`,
-    title: `${p.title} | BAMS Question Paper | AyurConnect`,
+    title: `${p.title} | BAMS Question Paper`,
     description: `${p.university}, ${p.examMonth ?? ''} ${p.examYear} BAMS question paper${p.isSolved ? ' with solutions' : ''}.`,
     keywords: ['BAMS question paper', p.subjectSlug, p.university, String(p.examYear)],
   })

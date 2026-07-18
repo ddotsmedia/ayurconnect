@@ -4,7 +4,7 @@ import { Briefcase, MapPin, Clock, Heart, Code, Users, Stethoscope, Megaphone, M
 import { breadcrumbLd } from '@/lib/seo'
 
 export const metadata = {
-  title: 'Careers — Build Kerala\'s Ayurveda Future with AyurConnect',
+  title: 'Careers — Build Kerala\'s Ayurveda Future',
   description: 'Engineering, clinical, content, and growth roles. Remote-friendly. We\'re building the largest verified Ayurveda platform — for patients, doctors, and authentic Kerala medical tourism.',
   alternates: { canonical: '/careers' },
 }

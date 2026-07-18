@@ -26,7 +26,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string; city: string }> }): Promise<Metadata> {
   const { slug, city: citySlug } = await params
   const c = getCondition(slug); const ci = getCity(citySlug)
-  if (!c || !ci) return { title: 'Not found — AyurConnect' }
+  if (!c || !ci) return { title: 'Not found' }
   const lowerTitle = c.title.toLowerCase()
   const lowerCity  = ci.name.toLowerCase()
   // Compounded condition × city long-tail keyword set — these are the

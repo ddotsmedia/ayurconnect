@@ -24,9 +24,9 @@ async function fetchDoctor(id: string): Promise<Doctor | null> {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
   const d = await fetchDoctor(id)
-  if (!d) return { title: 'Doctor card — AyurConnect' }
+  if (!d) return { title: 'Doctor card' }
   return {
-    title: `Dr. ${d.name.replace(/^Dr\.?\s*/i, '')} — Digital Card | AyurConnect`,
+    title: `Dr. ${d.name.replace(/^Dr\.?\s*/i, '')} — Digital Card`,
     description: `Shareable digital visiting card for Dr. ${d.name}, ${d.specialization}, ${d.district}.`,
     alternates: { canonical: `/doctors/${d.id}/card` },
     robots: { index: false, follow: true },

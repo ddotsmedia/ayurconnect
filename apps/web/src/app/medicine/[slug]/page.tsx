@@ -62,7 +62,7 @@ const CATEGORY_TONE: Record<string, string> = {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const m = findMedicine(slug)
-  if (!m) return { title: 'Medicine not found — AyurConnect' }
+  if (!m) return { title: 'Medicine not found' }
   const topIndications = m.indications.slice(0, 3).join(', ')
   return {
     title: `${m.name} (${m.nameMl}) — Uses, Dosage, Ingredients`,

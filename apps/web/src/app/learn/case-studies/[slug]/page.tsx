@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!c) return { title: 'Not found' }
   return pageMetadata({
     path: `/learn/case-studies/${slug}`,
-    title: `${c.title} | Ayurveda Case Study | AyurConnect`,
+    title: `${c.title} | Ayurveda Case Study`,
     description: c.chiefComplaint.slice(0, 160),
     keywords: [...c.tags, 'ayurveda case'],
   })

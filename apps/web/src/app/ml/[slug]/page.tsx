@@ -12,14 +12,14 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const p = getMlPage(slug)
-  if (!p) return { title: 'Page not found — AyurConnect' }
+  if (!p) return { title: 'Page not found' }
   const alternates: Metadata['alternates'] = {
     canonical: `/ml/${p.slug}`,
     languages: { 'ml-IN': `/ml/${p.slug}` },
   }
   if (p.relatedEnSlug) alternates.languages = { ...alternates.languages, 'en-IN': `/conditions/${p.relatedEnSlug}` }
   return {
-    title: `${p.titleMl} | AyurConnect`,
+    title: `${p.titleMl}`,
     description: p.metaDescMl,
     alternates,
     keywords: [p.conditionMl, p.conditionEn, 'ആയുർവേദം മലയാളം', `${p.conditionEn} ayurveda malayalam`, 'AyurConnect'],

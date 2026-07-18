@@ -31,7 +31,7 @@ function fmtPrice(min: number, max: number | null, currency: string): string {
 export async function generateMetadata({ params }: { params: Promise<{ idOrSlug: string }> }): Promise<Metadata> {
   const { idOrSlug } = await params
   const p = await fetchPackage(idOrSlug)
-  if (!p) return { title: 'Package not found — AyurConnect' }
+  if (!p) return { title: 'Package not found' }
   return {
     title: `${p.title} — ${p.hospital.name} | AyurConnect Packages`,
     description: p.description.slice(0, 160),

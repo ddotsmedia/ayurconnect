@@ -14,9 +14,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const c = getCollege(slug)
-  if (!c) return { title: 'College not found — AyurConnect' }
+  if (!c) return { title: 'College not found' }
   return {
-    title: `${c.name} Alumni — Verified Ayurveda Doctors | AyurConnect`,
+    title: `${c.name} Alumni — Verified Ayurveda Doctors`,
     description: `Doctors who graduated from ${c.name}, ${c.location}. Verified BAMS / MD Ayurveda alumni on AyurConnect.`,
     alternates: { canonical: `/doctors/colleges/${c.slug}` },
     keywords: [`${c.name} alumni`, `${c.shortName} alumni`, `${c.name} ayurveda graduates`, `BAMS from ${c.shortName}`],

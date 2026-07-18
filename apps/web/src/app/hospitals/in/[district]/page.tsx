@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ district:
   const dName = deslug(district)
   return pageMetadata({
     path:        `/hospitals/in/${district}`,
-    title:       `Ayurveda Hospitals in ${dName}, Kerala | AyurConnect`,
+    title:       `Ayurveda Hospitals in ${dName}, Kerala`,
     description: `Verified Ayurveda hospitals, Panchakarma centres, and wellness clinics in ${dName} district, Kerala. NABH, AYUSH-certified, Tourism-classified options with patient reviews.`,
     keywords:    [`ayurveda hospital ${dName}`, `panchakarma ${dName}`, `ayurveda clinic ${dName} kerala`, `best ayurveda treatment ${dName}`],
   })

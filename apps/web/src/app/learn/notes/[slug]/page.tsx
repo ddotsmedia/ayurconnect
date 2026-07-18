@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!n) return { title: 'Not found' }
   return pageMetadata({
     path: `/learn/notes/${slug}`,
-    title: `${n.title} | BAMS Notes | AyurConnect`,
+    title: `${n.title} | BAMS Notes`,
     description: n.summary,
     keywords: [...n.tags, 'BAMS', 'ayurveda notes', n.subjectSlug],
   })

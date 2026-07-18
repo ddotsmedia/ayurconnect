@@ -4,7 +4,7 @@ import { Crown, Check, Sparkles, Stethoscope, FileText, MessageCircle, Activity,
 import { WellnessInterestForm } from './_interest-form'
 
 export const metadata = {
-  title: 'Wellness Subscription Plans — Premium AyurConnect',
+  title: 'Wellness Subscription Plans — Premium',
   description: 'Continuous Ayurvedic care: unlimited AyurBot, monthly doctor consultations, personalized vitals monitoring, family plans. Early-bird pricing for founding members.',
   alternates: { canonical: '/wellness-plans' },
 }

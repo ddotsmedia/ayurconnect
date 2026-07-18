@@ -6,7 +6,7 @@ import { Search, Stethoscope, Building2, BookOpen, Sprout, ArrowLeft } from 'luc
 // can re-discover the site if they hit a broken inbound link.
 
 export const metadata = {
-  title: 'Page not found — AyurConnect',
+  title: 'Page not found',
   description: 'The page you’re looking for doesn’t exist. Browse our verified Ayurveda doctors, classical conditions library, or Panchakarma centres instead.',
   robots: { index: false, follow: true },
 }

@@ -3,7 +3,7 @@ import { GradientHero } from '@ayurconnect/ui'
 import { ChevronRight, Mail, TrendingUp, Globe2, Target, Shield, ShieldCheck, AlertCircle } from 'lucide-react'
 
 export const metadata = {
-  title: 'Investor Relations — AyurConnect',
+  title: 'Investor Relations',
   description: 'Why we exist, the market we serve, our position, and how serious investors can engage with AyurConnect.',
   alternates: { canonical: '/about/investors' },
 }

@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ specializ
   if (!s || !l) return { title: 'Not found' }
   return pageMetadata({
     path: `/jobs/salary/${specialization}/${location}`,
-    title: `${s.label} Salary in ${l.label} — 2026 Guide | AyurConnect`,
+    title: `${s.label} Salary in ${l.label} — 2026 Guide`,
     description: `Average ${s.label} salary in ${l.label}: monthly range, top employers, demand trends. 2026 data.`,
     keywords: [`${s.label} salary ${l.label}`, `${s.label} pay ${l.label}`, `ayurveda salary ${l.label}`],
   })

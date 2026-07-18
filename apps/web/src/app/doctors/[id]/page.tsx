@@ -82,7 +82,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const doctor = await fetchDoctor(id)
   if (!doctor) return { title: 'Doctor not found' }
   return {
-    title: `${doctor.name} — ${doctor.specialization} in ${doctor.district} | AyurConnect`,
+    title: `${doctor.name} — ${doctor.specialization} in ${doctor.district}`,
     description: doctor.profile ?? doctor.bio ?? `${doctor.name} — ${doctor.qualification ?? 'BAMS'}, ${doctor.specialization} specialist in ${doctor.district}, Kerala.`,
   }
 }

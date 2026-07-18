@@ -68,7 +68,7 @@ export async function generateMetadata({ params }: { params: Promise<{ specialty
   const doctors = await fetchDoctorsBySpecialty(s.name)
   const meta = pageMetadata({
     path: `/ayurveda/${slug}`,
-    title:       `${s.name} Specialists in Kerala | AyurConnect`,
+    title:       `${s.name} Specialists in Kerala`,
     description: `Verified ${s.name} doctors across Kerala. ${s.summary} Filter by district, language, and availability.`,
     keywords:    ['ayurveda', s.name, 'Kerala', 'BAMS', s.sanskrit].filter(Boolean) as string[],
   })

@@ -4,7 +4,7 @@ import { GraduationCap, ChevronRight, MapPin } from 'lucide-react'
 import { COLLEGES } from './_data'
 
 export const metadata: Metadata = {
-  title: 'Ayurveda College Alumni — AyurConnect',
+  title: 'Ayurveda College Alumni',
   description: 'Directory of Ayurveda college alumni on AyurConnect. Find verified BAMS/MD doctors from Kerala\'s top Ayurveda colleges + national institutions.',
   alternates: { canonical: '/doctors/colleges' },
 }

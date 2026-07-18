@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const title = a.title
   const description = clip(a.content, 200)
   return {
-    title: `${title} | AyurConnect`,
+    title: `${title}`,
     description,
     alternates: { canonical: `/articles/${a.id}` },
     openGraph: {

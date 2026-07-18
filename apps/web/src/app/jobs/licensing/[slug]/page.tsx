@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!g) return { title: 'Not found' }
   return pageMetadata({
     path: `/jobs/licensing/${slug}`,
-    title: `${g.title} | AyurConnect`,
+    title: `${g.title}`,
     description: g.description.slice(0, 160),
     keywords: [g.jurisdiction, 'ayurveda license', 'BAMS abroad', g.jurisdiction.toLowerCase()],
   })

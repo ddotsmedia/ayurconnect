@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ type: str
   if (!TYPES[type]) return { title: 'Not found' }
   return pageMetadata({
     path:        `/hospitals/type/${type}`,
-    title:       `Ayurveda ${TYPES[type]} in Kerala | AyurConnect`,
+    title:       `Ayurveda ${TYPES[type]} in Kerala`,
     description: `Verified Ayurveda ${TYPES[type].toLowerCase()} across Kerala — NABH, AYUSH, Tourism-Classified options.`,
     keywords:    [`ayurveda ${type} kerala`, `${type} ayurveda`, `kerala ${type}`],
   })

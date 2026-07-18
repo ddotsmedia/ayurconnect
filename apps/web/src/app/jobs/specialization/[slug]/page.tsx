@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!s) return { title: 'Not found' }
   return pageMetadata({
     path: `/jobs/specialization/${specialization}`,
-    title: `${s.label} Jobs — Ayurveda Career Opportunities | AyurConnect`,
+    title: `${s.label} Jobs — Ayurveda Career Opportunities`,
     description: `Latest ${s.label} jobs for Ayurveda doctors. Active openings, salary ranges, employer profiles.`,
     keywords: [`${s.label} jobs`, `${s.label} ayurveda jobs`, `BAMS ${s.label}`, `ayurveda ${s.label}`],
   })

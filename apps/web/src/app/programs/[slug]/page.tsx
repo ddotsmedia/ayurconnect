@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const p = await fetchProgram(slug)
   if (!p) return { title: 'Program not found' }
   return {
-    title: `${p.name} — ${p.durationDays}-Day Ayurveda Program | AyurConnect`,
+    title: `${p.name} — ${p.durationDays}-Day Ayurveda Program`,
     description: clip(p.description, 160),
     alternates: { canonical: `/programs/${p.slug}` },
     openGraph: { title: p.name, description: p.tagline, url: `${SITE_URL}/programs/${p.slug}` },

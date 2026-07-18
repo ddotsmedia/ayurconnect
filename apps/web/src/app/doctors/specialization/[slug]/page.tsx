@@ -29,9 +29,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const s = SPECS[slug]
-  if (!s) return { title: 'Specialty not found — AyurConnect' }
+  if (!s) return { title: 'Specialty not found' }
   return {
-    title: `${s.name} Doctors — Verified Ayurveda Specialists | AyurConnect`,
+    title: `${s.name} Doctors — Verified Ayurveda Specialists`,
     description: `Verified ${s.name} Ayurveda doctors on AyurConnect. ${s.blurb} BAMS + MD specialists across Kerala, UAE, and abroad.`,
     alternates: { canonical: `/doctors/specialization/${slug}` },
     keywords: [`${s.name} doctor`, `${s.name} ayurveda`, `${s.name} specialist`, `${s.name} kerala`, `${s.name} panchakarma`],

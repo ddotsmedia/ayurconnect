@@ -41,7 +41,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!c) return { title: 'Not found', robots: { index: false, follow: false } }
   return pageMetadata({
     path:        `/articles/category/${slug}`,
-    title:       `${c.name} — Ayurveda Articles | AyurConnect`,
+    title:       `${c.name} — Ayurveda Articles`,
     description: (c.description ?? `Curated Ayurveda articles in the ${c.name} category — Kerala-tradition guidance, classical references, doctor-reviewed.`).slice(0, 160),
     keywords:    ['ayurveda articles', c.name.toLowerCase(), c.nameMl ?? '', 'kerala ayurveda'].filter(Boolean) as string[],
   })

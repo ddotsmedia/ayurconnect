@@ -17,7 +17,7 @@ function findCategory(slug: string) {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const cat = findCategory(slug)
-  if (!cat) return { title: 'Category not found — AyurConnect' }
+  if (!cat) return { title: 'Category not found' }
   const count = MEDICINES.filter((m) => m.category === slug).length
   const title = `${cat.name} — ${count} Classical Ayurvedic Medicines`
   const description = `${count} classical ${cat.name} formulations with Malayalam names, ingredients, dosage, anupana, and contraindications. ${cat.description}`

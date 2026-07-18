@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const qa = ANSWERED_QA.find((q) => q.slug === slug)
   if (!qa) return { title: 'Not found' }
   return pageMetadata({
-    title: `${qa.question} — Ask the Classics | AyurConnect`,
+    title: `${qa.question} — Ask the Classics`,
     description: clip(qa.answer, 158),
     path: `/learn/ask-the-classics/${qa.slug}`,
     type: 'article',

@@ -5,7 +5,7 @@ import { getServerSession } from '../../../lib/auth'
 import { PostJobForm } from '../../../components/jobs/PostJobForm'
 
 export const metadata = {
-  title: 'Post an Ayurveda Job — AyurConnect',
+  title: 'Post an Ayurveda Job',
   description: 'Hospitals + clinics post BAMS doctor, Panchakarma therapist, and pharmacist roles. Doctors post locum availability. Verified reach across Kerala + UAE.',
   alternates: { canonical: '/jobs/post' },
 }

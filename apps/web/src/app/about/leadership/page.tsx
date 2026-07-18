@@ -3,7 +3,7 @@ import { GradientHero } from '@ayurconnect/ui'
 import { ChevronRight, BookOpen, Stethoscope, Code, Scale } from 'lucide-react'
 
 export const metadata = {
-  title: 'Leadership & Advisory — AyurConnect',
+  title: 'Leadership & Advisory',
   description: 'The clinical, engineering, and policy advisors behind AyurConnect — the team that verifies practitioners and curates classical content.',
   alternates: { canonical: '/about/leadership' },
 }

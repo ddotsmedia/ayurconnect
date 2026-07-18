@@ -18,7 +18,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const c = getCondition(slug)
-  if (!c) return { title: 'Condition not found — AyurConnect' }
+  if (!c) return { title: 'Condition not found' }
   // Per-condition keyword set: targeted core keywords + a slice of the
   // relevant category vocabulary. Tighter than the layout 'all' = better
   // weighting in Bing/Yandex/Baidu.

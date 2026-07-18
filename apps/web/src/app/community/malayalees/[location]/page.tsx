@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: { params: Promise<{ location:
   if (!loc) return { title: 'Not found', robots: { index: false, follow: false } }
   return pageMetadata({
     path:        `/community/malayalees/${loc.slug}`,
-    title:       `${loc.enHeading} | AyurConnect`,
+    title:       `${loc.enHeading}`,
     description: `${loc.intro.slice(0, 145)}…`,
     keywords:    ['kerala ayurveda', 'malayali ayurveda', `${loc.name.toLowerCase()} malayalees`, 'malayalam ayurveda doctor', 'teleconsult kerala'],
   })

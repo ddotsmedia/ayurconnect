@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ country: 
   if (!c) return { title: 'Not found', robots: { index: false, follow: false } }
   const meta = pageMetadata({
     path:        `/heal-in-kerala/${c.slug}`,
-    title:       `Ayurvedic Treatment in Kerala from ${c.name} — Visa, Cost & Guide | AyurConnect`,
+    title:       `Ayurvedic Treatment in Kerala from ${c.name} — Visa, Cost & Guide`,
     description: `Plan Ayurvedic treatment in Kerala from ${c.name}. e-Ayush + e-Tourist visa guidance, direct flights, treatment cost in ${c.currency}, insurance + language notes, best season. Verified Kerala centres.`,
     keywords:    [`ayurveda treatment kerala from ${c.name.toLowerCase()}`, `kerala ayurveda ${c.name.toLowerCase()}`, `e-ayush visa ${c.name.toLowerCase()}`, `panchakarma kerala ${c.code.toLowerCase()}`, c.region === 'gcc' ? 'gcc medical tourism kerala' : 'international medical tourism kerala'],
   })

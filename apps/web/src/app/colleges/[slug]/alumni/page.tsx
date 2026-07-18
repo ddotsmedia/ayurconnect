@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const collegeName = alumni[0]?.college ?? slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
   const meta = pageMetadata({
     path:        `/colleges/${slug}/alumni`,
-    title:       `${collegeName} Alumni — Ayurveda Doctors Directory | AyurConnect`,
+    title:       `${collegeName} Alumni — Ayurveda Doctors Directory`,
     description: `Ayurveda doctors who graduated from ${collegeName}, grouped by batch year. Find classmates, refer patients, reconnect.`,
     keywords:    [`${collegeName.toLowerCase()} alumni`, `${collegeName.toLowerCase()} BAMS graduates`, 'kerala ayurveda alumni'],
   })

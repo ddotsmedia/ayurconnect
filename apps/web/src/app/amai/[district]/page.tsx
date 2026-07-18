@@ -10,7 +10,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ district: string }> }): Promise<Metadata> {
   const { district } = await params
   const c = AMAI_DISTRICTS[district]
-  if (!c) return { title: 'AMAI district not found — AyurConnect' }
+  if (!c) return { title: 'AMAI district not found' }
   return {
     title: c.title,
     description: c.metaDescription,
