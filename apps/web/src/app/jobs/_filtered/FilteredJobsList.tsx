@@ -2,6 +2,24 @@ import Link from 'next/link'
 import { ChevronRight, MapPin, Briefcase, Clock, Calendar } from 'lucide-react'
 import { API_INTERNAL as API, logServerFetchError } from '@/lib/server-fetch'
 import { breadcrumbLd, ldGraph } from '@/lib/seo'
+import { SaveHeart } from '../_save-heart'
+import { getServerSession } from '@/lib/auth'
+import { headers as nextHeaders } from 'next/headers'
+
+// Server-side saved-ids hydrate — same helper /jobs uses. Returns empty
+// set for logged-out visitors so SaveHeart falls back to sign-in redirect
+// on click.
+export async function fetchSavedIds(): Promise<Set<string>> {
+  const sess = await getServerSession()
+  if (!sess) return new Set()
+  try {
+    const h = await nextHeaders(); const cookie = h.get('cookie') ?? ''
+    const r = await fetch(`${API}/jobs-portal/saved/ids`, { headers: { cookie }, cache: 'no-store' })
+    if (!r.ok) return new Set()
+    const d = await r.json() as { ids: string[] }
+    return new Set(d.ids)
+  } catch { return new Set() }
+}
 
 export type FilteredJob = {
   id: string; title: string; description: string; type: string
@@ -35,12 +53,14 @@ export function FilteredJobsList({
   emptyBody,
   breadcrumb,
   schemaBoardName,
+  savedIds = new Set(),
 }: {
   jobs: FilteredJob[]
   emptyHeadline: string
   emptyBody: string
   breadcrumb: Array<{ name: string; url: string }>
   schemaBoardName: string
+  savedIds?: Set<string>
 }) {
   const ld = ldGraph(
     breadcrumbLd(breadcrumb),
@@ -63,9 +83,12 @@ export function FilteredJobsList({
               const loc = j.location ?? j.district ?? (j.remote ? 'Remote' : '')
               const sal = j.salary ?? (j.salaryMin && j.salaryMax ? `${j.currency ?? '₹'} ${j.salaryMin.toLocaleString()} - ${j.salaryMax.toLocaleString()}` : null)
               return (
-                <li key={j.id}>
+                <li key={j.id} className="relative">
+                  <div className="absolute top-2.5 right-2.5 z-10">
+                    <SaveHeart jobId={j.id} initialSaved={savedIds.has(j.id)} size={4} />
+                  </div>
                   <Link href={`/jobs/${j.id}`} className="block bg-white border border-gray-100 hover:border-kerala-300 rounded-card p-4 transition-colors">
-                    <div className="flex items-start gap-2 flex-wrap mb-1">
+                    <div className="flex items-start gap-2 flex-wrap mb-1 pr-9">
                       {j.urgent   && <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 bg-rose-100 text-rose-800 rounded font-bold">🔴 Urgent</span>}
                       {j.featured && <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 bg-amber-100 text-amber-800 rounded font-bold">Featured</span>}
                       {j.remote   && <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded">Remote</span>}

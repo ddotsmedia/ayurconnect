@@ -3,6 +3,9 @@ import { GradientHero } from '@ayurconnect/ui'
 import { Briefcase, MapPin, Calendar, Sparkles, FileText, ShieldCheck, MessageCircle, Bot, GraduationCap, Globe2, Plane, ArrowRight } from 'lucide-react'
 import { API_INTERNAL as API } from '../../lib/server-fetch'
 import { WhatsAppAlertsForm } from './_whatsapp-alerts-form'
+import { SaveHeart } from './_save-heart'
+import { getServerSession } from '../../lib/auth'
+import { headers as nextHeaders } from 'next/headers'
 import { jobPostingLd, breadcrumbLd, ldGraph } from '../../lib/seo'
 
 type Job = {
@@ -34,6 +37,21 @@ async function fetchJobs(): Promise<Job[]> {
   } catch { return [] }
 }
 
+// Server-side hydrate of saved-job IDs so the heart on every card renders in
+// the correct state on first paint (no flash). Silently no-ops for logged-out
+// visitors — the SaveHeart click handler falls back to a sign-in redirect.
+async function fetchSavedIds(): Promise<Set<string>> {
+  const sess = await getServerSession()
+  if (!sess) return new Set()
+  try {
+    const h = await nextHeaders(); const cookie = h.get('cookie') ?? ''
+    const res = await fetch(`${API}/jobs-portal/saved/ids`, { headers: { cookie }, cache: 'no-store' })
+    if (!res.ok) return new Set()
+    const data = await res.json() as { ids: string[] }
+    return new Set(data.ids)
+  } catch { return new Set() }
+}
+
 export const metadata = {
   title: 'Ayurveda Jobs in Kerala — Doctors, Therapists, Pharmacists',
   alternates: { canonical: '/jobs' },
@@ -41,7 +59,7 @@ export const metadata = {
 }
 
 export default async function JobsPage() {
-  const jobs = await fetchJobs()
+  const [jobs, savedIds] = await Promise.all([fetchJobs(), fetchSavedIds()])
 
   // One JobPosting node per job — Google Jobs reads these and may surface
   // them in the Google Jobs box at the top of SERPs. Each job links back to
@@ -156,7 +174,8 @@ export default async function JobsPage() {
           <p className="text-[10px] uppercase tracking-wider text-gray-500 font-semibold mb-2">Job Tools</p>
           <div className="flex flex-wrap gap-2">
             {[
-              { href: '/jobs/talent',              label: '🎯 Talent Directory',       badge: 'NEW' },
+              { href: '/jobs/saved',               label: '❤️ Saved jobs',              badge: 'NEW' },
+              { href: '/jobs/talent',              label: '🎯 Talent Directory',       badge: null  },
               { href: '/jobs/interview-questions', label: '💬 Interview Questions',     badge: 'AI' },
               { href: '/jobs/salary-calculator',   label: '💰 Salary Calculator',       badge: null  },
               { href: '/jobs/resume-builder',      label: '📄 Resume Builder',          badge: null  },
@@ -228,8 +247,11 @@ export default async function JobsPage() {
             {jobs.map((j) => {
               const tone = TYPE_TONE[j.type] ?? { label: j.type, bg: 'bg-gray-100', text: 'text-gray-700' }
               return (
-                <article key={j.id} id={j.id} className="bg-white rounded-card border border-gray-100 shadow-card hover:shadow-cardLg transition-shadow p-5 flex flex-col">
-                  <div className="flex items-center gap-2 text-[11px] mb-2">
+                <article key={j.id} id={j.id} className="bg-white rounded-card border border-gray-100 shadow-card hover:shadow-cardLg transition-shadow p-5 flex flex-col relative">
+                  <div className="absolute top-3 right-3">
+                    <SaveHeart jobId={j.id} initialSaved={savedIds.has(j.id)} size={4} />
+                  </div>
+                  <div className="flex items-center gap-2 text-[11px] mb-2 pr-8">
                     <span className={`${tone.bg} ${tone.text} px-2 py-0.5 rounded-full font-medium`}>{tone.label}</span>
                     <span className="text-subtle ml-auto"><Calendar className="w-3 h-3 inline mr-0.5" /> {new Date(j.createdAt).toLocaleDateString()}</span>
                   </div>

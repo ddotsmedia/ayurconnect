@@ -36,6 +36,7 @@ model User {
   appointments             Appointment[]
   upvotes                  Upvote[]
   savedDoctors             SavedDoctor[]
+  userSavedJobs            UserSavedJob[]
   ownedDoctor              Doctor?                   @relation("OwnedDoctor", fields: [doctorId], references: [id])
   ownedHospital            Hospital?                 @relation("OwnedHospital", fields: [hospitalId], references: [id])
   notifications            Notification[]
@@ -659,6 +660,7 @@ model Job {
 
   user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   applications JobApplication[]
+  savedByUsers UserSavedJob[]
 
   @@index([userId])
   @@index([type])
@@ -2533,4 +2535,20 @@ model ConsultationRequest {
   updatedAt         DateTime @updatedAt
 
   @@index([status, createdAt(sort: Desc)])
+}
+
+// Any-user bookmarks (heart-icon wishlist). Distinct from SavedJob which is
+// tied to CandidateProfile — this table lets non-candidate users (doctors,
+// browsing visitors with an account) save jobs for the /jobs/saved wishlist.
+model UserSavedJob {
+  id      String   @id @default(cuid())
+  userId  String
+  jobId   String
+  savedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  job  Job  @relation(fields: [jobId],  references: [id], onDelete: Cascade)
+
+  @@unique([userId, jobId])
+  @@index([userId, savedAt(sort: Desc)])
 }
