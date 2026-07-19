@@ -37,6 +37,7 @@ model User {
   upvotes                  Upvote[]
   savedDoctors             SavedDoctor[]
   userSavedJobs            UserSavedJob[]
+  createdEventListings     EventListing[] @relation("EventListingCreator")
   ownedDoctor              Doctor?                   @relation("OwnedDoctor", fields: [doctorId], references: [id])
   ownedHospital            Hospital?                 @relation("OwnedHospital", fields: [hospitalId], references: [id])
   notifications            Notification[]
@@ -2552,4 +2553,31 @@ model UserSavedJob {
 
   @@unique([userId, jobId])
   @@index([userId, savedAt(sort: Desc)])
+}
+
+// Admin-managed event listings (Ayurveda seminars, workshops, job fairs).
+// Distinct from AnalyticsEvent (page-view tracker) and from the static
+// EVENTS seed at apps/web/src/lib/data/events-seed.ts. Public /events page
+// merges DB rows + seed content.
+model EventListing {
+  id               String    @id @default(cuid())
+  title            String
+  description      String
+  imageUrl         String
+  imageAlt         String?
+  eventDate        DateTime
+  eventEndDate     DateTime?
+  location         String?
+  category         String    @default("seminar") // 'seminar' | 'workshop' | 'job-fair' | 'consultation' | 'other'
+  organizer        String?
+  registrationLink String?
+  isPublished      Boolean   @default(false)
+  createdBy        String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  creator User? @relation("EventListingCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+
+  @@index([isPublished, eventDate])
+  @@index([category])
 }

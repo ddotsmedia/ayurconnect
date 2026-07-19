@@ -1,23 +1,51 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { ArrowLeft, MapPin, Globe, Calendar as CalIcon, Clock } from 'lucide-react'
+import { ArrowLeft, MapPin, Globe, Calendar as CalIcon, Clock, ExternalLink } from 'lucide-react'
 import { breadcrumbLd, ldGraph, pageMetadata } from '../../../lib/seo'
 import { EVENT_SLUGS, getEvent } from '../../../lib/data/events-seed'
 import { EventDetailClient } from './_client'
+import { API_INTERNAL } from '../../../lib/server-fetch'
+import { headers as nextHeaders } from 'next/headers'
+
+type DbEvent = {
+  id: string; title: string; description: string; imageUrl: string; imageAlt: string | null
+  eventDate: string; eventEndDate: string | null; location: string | null
+  category: string; organizer: string | null; registrationLink: string | null
+}
+
+async function fetchDbEvent(id: string): Promise<DbEvent | null> {
+  try {
+    const h = await nextHeaders(); const cookie = h.get('cookie') ?? ''
+    const r = await fetch(`${API_INTERNAL}/event-listings/${id}`, { headers: { cookie }, cache: 'no-store' })
+    if (!r.ok) return null
+    return await r.json() as DbEvent
+  } catch { return null }
+}
 
 export function generateStaticParams() { return EVENT_SLUGS.map((slug) => ({ slug })) }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const e = getEvent(slug)
-  if (!e) return { title: 'Not found', robots: { index: false, follow: false } }
-  return pageMetadata({
-    path:        `/events/${slug}`,
-    title:       `${e.title} | ${e.city} | AyurConnect Events`,
-    description: e.description.slice(0, 160),
-    keywords:    e.tags,
-  })
+  if (e) {
+    return pageMetadata({
+      path:        `/events/${slug}`,
+      title:       `${e.title} | ${e.city} | AyurConnect Events`,
+      description: e.description.slice(0, 160),
+      keywords:    e.tags,
+    })
+  }
+  // DB fallback — admin-created events use cuid ids, not seed slugs.
+  const db = await fetchDbEvent(slug)
+  if (db) {
+    return pageMetadata({
+      path:        `/events/${slug}`,
+      title:       `${db.title} | AyurConnect Events`,
+      description: db.description.slice(0, 160),
+    })
+  }
+  return { title: 'Not found', robots: { index: false, follow: false } }
 }
 
 const CAT_BORDER: Record<string, string> = {
@@ -28,7 +56,13 @@ const CAT_BORDER: Record<string, string> = {
 export default async function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const e = getEvent(slug)
-  if (!e) notFound()
+  if (!e) {
+    // DB fallback for admin-created events (cuid ids). Render a lean detail
+    // view since the DB shape has fewer fields than the seed AyurEvent type.
+    const db = await fetchDbEvent(slug)
+    if (!db) notFound()
+    return <DbEventDetail event={db} />
+  }
   const ld = ldGraph(
     {
       '@context': 'https://schema.org', '@type': 'Event',
@@ -132,6 +166,59 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
           </article>
         )}
       </section>
+    </>
+  )
+}
+
+// Lean detail view for admin-created (DB) events. Fewer fields than the
+// seed AyurEvent shape, so we don't reuse the elaborate speakers/agenda UI.
+function DbEventDetail({ event: e }: { event: DbEvent }) {
+  const start = new Date(e.eventDate)
+  const end   = e.eventEndDate ? new Date(e.eventEndDate) : null
+  const ld = ldGraph(
+    {
+      '@context': 'https://schema.org', '@type': 'Event',
+      name: e.title, description: e.description, image: [e.imageUrl],
+      startDate: start.toISOString(),
+      endDate:   end?.toISOString() ?? undefined,
+      eventStatus: 'https://schema.org/EventScheduled',
+      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+      location: e.location
+        ? { '@type': 'Place', name: e.location }
+        : { '@type': 'VirtualLocation', url: `https://ayurconnect.com/events/${e.id}` },
+      organizer: e.organizer ? { '@type': 'Organization', name: e.organizer } : undefined,
+    },
+    breadcrumbLd([
+      { name: 'Home', url: '/' }, { name: 'Events', url: '/events' },
+      { name: e.title, url: `/events/${e.id}` },
+    ]),
+  )
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
+      <header className="bg-gradient-to-br from-kerala-700 via-kerala-800 to-amber-700 text-white py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <Link href="/events" className="inline-flex items-center gap-1 text-sm text-white/80 hover:text-white mb-3"><ArrowLeft className="w-3.5 h-3.5" /> All events</Link>
+          <span className="inline-block text-[10px] uppercase tracking-wider px-2 py-0.5 bg-white/10 rounded-full mb-3">{e.category}</span>
+          <h1 className="font-serif text-3xl md:text-4xl leading-tight">{e.title}</h1>
+          <div className="mt-4 flex flex-wrap gap-4 text-sm text-white/90">
+            <span className="inline-flex items-center gap-1.5"><CalIcon className="w-4 h-4" /> {start.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</span>
+            <span className="inline-flex items-center gap-1.5"><Clock className="w-4 h-4" /> {start.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}{end ? ` – ${end.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}` : ''}</span>
+            {e.location && <span className="inline-flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {e.location}</span>}
+            {e.organizer && <span className="inline-flex items-center gap-1.5"><Globe className="w-4 h-4" /> {e.organizer}</span>}
+          </div>
+        </div>
+      </header>
+      <article className="container mx-auto px-4 py-10 max-w-3xl">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={e.imageUrl} alt={e.imageAlt ?? e.title} className="w-full rounded-card mb-6 max-h-96 object-cover" />
+        <div className="prose prose-kerala max-w-none text-gray-800 whitespace-pre-line">{e.description}</div>
+        {e.registrationLink && (
+          <a href={e.registrationLink} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-kerala-700 hover:bg-kerala-800 text-white rounded font-semibold text-sm">
+            Register <ExternalLink className="w-4 h-4" />
+          </a>
+        )}
+      </article>
     </>
   )
 }
