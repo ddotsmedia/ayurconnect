@@ -16,6 +16,7 @@ const NAV: Array<{ href: string; label: string; group?: string }> = [
   { href: '/admin/tourism',   label: 'Tourism',   group: 'directory' },
   { href: '/admin/jobs',      label: 'Jobs',      group: 'directory' },
   { href: '/admin/saved-jobs-report', label: 'Saved-jobs report', group: 'directory' },
+  { href: '/admin/applications-report', label: 'Applications report', group: 'directory' },
   { href: '/admin/articles',                label: 'Articles',           group: 'content' },
   { href: '/admin/articles/categories',     label: 'Article categories', group: 'content' },
   { href: '/admin/health-tips',   label: 'Health tips',       group: 'content' },

@@ -52,6 +52,21 @@ async function fetchSavedIds(): Promise<Set<string>> {
   } catch { return new Set() }
 }
 
+// Server-side hydrate of applied-job IDs so the "✓ Applied" badge shows on
+// first paint. Returns { ids: Set, applied: { [jobId]: ISOdate } } so cards
+// can render "Applied on <date>" without a second round-trip.
+async function fetchAppliedIds(): Promise<{ ids: Set<string>; applied: Record<string, string> }> {
+  const sess = await getServerSession()
+  if (!sess) return { ids: new Set(), applied: {} }
+  try {
+    const h = await nextHeaders(); const cookie = h.get('cookie') ?? ''
+    const res = await fetch(`${API}/jobs-portal/wishlist/applied-ids`, { headers: { cookie }, cache: 'no-store' })
+    if (!res.ok) return { ids: new Set(), applied: {} }
+    const data = await res.json() as { ids: string[]; applied?: Record<string, string> }
+    return { ids: new Set(data.ids ?? []), applied: data.applied ?? {} }
+  } catch { return { ids: new Set(), applied: {} } }
+}
+
 export const metadata = {
   title: 'Ayurveda Jobs in Kerala — Doctors, Therapists, Pharmacists',
   alternates: { canonical: '/jobs' },
@@ -59,7 +74,7 @@ export const metadata = {
 }
 
 export default async function JobsPage() {
-  const [jobs, savedIds] = await Promise.all([fetchJobs(), fetchSavedIds()])
+  const [jobs, savedIds, appliedInfo] = await Promise.all([fetchJobs(), fetchSavedIds(), fetchAppliedIds()])
 
   // One JobPosting node per job — Google Jobs reads these and may surface
   // them in the Google Jobs box at the top of SERPs. Each job links back to
@@ -261,12 +276,21 @@ export default async function JobsPage() {
                     {j.district && <div className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-gray-400" /> {j.district}</div>}
                     {j.salary   && <div className="text-kerala-700 font-medium">{j.salary}</div>}
                   </div>
-                  <Link
-                    href="/sign-in"
-                    className="mt-4 inline-flex items-center justify-center px-4 py-2 bg-kerala-600 text-white text-sm font-semibold rounded-md hover:bg-kerala-700"
-                  >
-                    Apply now
-                  </Link>
+                  {appliedInfo.ids.has(j.id) ? (
+                    <div className="mt-4 flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                        ✓ Applied{appliedInfo.applied[j.id] ? ` on ${new Date(appliedInfo.applied[j.id]).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}` : ''}
+                      </span>
+                      <Link href="/jobs/applications" className="text-xs text-kerala-700 hover:underline font-semibold">View status →</Link>
+                    </div>
+                  ) : (
+                    <Link
+                      href="/sign-in"
+                      className="mt-4 inline-flex items-center justify-center px-4 py-2 bg-kerala-600 text-white text-sm font-semibold rounded-md hover:bg-kerala-700"
+                    >
+                      Apply now
+                    </Link>
+                  )}
                 </article>
               )
             })}

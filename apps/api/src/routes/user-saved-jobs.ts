@@ -65,6 +65,31 @@ const route: FastifyPluginAsync = async (fastify) => {
     return { saved: true }
   })
 
+  // Cheap batch of Job.ids the current user has already applied to. Same
+  // shape as /ids above — powers the "✓ Applied" badge on /jobs cards
+  // without an N+1. Reads from the JobApp (candidate-scoped) system since
+  // that's what /jobs/applications uses.
+  fastify.get('/applied-ids', async (request) => {
+    const userId = request.session!.user.id
+    // JobApp is candidate-scoped; resolve candidateProfile.id from userId.
+    const cand = await fastify.prisma.candidateProfile.findUnique({
+      where:  { userId },
+      select: { id: true },
+    })
+    if (!cand) return { ids: [] }
+    const rows = await fastify.prisma.jobApp.findMany({
+      where:   { candidateId: cand.id, status: { not: 'withdrawn' } },
+      select:  { jobId: true, appliedAt: true },
+      orderBy: { appliedAt: 'desc' },
+      take:    500,
+    })
+    return {
+      ids: rows.map((r) => r.jobId),
+      // Also send appliedAt map so the badge can show "✓ Applied on <date>".
+      applied: rows.reduce<Record<string, string>>((acc, r) => { acc[r.jobId] = r.appliedAt.toISOString(); return acc }, {}),
+    }
+  })
+
   fastify.delete('/:jobId', async (request) => {
     const userId = request.session!.user.id
     const { jobId } = request.params as { jobId: string }

@@ -2253,6 +2253,7 @@ model JobApp {
   statusUpdatedAt DateTime @default(now())
   rejectionReason String?
   notes           String?
+  updatedBy       String? // userId of the admin/employer who last patched status (2026-07-19)
 
   candidate  CandidateProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   interviews Interview[]

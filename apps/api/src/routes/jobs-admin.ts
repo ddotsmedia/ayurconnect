@@ -161,7 +161,124 @@ const jobsAdmin: FastifyPluginAsync = async (fastify) => {
       }).filter(<T>(x: T): x is NonNullable<T> => x !== null),
     }
   })
+
+  // ─── Admin: applications per job (sitewide, no employer-owner check) ───
+  fastify.get('/jobs/:id/applications', async (request, reply) => {
+    const { id } = request.params as { id: string }
+    const job = await fastify.prisma.job.findUnique({
+      where: { id }, select: { id: true, title: true, type: true, district: true, clinic: true, status: true, createdAt: true },
+    })
+    if (!job) return reply.code(404).send({ error: 'job not found' })
+    const apps = await fastify.prisma.jobApp.findMany({
+      where:   { jobId: id },
+      orderBy: { appliedAt: 'desc' },
+      include: { candidate: { select: { id: true, fullName: true, email: true, phone: true, currentLocation: true, totalExperience: true, highestQualification: true, specializations: true, resumeUrl: true } } },
+    })
+    return { job, applications: apps, count: apps.length }
+  })
+
+  // ─── Admin: sitewide applications report with filters + join to Job ────
+  fastify.get('/applications-report', async (request) => {
+    const q = request.query as { from?: string; to?: string; status?: string; type?: string; district?: string; search?: string; limit?: string }
+    const take = Math.min(Number(q.limit) || 200, 500)
+
+    const where: Record<string, unknown> = {}
+    if (q.status)  where.status = q.status
+    if (q.from || q.to) {
+      where.appliedAt = {}
+      if (q.from) (where.appliedAt as Record<string, Date>).gte = new Date(q.from)
+      if (q.to)   (where.appliedAt as Record<string, Date>).lte = new Date(q.to)
+    }
+    if (q.type || q.district) {
+      where.job = {
+        ...(q.type     ? { type:     q.type }     : {}),
+        ...(q.district ? { district: q.district } : {}),
+      }
+    }
+    if (q.search) {
+      where.candidate = {
+        OR: [
+          { fullName: { contains: q.search, mode: 'insensitive' } },
+          { email:    { contains: q.search, mode: 'insensitive' } },
+        ],
+      }
+    }
+
+    const [items, total] = await Promise.all([
+      fastify.prisma.jobApp.findMany({
+        where,
+        orderBy: { appliedAt: 'desc' },
+        take,
+        include: {
+          candidate: { select: { id: true, fullName: true, email: true, currentLocation: true } },
+          // Prisma doesn't have a direct Job include on JobApp (relation is via
+          // candidate → CandidateProfile only). Do a follow-up map instead:
+        },
+      }),
+      fastify.prisma.jobApp.count({ where }),
+    ])
+    // Load Job data in one round-trip.
+    const jobIds = Array.from(new Set(items.map((i) => i.jobId)))
+    const jobs = jobIds.length ? await fastify.prisma.job.findMany({
+      where:  { id: { in: jobIds } },
+      select: { id: true, title: true, type: true, district: true, clinic: true, status: true },
+    }) : []
+    const jobById = new Map(jobs.map((j) => [j.id, j]))
+    return {
+      items: items.map((a) => ({
+        id:              a.id,
+        appliedAt:       a.appliedAt,
+        status:          a.status,
+        statusUpdatedAt: a.statusUpdatedAt,
+        matchScore:      a.matchScore,
+        rejectionReason: a.rejectionReason,
+        notes:           a.notes,
+        updatedBy:       a.updatedBy,
+        job:             jobById.get(a.jobId) ?? { id: a.jobId, title: '(deleted job)' },
+        candidate:       a.candidate,
+      })),
+      count: items.length,
+      total,
+    }
+  })
+
+  // ─── Admin: bulk status update on JobApp rows ─────────────────────────
+  fastify.patch('/applications/bulk', async (request, reply) => {
+    const b = (request.body ?? {}) as { ids?: unknown; status?: unknown; notes?: unknown }
+    const ids    = Array.isArray(b.ids) ? b.ids.filter((v): v is string => typeof v === 'string').slice(0, 100) : []
+    const status = typeof b.status === 'string' ? b.status : ''
+    if (!ids.length)                  return reply.code(400).send({ error: 'ids[] required' })
+    if (!VALID_APP_STATUS.has(status)) return reply.code(400).send({ error: `invalid status "${status}". Allowed: ${[...VALID_APP_STATUS].join(', ')}` })
+    const data: Record<string, unknown> = {
+      status,
+      statusUpdatedAt: new Date(),
+      updatedBy:       request.session!.user.id,
+    }
+    if (typeof b.notes === 'string') data.notes = b.notes.slice(0, 4000)
+    const result = await fastify.prisma.jobApp.updateMany({ where: { id: { in: ids } }, data })
+    return { updated: result.count }
+  })
+
+  // Sitewide single-app PATCH (mirrors the employer PATCH but no
+  // owner check — admin has full authority).
+  fastify.patch('/applications/:id', async (request, reply) => {
+    const { id } = request.params as { id: string }
+    const b = (request.body ?? {}) as { status?: unknown; notes?: unknown; rejectionReason?: unknown }
+    const data: Record<string, unknown> = { statusUpdatedAt: new Date(), updatedBy: request.session!.user.id }
+    if (typeof b.status          === 'string') {
+      if (!VALID_APP_STATUS.has(b.status)) return reply.code(400).send({ error: `invalid status "${b.status}"` })
+      data.status = b.status
+    }
+    if (typeof b.notes           === 'string') data.notes           = b.notes.slice(0, 4000)
+    if (typeof b.rejectionReason === 'string') data.rejectionReason = b.rejectionReason.slice(0, 500)
+    return fastify.prisma.jobApp.update({ where: { id }, data })
+  })
 }
+
+// Broad-vocab allowlist covering both the employer-portal states and the
+// task-spec canonical set. Rejects unknown values so silently-wrong
+// updates surface as clear 400s.
+const VALID_APP_STATUS = new Set(['applied', 'viewed', 'shortlisted', 'interview_scheduled', 'offered', 'hired', 'rejected', 'withdrawn'])
 
 // High-interest heuristic: many saves relative to applies. The Job model has
 // no viewCount column, so we rely on save-vs-apply signal only:
