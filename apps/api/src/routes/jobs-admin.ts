@@ -1,8 +1,44 @@
 // Admin endpoints for the job portal — verification queues + counters.
 
 import type { FastifyPluginAsync } from 'fastify'
+import { sendWhatsApp } from '../lib/whatsapp.js'
 
 export const autoPrefix = '/jobs-portal/admin'
+
+// Best-effort WhatsApp notify for approval-queue transitions. Never throws —
+// approve/reject must succeed even if Twilio is misconfigured or the poster
+// has no phone on file. sendWhatsApp itself is a no-op fallback when
+// TWILIO_* envs are missing (logs only), so this is safe in local dev.
+async function notifyPoster(
+  fastify: import('fastify').FastifyInstance,
+  jobId: string,
+  action: 'approved' | 'rejected',
+  reason?: string,
+): Promise<void> {
+  try {
+    const job = await fastify.prisma.job.findUnique({
+      where:  { id: jobId },
+      select: {
+        title: true,
+        user:  {
+          select: { phone: true, employerProfile: { select: { whatsapp: true, phone: true } } },
+        },
+      },
+    })
+    if (!job) return
+    const to = job.user?.employerProfile?.whatsapp
+           ?? job.user?.employerProfile?.phone
+           ?? job.user?.phone
+    if (!to) return
+    const body = action === 'approved'
+      ? `✅ Your AyurConnect job "${job.title}" has been approved and is now live at https://ayurconnect.com/jobs.`
+      : `❌ Your AyurConnect job "${job.title}" was not approved.\n\nReason: ${reason || 'not specified'}\n\nYou can edit and resubmit at https://ayurconnect.com/jobs-portal/my-jobs.`
+    await sendWhatsApp({ to, body })
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error('[jobs-admin] notifyPoster failed', jobId, action, e)
+  }
+}
 
 const jobsAdmin: FastifyPluginAsync = async (fastify) => {
   fastify.addHook('preHandler', fastify.requireAdmin)
@@ -283,6 +319,56 @@ const jobsAdmin: FastifyPluginAsync = async (fastify) => {
     if (typeof b.notes           === 'string') data.notes           = b.notes.slice(0, 4000)
     if (typeof b.rejectionReason === 'string') data.rejectionReason = b.rejectionReason.slice(0, 500)
     return fastify.prisma.jobApp.update({ where: { id }, data })
+  })
+
+  // ─── Job approval queue: approve / reject / bulk-approve ───────────────
+  // Purpose-built endpoints so the admin UI (/admin/jobs) can invoke a
+  // single action that (a) mutates status, (b) clears/writes rejectionReason,
+  // (c) fires a WhatsApp notification to the poster. The generic
+  // PATCH /jobs/:id endpoint still works for other field edits.
+
+  fastify.patch('/jobs/:id/approve', async (request, reply) => {
+    const { id } = request.params as { id: string }
+    const job = await fastify.prisma.job.findUnique({ where: { id }, select: { id: true } })
+    if (!job) return reply.code(404).send({ error: 'job not found' })
+    const updated = await fastify.prisma.job.update({
+      where: { id },
+      data:  { status: 'active', rejectionReason: null },
+    })
+    void notifyPoster(fastify, id, 'approved')
+    return { ok: true, job: updated }
+  })
+
+  fastify.patch('/jobs/:id/reject', async (request, reply) => {
+    const { id } = request.params as { id: string }
+    const b = (request.body ?? {}) as { reason?: unknown }
+    const reason = typeof b.reason === 'string' ? b.reason.trim().slice(0, 500) : ''
+    if (!reason) return reply.code(400).send({ error: 'reason required' })
+    const job = await fastify.prisma.job.findUnique({ where: { id }, select: { id: true } })
+    if (!job) return reply.code(404).send({ error: 'job not found' })
+    const updated = await fastify.prisma.job.update({
+      where: { id },
+      data:  { status: 'rejected', rejectionReason: reason },
+    })
+    void notifyPoster(fastify, id, 'rejected', reason)
+    return { ok: true, job: updated }
+  })
+
+  fastify.patch('/jobs/bulk-approve', async (request, reply) => {
+    const b = (request.body ?? {}) as { ids?: unknown }
+    const ids = Array.isArray(b.ids)
+      ? b.ids.filter((v): v is string => typeof v === 'string').slice(0, 200)
+      : []
+    if (!ids.length) return reply.code(400).send({ error: 'ids[] required' })
+    const result = await fastify.prisma.job.updateMany({
+      where: { id: { in: ids }, status: { not: 'active' } },
+      data:  { status: 'active', rejectionReason: null },
+    })
+    // Fire notifications in parallel; each individually catches so one bad
+    // recipient doesn't stall the batch. Await Promise.all so the request
+    // doesn't complete before background sends start on serverless-like hosts.
+    await Promise.all(ids.map((id) => notifyPoster(fastify, id, 'approved')))
+    return { ok: true, updated: result.count, count: ids.length }
   })
 }
 

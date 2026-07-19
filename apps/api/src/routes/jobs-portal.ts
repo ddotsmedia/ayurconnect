@@ -143,7 +143,9 @@ const jobsPortal: FastifyPluginAsync = async (fastify) => {
           userId: uid, type: typeof b.jobType === 'string' ? b.jobType : 'doctor',
           title: title.slice(0, 200),
           description: String(b.description ?? '').slice(0, 8000),
-          kind: 'hiring', status: 'active', clinic: typeof b.companyName === 'string' ? b.companyName : null,
+          // Hospital-side hiring posts start pending until admin approves them
+          // via /admin/jobs. See also jobs.ts which already defaults to pending.
+          kind: 'hiring', status: 'pending', clinic: typeof b.companyName === 'string' ? b.companyName : null,
           location: typeof b.location === 'string' ? b.location : null,
           district: typeof b.district === 'string' ? b.district : null,
           specialty: typeof b.specialization === 'string' ? b.specialization : null,
