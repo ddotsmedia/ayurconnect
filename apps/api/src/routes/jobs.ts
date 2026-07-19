@@ -202,10 +202,13 @@ const jobs: FastifyPluginAsync = async (fastify) => {
     const job = await fastify.prisma.job.findUnique({ where: { id }, select: { id: true, status: true } })
     if (!job || job.status !== 'active') return reply.code(404).send({ error: 'Job not found or no longer accepting applications' })
 
-    const name  = STR(body.name,  120)
-    const email = STR(body.email, 200)
+    const name = STR(body.name, 120)
     const phone = STR(body.phone, 40)
-    if (!name || !email || !phone) return reply.code(400).send({ error: 'name, email, phone required' })
+    // Signed-in one-click apply: email defaults to the session user's email
+    // so the modal doesn't need to collect it. Anonymous apply still requires
+    // an email in the body.
+    const email = STR(body.email, 200) ?? (request.session?.user.email ?? null)
+    if (!name || !email || !phone) return reply.code(400).send({ error: 'name, phone required (email required for anonymous apply)' })
 
     const existing = await fastify.prisma.jobApplication.findUnique({ where: { jobId_email: { jobId: id, email } } })
     if (existing) return reply.code(409).send({ error: 'You have already applied to this job with this email', code: 'already-applied' })

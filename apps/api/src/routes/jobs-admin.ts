@@ -163,18 +163,29 @@ const jobsAdmin: FastifyPluginAsync = async (fastify) => {
   })
 
   // ─── Admin: applications per job (sitewide, no employer-owner check) ───
+  // Returns BOTH shapes:
+  //   applications  — JobApp rows (candidate-portal flow: has candidate profile)
+  //   quickApplications — JobApplication rows (public one-click apply flow:
+  //                       name+email+phone+coverNote, no profile needed)
   fastify.get('/jobs/:id/applications', async (request, reply) => {
     const { id } = request.params as { id: string }
     const job = await fastify.prisma.job.findUnique({
       where: { id }, select: { id: true, title: true, type: true, district: true, clinic: true, status: true, createdAt: true },
     })
     if (!job) return reply.code(404).send({ error: 'job not found' })
-    const apps = await fastify.prisma.jobApp.findMany({
-      where:   { jobId: id },
-      orderBy: { appliedAt: 'desc' },
-      include: { candidate: { select: { id: true, fullName: true, email: true, phone: true, currentLocation: true, totalExperience: true, highestQualification: true, specializations: true, resumeUrl: true } } },
-    })
-    return { job, applications: apps, count: apps.length }
+    const [apps, quick] = await Promise.all([
+      fastify.prisma.jobApp.findMany({
+        where:   { jobId: id },
+        orderBy: { appliedAt: 'desc' },
+        include: { candidate: { select: { id: true, fullName: true, email: true, phone: true, currentLocation: true, totalExperience: true, highestQualification: true, specializations: true, resumeUrl: true } } },
+      }),
+      fastify.prisma.jobApplication.findMany({
+        where:   { jobId: id },
+        orderBy: { createdAt: 'desc' },
+        select:  { id: true, name: true, email: true, phone: true, qualification: true, experience: true, coverNote: true, status: true, createdAt: true, updatedAt: true, applicantUserId: true },
+      }),
+    ])
+    return { job, applications: apps, count: apps.length, quickApplications: quick, quickCount: quick.length }
   })
 
   // ─── Admin: sitewide applications report with filters + join to Job ────
