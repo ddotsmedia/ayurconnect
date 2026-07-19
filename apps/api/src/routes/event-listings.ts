@@ -14,7 +14,9 @@ const ALLOWED_CATEGORY = new Set(['seminar', 'workshop', 'job-fair', 'consultati
 const route: FastifyPluginAsync = async (fastify) => {
   fastify.get('/', async (request) => {
     const q = request.query as { category?: string; location?: string; past?: string; limit?: string; upcoming?: string }
-    const where: Record<string, unknown> = { isPublished: true }
+    // Public read: BOTH conditions required — approval-queue verifies the
+    // event is admin-vetted, isPublished is the admin's live-toggle.
+    const where: Record<string, unknown> = { isPublished: true, status: 'approved' }
     if (q.category && ALLOWED_CATEGORY.has(q.category)) where.category = q.category
     if (q.location) where.location = { contains: q.location, mode: 'insensitive' }
     // Default: upcoming (eventDate >= now). ?past=1 flips to past events.
@@ -36,7 +38,9 @@ const route: FastifyPluginAsync = async (fastify) => {
   fastify.get('/:id', async (request, reply) => {
     const { id } = request.params as { id: string }
     const ev = await fastify.prisma.eventListing.findUnique({ where: { id } })
-    if (!ev || !ev.isPublished) return reply.code(404).send({ error: 'event not found' })
+    if (!ev || !ev.isPublished || ev.status !== 'approved') {
+      return reply.code(404).send({ error: 'event not found' })
+    }
     return ev
   })
 }

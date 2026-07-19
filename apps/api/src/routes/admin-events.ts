@@ -90,11 +90,15 @@ const route: FastifyPluginAsync = async (fastify) => {
   })
 
   // ─── CRUD ──────────────────────────────────────────────────────────────
+  // status filter takes both approval-queue vocab (pending/approved/rejected)
+  // AND the legacy visibility vocab (draft/published) so old bookmarks and
+  // any inflight admin-page code still work.
   fastify.get('/', async (request) => {
     const q = request.query as { status?: string; category?: string; limit?: string }
     const where: Record<string, unknown> = {}
-    if (q.status === 'draft')     where.isPublished = false
-    if (q.status === 'published') where.isPublished = true
+    if (q.status === 'draft')                                            where.isPublished = false
+    else if (q.status === 'published')                                   where.isPublished = true
+    else if (q.status === 'pending' || q.status === 'approved' || q.status === 'rejected') where.status = q.status
     if (q.category && ALLOWED_CATEGORY.has(q.category)) where.category = q.category
     return fastify.prisma.eventListing.findMany({
       where,
@@ -135,6 +139,61 @@ const route: FastifyPluginAsync = async (fastify) => {
     if (typeof b.isPublished !== 'boolean')   return reply.code(400).send({ error: 'isPublished:boolean required' })
     const r = await fastify.prisma.eventListing.updateMany({ where: { id: { in: ids } }, data: { isPublished: b.isPublished } })
     return { updated: r.count }
+  })
+
+  // ─── Approval queue ────────────────────────────────────────────────────
+  // Approve = moderation decision (does NOT auto-publish; admin still uses
+  // the publish toggle to make it live). Reject stores reason on the row.
+
+  fastify.patch('/:id/approve', async (request, reply) => {
+    const { id } = request.params as { id: string }
+    const ev = await fastify.prisma.eventListing.findUnique({ where: { id }, select: { id: true } })
+    if (!ev) return reply.code(404).send({ error: 'event not found' })
+    const updated = await fastify.prisma.eventListing.update({
+      where: { id },
+      data:  {
+        status:          'approved',
+        verifiedBy:      request.session!.user.id,
+        verifiedAt:      new Date(),
+        rejectionReason: null,
+      },
+    })
+    return { ok: true, event: updated }
+  })
+
+  fastify.patch('/:id/reject', async (request, reply) => {
+    const { id } = request.params as { id: string }
+    const b = (request.body ?? {}) as { reason?: unknown }
+    const reason = typeof b.reason === 'string' ? b.reason.trim().slice(0, 500) : ''
+    if (!reason) return reply.code(400).send({ error: 'reason required' })
+    const ev = await fastify.prisma.eventListing.findUnique({ where: { id }, select: { id: true } })
+    if (!ev) return reply.code(404).send({ error: 'event not found' })
+    const updated = await fastify.prisma.eventListing.update({
+      where: { id },
+      data:  {
+        status:          'rejected',
+        verifiedBy:      request.session!.user.id,
+        verifiedAt:      new Date(),
+        rejectionReason: reason,
+      },
+    })
+    return { ok: true, event: updated }
+  })
+
+  fastify.patch('/bulk-approve', async (request, reply) => {
+    const b = (request.body ?? {}) as { ids?: unknown }
+    const ids = Array.isArray(b.ids) ? b.ids.filter((v): v is string => typeof v === 'string').slice(0, 200) : []
+    if (!ids.length) return reply.code(400).send({ error: 'ids[] required' })
+    const r = await fastify.prisma.eventListing.updateMany({
+      where: { id: { in: ids }, status: { not: 'approved' } },
+      data:  {
+        status:          'approved',
+        verifiedBy:      request.session!.user.id,
+        verifiedAt:      new Date(),
+        rejectionReason: null,
+      },
+    })
+    return { ok: true, updated: r.count, count: ids.length }
   })
 }
 

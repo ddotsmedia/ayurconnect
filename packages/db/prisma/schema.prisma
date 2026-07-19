@@ -38,6 +38,7 @@ model User {
   savedDoctors             SavedDoctor[]
   userSavedJobs            UserSavedJob[]
   createdEventListings     EventListing[] @relation("EventListingCreator")
+  verifiedEventListings    EventListing[] @relation("EventListingVerifier")
   ownedDoctor              Doctor?                   @relation("OwnedDoctor", fields: [doctorId], references: [id])
   ownedHospital            Hospital?                 @relation("OwnedHospital", fields: [hospitalId], references: [id])
   notifications            Notification[]
@@ -2576,8 +2577,19 @@ model EventListing {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  creator User? @relation("EventListingCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  // Approval queue (2026-07-20). Independent of isPublished — status is the
+  // moderation decision, isPublished is the admin's live-toggle. Public
+  // display requires both status='approved' AND isPublished=true.
+  status           String    @default("pending") // 'pending' | 'approved' | 'rejected'
+  verifiedBy       String?
+  verifiedAt       DateTime?
+  rejectionReason  String?
+
+  creator  User? @relation("EventListingCreator",  fields: [createdBy], references: [id], onDelete: SetNull)
+  verifier User? @relation("EventListingVerifier", fields: [verifiedBy], references: [id], onDelete: SetNull)
 
   @@index([isPublished, eventDate])
   @@index([category])
+  @@index([status])
+  @@index([status, isPublished, eventDate])
 }
