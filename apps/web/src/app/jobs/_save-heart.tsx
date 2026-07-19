@@ -30,7 +30,7 @@ export function SaveHeart({
     const next = !saved
     setSaved(next); setBusy(true)
     try {
-      const rsp = await fetch(`/api/jobs-portal/saved/${jobId}`, {
+      const rsp = await fetch(`/api/jobs-portal/wishlist/${jobId}`, {
         method:      next ? 'POST' : 'DELETE',
         credentials: 'include',
       })

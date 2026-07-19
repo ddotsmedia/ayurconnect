@@ -20,7 +20,7 @@ async function fetchSaved(searchParams: Record<string, string | undefined>): Pro
   if (searchParams.specialty) qs.set('specialty', searchParams.specialty)
   try {
     const h = await nextHeaders(); const cookie = h.get('cookie') ?? ''
-    const url = `${API}/jobs-portal/saved${qs.toString() ? `?${qs}` : ''}`
+    const url = `${API}/jobs-portal/wishlist${qs.toString() ? `?${qs}` : ''}`
     const r = await fetch(url, { headers: { cookie }, cache: 'no-store' })
     if (!r.ok) return []
     const data = await r.json() as { items: SavedJob[] }

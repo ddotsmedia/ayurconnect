@@ -46,7 +46,7 @@ export function SavedJobsClient({
   async function remove(id: string) {
     setBusy(id)
     try {
-      const r = await fetch(`/api/jobs-portal/saved/${id}`, { method: 'DELETE', credentials: 'include' })
+      const r = await fetch(`/api/jobs-portal/wishlist/${id}`, { method: 'DELETE', credentials: 'include' })
       if (r.ok) {
         setItems((cur) => cur.filter((i) => i.id !== id))
         setSelected((cur) => { const next = new Set(cur); next.delete(id); return next })

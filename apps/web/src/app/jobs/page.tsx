@@ -45,7 +45,7 @@ async function fetchSavedIds(): Promise<Set<string>> {
   if (!sess) return new Set()
   try {
     const h = await nextHeaders(); const cookie = h.get('cookie') ?? ''
-    const res = await fetch(`${API}/jobs-portal/saved/ids`, { headers: { cookie }, cache: 'no-store' })
+    const res = await fetch(`${API}/jobs-portal/wishlist/ids`, { headers: { cookie }, cache: 'no-store' })
     if (!res.ok) return new Set()
     const data = await res.json() as { ids: string[] }
     return new Set(data.ids)

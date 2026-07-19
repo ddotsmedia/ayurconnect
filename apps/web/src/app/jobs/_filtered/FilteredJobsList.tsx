@@ -14,7 +14,7 @@ export async function fetchSavedIds(): Promise<Set<string>> {
   if (!sess) return new Set()
   try {
     const h = await nextHeaders(); const cookie = h.get('cookie') ?? ''
-    const r = await fetch(`${API}/jobs-portal/saved/ids`, { headers: { cookie }, cache: 'no-store' })
+    const r = await fetch(`${API}/jobs-portal/wishlist/ids`, { headers: { cookie }, cache: 'no-store' })
     if (!r.ok) return new Set()
     const d = await r.json() as { ids: string[] }
     return new Set(d.ids)

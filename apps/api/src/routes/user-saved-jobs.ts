@@ -1,14 +1,14 @@
 import type { FastifyPluginAsync } from 'fastify'
 
-export const autoPrefix = '/jobs-portal/saved'
+export const autoPrefix = '/jobs-portal/wishlist'
 
 // User bookmark ("heart icon") wishlist for jobs. Any authenticated user can
 // save any Job.id; distinct from SavedJob which is scoped to CandidateProfile.
 //
-//   POST   /jobs-portal/saved/:jobId   → save (idempotent), returns { saved:true }
-//   DELETE /jobs-portal/saved/:jobId   → unsave (idempotent), returns { saved:false }
-//   GET    /jobs-portal/saved          → list saved jobs with Job data + filters
-//   GET    /jobs-portal/saved/ids      → cheap batch: { ids: string[] } for hydrating
+//   POST   /jobs-portal/wishlist/:jobId   → save (idempotent), returns { saved:true }
+//   DELETE /jobs-portal/wishlist/:jobId   → unsave (idempotent), returns { saved:false }
+//   GET    /jobs-portal/wishlist          → list saved jobs with Job data + filters
+//   GET    /jobs-portal/wishlist/ids      → cheap batch: { ids: string[] } for hydrating
 //                                        heart state on public list pages
 
 const route: FastifyPluginAsync = async (fastify) => {
