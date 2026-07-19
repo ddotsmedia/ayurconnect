@@ -8,6 +8,7 @@ import {
 import { API_INTERNAL as API, logServerFetchError } from '../lib/server-fetch'
 import { PersonalizedWelcome } from '../components/personalized-welcome'
 import { EarlyAccessBanner } from '../components/early-access-banner'
+import { HomeEventsPreview } from '../components/events/HomeEventsPreview'
 import { medicalBusinessLd, faqLd, ldGraph } from '../lib/seo'
 
 const DISTRICTS = [
@@ -360,6 +361,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* 9.9 UPCOMING EVENTS — admin-curated preview, renders nothing if empty */}
+      <HomeEventsPreview />
 
       {/* 10. CALL TO ACTION — bottom band */}
       <section className="relative overflow-hidden bg-hero-green text-white py-16">

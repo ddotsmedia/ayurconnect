@@ -7,6 +7,7 @@ import { EVENT_SLUGS, getEvent } from '../../../lib/data/events-seed'
 import { EventDetailClient } from './_client'
 import { API_INTERNAL } from '../../../lib/server-fetch'
 import { headers as nextHeaders } from 'next/headers'
+import { EventShareBar } from '../../../components/events/EventShareBar'
 
 type DbEvent = {
   id: string; title: string; description: string; imageUrl: string; imageAlt: string | null
@@ -43,6 +44,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       path:        `/events/${slug}`,
       title:       `${db.title} | AyurConnect Events`,
       description: db.description.slice(0, 160),
+      image:       db.imageUrl,
+      type:        'article',
     })
   }
   return { title: 'Not found', robots: { index: false, follow: false } }
@@ -165,6 +168,15 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
             />
           </article>
         )}
+
+        <EventShareBar
+          id={slug}
+          title={e.title}
+          date={`${new Date(e.startDate).toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}, ${e.startTime}`}
+          location={e.online ? 'Online' : `${e.venue}, ${e.city}`}
+          registrationLink={e.registrationUrl ?? null}
+          variant="detail"
+        />
       </section>
     </>
   )
@@ -218,6 +230,14 @@ function DbEventDetail({ event: e }: { event: DbEvent }) {
             Register <ExternalLink className="w-4 h-4" />
           </a>
         )}
+        <EventShareBar
+          id={e.id}
+          title={e.title}
+          date={start.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+          location={e.location}
+          registrationLink={e.registrationLink}
+          variant="detail"
+        />
       </article>
     </>
   )

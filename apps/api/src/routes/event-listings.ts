@@ -13,11 +13,12 @@ const ALLOWED_CATEGORY = new Set(['seminar', 'workshop', 'job-fair', 'consultati
 
 const route: FastifyPluginAsync = async (fastify) => {
   fastify.get('/', async (request) => {
-    const q = request.query as { category?: string; location?: string; past?: string; limit?: string }
+    const q = request.query as { category?: string; location?: string; past?: string; limit?: string; upcoming?: string }
     const where: Record<string, unknown> = { isPublished: true }
     if (q.category && ALLOWED_CATEGORY.has(q.category)) where.category = q.category
     if (q.location) where.location = { contains: q.location, mode: 'insensitive' }
     // Default: upcoming (eventDate >= now). ?past=1 flips to past events.
+    // ?upcoming=true is accepted as a no-op — it matches the default.
     const now = new Date()
     if (q.past === '1' || q.past === 'true') {
       where.eventDate = { lt: now }
