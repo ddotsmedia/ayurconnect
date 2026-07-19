@@ -1,19 +1,19 @@
 import type { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify'
+import { geminiJson, geminiVisionJson, geminiText, GeminiNotConfiguredError } from '../lib/gemini-client.js'
 
 export const autoPrefix = '/jobs-portal/ai'
 
 // AI-powered helpers for job workflows:
-//  - POST /parse-poster    (multipart image → extracted job JSON via Claude vision)
+//  - POST /parse-poster    (multipart image → extracted job JSON via Gemini vision)
 //  - POST /parse-text      (free text → extracted job JSON)
 //  - POST /parse-resume    (text extracted client-side from CV → candidate JSON)
 //  - POST /generate-description  (title+context → 300-500 word description)
-//  - POST /interview-questions   (specialty+level → 10 Q&A pairs)
+//  - POST /interview-questions   (specialty+level → 10 Q&A pairs as JSON array)
 //  - POST /salary-estimate       (context → INR/AED range + comparison notes)
 //
-// Model: claude-haiku-4-5-20251001 for text; same model with `image` block for
-// posters (Haiku 4.5 supports vision).
-
-const HAIKU = 'claude-haiku-4-5-20251001'
+// Model: gemini-2.0-flash (free tier: 15 req/min, ~1M tokens/day). Multimodal
+// natively so no separate vision model needed. Prompts request JSON only and
+// gemini-client sets responseMimeType='application/json' for reliability.
 
 const POSTER_SCHEMA_PROMPT = `You are extracting Ayurveda job details from an image (poster, screenshot, or WhatsApp share).
 Return ONLY a JSON object (no prose, no code fence) with this exact shape:
@@ -112,7 +112,9 @@ Return ONLY a JSON object (no prose, no code fence):
   "confidence": number
 }`
 
-// Small util — extracts first JSON object from a possibly-fenced model reply.
+// Parse a JSON string that MAY have wrapping prose or code fences. When we
+// call Gemini with responseMimeType='application/json' this is almost always
+// unnecessary, but we keep it as a safety net for the plain-text helpers.
 function extractJson(text: string): unknown {
   const cleaned = text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '')
   const start = cleaned.indexOf('{')
@@ -121,124 +123,86 @@ function extractJson(text: string): unknown {
   return JSON.parse(cleaned.slice(start, end + 1))
 }
 
-async function callHaiku(fastify: import('fastify').FastifyInstance, systemPrompt: string, userContent: unknown, maxTokens = 2000) {
-  return callModel(fastify, HAIKU, systemPrompt, userContent, maxTokens)
-}
-
-const SONNET = process.env.ANTHROPIC_SONNET_MODEL ?? 'claude-sonnet-5'
-
-async function callModel(fastify: import('fastify').FastifyInstance, model: string, systemPrompt: string, userContent: unknown, maxTokens: number) {
-  const rsp = await fastify.anthropic.messages.create({
-    model,
-    max_tokens: maxTokens,
-    system: systemPrompt,
-    messages: [{ role: 'user', content: userContent as never }],
-  })
-  const text = rsp.content
-    .filter((b: { type: string }) => b.type === 'text')
-    .map((b: { type: string; text?: string }) => b.text ?? '')
-    .join('\n')
-  return { text, usage: rsp.usage, model }
-}
-
-// Classify an Anthropic error message → friendly code the client can react to.
-type ExtractErrorCode = 'no-credits' | 'rate-limited' | 'auth-failed' | 'invalid-json' | 'upstream-error'
+// Classify a Gemini error → friendly code the client can react to.
+// Gemini error messages contain Google API status codes / phrases like
+// 'RESOURCE_EXHAUSTED', 'PERMISSION_DENIED', 'INVALID_ARGUMENT' inline.
+type ExtractErrorCode = 'not-configured' | 'quota-exceeded' | 'rate-limited' | 'auth-failed' | 'invalid-input' | 'invalid-json' | 'upstream-error'
 
 function classifyError(err: unknown): { code: ExtractErrorCode; message: string; canRetry: boolean } {
+  if (err instanceof GeminiNotConfiguredError) {
+    return { code: 'not-configured', message: "AI service isn't configured yet — please enter details manually below.", canRetry: false }
+  }
   const raw = err instanceof Error ? err.message : String(err)
   const low = raw.toLowerCase()
-  if (low.includes('credit balance is too low') || low.includes('billing') || low.includes('402')) {
-    return { code: 'no-credits',    message: "AI service is temporarily out of credits — please enter details manually below.", canRetry: false }
+  if (low.includes('resource_exhausted') || low.includes('quota') || low.includes('429')) {
+    // Gemini free tier is 15 req/min + daily token cap; both surface as this.
+    const dailyCap = low.includes('per day') || low.includes('quota_exceeded')
+    return { code: dailyCap ? 'quota-exceeded' : 'rate-limited',
+             message: dailyCap
+               ? "AI daily free-tier quota reached — please try again tomorrow or enter details manually."
+               : "Too many AI requests — please wait a minute and try again (free tier: 15/min).",
+             canRetry: !dailyCap }
   }
-  if (low.includes('rate limit') || low.includes('429')) {
-    return { code: 'rate-limited',  message: "Too many AI requests — please wait a moment and try again.",                     canRetry: true  }
+  if (low.includes('permission_denied') || low.includes('api key not valid') || low.includes('401') || low.includes('403')) {
+    return { code: 'auth-failed',   message: "AI service authentication failed — please enter details manually.",           canRetry: false }
   }
-  if (low.includes('authentication') || low.includes('401') || low.includes('invalid api key')) {
-    return { code: 'auth-failed',   message: "AI service authentication failed — please enter details manually.",              canRetry: false }
+  if (low.includes('invalid_argument') || low.includes('400')) {
+    return { code: 'invalid-input',  message: "AI couldn't process this input — please enter details manually.",             canRetry: false }
   }
-  if (low.includes('no json in reply') || low.includes('unexpected token')) {
-    return { code: 'invalid-json',  message: "AI returned an unreadable response — please enter details manually.",             canRetry: true  }
+  if (low.includes('no json in reply') || low.includes('unexpected token') || low.includes('json')) {
+    return { code: 'invalid-json',   message: "AI returned an unreadable response — please try again or enter details manually.", canRetry: true }
   }
-  return   { code: 'upstream-error', message: "AI extraction failed — please enter details manually below.",                    canRetry: true  }
-}
-
-// Try Haiku first; if it fails with an error class where Sonnet has a chance
-// (upstream-error, invalid-json), retry once with Sonnet. Skip retry on
-// no-credits / auth-failed (Sonnet uses the same key so it would just fail
-// the same way at 3–4x the cost).
-async function callHaikuWithSonnetFallback(fastify: import('fastify').FastifyInstance, systemPrompt: string, userContent: unknown, maxTokens = 2000) {
-  try {
-    return { ...(await callHaiku(fastify, systemPrompt, userContent, maxTokens)), fallbackUsed: false }
-  } catch (haikuErr) {
-    const { code } = classifyError(haikuErr)
-    if (code === 'no-credits' || code === 'auth-failed') throw haikuErr
-    fastify.log.warn({ err: haikuErr instanceof Error ? haikuErr.message : haikuErr, retryWith: SONNET }, 'jobs-ai: Haiku failed, retrying with Sonnet')
-    try {
-      return { ...(await callModel(fastify, SONNET, systemPrompt, userContent, maxTokens)), fallbackUsed: true }
-    } catch (sonnetErr) {
-      // Rethrow ORIGINAL Haiku error so the friendly-error classifier sees
-      // the primary failure reason (Sonnet often fails the same way for the
-      // same cause).
-      throw haikuErr
-    }
-  }
+  return   { code: 'upstream-error', message: "AI extraction failed — please enter details manually below.",                canRetry: true }
 }
 
 const route: FastifyPluginAsync = async (fastify) => {
   // ─── POST /parse-poster — multipart image → JSON ────────────────────────
   fastify.post('/parse-poster', async (request: FastifyRequest, reply: FastifyReply) => {
-    if (!process.env.ANTHROPIC_API_KEY) return reply.code(503).send({ error: 'AI not configured' })
     const file = await request.file()
     if (!file) return reply.code(400).send({ error: 'image file required (multipart field "file")' })
-    const allowed = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
-    if (!allowed.has(file.mimetype)) return reply.code(400).send({ error: `unsupported type ${file.mimetype}. Use JPG/PNG/WEBP/GIF.` })
+    // Gemini vision accepts JPEG / PNG / WEBP / HEIC / HEIF; GIF is not
+    // supported → downstream call would error, so reject early with a clear
+    // message.
+    const allowed = new Set(['image/jpeg', 'image/png', 'image/webp'])
+    if (!allowed.has(file.mimetype)) return reply.code(400).send({ error: `unsupported type ${file.mimetype}. Use JPG/PNG/WEBP.` })
     const buf = await file.toBuffer()
     if (buf.length > 8 * 1024 * 1024) return reply.code(413).send({ error: 'image too large (max 8 MB)' })
     const b64 = buf.toString('base64')
     try {
-      const { text, usage, model, fallbackUsed } = await callHaikuWithSonnetFallback(
-        fastify,
-        POSTER_SCHEMA_PROMPT,
-        [
-          { type: 'image', source: { type: 'base64', media_type: file.mimetype, data: b64 } },
-          { type: 'text',  text: 'Extract the Ayurveda job details from this image.' },
-        ],
+      const { text, model } = await geminiVisionJson(
+        `${POSTER_SCHEMA_PROMPT}\n\nExtract the Ayurveda job details from the attached image and return the JSON object described above.`,
+        b64,
+        file.mimetype,
         2000,
       )
       const parsed = extractJson(text) as Record<string, unknown>
-      return { ok: true, parsed, rawTextLength: text.length, usage, model, fallbackUsed }
+      return { ok: true, parsed, rawTextLength: text.length, model }
     } catch (err: unknown) {
       const { code, message, canRetry } = classifyError(err)
       request.log.error({ err: err instanceof Error ? err.message : String(err), code }, 'jobs-ai parse-poster failed')
-      // 422 (not 502) — Cloudflare / nginx intercept 5xx responses with
-      // their own text/plain error pages, losing our JSON body. 422 is
-      // in the client-error range and passes through unchanged.
+      // 422 (not 5xx) — Cloudflare / nginx intercept 5xx responses with
+      // their own text/plain error pages, losing our JSON body. 422 is in
+      // the client-error range and passes through unchanged.
       return reply.code(422).send({ ok: false, code, message, canRetry })
     }
   })
 
   // ─── POST /parse-text — free text → JSON ────────────────────────────────
   fastify.post('/parse-text', async (request: FastifyRequest, reply: FastifyReply) => {
-    if (!process.env.ANTHROPIC_API_KEY) return reply.code(503).send({ error: 'AI not configured' })
     const body = (request.body ?? {}) as { text?: unknown }
     const raw = typeof body.text === 'string' ? body.text : ''
     if (raw.length < 20) return reply.code(400).send({ error: 'text too short (min 20 chars)' })
     if (raw.length > 8000) return reply.code(413).send({ error: 'text too long (max 8000 chars)' })
     try {
-      const { text, usage, model, fallbackUsed } = await callHaikuWithSonnetFallback(
-        fastify,
-        TEXT_SCHEMA_PROMPT,
-        [{ type: 'text', text: raw }],
+      const { text, model } = await geminiJson(
+        `${TEXT_SCHEMA_PROMPT}\n\nJob source text:\n"""\n${raw}\n"""\n\nReturn the JSON object.`,
         1500,
       )
       const parsed = extractJson(text) as Record<string, unknown>
-      return { ok: true, parsed, usage, model, fallbackUsed }
+      return { ok: true, parsed, model }
     } catch (err: unknown) {
       const { code, message, canRetry } = classifyError(err)
       request.log.error({ err: err instanceof Error ? err.message : String(err), code }, 'jobs-ai parse-text failed')
-      // 422 (not 502) — Cloudflare / nginx intercept 5xx responses with
-      // their own text/plain error pages, losing our JSON body. 422 is
-      // in the client-error range and passes through unchanged.
       return reply.code(422).send({ ok: false, code, message, canRetry })
     }
   })
@@ -246,30 +210,26 @@ const route: FastifyPluginAsync = async (fastify) => {
   // ─── POST /parse-resume — free text CV → candidate JSON ─────────────────
   // Client extracts text from a PDF or DOCX (no server pdf-parse dep needed).
   fastify.post('/parse-resume', async (request: FastifyRequest, reply: FastifyReply) => {
-    if (!process.env.ANTHROPIC_API_KEY) return reply.code(503).send({ error: 'AI not configured' })
     const body = (request.body ?? {}) as { text?: unknown }
     const raw = typeof body.text === 'string' ? body.text : ''
     if (raw.length < 50) return reply.code(400).send({ error: 'CV text too short (min 50 chars)' })
     if (raw.length > 20000) return reply.code(413).send({ error: 'CV text too long (max 20000 chars)' })
     try {
-      const { text, usage } = await callHaiku(
-        fastify,
-        RESUME_SCHEMA_PROMPT,
-        [{ type: 'text', text: raw }],
+      const { text, model } = await geminiJson(
+        `${RESUME_SCHEMA_PROMPT}\n\nCV text:\n"""\n${raw}\n"""\n\nReturn the JSON object.`,
         2500,
       )
       const parsed = extractJson(text) as Record<string, unknown>
-      return { ok: true, parsed, usage }
+      return { ok: true, parsed, model }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err)
-      request.log.error({ err: message }, 'jobs-ai parse-resume failed')
-      return reply.code(500).send({ error: 'failed to parse resume', detail: message })
+      const { code, message, canRetry } = classifyError(err)
+      request.log.error({ err: err instanceof Error ? err.message : String(err), code }, 'jobs-ai parse-resume failed')
+      return reply.code(422).send({ ok: false, code, message, canRetry })
     }
   })
 
   // ─── POST /generate-description ─────────────────────────────────────────
   fastify.post('/generate-description', async (request: FastifyRequest, reply: FastifyReply) => {
-    if (!process.env.ANTHROPIC_API_KEY) return reply.code(503).send({ error: 'AI not configured' })
     const body = (request.body ?? {}) as { title?: unknown; specialization?: unknown; location?: unknown; salary?: unknown }
     const title = typeof body.title === 'string' ? body.title.slice(0, 200) : ''
     if (!title) return reply.code(400).send({ error: 'title required' })
@@ -285,8 +245,7 @@ const route: FastifyPluginAsync = async (fastify) => {
     ].filter(Boolean).join('\n')
 
     try {
-      const { text, usage } = await callHaiku(
-        fastify,
+      const { text, model } = await geminiText(
         `Write a professional Ayurveda job description in 300-500 words. Structure it as:
 - 1 paragraph role overview
 - "Key responsibilities" section with 5-7 bullet points
@@ -295,28 +254,28 @@ const route: FastifyPluginAsync = async (fastify) => {
 - "Skills preferred" section with 3-5 bullets
 - "Benefits" section with 3-5 bullets
 
-Use realistic Ayurveda-industry language. Do NOT invent hospital names, salary numbers, or benefits that were not provided. Return plain text (no markdown headings), just sections separated by blank lines.`,
-        [{ type: 'text', text: userText }],
+Use realistic Ayurveda-industry language. Do NOT invent hospital names, salary numbers, or benefits that were not provided. Return plain text (no markdown headings), just sections separated by blank lines.
+
+Input:
+${userText}`,
         1200,
       )
-      return { ok: true, description: text.trim(), usage }
+      return { ok: true, description: text.trim(), model }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err)
-      request.log.error({ err: message }, 'jobs-ai generate-description failed')
-      return reply.code(500).send({ error: 'failed to generate description', detail: message })
+      const { code, message, canRetry } = classifyError(err)
+      request.log.error({ err: err instanceof Error ? err.message : String(err), code }, 'jobs-ai generate-description failed')
+      return reply.code(422).send({ ok: false, code, message, canRetry })
     }
   })
 
   // ─── POST /interview-questions ──────────────────────────────────────────
   fastify.post('/interview-questions', async (request: FastifyRequest, reply: FastifyReply) => {
-    if (!process.env.ANTHROPIC_API_KEY) return reply.code(503).send({ error: 'AI not configured' })
     const body = (request.body ?? {}) as { specialization?: unknown; level?: unknown }
     const specialization = typeof body.specialization === 'string' ? body.specialization.slice(0, 100) : 'Kayachikitsa'
     const level          = typeof body.level          === 'string' ? body.level.slice(0, 40)          : 'fresher'
 
     try {
-      const { text, usage } = await callHaiku(
-        fastify,
+      const { text, model } = await geminiJson(
         `Generate 10 Ayurveda interview questions with model answers for a ${level} candidate in ${specialization}.
 Distribute exactly:
 - 3 clinical knowledge questions
@@ -324,29 +283,30 @@ Distribute exactly:
 - 2 Ayurvedic philosophy / classical text questions
 - 2 professional/behavioral questions
 
-Return ONLY a JSON array (no prose, no code fence) of 10 objects:
-[{"category": "clinical"|"practical"|"philosophy"|"behavioral", "question": string, "modelAnswer": string}, ...]
+Return ONLY a JSON object (no prose, no code fence) with this exact shape:
+{
+  "questions": [
+    { "category": "clinical"|"practical"|"philosophy"|"behavioral", "question": string, "modelAnswer": string },
+    ... (exactly 10 items)
+  ]
+}
 
 Model answers should be 2-4 sentences each. Cite classical texts (Charaka, Sushruta, Ashtanga Hridaya) where relevant.`,
-        [{ type: 'text', text: `Specialization: ${specialization}\nLevel: ${level}` }],
         3500,
       )
-      const cleaned = text.trim().replace(/^```json\s*/i, '').replace(/^```\s*/, '').replace(/```\s*$/, '')
-      const start = cleaned.indexOf('[')
-      const end   = cleaned.lastIndexOf(']')
-      if (start < 0 || end <= start) throw new Error('no JSON array in reply')
-      const questions = JSON.parse(cleaned.slice(start, end + 1))
-      return { ok: true, questions, usage }
+      const wrapper = extractJson(text) as { questions?: unknown[] }
+      const questions = Array.isArray(wrapper.questions) ? wrapper.questions : []
+      if (questions.length === 0) throw new Error('no questions in reply')
+      return { ok: true, questions, model }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err)
-      request.log.error({ err: message }, 'jobs-ai interview-questions failed')
-      return reply.code(500).send({ error: 'failed to generate questions', detail: message })
+      const { code, message, canRetry } = classifyError(err)
+      request.log.error({ err: err instanceof Error ? err.message : String(err), code }, 'jobs-ai interview-questions failed')
+      return reply.code(422).send({ ok: false, code, message, canRetry })
     }
   })
 
   // ─── POST /salary-estimate ──────────────────────────────────────────────
   fastify.post('/salary-estimate', async (request: FastifyRequest, reply: FastifyReply) => {
-    if (!process.env.ANTHROPIC_API_KEY) return reply.code(503).send({ error: 'AI not configured' })
     const body = (request.body ?? {}) as { specialization?: unknown; experienceYears?: unknown; location?: unknown; qualifications?: unknown }
     const specialization = typeof body.specialization === 'string' ? body.specialization.slice(0, 100) : 'Ayurveda Physician'
     const expYears       = Number(body.experienceYears) || 0
@@ -354,8 +314,7 @@ Model answers should be 2-4 sentences each. Cite classical texts (Charaka, Sushr
     const qualifications = typeof body.qualifications  === 'string' ? body.qualifications.slice(0, 100)  : 'BAMS'
 
     try {
-      const { text, usage } = await callHaiku(
-        fastify,
+      const { text, model } = await geminiJson(
         `You are estimating market salary for an Ayurveda doctor role.
 Return ONLY a JSON object (no prose, no code fence):
 {
@@ -366,16 +325,21 @@ Return ONLY a JSON object (no prose, no code fence):
   "market_comparison": string,
   "negotiation_tips": string[]
 }
-Use realistic 2026 market ranges. For India use INR/month, for UAE use AED/month, for UK use GBP/year. 3 tips max. Be honest — don't inflate.`,
-        [{ type: 'text', text: `Specialization: ${specialization}\nExperience years: ${expYears}\nLocation: ${location}\nQualifications: ${qualifications}` }],
+Use realistic 2026 market ranges. For India use INR/month, for UAE use AED/month, for UK use GBP/year. 3 tips max. Be honest — don't inflate.
+
+Input:
+Specialization: ${specialization}
+Experience years: ${expYears}
+Location: ${location}
+Qualifications: ${qualifications}`,
         1000,
       )
       const parsed = extractJson(text) as Record<string, unknown>
-      return { ok: true, estimate: parsed, usage }
+      return { ok: true, estimate: parsed, model }
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err)
-      request.log.error({ err: message }, 'jobs-ai salary-estimate failed')
-      return reply.code(500).send({ error: 'failed to estimate salary', detail: message })
+      const { code, message, canRetry } = classifyError(err)
+      request.log.error({ err: err instanceof Error ? err.message : String(err), code }, 'jobs-ai salary-estimate failed')
+      return reply.code(422).send({ ok: false, code, message, canRetry })
     }
   })
 }

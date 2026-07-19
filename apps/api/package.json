@@ -28,6 +28,7 @@
     "@fastify/multipart": "^9.0.1",
     "sharp": "^0.33.5",
     "@anthropic-ai/sdk": "^0.32.1",
+    "@google/generative-ai": "^0.24.1",
     "@ayurconnect/db": "workspace:*",
     "@prisma/client": "^6.2.1",
     "better-auth": "^1.6.11",
