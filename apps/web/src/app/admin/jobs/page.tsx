@@ -199,6 +199,7 @@ export default function JobsAdminPage() {
                   {j.status === 'active' && (
                     <button onClick={() => setStatus(j.id, 'closed')}     className="text-gray-700 hover:underline text-xs">Close</button>
                   )}
+                  <a  href={`/admin/jobs/${j.id}/analytics`}                className="text-kerala-700 hover:underline text-xs">📊 Analytics</a>
                   <button onClick={() => toggleFeatured(j)}                className="text-amber-700 hover:underline text-xs">{j.featured ? 'Unfeature' : 'Feature'}</button>
                   <button onClick={() => startEdit(j)}                    className="text-kerala-700 hover:underline text-xs">Edit</button>
                   <button onClick={() => remove(j.id, j.title)}           className="text-red-600 hover:underline text-xs">Delete</button>
