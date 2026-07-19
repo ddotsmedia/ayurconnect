@@ -1,19 +1,20 @@
 import type { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify'
-import { geminiJson, geminiVisionJson, geminiText, GeminiNotConfiguredError } from '../lib/gemini-client.js'
+import { groqJson, groqVisionJson, groqText, GroqNotConfiguredError } from '../lib/groq-client.js'
 
 export const autoPrefix = '/jobs-portal/ai'
 
 // AI-powered helpers for job workflows:
-//  - POST /parse-poster    (multipart image → extracted job JSON via Gemini vision)
+//  - POST /parse-poster    (multipart image → extracted job JSON via Groq vision)
 //  - POST /parse-text      (free text → extracted job JSON)
 //  - POST /parse-resume    (text extracted client-side from CV → candidate JSON)
 //  - POST /generate-description  (title+context → 300-500 word description)
 //  - POST /interview-questions   (specialty+level → 10 Q&A pairs as JSON array)
 //  - POST /salary-estimate       (context → INR/AED range + comparison notes)
 //
-// Model: gemini-2.0-flash (free tier: 15 req/min, ~1M tokens/day). Multimodal
-// natively so no separate vision model needed. Prompts request JSON only and
-// gemini-client sets responseMimeType='application/json' for reliability.
+// Provider: Groq (free tier, no strict quota). Text default llama-3.3-70b-
+// versatile; vision meta-llama/llama-4-scout-17b-16e-instruct. Both use
+// response_format: json_object where a JSON object is expected. Prompts still
+// spell the schema out for reliability.
 
 const POSTER_SCHEMA_PROMPT = `You are extracting Ayurveda job details from an image (poster, screenshot, or WhatsApp share).
 Return ONLY a JSON object (no prose, no code fence) with this exact shape:
@@ -123,36 +124,36 @@ function extractJson(text: string): unknown {
   return JSON.parse(cleaned.slice(start, end + 1))
 }
 
-// Classify a Gemini error → friendly code the client can react to.
-// Gemini error messages contain Google API status codes / phrases like
-// 'RESOURCE_EXHAUSTED', 'PERMISSION_DENIED', 'INVALID_ARGUMENT' inline.
-type ExtractErrorCode = 'not-configured' | 'quota-exceeded' | 'rate-limited' | 'auth-failed' | 'invalid-input' | 'invalid-json' | 'upstream-error'
+// Classify a Groq error → friendly code the client can react to.
+// Groq SDK throws with .status (HTTP) and messages including error type slugs
+// like 'rate_limit_exceeded', 'authentication_error', 'model_not_found'.
+type ExtractErrorCode = 'not-configured' | 'rate-limited' | 'auth-failed' | 'invalid-input' | 'invalid-json' | 'upstream-error'
 
 function classifyError(err: unknown): { code: ExtractErrorCode; message: string; canRetry: boolean } {
-  if (err instanceof GeminiNotConfiguredError) {
+  if (err instanceof GroqNotConfiguredError) {
     return { code: 'not-configured', message: "AI service isn't configured yet — please enter details manually below.", canRetry: false }
   }
   const raw = err instanceof Error ? err.message : String(err)
   const low = raw.toLowerCase()
-  if (low.includes('resource_exhausted') || low.includes('quota') || low.includes('429')) {
-    // Gemini free tier is 15 req/min + daily token cap; both surface as this.
-    const dailyCap = low.includes('per day') || low.includes('quota_exceeded')
-    return { code: dailyCap ? 'quota-exceeded' : 'rate-limited',
-             message: dailyCap
-               ? "AI daily free-tier quota reached — please try again tomorrow or enter details manually."
-               : "Too many AI requests — please wait a minute and try again (free tier: 15/min).",
-             canRetry: !dailyCap }
+  // Rate limit — Groq surfaces this as 429 + 'rate_limit_exceeded'.
+  if (low.includes('rate_limit_exceeded') || low.includes('rate limit') || low.includes('429')) {
+    return { code: 'rate-limited',  message: "Too many AI requests — please wait a moment and try again.",             canRetry: true  }
   }
-  if (low.includes('permission_denied') || low.includes('api key not valid') || low.includes('401') || low.includes('403')) {
-    return { code: 'auth-failed',   message: "AI service authentication failed — please enter details manually.",           canRetry: false }
+  // Auth — 401 + 'authentication_error' or 'invalid_api_key'.
+  if (low.includes('authentication_error') || low.includes('invalid_api_key') || low.includes('401') || low.includes('403')) {
+    return { code: 'auth-failed',   message: "AI service authentication failed — please enter details manually.",       canRetry: false }
   }
-  if (low.includes('invalid_argument') || low.includes('400')) {
-    return { code: 'invalid-input',  message: "AI couldn't process this input — please enter details manually.",             canRetry: false }
+  // Model / request problems — bad prompt, oversized input, unavailable model.
+  if (low.includes('model_not_found') || low.includes('model_decommissioned') || low.includes('model has been decommissioned')) {
+    return { code: 'upstream-error', message: "AI model is temporarily unavailable — please try again shortly.",         canRetry: true  }
+  }
+  if (low.includes('invalid_request_error') || low.includes('400')) {
+    return { code: 'invalid-input',  message: "AI couldn't process this input — please enter details manually.",         canRetry: false }
   }
   if (low.includes('no json in reply') || low.includes('unexpected token') || low.includes('json')) {
     return { code: 'invalid-json',   message: "AI returned an unreadable response — please try again or enter details manually.", canRetry: true }
   }
-  return   { code: 'upstream-error', message: "AI extraction failed — please enter details manually below.",                canRetry: true }
+  return   { code: 'upstream-error', message: "AI extraction failed — please enter details manually below.",            canRetry: true }
 }
 
 const route: FastifyPluginAsync = async (fastify) => {
@@ -169,7 +170,7 @@ const route: FastifyPluginAsync = async (fastify) => {
     if (buf.length > 8 * 1024 * 1024) return reply.code(413).send({ error: 'image too large (max 8 MB)' })
     const b64 = buf.toString('base64')
     try {
-      const { text, model } = await geminiVisionJson(
+      const { text, model } = await groqVisionJson(
         `${POSTER_SCHEMA_PROMPT}\n\nExtract the Ayurveda job details from the attached image and return the JSON object described above.`,
         b64,
         file.mimetype,
@@ -194,7 +195,7 @@ const route: FastifyPluginAsync = async (fastify) => {
     if (raw.length < 20) return reply.code(400).send({ error: 'text too short (min 20 chars)' })
     if (raw.length > 8000) return reply.code(413).send({ error: 'text too long (max 8000 chars)' })
     try {
-      const { text, model } = await geminiJson(
+      const { text, model } = await groqJson(
         `${TEXT_SCHEMA_PROMPT}\n\nJob source text:\n"""\n${raw}\n"""\n\nReturn the JSON object.`,
         1500,
       )
@@ -215,7 +216,7 @@ const route: FastifyPluginAsync = async (fastify) => {
     if (raw.length < 50) return reply.code(400).send({ error: 'CV text too short (min 50 chars)' })
     if (raw.length > 20000) return reply.code(413).send({ error: 'CV text too long (max 20000 chars)' })
     try {
-      const { text, model } = await geminiJson(
+      const { text, model } = await groqJson(
         `${RESUME_SCHEMA_PROMPT}\n\nCV text:\n"""\n${raw}\n"""\n\nReturn the JSON object.`,
         2500,
       )
@@ -245,7 +246,7 @@ const route: FastifyPluginAsync = async (fastify) => {
     ].filter(Boolean).join('\n')
 
     try {
-      const { text, model } = await geminiText(
+      const { text, model } = await groqText(
         `Write a professional Ayurveda job description in 300-500 words. Structure it as:
 - 1 paragraph role overview
 - "Key responsibilities" section with 5-7 bullet points
@@ -275,7 +276,7 @@ ${userText}`,
     const level          = typeof body.level          === 'string' ? body.level.slice(0, 40)          : 'fresher'
 
     try {
-      const { text, model } = await geminiJson(
+      const { text, model } = await groqJson(
         `Generate 10 Ayurveda interview questions with model answers for a ${level} candidate in ${specialization}.
 Distribute exactly:
 - 3 clinical knowledge questions
@@ -314,7 +315,7 @@ Model answers should be 2-4 sentences each. Cite classical texts (Charaka, Sushr
     const qualifications = typeof body.qualifications  === 'string' ? body.qualifications.slice(0, 100)  : 'BAMS'
 
     try {
-      const { text, model } = await geminiJson(
+      const { text, model } = await groqJson(
         `You are estimating market salary for an Ayurveda doctor role.
 Return ONLY a JSON object (no prose, no code fence):
 {
