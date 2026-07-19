@@ -6,7 +6,11 @@ export class AdminApiError extends Error {
     const reason = (() => {
       if (payload && typeof payload === 'object') {
         const p = payload as { error?: string; message?: string; reason?: string }
-        return p.error ?? p.message ?? p.reason ?? null
+        // Prefer `message` (specific) over `error` (Fastify's generic default
+        // like "Bad Request" — useless on its own). Our handlers set `error`
+        // to a specific string, so we still fall through to it. `reason` is
+        // legacy from a few older endpoints.
+        return p.message ?? p.error ?? p.reason ?? null
       }
       return null
     })()

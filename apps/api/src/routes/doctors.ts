@@ -310,8 +310,15 @@ const doctors: FastifyPluginAsync = async (fastify) => {
   }
 
   // Admin-only: pending queue with provenance + owner + completeness score.
-  fastify.get('/_admin/queue', { preHandler: fastify.requireAdmin }, async (request) => {
+  // status must be one of the moderation states OR 'all' — reject typos with
+  // a clear 400 instead of silently returning [] (which used to read as
+  // "Queue clear" in the /admin/verify UI).
+  fastify.get('/_admin/queue', { preHandler: fastify.requireAdmin }, async (request, reply) => {
+    const ALLOWED_STATUS = new Set(['pending', 'approved', 'declined', 'needs-info', 'flagged', 'all'])
     const { status = 'pending', q } = request.query as Record<string, string>
+    if (!ALLOWED_STATUS.has(status)) {
+      return reply.code(400).send({ error: `invalid status "${status}". Allowed: ${[...ALLOWED_STATUS].join(', ')}` })
+    }
     const where: Record<string, unknown> = {}
     if (status === 'all') {
       // no filter
