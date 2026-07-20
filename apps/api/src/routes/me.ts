@@ -178,6 +178,7 @@ const me: FastifyPluginAsync = async (fastify) => {
         degreeCertUrl:            optStr(body.degreeCertUrl, 500),
         regCertUrl:               optStr(body.regCertUrl, 500),
         photoIdUrl:               optStr(body.photoIdUrl, 500),
+        photoUrl:                 optStr(body.photoUrl, 500),
       },
     })
     await fastify.prisma.user.update({

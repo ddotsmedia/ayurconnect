@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Stethoscope, ShieldCheck } from 'lucide-react'
+import { Stethoscope, ShieldCheck, Upload, Loader2, Trash2, UserRound } from 'lucide-react'
 import { signUpUser, postJson, SPECIALIZATIONS } from '../_lib'
 import { CountrySelect } from '../../../components/country-select'
 import { StateSelect } from '../../../components/state-select'
@@ -35,9 +35,40 @@ export default function DoctorRegisterPage() {
     state:           '',
     country:         'IN',     // hard-default India — no geo auto-detect
     regNumber:       '',       // REQUIRED license/reg number (task 2026-07-20)
+    photoUrl:        '',       // optional profile picture URL (from /uploads/avatar)
   })
   const [busy, setBusy] = useState(false)
   const [err,  setErr]  = useState<string | null>(null)
+  // Avatar uploader state — separate from form so we can show upload progress
+  // and per-upload errors without blocking form submission.
+  const [avatarBusy, setAvatarBusy] = useState(false)
+  const [avatarErr,  setAvatarErr]  = useState<string | null>(null)
+  const fileRef = useRef<HTMLInputElement | null>(null)
+  const AVATAR_MAX_BYTES = 500 * 1024   // matches server cap
+
+  async function pickAvatar(file: File) {
+    setAvatarErr(null)
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) {
+      setAvatarErr(`Not a supported image (${file.type}). Use JPG, PNG, or WebP.`); return
+    }
+    if (file.size > AVATAR_MAX_BYTES) {
+      setAvatarErr(`File too large (${Math.round(file.size / 1024)} KB) — max 500 KB.`); return
+    }
+    setAvatarBusy(true)
+    try {
+      const fd = new FormData(); fd.append('file', file)
+      const res = await fetch('/api/uploads/avatar', { method: 'POST', credentials: 'include', body: fd })
+      const j = await res.json().catch(() => ({} as { url?: string; error?: string }))
+      if (res.status === 413) throw new Error(j.error ?? 'File too large — max 500 KB')
+      if (!res.ok || !j.url) throw new Error(j.error ?? `HTTP ${res.status}`)
+      setForm((f) => ({ ...f, photoUrl: j.url as string }))
+    } catch (e) {
+      setAvatarErr(e instanceof Error ? e.message : String(e))
+    } finally {
+      setAvatarBusy(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -67,6 +98,7 @@ export default function DoctorRegisterPage() {
         experienceYears:    form.experienceYears ? Number(form.experienceYears) : null,
         contact:            form.contact || null,
         registrationNumber: form.regNumber.trim(),
+        photoUrl:           form.photoUrl || null,
       })
       rememberCountry(form.country)
       if (refCode && promoted?.doctorId) {
@@ -102,6 +134,54 @@ export default function DoctorRegisterPage() {
         </div>
 
         <form onSubmit={submit} className="bg-white rounded-card border border-gray-100 shadow-card p-4 sm:p-6 space-y-4">
+          {/* Optional profile picture — 500 KB max, jpg/png/webp only. Server
+              downscales to 400×400 WebP. Renders a generic avatar fallback
+              until uploaded. */}
+          <div>
+            <span className="block text-xs font-medium text-gray-700 mb-1.5">Profile picture (optional)</span>
+            <div className="flex items-center gap-4">
+              <div className="w-20 h-20 rounded-full bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center flex-shrink-0">
+                {form.photoUrl
+                  ? // eslint-disable-next-line @next/next/no-img-element
+                    <img src={form.photoUrl} alt="Profile preview" className="w-full h-full object-cover" />
+                  : <UserRound className="w-8 h-8 text-gray-400" />
+                }
+              </div>
+              <div className="flex flex-col gap-1.5 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    disabled={avatarBusy}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm border border-gray-200 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                  >
+                    {avatarBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                    {form.photoUrl ? 'Change' : 'Upload'}
+                  </button>
+                  {form.photoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, photoUrl: '' })}
+                      disabled={avatarBusy}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm border border-red-200 text-red-600 rounded-md hover:bg-red-50 disabled:opacity-50"
+                    >
+                      <Trash2 className="w-4 h-4" /> Remove
+                    </button>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500">JPG / PNG / WebP · max 500 KB.</p>
+                {avatarErr && <p className="text-xs text-red-600">{avatarErr}</p>}
+              </div>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) void pickAvatar(f) }}
+              />
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <Field label={<>First name <span className="text-rose-600">*</span></>}>
               <input value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} required className="input" placeholder="Anjali" autoComplete="given-name" />

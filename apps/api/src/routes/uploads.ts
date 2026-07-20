@@ -123,6 +123,53 @@ const uploads: FastifyPluginAsync = async (fastify) => {
     }
   })
 
+  // POST /uploads/avatar — dedicated small-avatar path. Distinct from the
+  // generic /uploads/ (which targets 1600px hero images) because avatars
+  // have stricter rules: 500 KB max, 400×400 cover-crop, WebP-only output.
+  // Task 2026-07-20 — used by doctor registration + profile edit.
+  const AVATAR_BYTES = 500 * 1024              // 500 KB task cap
+  const AVATAR_MIME  = new Set(['image/jpeg', 'image/png', 'image/webp'])   // no GIF for avatars
+  fastify.post('/avatar', { preHandler: fastify.requireSession }, async (request, reply) => {
+    const sess   = request.session!
+    const userId = sess.user.id
+    const part   = await request.file()
+    if (!part) return reply.code(400).send({ error: 'no file uploaded' })
+    if (!AVATAR_MIME.has(part.mimetype)) {
+      return reply.code(400).send({ error: `unsupported mime type: ${part.mimetype}. Allowed: jpeg, png, webp.` })
+    }
+    const buf = await part.toBuffer()
+    if (buf.byteLength === 0)          return reply.code(400).send({ error: 'empty file' })
+    if (buf.byteLength > AVATAR_BYTES) return reply.code(413).send({ error: `file too large (${(buf.byteLength / 1024).toFixed(0)} KB) — max 500 KB` })
+    const sniffed = detectMimeFromMagic(buf)
+    if (!sniffed || !AVATAR_MIME.has(sniffed)) {
+      return reply.code(400).send({ error: 'file content does not match an allowed image type' })
+    }
+
+    // 400×400 cover-crop, WebP quality 80. Deterministic key so re-upload
+    // replaces the previous avatar cleanly.
+    let out: Buffer
+    try {
+      out = await sharp(buf, { failOn: 'truncated' })
+        .rotate()
+        .resize({ width: 400, height: 400, fit: 'cover', position: 'attention' })
+        .webp({ quality: 80 })
+        .toBuffer()
+    } catch (err) {
+      fastify.log.warn({ err }, 'avatar sharp failed')
+      return reply.code(400).send({ error: 'image could not be processed (corrupted or unsupported)' })
+    }
+
+    const key    = `avatars/${userId}.webp`
+    const bucket = 'ayurconnect-profile'
+    try {
+      await fastify.s3.putObject(bucket, key, out, out.byteLength, { 'Content-Type': 'image/webp' })
+      return { url: `/api/uploads/${bucket}/${key}?v=${Date.now()}`, bucket, key, size: out.byteLength }
+    } catch (err) {
+      fastify.log.error({ err }, 'avatar minio put failed')
+      return reply.code(502).send({ error: 'storage unavailable' })
+    }
+  })
+
   // GET /uploads/:bucket/:key+   — public stream for non-sensitive buckets only.
   // P2-1: the prescriptions bucket is no longer publicly readable via this
   // route. Prescriptions are streamed by /prescriptions/:id/image after the
