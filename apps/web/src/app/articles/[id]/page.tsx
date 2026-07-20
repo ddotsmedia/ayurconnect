@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { ArrowLeft, BookOpen, Calendar, ScrollText, FlaskConical, Leaf } from 'lucide-react'
 import { API_INTERNAL as API } from '../../../lib/server-fetch'
@@ -238,9 +238,11 @@ function renderContent(content: string) {
 export default async function ArticleDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const article = await fetchArticle(id)
-  // Article deleted / old GSC slug (e.g. art-turmeric-curcumin-research) →
-  // 301 to /articles listing instead of 404. Recovers PageRank.
-  if (!article) redirect('/articles')
+  // Missing article → 404 (per session spec). Previously we 307'd to
+  // /articles listing to recover PageRank on deleted slugs, but user
+  // requested strict notFound() so deleted URLs surface as broken links
+  // rather than silent redirects.
+  if (!article) notFound()
 
   const related = await fetchRelated(article.id, article.category)
 
