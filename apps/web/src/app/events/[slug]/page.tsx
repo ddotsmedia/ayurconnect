@@ -30,20 +30,29 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const e = getEvent(slug)
   if (e) {
+    const dateStr  = new Date(e.startDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+    const location = e.online ? 'online' : `${e.venue}, ${e.city}`
+    // Spec description shape: "{title} — {date} at {location}".
+    const heading  = `${e.title} — ${dateStr} at ${location}`
+    const description = heading.slice(0, 160)
     return pageMetadata({
       path:        `/events/${slug}`,
       title:       `${e.title} | ${e.city} | AyurConnect Events`,
-      description: e.description.slice(0, 160),
+      description,
       keywords:    e.tags,
+      type:        'article',
     })
   }
   // DB fallback — admin-created events use cuid ids, not seed slugs.
   const db = await fetchDbEvent(slug)
   if (db) {
+    const dateStr  = new Date(db.eventDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })
+    const location = db.location?.trim() || 'online'
+    const heading  = `${db.title} — ${dateStr} at ${location}`
     return pageMetadata({
       path:        `/events/${slug}`,
       title:       `${db.title} | AyurConnect Events`,
-      description: db.description.slice(0, 160),
+      description: heading.slice(0, 160),
       image:       db.imageUrl,
       type:        'article',
     })

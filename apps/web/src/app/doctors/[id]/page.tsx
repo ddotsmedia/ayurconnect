@@ -11,7 +11,7 @@ import {
   Users, Mail, Phone, Share2, Flag, ArrowRight,
 } from 'lucide-react'
 import { API_INTERNAL as API } from '../../../lib/server-fetch'
-import { physicianLd, breadcrumbLd, ldGraph } from '../../../lib/seo'
+import { physicianLd, breadcrumbLd, ldGraph, pageMetadata } from '../../../lib/seo'
 import { getServerSession } from '../../../lib/auth'
 import { VerificationBadges } from '../../../components/seo/VerificationBadges'
 import { ReviewForm } from '../../../components/review-form'
@@ -80,11 +80,23 @@ function initials(name: string) {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const doctor = await fetchDoctor(id)
-  if (!doctor) return { title: 'Doctor not found' }
-  return {
-    title: `${doctor.name} — ${doctor.specialization} in ${doctor.district}`,
-    description: doctor.profile ?? doctor.bio ?? `${doctor.name} — ${doctor.qualification ?? 'BAMS'}, ${doctor.specialization} specialist in ${doctor.district}, Kerala.`,
-  }
+  if (!doctor) return { title: 'Doctor not found', robots: { index: false, follow: false } }
+  const years = typeof doctor.experienceYears === 'number' && doctor.experienceYears > 0
+    ? `${doctor.experienceYears}yrs`
+    : null
+  // Spec description shape: "{name} — {specialization} | {experience}yrs".
+  // Fall back to profile/bio only when years is unknown so social previews
+  // always lead with the doctor's key claim.
+  const description = years
+    ? `${doctor.name} — ${doctor.specialization} | ${years} experience · ${doctor.district}, Kerala`.slice(0, 160)
+    : (doctor.profile ?? doctor.bio ?? `${doctor.name} — ${doctor.qualification ?? 'BAMS'}, ${doctor.specialization} specialist in ${doctor.district}, Kerala.`).slice(0, 160)
+  return pageMetadata({
+    path:        `/doctors/${doctor.id}`,
+    title:       `${doctor.name} — ${doctor.specialization} in ${doctor.district}`,
+    description,
+    image:       doctor.photoUrl ?? null,
+    type:        'profile',
+  })
 }
 
 export default async function DoctorProfilePage({ params }: { params: Promise<{ id: string }> }) {

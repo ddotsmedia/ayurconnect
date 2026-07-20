@@ -7,6 +7,7 @@ import { ApplyTrigger } from './_apply-trigger'
 import { deriveLogoColor, deriveLogoInitials, formatSalary } from '../../../lib/data/jobs'
 import type { JobListing } from '../../../lib/types/jobs'
 import type { Metadata } from 'next'
+import { pageMetadata } from '../../../lib/seo'
 
 async function fetchJob(id: string): Promise<JobListing | null> {
   const cookie = (await nextHeaders()).get('cookie') ?? ''
@@ -33,12 +34,22 @@ async function fetchSimilar(job: JobListing): Promise<JobListing[]> {
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params
   const job = await fetchJob(id)
-  if (!job) return { title: 'Job not found' }
-  return {
+  if (!job) return { title: 'Job not found', robots: { index: false, follow: false } }
+  const company  = job.clinic?.trim() || 'AyurConnect Jobs'
+  const location = job.location?.trim() || job.district?.trim() || (job.remote ? 'Remote' : 'Kerala, India')
+  // Spec description shape: "{title} at {company} — {location}". Append a short
+  // slice of the job description (up to 160 chars total) so the preview card
+  // has useful context — Facebook truncates at ~160 anyway.
+  const heading  = `${job.title} at ${company} — ${location}`
+  const extra    = (job.description ?? '').replace(/\s+/g, ' ').trim().slice(0, Math.max(0, 160 - heading.length - 3))
+  const description = extra ? `${heading}. ${extra}`.slice(0, 160) : heading.slice(0, 160)
+  return pageMetadata({
+    path:        `/jobs/${job.id}`,
     title:       `${job.title}${job.clinic ? ` at ${job.clinic}` : ''} — AyurConnect`,
-    description: (job.description ?? '').slice(0, 160),
-    alternates:  { canonical: `/jobs/${job.id}` },
-  }
+    description,
+    keywords:    [job.title, job.clinic, job.specialty, job.type, location].filter((v): v is string => Boolean(v)),
+    type:        'article',
+  })
 }
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
