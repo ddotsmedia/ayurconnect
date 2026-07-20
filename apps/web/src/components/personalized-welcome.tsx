@@ -7,10 +7,10 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Sparkles, ArrowRight, Stethoscope, Activity, BookHeart } from 'lucide-react'
+import { Sparkles, ArrowRight, Stethoscope, Activity, BookHeart, Briefcase, UserRound, Eye } from 'lucide-react'
 
 type Me = {
-  user: { id: string; name: string | null; prakriti: string | null } | null
+  user: { id: string; name: string | null; prakriti: string | null; role?: string | null } | null
   unreadPrescriptions?: number
   openAlerts?: number
 }
@@ -68,6 +68,10 @@ export function PersonalizedWelcome() {
   const dosha = u.prakriti ?? null
   const hint = dosha ? DOSHA_HINT[dosha] : null
   const firstName = u.name?.split(/\s+/)[0] ?? 'there'
+  // Role-branch surface (task 2026-07-20). Doctors get doctor-relevant tiles
+  // (profile / post availability / visibility); everyone else keeps the
+  // patient-oriented dashboard / triage / journal set.
+  const isDoctor = u.role === 'DOCTOR' || u.role === 'DOCTOR_PENDING'
 
   return (
     <section className="bg-gradient-to-r from-kerala-50 via-cream to-gold-50 border-b border-kerala-100">
@@ -90,33 +94,68 @@ export function PersonalizedWelcome() {
 
         {/* 2-col on mobile (halves vertical footprint vs old 1-col stack), 4-col on desktop. */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
-          <Link href="/dashboard" className={`${CARD_BASE} hover:border-kerala-300 hover:shadow-cardLg`}>
-            <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-kerala-700 flex-shrink-0" />
-              <h3 className="text-sm font-semibold text-ink truncate">Dashboard</h3>
-            </div>
-            {/* Description hidden on mobile to keep tile compact; CTA-only row. */}
-            <p className="hidden md:block text-xs text-gray-600 mt-2">Prescriptions, appointments, streaks.</p>
-            <span className="text-[11px] md:text-xs text-kerala-700 font-semibold mt-1 md:mt-2 inline-flex items-center gap-1">Open <ArrowRight className="w-3 h-3" /></span>
-          </Link>
+          {isDoctor ? (
+            <>
+              {/* DOCTOR surface — profile, availability posting, visibility. */}
+              <Link href="/dashboard/profile" className={`${CARD_BASE} hover:border-kerala-300 hover:shadow-cardLg`}>
+                <div className="flex items-center gap-2">
+                  <UserRound className="w-4 h-4 text-kerala-700 flex-shrink-0" />
+                  <h3 className="text-sm font-semibold text-ink truncate">My profile</h3>
+                </div>
+                <p className="hidden md:block text-xs text-gray-600 mt-2">Photo, bio, availability, socials.</p>
+                <span className="text-[11px] md:text-xs text-kerala-700 font-semibold mt-1 md:mt-2 inline-flex items-center gap-1">Edit <ArrowRight className="w-3 h-3" /></span>
+              </Link>
 
-          <Link href="/triage" className={`${CARD_BASE} hover:border-kerala-300 hover:shadow-cardLg`}>
-            <div className="flex items-center gap-2">
-              <Stethoscope className="w-4 h-4 text-kerala-700 flex-shrink-0" />
-              <h3 className="text-sm font-semibold text-ink truncate">Symptom check</h3>
-            </div>
-            <p className="hidden md:block text-xs text-gray-600 mt-2">Get a 2-min triage + doctor suggestion.</p>
-            <span className="text-[11px] md:text-xs text-kerala-700 font-semibold mt-1 md:mt-2 inline-flex items-center gap-1">Start <ArrowRight className="w-3 h-3" /></span>
-          </Link>
+              <Link href="/jobs/post" className={`${CARD_BASE} hover:border-kerala-300 hover:shadow-cardLg`}>
+                <div className="flex items-center gap-2">
+                  <Briefcase className="w-4 h-4 text-kerala-700 flex-shrink-0" />
+                  <h3 className="text-sm font-semibold text-ink truncate">Post availability</h3>
+                </div>
+                <p className="hidden md:block text-xs text-gray-600 mt-2">Locum · part-time · collaboration.</p>
+                <span className="text-[11px] md:text-xs text-kerala-700 font-semibold mt-1 md:mt-2 inline-flex items-center gap-1">New post <ArrowRight className="w-3 h-3" /></span>
+              </Link>
 
-          <Link href="/dashboard/journal" className={`${CARD_BASE} hover:border-kerala-300 hover:shadow-cardLg`}>
-            <div className="flex items-center gap-2">
-              <BookHeart className="w-4 h-4 text-kerala-700 flex-shrink-0" />
-              <h3 className="text-sm font-semibold text-ink truncate">Today&apos;s journal</h3>
-            </div>
-            <p className="hidden md:block text-xs text-gray-600 mt-2">Log sleep, digestion, energy in 30 seconds.</p>
-            <span className="text-[11px] md:text-xs text-kerala-700 font-semibold mt-1 md:mt-2 inline-flex items-center gap-1">Log <ArrowRight className="w-3 h-3" /></span>
-          </Link>
+              <Link href="/doctor/dashboard/visibility" className={`${CARD_BASE} hover:border-kerala-300 hover:shadow-cardLg`}>
+                <div className="flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-kerala-700 flex-shrink-0" />
+                  <h3 className="text-sm font-semibold text-ink truncate">Visibility</h3>
+                </div>
+                <p className="hidden md:block text-xs text-gray-600 mt-2">Search rank, referrals, share links.</p>
+                <span className="text-[11px] md:text-xs text-kerala-700 font-semibold mt-1 md:mt-2 inline-flex items-center gap-1">Manage <ArrowRight className="w-3 h-3" /></span>
+              </Link>
+            </>
+          ) : (
+            <>
+              {/* PATIENT/other surface — dashboard, triage, journal. */}
+              <Link href="/dashboard" className={`${CARD_BASE} hover:border-kerala-300 hover:shadow-cardLg`}>
+                <div className="flex items-center gap-2">
+                  <Activity className="w-4 h-4 text-kerala-700 flex-shrink-0" />
+                  <h3 className="text-sm font-semibold text-ink truncate">Dashboard</h3>
+                </div>
+                {/* Description hidden on mobile to keep tile compact; CTA-only row. */}
+                <p className="hidden md:block text-xs text-gray-600 mt-2">Prescriptions, appointments, streaks.</p>
+                <span className="text-[11px] md:text-xs text-kerala-700 font-semibold mt-1 md:mt-2 inline-flex items-center gap-1">Open <ArrowRight className="w-3 h-3" /></span>
+              </Link>
+
+              <Link href="/triage" className={`${CARD_BASE} hover:border-kerala-300 hover:shadow-cardLg`}>
+                <div className="flex items-center gap-2">
+                  <Stethoscope className="w-4 h-4 text-kerala-700 flex-shrink-0" />
+                  <h3 className="text-sm font-semibold text-ink truncate">Symptom check</h3>
+                </div>
+                <p className="hidden md:block text-xs text-gray-600 mt-2">Get a 2-min triage + doctor suggestion.</p>
+                <span className="text-[11px] md:text-xs text-kerala-700 font-semibold mt-1 md:mt-2 inline-flex items-center gap-1">Start <ArrowRight className="w-3 h-3" /></span>
+              </Link>
+
+              <Link href="/dashboard/journal" className={`${CARD_BASE} hover:border-kerala-300 hover:shadow-cardLg`}>
+                <div className="flex items-center gap-2">
+                  <BookHeart className="w-4 h-4 text-kerala-700 flex-shrink-0" />
+                  <h3 className="text-sm font-semibold text-ink truncate">Today&apos;s journal</h3>
+                </div>
+                <p className="hidden md:block text-xs text-gray-600 mt-2">Log sleep, digestion, energy in 30 seconds.</p>
+                <span className="text-[11px] md:text-xs text-kerala-700 font-semibold mt-1 md:mt-2 inline-flex items-center gap-1">Log <ArrowRight className="w-3 h-3" /></span>
+              </Link>
+            </>
+          )}
 
           {/* Events — orange theme. Mobile: 1 event visible, others CSS-hidden.
               Desktop: up to 3 events shown. */}
@@ -147,10 +186,14 @@ export function PersonalizedWelcome() {
           </div>
         </div>
 
-        {/* Prescriptions kept as a small trailing link — no longer in the 4-card grid but still 1-click accessible. */}
+        {/* Trailing link — role-swapped. Doctors go to their prescribe page,
+            patients to their prescriptions list. */}
         <div className="mt-2 md:mt-3 text-right">
-          <Link href="/dashboard/prescriptions" className="text-[11px] md:text-xs text-gray-600 hover:text-kerala-700 inline-flex items-center gap-1">
-            Prescriptions <ArrowRight className="w-3 h-3" />
+          <Link
+            href={isDoctor ? '/doctor/dashboard/prescribe' : '/dashboard/prescriptions'}
+            className="text-[11px] md:text-xs text-gray-600 hover:text-kerala-700 inline-flex items-center gap-1"
+          >
+            {isDoctor ? 'Prescribe' : 'Prescriptions'} <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
       </div>
