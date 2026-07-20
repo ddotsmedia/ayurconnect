@@ -114,7 +114,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
       tags: tagList,
       images: [ogImage],
     },
-    twitter: { card: 'summary_large_image', title: ogTitle, description, images: [ogImage.url] },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@ayurconnect',
+      title: ogTitle,
+      description,
+      // Object form so Next.js emits `twitter:image:alt`.
+      images: [{ url: ogImage.url, alt: ogImage.alt }],
+    },
   }
 }
 

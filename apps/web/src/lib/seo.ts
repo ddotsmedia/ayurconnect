@@ -1064,7 +1064,8 @@ export function pageMetadata(opts: {
       site: '@ayurconnect',
       title: opts.title,
       description: clip(opts.description, 160),
-      images: [og],
+      // Object form (not bare URL) so Next.js emits `twitter:image:alt`.
+      images: [{ url: og, alt: opts.title }],
     },
     robots: opts.noindex
       ? { index: false, follow: false, googleBot: { index: false, follow: false } }
