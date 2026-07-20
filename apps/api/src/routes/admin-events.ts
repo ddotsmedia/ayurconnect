@@ -195,6 +195,29 @@ const route: FastifyPluginAsync = async (fastify) => {
     })
     return { ok: true, updated: r.count, count: ids.length }
   })
+
+  // ─── Bulk moderation reset ─────────────────────────────────────────────
+  // Kill-switch that flips every currently-approved OR still-published row
+  // back to status='pending' so admins can re-verify one-by-one. Preserves
+  // isPublished so admin can re-publish per-row without re-toggling it.
+  // Guarded by { confirm: true } in the body so a bare curl to the URL
+  // bar can't wipe the moderation queue by accident.
+  fastify.post('/reset-to-pending', async (request, reply) => {
+    const b = (request.body ?? {}) as { confirm?: unknown }
+    if (b.confirm !== true) {
+      return reply.code(400).send({ error: 'confirm:true required in body' })
+    }
+    const r = await fastify.prisma.eventListing.updateMany({
+      where: { OR: [{ status: 'approved' }, { isPublished: true }] },
+      data:  {
+        status:          'pending',
+        verifiedBy:      null,
+        verifiedAt:      null,
+        rejectionReason: null,
+      },
+    })
+    return { ok: true, updated: r.count, message: `${r.count} events reset to pending` }
+  })
 }
 
 export default route
