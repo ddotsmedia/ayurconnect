@@ -19,6 +19,7 @@ const me: FastifyPluginAsync = async (fastify) => {
           select: {
             id: true, name: true, specialization: true, district: true,
             ccimVerified: true, qualification: true, experienceYears: true,
+            registrationNumber: true,
             languages: true, availableDays: true, availableForOnline: true,
             availableToday: true, respondsWithin: true,
             profile: true, bio: true, photoUrl: true,
@@ -96,15 +97,27 @@ const me: FastifyPluginAsync = async (fastify) => {
     if (existing.doctorId) return reply.code(409).send({ error: 'user already linked to a doctor profile', doctorId: existing.doctorId })
 
     const body = request.body as Record<string, unknown>
-    const name           = String(body.name ?? '').trim()
+    // Split-name intake (2026-07-20). Prefer firstName+lastName from new
+    // signups; fall back to `name` for legacy client versions still using
+    // the single-name field so we don't break in-flight clients.
+    const firstName      = String(body.firstName ?? '').trim().slice(0, 100)
+    const lastName       = String(body.lastName  ?? '').trim().slice(0, 100)
+    const composedName   = firstName && lastName ? `${firstName} ${lastName}` : firstName || lastName || ''
+    const name           = composedName || String(body.name ?? '').trim()
     // Specialization is optional at registration — many BAMS graduates don't yet
     // have a CCIM-recognised PG specialty and were getting stuck here. Default to
     // "General" so the public profile renders sensibly; they can refine later.
     const specRaw        = String(body.specialization ?? '').trim()
     const specialization = specRaw || 'General'
     const district       = String(body.district ?? '').trim()
+    // Registration number now required for NEW signups (task 2026-07-20).
+    // Existing 39 rows are unaffected — this is a new-signup gate only.
+    const registrationNumber = String(body.registrationNumber ?? body.ksmcRegNumber ?? '').trim().slice(0, 50)
     if (!name || !district) {
-      return reply.code(400).send({ error: 'name, district required' })
+      return reply.code(400).send({ error: 'name (or firstName+lastName), district required' })
+    }
+    if (!registrationNumber) {
+      return reply.code(400).send({ error: 'registrationNumber required' })
     }
     const country = typeof body.country === 'string' && /^[A-Z]{2}$/.test(body.country) ? body.country : 'IN'
     const state   = typeof body.state === 'string' && body.state.trim() ? body.state.trim().slice(0, 100) : null
@@ -122,6 +135,9 @@ const me: FastifyPluginAsync = async (fastify) => {
     const doctor = await fastify.prisma.doctor.create({
       data: {
         name,
+        firstName: firstName || null,
+        lastName:  lastName  || null,
+        registrationNumber,
         specialization,
         country,
         state,
@@ -140,7 +156,10 @@ const me: FastifyPluginAsync = async (fastify) => {
         college:                  optStr(body.college, 200),
         collegeSlug:              optStr(body.collegeSlug, 100),
         batchYear:                optInt(body.batchYear),
-        ksmcRegNumber:            optStr(body.ksmcRegNumber, 50),
+        // Keep ksmcRegNumber populated for back-compat with any reader still
+        // hitting the old column. Prefer the explicit ksmcRegNumber value
+        // when a legacy client sends it; otherwise mirror registrationNumber.
+        ksmcRegNumber:            optStr(body.ksmcRegNumber, 50) ?? (registrationNumber || null),
         lineageOrTradition:       optStr(body.lineageOrTradition, 200),
         // Abroad regulatory
         localRegBody:             optStr(body.localRegBody, 100),

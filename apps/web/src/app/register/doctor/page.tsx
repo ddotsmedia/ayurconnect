@@ -23,7 +23,8 @@ export default function DoctorRegisterPage() {
   const refCode = search?.get('ref') ?? null
 
   const [form, setForm] = useState({
-    name:            '',
+    firstName:       '',
+    lastName:        '',
     email:           '',
     password:        '',
     contact:         '',       // phone
@@ -33,7 +34,7 @@ export default function DoctorRegisterPage() {
     district:        '',       // combined city / district input
     state:           '',
     country:         'IN',     // hard-default India — no geo auto-detect
-    regNumber:       '',       // optional single license/reg number
+    regNumber:       '',       // REQUIRED license/reg number (task 2026-07-20)
   })
   const [busy, setBusy] = useState(false)
   const [err,  setErr]  = useState<string | null>(null)
@@ -41,20 +42,31 @@ export default function DoctorRegisterPage() {
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setBusy(true); setErr(null)
+    // Client-side gates. API enforces the same rules — this just spares
+    // a network round-trip.
+    if (!form.firstName.trim() || !form.lastName.trim()) {
+      setErr('First name and last name are required.'); setBusy(false); return
+    }
+    if (!form.regNumber.trim()) {
+      setErr('Registration number is required.'); setBusy(false); return
+    }
+    const composedName = `${form.firstName.trim()} ${form.lastName.trim()}`
     try {
-      await signUpUser({ name: form.name, email: form.email, password: form.password })
+      await signUpUser({ name: composedName, email: form.email, password: form.password })
       const promoted = await postJson<{ doctorId?: string }>('/me/promote-to-doctor', {
-        name:            form.name,
-        specialization:  form.specialization || null,   // API defaults to "General" if blank
-        country:         form.country,
-        state:           form.state || null,
-        district:        form.district,
-        qualification:   form.qualification || null,
-        experienceYears: form.experienceYears ? Number(form.experienceYears) : null,
-        contact:         form.contact || null,
-        // Reuse the ksmcRegNumber column for the single license/reg field —
-        // no schema change; API validator caps at 50 chars.
-        ksmcRegNumber:   form.regNumber || null,
+        firstName:          form.firstName.trim(),
+        lastName:           form.lastName.trim(),
+        // `name` sent too so any downstream consumer reading the composed
+        // name (audit logs, e-mail templates) sees consistent data.
+        name:               composedName,
+        specialization:     form.specialization || null,   // API defaults to "General" if blank
+        country:            form.country,
+        state:              form.state || null,
+        district:           form.district,
+        qualification:      form.qualification || null,
+        experienceYears:    form.experienceYears ? Number(form.experienceYears) : null,
+        contact:            form.contact || null,
+        registrationNumber: form.regNumber.trim(),
       })
       rememberCountry(form.country)
       if (refCode && promoted?.doctorId) {
@@ -91,19 +103,22 @@ export default function DoctorRegisterPage() {
 
         <form onSubmit={submit} className="bg-white rounded-card border border-gray-100 shadow-card p-4 sm:p-6 space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <Field label="Full name (Dr. …) *">
-              <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required className="input" placeholder="Dr. Anjali Menon" />
+            <Field label={<>First name <span className="text-rose-600">*</span></>}>
+              <input value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} required className="input" placeholder="Anjali" autoComplete="given-name" />
             </Field>
-            <Field label="Phone / WhatsApp *">
+            <Field label={<>Last name <span className="text-rose-600">*</span></>}>
+              <input value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} required className="input" placeholder="Menon" autoComplete="family-name" />
+            </Field>
+            <Field label={<>Phone / WhatsApp <span className="text-rose-600">*</span></>}>
               <PhoneInput value={form.contact} onChange={(e164) => setForm({ ...form, contact: e164 })} defaultCountry={form.country} />
             </Field>
-            <Field label="Email *">
+            <Field label={<>Email <span className="text-rose-600">*</span></>}>
               <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required autoComplete="email" className="input" />
             </Field>
-            <Field label="Password (min 8) *">
+            <Field label={<>Password (min 8) <span className="text-rose-600">*</span></>}>
               <input type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required minLength={8} autoComplete="new-password" className="input" />
             </Field>
-            <Field label="Qualification *">
+            <Field label={<>Qualification <span className="text-rose-600">*</span></>}>
               <input value={form.qualification} onChange={(e) => setForm({ ...form, qualification: e.target.value })} required className="input" placeholder="BAMS, MD (Panchakarma)" />
             </Field>
             <Field label="Specialization">
@@ -112,10 +127,13 @@ export default function DoctorRegisterPage() {
                 {SPECIALIZATIONS.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
             </Field>
+            <Field label={<>Registration number <span className="text-rose-600">*</span></>}>
+              <input value={form.regNumber} onChange={(e) => setForm({ ...form, regNumber: e.target.value })} required className="input" placeholder="CCIM / KSMC / DHA / SCFHS reg no." maxLength={50} />
+            </Field>
             <Field label="Experience (years)">
               <input type="number" min={0} value={form.experienceYears} onChange={(e) => setForm({ ...form, experienceYears: e.target.value })} className="input" placeholder="e.g. 8" />
             </Field>
-            <Field label="City / district *">
+            <Field label={<>City / district <span className="text-rose-600">*</span></>}>
               <input value={form.district} onChange={(e) => setForm({ ...form, district: e.target.value })} required placeholder="e.g. Ernakulam, Mumbai, Dubai" className="input" />
             </Field>
             <Field label="State / region">
@@ -124,11 +142,6 @@ export default function DoctorRegisterPage() {
             <Field label="Country">
               <CountrySelect value={form.country} onChange={(c) => setForm({ ...form, country: c, state: '' })} />
             </Field>
-            <div className="sm:col-span-2">
-              <Field label="License / registration number (optional)">
-                <input value={form.regNumber} onChange={(e) => setForm({ ...form, regNumber: e.target.value })} className="input" placeholder="CCIM / KSMC / DHA / SCFHS reg no." maxLength={50} />
-              </Field>
-            </div>
           </div>
 
           {err && <p className="text-sm text-red-600">{err}</p>}
@@ -163,7 +176,7 @@ export default function DoctorRegisterPage() {
   )
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children }: { label: React.ReactNode; children: React.ReactNode }) {
   return (
     <label className="block">
       <span className="block text-xs font-medium text-gray-700 mb-1.5">{label}</span>

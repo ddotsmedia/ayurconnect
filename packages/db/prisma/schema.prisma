@@ -190,6 +190,15 @@ model Verification {
 model Doctor {
   id                 String    @id @default(cuid())
   name               String
+  // Split-name fields (2026-07-20). Both nullable for back-compat with the
+  // 39 pre-existing rows; backfilled from `name` via the migration. New
+  // signups populate all three (name = firstName + ' ' + lastName).
+  firstName          String?
+  lastName           String?
+  // Single-source-of-truth license/registration number. Backfilled from
+  // ksmcRegNumber during migration; new signups populate directly. Legacy
+  // ksmcRegNumber column kept as a nullable secondary field for now.
+  registrationNumber String?
   specialization     String
   // Geography (added 2026-05-11). country defaults to 'IN' so existing Kerala
   // rows remain valid. `state` is the first-level admin division (Kerala for
@@ -329,6 +338,7 @@ model Doctor {
   @@index([collegeSlug, batchYear])
   @@index([selfRegistered, moderationStatus])
   @@index([featured, ccimVerified])
+  @@index([registrationNumber])
 }
 
 // Concrete bookable time slots. Doctors create them; patients pick one when

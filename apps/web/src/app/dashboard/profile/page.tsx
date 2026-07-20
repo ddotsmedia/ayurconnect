@@ -18,6 +18,7 @@ type SocialFields = {
 type DoctorOwned = SocialFields & {
   id: string; name: string; specialization: string; district: string;
   qualification: string | null; experienceYears: number | null;
+  registrationNumber: string | null;
   ccimVerified: boolean;
   languages: string[] | null; availableDays: string[] | null;
   availableForOnline: boolean | null;
@@ -267,6 +268,17 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
           ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-kerala-700 bg-kerala-50 px-2 py-1 rounded-full"><ShieldCheck className="w-3 h-3" /> Verified</span>
           : <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-1 rounded-full">Awaiting verification</span>}
       </h2>
+
+      {/* Registration number — read-only. Contact admin to change. Set at signup;
+          not editable via /api/me/doctor PATCH. */}
+      {doctor.registrationNumber && (
+        <div className="bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-xs text-gray-700 flex items-center gap-2">
+          <ShieldCheck className="w-3.5 h-3.5 text-kerala-700 flex-shrink-0" />
+          <span className="font-semibold uppercase tracking-wider text-[10px] text-gray-500">Registration no.</span>
+          <span className="font-mono tabular-nums text-gray-900">{doctor.registrationNumber}</span>
+          <span className="text-[10px] text-gray-500 ml-auto">Locked — contact admin to change</span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Field label="Display name"><input value={d.name} onChange={(e) => setD({ ...d, name: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
