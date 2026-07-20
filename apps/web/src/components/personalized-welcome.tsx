@@ -74,6 +74,10 @@ export function PersonalizedWelcome() {
             <Link href="/dashboard/prescriptions" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-gray-200 rounded-md text-xs text-gray-700 hover:border-kerala-300">
               <FileText className="w-3.5 h-3.5 text-kerala-700" /> Prescriptions <ArrowRight className="w-3 h-3 text-gray-400" />
             </Link>
+            {/* Events — orange-themed to visually stand out from the kerala-green quick-access rest of the strip. */}
+            <Link href="/events" className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-br from-orange-50 to-orange-100 border-l-4 border-orange-500 border-y border-r border-orange-200 rounded-md text-xs font-semibold text-orange-900 hover:from-orange-100 hover:to-orange-200 hover:border-y-orange-400 hover:border-r-orange-400 transition-colors">
+              <span aria-hidden className="text-sm leading-none">📅</span> Events
+            </Link>
           </div>
         </div>
       </div>
