@@ -11,6 +11,7 @@ import { DISTRICT_SLUGS as HOSPITAL_DISTRICT_SLUGS } from './hospitals/in/[distr
 import { TYPE_SLUGS as HOSPITAL_TYPE_SLUGS } from './hospitals/type/[type]/_slugs'
 import { ML_SLUGS } from './ml/_data'
 import { MEDICINES } from './learn/medicines/_data'
+import { LANDING_PAGES } from '@/lib/data/landing-pages'
 
 const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://ayurconnect.com'
 
@@ -487,5 +488,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     })),
+    // SEO keyword landing pages — Phase 1 (2026-07-21).
+    // 5 conditions + 5 services + 5 jobs. Priority per task spec:
+    // jobs 0.9 (fresh, high intent), events 0.8, conditions 0.7,
+    // services 0.75, articles 0.6.
+    ...LANDING_PAGES.map((l) => {
+      const isJob       = l.path.startsWith('/jobs/')
+      const isCondition = l.path.startsWith('/conditions/')
+      const priority    = isJob ? 0.9 : isCondition ? 0.7 : 0.75
+      const freq        = isJob ? 'daily' as const : 'monthly' as const
+      return {
+        url:             `${BASE}${l.path}`,
+        lastModified:    now,
+        changeFrequency: freq,
+        priority,
+      }
+    }),
   ]
 }
