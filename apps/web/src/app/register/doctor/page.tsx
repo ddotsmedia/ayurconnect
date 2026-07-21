@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Stethoscope, ShieldCheck, Upload, Loader2, Trash2, UserRound } from 'lucide-react'
-import { signUpUser, postJson, SPECIALIZATIONS } from '../_lib'
+import { signUpUser, SPECIALIZATIONS, PENDING_DOCTOR_KEY } from '../_lib'
 import { CountrySelect } from '../../../components/country-select'
 import { StateSelect } from '../../../components/state-select'
 import { PhoneInput } from '../../../components/phone-input'
@@ -83,14 +83,16 @@ export default function DoctorRegisterPage() {
     }
     const composedName = `${form.firstName.trim()} ${form.lastName.trim()}`
     try {
-      await signUpUser({ name: composedName, email: form.email, password: form.password })
-      const promoted = await postJson<{ doctorId?: string }>('/me/promote-to-doctor', {
+      // Two-step flow (2026-07-21) — email verification is now enforced.
+      // We save the promotion payload to localStorage, sign up (no session
+      // is issued until email is verified), and redirect to the "check your
+      // inbox" page. /verify-callback runs promote-to-doctor after the
+      // user clicks the verify link (session becomes active then).
+      const pendingPayload = {
         firstName:          form.firstName.trim(),
         lastName:           form.lastName.trim(),
-        // `name` sent too so any downstream consumer reading the composed
-        // name (audit logs, e-mail templates) sees consistent data.
         name:               composedName,
-        specialization:     form.specialization || null,   // API defaults to "General" if blank
+        specialization:     form.specialization || null,
         country:            form.country,
         state:              form.state || null,
         district:           form.district,
@@ -99,15 +101,12 @@ export default function DoctorRegisterPage() {
         contact:            form.contact || null,
         registrationNumber: form.regNumber.trim(),
         photoUrl:           form.photoUrl || null,
-      })
-      rememberCountry(form.country)
-      if (refCode && promoted?.doctorId) {
-        void fetch('/api/doctor-viral/track-registration', {
-          method: 'POST', headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ code: refCode, doctorId: promoted.doctorId }),
-        }).catch(() => {})
+        _refCode:           refCode,   // consumed by /verify-callback for viral tracking
       }
-      router.push('/doctor/welcome')
+      try { localStorage.setItem(PENDING_DOCTOR_KEY, JSON.stringify(pendingPayload)) } catch { /* private mode: skip */ }
+      await signUpUser({ name: composedName, email: form.email, password: form.password, callbackURL: '/verify-callback' })
+      rememberCountry(form.country)
+      router.push(`/verify-email-sent?email=${encodeURIComponent(form.email)}`)
       router.refresh()
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e))
