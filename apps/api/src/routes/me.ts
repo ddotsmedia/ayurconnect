@@ -18,7 +18,7 @@ const me: FastifyPluginAsync = async (fastify) => {
         ownedDoctor: {
           select: {
             id: true, name: true, specialization: true, district: true,
-            ccimVerified: true, qualification: true, experienceYears: true,
+            ccimVerified: true, moderationStatus: true, qualification: true, experienceYears: true,
             registrationNumber: true,
             languages: true, availableDays: true, availableForOnline: true,
             availableToday: true, respondsWithin: true,

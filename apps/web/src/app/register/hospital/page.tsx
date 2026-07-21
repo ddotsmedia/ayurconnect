@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Building2, ShieldCheck } from 'lucide-react'
-import { signUpUser, HOSPITAL_TYPES, PENDING_HOSPITAL_KEY } from '../_lib'
+import { signUpUser, postJson, HOSPITAL_TYPES } from '../_lib'
 import { CountrySelect } from '../../../components/country-select'
 import { StateSelect } from '../../../components/state-select'
 import { PhoneInput } from '../../../components/phone-input'
@@ -31,28 +31,25 @@ export default function HospitalRegisterPage() {
     e.preventDefault()
     setBusy(true); setErr(null)
     try {
-      // Two-step flow (2026-07-21) — email verification is enforced, so
-      // sign-up returns no session. Stash the promote payload; /verify-callback
-      // calls promote-to-hospital once the user clicks the verify link.
-      try {
-        localStorage.setItem(PENDING_HOSPITAL_KEY, JSON.stringify({
-          name: form.hospitalName,
-          type: form.type,
-          country: form.country,
-          state: form.state || null,
-          district: form.district,
-          establishedYear: form.establishedYear ? Number(form.establishedYear) : null,
-          services: form.services.split(',').map((s) => s.trim()).filter(Boolean),
-          contact: form.contact || null,
-          address: form.address || null,
-          ayushCertified: form.ayushCertified,
-          panchakarma:    form.panchakarma,
-          nabh:           form.nabh,
-        }))
-      } catch { /* private mode: skip */ }
-      await signUpUser({ name: form.contactName, email: form.email, password: form.password, callbackURL: '/verify-callback' })
+      // Email verification disabled 2026-07-21 → signUp auto-signs-in, so
+      // promote-to-hospital inherits the session and completes atomically.
+      await signUpUser({ name: form.contactName, email: form.email, password: form.password })
+      await postJson('/me/promote-to-hospital', {
+        name: form.hospitalName,
+        type: form.type,
+        country: form.country,
+        state: form.state || null,
+        district: form.district,
+        establishedYear: form.establishedYear ? Number(form.establishedYear) : null,
+        services: form.services.split(',').map((s) => s.trim()).filter(Boolean),
+        contact: form.contact || null,
+        address: form.address || null,
+        ayushCertified: form.ayushCertified,
+        panchakarma:    form.panchakarma,
+        nabh:           form.nabh,
+      })
       rememberCountry(form.country)
-      router.push(`/verify-email-sent?email=${encodeURIComponent(form.email)}`)
+      router.push('/dashboard?welcome=hospital')
       router.refresh()
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e))

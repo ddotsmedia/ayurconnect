@@ -23,7 +23,7 @@ type Me = {
       id: string; ccimVerified: boolean; photoUrl: string | null
       profileCompleteness?: number | null
       averageRating?: number | null; reviewCount?: number | null
-      moderationStatus?: string | null
+      moderationStatus?: 'pending' | 'approved' | 'declined' | 'needs-info' | 'flagged' | null
     } | null
   } | null
   stats?: { apptCount?: number }
@@ -88,11 +88,33 @@ export default async function DoctorDashboardPage() {
           <p className="text-sm text-amber-800 mt-2 bg-amber-50 border border-amber-200 rounded px-3 py-2 inline-block">
             Your account isn't linked to a doctor profile yet. <Link href="/register/doctor" className="text-kerala-700 hover:underline font-semibold">Register as doctor →</Link>
           </p>
-        ) : doctor.ccimVerified ? (
-          <p className="text-xs text-kerala-800 mt-2 inline-flex items-center gap-1 bg-kerala-50 border border-kerala-200 rounded-full px-2.5 py-1"><ShieldCheck className="w-3.5 h-3.5" /> Verified · profile live</p>
-        ) : (
-          <p className="text-xs text-amber-800 mt-2 inline-flex items-center gap-1 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-1">Awaiting CCIM verification — usually 48h</p>
-        )}
+        ) : (() => {
+          // Task 2026-07-21 — surface admin moderation status first. Once
+          // approved, `ccimVerified` may still lag; the moderation flag is
+          // the source of truth for "can accept consultations".
+          const status = doctor.moderationStatus ?? 'pending'
+          if (status === 'approved') {
+            return (
+              <div className="mt-2 space-y-1">
+                <p className="text-xs text-kerala-800 inline-flex items-center gap-1 bg-kerala-50 border border-kerala-200 rounded-full px-2.5 py-1"><ShieldCheck className="w-3.5 h-3.5" /> ✓ Approved · you can accept consultations</p>
+              </div>
+            )
+          }
+          if (status === 'declined') {
+            return (
+              <div className="mt-2 space-y-1">
+                <p className="text-xs text-rose-800 inline-flex items-center gap-1 bg-rose-50 border border-rose-200 rounded-full px-2.5 py-1">✕ Rejected · contact support to re-apply</p>
+              </div>
+            )
+          }
+          // pending / needs-info / flagged — all treated as "not yet approved"
+          return (
+            <div className="mt-2 space-y-2">
+              <p className="text-xs text-amber-800 inline-flex items-center gap-1 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-1">⏳ Pending admin review</p>
+              <p className="text-xs text-gray-600 max-w-lg">Your profile is being reviewed. You can't accept consultations yet — an admin will approve your account within 48 hours.</p>
+            </div>
+          )
+        })()}
       </header>
 
       {/* Summary stats. */}

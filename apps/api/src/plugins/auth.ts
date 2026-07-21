@@ -63,10 +63,16 @@ export default fp(async (fastify) => {
     emailAndPassword: {
       enabled: true,
       autoSignIn: true,
-      requireEmailVerification: emailEnabled(),
+      // Email verification DISABLED (2026-07-21). Trust model switched to
+      // admin approval — doctors moderated at /admin/doctors, sign-in works
+      // immediately for all users. The sendVerificationEmail block below
+      // is kept but only wired up if we ever want to re-enable the gate.
+      requireEmailVerification: false,
     },
+    // Kept for the manual resend endpoint (POST /api/auth/send-verification-email)
+    // and future re-enable. sendOnSignUp is FALSE so signup doesn't email.
     emailVerification: emailEnabled() ? {
-      sendOnSignUp: true,
+      sendOnSignUp: false,
       autoSignInAfterVerification: true,
       sendVerificationEmail: async ({ user, url }) => {
         await sendEmail({
@@ -158,23 +164,13 @@ export default fp(async (fastify) => {
       return reply
     }
     req.session = sess as unknown as AuthSession
-    // Enforce email verification when email transport is configured. Without
-    // this, an unverified account can immediately consume the signed-in
-    // surface (vitals, reviews, forum, prescriptions, etc.) before owning
-    // the email address. Admins bypass — locked-out admins need to be able
-    // to fix the email-transport configuration.
-    if (
-      emailEnabled()
-      && isProd
-      && req.session.user.role !== 'ADMIN'
-      && (req.session.user as unknown as { emailVerified?: boolean }).emailVerified === false
-    ) {
-      reply.code(403).send({
-        error: 'Please verify your email address before continuing.',
-        code:  'email-not-verified',
-      })
-      return reply
-    }
+    // Email-verification guard disabled 2026-07-21 in favour of admin
+    // approval on the Doctor.moderationStatus column. Trust model:
+    //   User creates account + auto-signs-in → free to browse
+    //   Doctor completes profile → moderationStatus='pending'
+    //   Admin flips to 'approved' at /admin/doctors → doctor goes live
+    // Left the block here as a comment so it's easy to re-enable if we
+    // ever want to re-flip requireEmailVerification: true.
   })
 
   fastify.decorate('requireAdmin', async (req: FastifyRequest, reply: FastifyReply) => {

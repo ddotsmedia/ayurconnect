@@ -20,6 +20,7 @@ type Doctor = {
   state: string | null
   district: string
   ccimVerified: boolean
+  moderationStatus?: 'pending' | 'approved' | 'declined' | 'needs-info' | 'flagged' | null
   qualification: string | null
   experienceYears: number | null
   languages: string[]
@@ -41,6 +42,19 @@ type Doctor = {
   featuredArticles: FeaturedArticle[] | null
   featuredPosts: FeaturedPost[] | null
   createdAt: string
+}
+
+type Tab = 'pending' | 'approved' | 'declined' | 'all'
+
+// Task spec vocab (Approved/Rejected) → server vocab (approved/declined).
+// Kept internally as server vocab so admin API calls stay consistent.
+const TAB_LABEL: Record<Tab, string> = { pending: 'Pending', approved: 'Approved', declined: 'Rejected', all: 'All' }
+const STATUS_TONE: Record<string, string> = {
+  pending:  'bg-amber-50 text-amber-800',
+  approved: 'bg-emerald-50 text-emerald-800',
+  declined: 'bg-rose-50 text-rose-800',
+  'needs-info': 'bg-blue-50 text-blue-800',
+  flagged:  'bg-purple-50 text-purple-800',
 }
 
 const empty = {
@@ -67,15 +81,42 @@ export default function DoctorsAdminPage() {
   const [error, setError] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [tab, setTab] = useState<Tab>('pending')
+  const [busyModId, setBusyModId] = useState<string | null>(null)
+  const [rejecting, setRejecting] = useState<{ id: string; name: string } | null>(null)
+  const [rejectReason, setRejectReason] = useState('')
 
   async function load() {
     setLoading(true); setError(null)
     try {
-      const data = await adminApi.get<DoctorListResponse>('/doctors?limit=60&sort=newest')
+      // /doctors?status=X&sort=newest — API filters by moderationStatus when
+      // status is one of pending/approved/declined/needs-info/flagged. 'all'
+      // drops the filter server-side.
+      const qs = new URLSearchParams({ limit: '60', sort: 'newest', status: tab })
+      const data = await adminApi.get<DoctorListResponse>(`/doctors?${qs}`)
       setItems(data.doctors)
     } catch (e) { setError(String(e)) } finally { setLoading(false) }
   }
-  useEffect(() => { load() }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { load() }, [tab])
+
+  async function approve(id: string) {
+    setBusyModId(id); setError(null)
+    try {
+      await adminApi.post(`/doctors/${id}/approve`, {})
+      await load()
+    } catch (e) { alert(String(e)) } finally { setBusyModId(null) }
+  }
+  async function submitReject() {
+    if (!rejecting) return
+    const reason = rejectReason.trim()
+    if (!reason) { alert('Reason required'); return }
+    setBusyModId(rejecting.id); setError(null)
+    try {
+      await adminApi.post(`/doctors/${rejecting.id}/decline`, { reason })
+      setRejecting(null); setRejectReason(''); await load()
+    } catch (e) { alert(String(e)) } finally { setBusyModId(null) }
+  }
 
   function startEdit(d: Doctor) {
     setEditingId(d.id)
@@ -293,42 +334,102 @@ export default function DoctorsAdminPage() {
         </EntityFormShell>
       )}
 
+      {/* Moderation tabs — Pending default (approval queue lands admin here). */}
+      <nav className="inline-flex bg-gray-100 rounded-md p-1 text-sm">
+        {(['pending', 'approved', 'declined', 'all'] as Tab[]).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={'px-3 py-1.5 rounded ' + (tab === t ? 'bg-white shadow-sm font-semibold' : 'text-gray-600')}
+          >
+            {TAB_LABEL[t]}
+          </button>
+        ))}
+      </nav>
+
       <div className="bg-white border rounded-lg overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-left text-gray-600">
             <tr>
               <th className="px-4 py-2.5">Name</th>
-              <th className="px-4 py-2.5">Specialization</th>
+              <th className="px-4 py-2.5">Qualification</th>
               <th className="px-4 py-2.5">Location</th>
-              <th className="px-4 py-2.5">Exp</th>
-              <th className="px-4 py-2.5">Verified</th>
+              <th className="px-4 py-2.5">Joined</th>
+              <th className="px-4 py-2.5">Status</th>
               <th className="px-4 py-2.5 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y">
             {loading && <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-500">Loading…</td></tr>}
             {!loading && items.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-500">No doctors yet.</td></tr>
+              <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-500 italic">No doctors in this queue.</td></tr>
             )}
-            {items.map((d) => (
-              <tr key={d.id}>
-                <td className="px-4 py-2.5 font-medium">{d.name}</td>
-                <td className="px-4 py-2.5">{d.specialization}</td>
-                <td className="px-4 py-2.5 text-xs">
-                  <div>{d.district}{d.state && d.state !== d.district ? `, ${d.state}` : ''}</div>
-                  {d.country && d.country !== 'IN' && <div className="text-gray-400">{d.country}</div>}
-                </td>
-                <td className="px-4 py-2.5">{d.experienceYears ?? '—'}</td>
-                <td className="px-4 py-2.5">{d.ccimVerified ? '✓' : '—'}</td>
-                <td className="px-4 py-2.5 text-right space-x-3">
-                  <button onClick={() => startEdit(d)} className="text-kerala-700 hover:underline text-xs">Edit</button>
-                  <button onClick={() => remove(d.id, d.name)} className="text-red-600 hover:underline text-xs">Delete</button>
-                </td>
-              </tr>
-            ))}
+            {items.map((d) => {
+              const status = d.moderationStatus ?? 'pending'
+              const isPending  = status === 'pending' || status === 'needs-info' || status === 'flagged'
+              const isDeclined = status === 'declined'
+              return (
+                <tr key={d.id}>
+                  <td className="px-4 py-2.5 font-medium">
+                    <div>{d.name}</div>
+                    <div className="text-[11px] text-gray-500 mt-0.5">{d.specialization}{d.ccimVerified && <span className="ml-1 text-emerald-700">✓ CCIM</span>}</div>
+                  </td>
+                  <td className="px-4 py-2.5 text-xs">{d.qualification ?? '—'}</td>
+                  <td className="px-4 py-2.5 text-xs">
+                    <div>{d.district}{d.state && d.state !== d.district ? `, ${d.state}` : ''}</div>
+                    {d.country && d.country !== 'IN' && <div className="text-gray-400">{d.country}</div>}
+                  </td>
+                  <td className="px-4 py-2.5 text-xs text-gray-500 tabular-nums whitespace-nowrap">
+                    {new Date(d.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <span className={'inline-block px-2 py-0.5 rounded-full text-[10px] uppercase tracking-wider font-semibold ' + (STATUS_TONE[status] ?? 'bg-gray-100 text-gray-700')}>
+                      {status === 'declined' ? 'rejected' : status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2.5 text-right space-x-2 whitespace-nowrap">
+                    {isPending && (
+                      <>
+                        <button disabled={busyModId === d.id} onClick={() => approve(d.id)} className="px-2.5 py-1 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white rounded text-xs font-semibold">Approve</button>
+                        <button disabled={busyModId === d.id} onClick={() => setRejecting({ id: d.id, name: d.name })} className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white rounded text-xs font-semibold">Reject</button>
+                      </>
+                    )}
+                    {isDeclined && (
+                      <button disabled={busyModId === d.id} onClick={() => approve(d.id)} className="text-emerald-700 hover:underline disabled:opacity-50 text-xs">Re-approve</button>
+                    )}
+                    <button onClick={() => startEdit(d)} className="text-kerala-700 hover:underline text-xs">Edit</button>
+                    <button onClick={() => remove(d.id, d.name)} className="text-red-600 hover:underline text-xs">Delete</button>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
+
+      {rejecting && (
+        <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4" onClick={() => { setRejecting(null); setRejectReason('') }}>
+          <div className="bg-white rounded-lg shadow-xl max-w-lg w-full p-6" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold text-ink">Reject doctor</h2>
+            <p className="text-sm text-gray-600 mt-1 line-clamp-1">&ldquo;{rejecting.name}&rdquo;</p>
+            <label className="block text-[11px] uppercase tracking-wider text-kerala-700 font-semibold mt-4 mb-1">Reason *</label>
+            <textarea
+              autoFocus
+              rows={4}
+              maxLength={500}
+              value={rejectReason}
+              onChange={(e) => setRejectReason(e.target.value)}
+              placeholder="E.g. Registration number not verifiable against CCIM · duplicate profile · missing qualification proof…"
+              className={inputClass}
+            />
+            <p className="text-[11px] text-gray-500 mt-1">{rejectReason.length}/500 — stored on the doctor record.</p>
+            <div className="mt-4 flex justify-end gap-2">
+              <button onClick={() => { setRejecting(null); setRejectReason('') }} className="px-4 py-2 border border-gray-300 rounded text-sm hover:bg-gray-50">Cancel</button>
+              <button onClick={submitReject} disabled={!rejectReason.trim() || busyModId === rejecting.id} className="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white rounded text-sm font-semibold">Reject</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

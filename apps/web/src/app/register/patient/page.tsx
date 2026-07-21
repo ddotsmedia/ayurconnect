@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { User } from 'lucide-react'
-import { signUpUser, PENDING_PATIENT_KEY } from '../_lib'
+import { signUpUser } from '../_lib'
 import { CountrySelect } from '../../../components/country-select'
 import { StateSelect } from '../../../components/state-select'
 import { PhoneInput } from '../../../components/phone-input'
@@ -28,21 +28,25 @@ export default function PatientRegisterPage() {
     e.preventDefault()
     setBusy(true); setErr(null)
     try {
-      // Two-step flow (2026-07-21) — email verification is enforced, so
-      // sign-up returns no session. Stash the profile patch payload; the
-      // /verify-callback page applies it via PATCH /api/me once the user
-      // clicks the verify link and gets a real session.
+      // Email verification disabled 2026-07-21 → signUp auto-signs-in, so
+      // the followup PATCH /me inherits the session and completes the
+      // patient profile in one atomic UX step.
+      await signUpUser({ name: form.name, email: form.email, password: form.password })
       try {
-        localStorage.setItem(PENDING_PATIENT_KEY, JSON.stringify({
-          name:    form.name,
-          country: form.country,
-          state:   form.state || null,
-          phone:   form.phone || null,
-        }))
-      } catch { /* private mode: skip */ }
-      await signUpUser({ name: form.name, email: form.email, password: form.password, callbackURL: '/verify-callback' })
+        await fetch('/api/me', {
+          method: 'PATCH',
+          credentials: 'include',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            name:    form.name,
+            country: form.country,
+            state:   form.state || null,
+            phone:   form.phone || null,
+          }),
+        })
+      } catch { /* non-fatal — user is signed in even if PATCH fails */ }
       rememberCountry(form.country)
-      router.push(`/verify-email-sent?email=${encodeURIComponent(form.email)}`)
+      router.push('/dashboard')
       router.refresh()
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e))
