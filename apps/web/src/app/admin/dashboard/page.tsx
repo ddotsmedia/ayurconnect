@@ -28,6 +28,34 @@ type Counts = {
   approvedEvents:    number
 }
 
+// Types for the pending lists shown under the queue-card row.
+type PendingJob = {
+  id: string; title: string; clinic: string | null; district: string | null; type: string
+  createdAt: string
+  user?: { email: string; name: string | null } | null
+}
+type PendingEvent = {
+  id: string; title: string; eventDate: string; location: string | null; category: string
+  createdAt: string
+}
+
+async function fetchPendingJobs(cookie: string): Promise<PendingJob[]> {
+  try {
+    const r = await fetch(`${API}/jobs?status=pending&includeAll=1&limit=5&sort=featured`, { headers: { cookie }, cache: 'no-store' })
+    if (!r.ok) return []
+    const d = await r.json() as { jobs?: PendingJob[] }
+    return d.jobs ?? []
+  } catch { return [] }
+}
+async function fetchPendingEvents(cookie: string): Promise<PendingEvent[]> {
+  try {
+    const r = await fetch(`${API}/admin/events?status=pending&limit=5`, { headers: { cookie }, cache: 'no-store' })
+    if (!r.ok) return []
+    const d = await r.json() as PendingEvent[] | { items?: PendingEvent[] }
+    return Array.isArray(d) ? d : (d.items ?? [])
+  } catch { return [] }
+}
+
 async function fetchCounts(): Promise<Counts> {
   const cookie = (await nextHeaders()).get('cookie') ?? ''
   const opt    = { headers: { cookie }, cache: 'no-store' as const }
@@ -83,7 +111,12 @@ export default async function AdminDashboardPage() {
   const sess = await getServerSession()
   if (!sess) redirect('/sign-in?next=/admin/dashboard')
   if (sess.user.role !== 'ADMIN') redirect('/dashboard')
-  const c = await fetchCounts()
+  const cookie = (await nextHeaders()).get('cookie') ?? ''
+  const [c, pendingJobs, pendingEvents] = await Promise.all([
+    fetchCounts(),
+    fetchPendingJobs(cookie),
+    fetchPendingEvents(cookie),
+  ])
   const firstName = sess.user.name?.split(/\s+/)[0] ?? 'admin'
 
   return (
@@ -103,6 +136,53 @@ export default async function AdminDashboardPage() {
           <QueueCard href="/admin/doctors?status=pending" label="Pending doctors"   count={c.pendingDoctors}   Icon={Stethoscope} />
           <QueueCard href="/admin/hospitals"              label="Pending hospitals" count={c.pendingHospitals} Icon={Building2} />
         </div>
+
+        {/* Actual pending lists — up to 5 most recent for each queue. Empty
+            state hides the sub-card entirely so a clean queue = quiet dashboard. */}
+        {(pendingJobs.length > 0 || pendingEvents.length > 0) && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 mt-3">
+            {pendingJobs.length > 0 && (
+              <article className="bg-white border border-amber-100 rounded-card shadow-card overflow-hidden">
+                <header className="flex items-center justify-between px-3 md:px-4 py-2 md:py-2.5 bg-amber-50 border-b border-amber-100">
+                  <h3 className="text-xs font-semibold text-amber-900 inline-flex items-center gap-1.5"><Briefcase className="w-3.5 h-3.5" /> Pending jobs — {pendingJobs.length}</h3>
+                  <Link href="/admin/jobs?tab=pending" className="text-[11px] font-semibold text-amber-800 hover:text-amber-900 inline-flex items-center gap-0.5">All <ArrowRight className="w-3 h-3" /></Link>
+                </header>
+                <ul className="divide-y divide-gray-100">
+                  {pendingJobs.map((j) => (
+                    <li key={j.id} className="px-3 md:px-4 py-2 md:py-2.5 hover:bg-cream/40">
+                      <Link href={`/admin/jobs`} className="block">
+                        <p className="text-sm font-medium text-ink line-clamp-1">{j.title}</p>
+                        <p className="text-[11px] text-gray-500 mt-0.5 truncate">
+                          {j.clinic ?? j.user?.email ?? '—'} · {j.district ?? j.type} · {new Date(j.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}
+                        </p>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            )}
+            {pendingEvents.length > 0 && (
+              <article className="bg-white border border-amber-100 rounded-card shadow-card overflow-hidden">
+                <header className="flex items-center justify-between px-3 md:px-4 py-2 md:py-2.5 bg-amber-50 border-b border-amber-100">
+                  <h3 className="text-xs font-semibold text-amber-900 inline-flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Pending events — {pendingEvents.length}</h3>
+                  <Link href="/admin/events?tab=pending" className="text-[11px] font-semibold text-amber-800 hover:text-amber-900 inline-flex items-center gap-0.5">All <ArrowRight className="w-3 h-3" /></Link>
+                </header>
+                <ul className="divide-y divide-gray-100">
+                  {pendingEvents.map((e) => (
+                    <li key={e.id} className="px-3 md:px-4 py-2 md:py-2.5 hover:bg-cream/40">
+                      <Link href="/admin/events" className="block">
+                        <p className="text-sm font-medium text-ink line-clamp-1">{e.title}</p>
+                        <p className="text-[11px] text-gray-500 mt-0.5 truncate">
+                          {e.category} · {e.location ?? 'online'} · {new Date(e.eventDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </p>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </article>
+            )}
+          </div>
+        )}
       </section>
 
       {/* Platform totals. */}

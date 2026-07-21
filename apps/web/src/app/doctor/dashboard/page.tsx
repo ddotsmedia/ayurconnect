@@ -39,23 +39,44 @@ async function fetchMe(): Promise<Me | null> {
   } catch { return null }
 }
 
+// Doctor-side view of the appointments they're providing. /api/appointments
+// auto-filters by doctorId when session role = DOCTOR (see appointments.ts).
+type DocAppt = {
+  id: string; dateTime: string; type: string; status: string
+  user?: { id: string; name: string | null; email: string } | null
+}
+async function fetchDoctorAppts(): Promise<DocAppt[]> {
+  const cookie = (await nextHeaders()).get('cookie') ?? ''
+  try {
+    const r = await fetch(`${API}/appointments?limit=10`, { headers: { cookie }, cache: 'no-store' })
+    if (!r.ok) return []
+    const d = await r.json() as { appointments?: DocAppt[] } | DocAppt[]
+    return Array.isArray(d) ? d : (d.appointments ?? [])
+  } catch { return [] }
+}
+
 export default async function DoctorDashboardPage() {
   const sess = await getServerSession()
   if (!sess) redirect('/sign-in?next=/doctor/dashboard')
   const role = sess.user.role
   if (role !== 'DOCTOR' && role !== 'DOCTOR_PENDING' && role !== 'ADMIN') redirect('/dashboard')
 
-  const me = await fetchMe()
+  const [me, appts] = await Promise.all([fetchMe(), fetchDoctorAppts()])
   const doctor = me?.user?.ownedDoctor ?? null
   const firstName = sess.user.name?.replace(/^Dr\.?\s*/i, '').split(/\s+/)[0] ?? 'doctor'
   const completeness = doctor?.profileCompleteness ?? 0
   const rating = doctor?.averageRating
   const reviewCount = doctor?.reviewCount ?? 0
-  const upcomingCount = me?.upcomingAppts?.length ?? 0
-  const upcomingToday = (me?.upcomingAppts ?? []).filter((a) => {
-    const d = new Date(a.dateTime); const now = new Date()
-    return d.toDateString() === now.toDateString()
-  }).length
+  // Doctor-side counts derived from /api/appointments (filters by doctorId
+  // for DOCTOR role). Falls back to /me.upcomingAppts if the endpoint is
+  // empty (e.g., ADMIN previewing this page without a linked doctor row).
+  const source = appts.length > 0 ? appts : (me?.upcomingAppts as DocAppt[] | undefined) ?? []
+  const now = new Date()
+  const futureAppts = source
+    .filter((a) => new Date(a.dateTime) >= now && a.status !== 'cancelled' && a.status !== 'declined')
+    .sort((a, b) => new Date(a.dateTime).getTime() - new Date(b.dateTime).getTime())
+  const upcomingCount = futureAppts.length
+  const upcomingToday = futureAppts.filter((a) => new Date(a.dateTime).toDateString() === now.toDateString()).length
 
   return (
     <div className="container mx-auto px-4 md:px-6 py-6 md:py-10 max-w-5xl space-y-6">
@@ -83,6 +104,39 @@ export default async function DoctorDashboardPage() {
           <StatCard label="Rating"      value={rating != null ? rating.toFixed(1) : '—'} sub={`${reviewCount} reviews`} tone="ink" Icon={Star} />
           <StatCard label="Profile"     value={`${completeness}%`} sub="complete"  tone="ink" Icon={FileText} />
         </div>
+      </section>
+
+      {/* Upcoming consultations list — next 5 future appointments. */}
+      <section>
+        <h2 className="text-[11px] uppercase tracking-wider text-gray-600 font-semibold mb-2 inline-flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5 text-kerala-700" /> Upcoming consultations</h2>
+        <article className="bg-white border border-gray-100 rounded-card shadow-card overflow-hidden">
+          {futureAppts.length === 0 ? (
+            <p className="px-4 py-6 text-sm text-gray-500 text-center italic">No upcoming consultations. Share your profile to get bookings — see the &ldquo;Share & refer&rdquo; tile below.</p>
+          ) : (
+            <ul className="divide-y divide-gray-100">
+              {futureAppts.slice(0, 5).map((a) => {
+                const d = new Date(a.dateTime)
+                const isToday = d.toDateString() === new Date().toDateString()
+                return (
+                  <li key={a.id} className="px-3 md:px-4 py-2.5 md:py-3 hover:bg-cream/40">
+                    <Link href={`/consult/${a.id}`} className="flex items-center gap-3">
+                      <div className="flex-shrink-0 w-12 md:w-14 text-center">
+                        <p className={`text-[10px] uppercase tracking-wider font-semibold ${isToday ? 'text-amber-700' : 'text-gray-500'}`}>{isToday ? 'Today' : d.toLocaleDateString('en-GB', { weekday: 'short' })}</p>
+                        <p className={`font-serif text-lg md:text-xl tabular-nums ${isToday ? 'text-amber-800' : 'text-ink'}`}>{d.getDate()}</p>
+                        <p className="text-[10px] text-gray-500">{d.toLocaleDateString('en-GB', { month: 'short' })}</p>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-ink truncate">{a.user?.name ?? a.user?.email ?? 'Patient'}</p>
+                        <p className="text-[11px] text-gray-500 mt-0.5">{a.type} · {d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })} · <span className="capitalize">{a.status}</span></p>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </article>
       </section>
 
       {/* Actions — link to sub-surfaces that already exist. */}
