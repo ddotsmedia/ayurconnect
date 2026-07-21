@@ -22,7 +22,7 @@ const me: FastifyPluginAsync = async (fastify) => {
             registrationNumber: true,
             languages: true, availableDays: true, availableForOnline: true,
             availableToday: true, respondsWithin: true,
-            profile: true, bio: true, photoUrl: true,
+            profile: true, bio: true, aboutMl: true, degreeCertUrl: true, regCertUrl: true, photoUrl: true,
             websiteUrl: true, linkedinUrl: true, facebookUrl: true,
             instagramUrl: true, twitterUrl: true, youtubeUrl: true,
             workplace: true, workplaceUrl: true,
@@ -317,6 +317,12 @@ const me: FastifyPluginAsync = async (fastify) => {
     setStrOrNull('qualification')
     setStrOrNull('profile')
     setStrOrNull('bio')
+    // Malayalam bio + credential URL edits (2026-07-21) — these fields were
+    // set at signup previously; task moved them to the edit surface so
+    // doctors can enrich later without cluttering registration.
+    if (typeof body.aboutMl === 'string') data.aboutMl = (body.aboutMl as string).slice(0, 4000) || null
+    setUrlOrNull('degreeCertUrl')
+    setUrlOrNull('regCertUrl')
     setStrOrNull('contact')
     setStrOrNull('address')
     setStrOrNull('photoUrl')

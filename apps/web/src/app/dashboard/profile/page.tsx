@@ -26,6 +26,9 @@ type DoctorOwned = SocialFields & {
   respondsWithin: string | null;
   profile: string | null;
   bio: string | null; photoUrl: string | null;
+  // Deferred-to-edit fields (removed from registration 2026-07-21):
+  aboutMl: string | null;
+  degreeCertUrl: string | null; regCertUrl: string | null;
   workplace: string | null; workplaceUrl: string | null;
   featuredArticles: FeaturedArticle[] | null;
   featuredPosts: FeaturedPost[] | null;
@@ -198,6 +201,9 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
     respondsWithin: doctor.respondsWithin ?? '',
     profile: doctor.profile ?? '',
     bio: doctor.bio ?? '',
+    aboutMl: doctor.aboutMl ?? '',
+    degreeCertUrl: doctor.degreeCertUrl ?? '',
+    regCertUrl:    doctor.regCertUrl ?? '',
     photoUrl: doctor.photoUrl ?? '',
     websiteUrl:   doctor.websiteUrl   ?? '',
     linkedinUrl:  doctor.linkedinUrl  ?? '',
@@ -236,6 +242,9 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
         respondsWithin: d.respondsWithin ? d.respondsWithin.trim() : null,
         profile: d.profile,
         bio: d.bio,
+        aboutMl: d.aboutMl,
+        degreeCertUrl: d.degreeCertUrl,
+        regCertUrl:    d.regCertUrl,
         photoUrl: d.photoUrl,
         websiteUrl:   d.websiteUrl,
         linkedinUrl:  d.linkedinUrl,
@@ -291,7 +300,17 @@ function DoctorEditForm({ doctor, onSaved }: { doctor: DoctorOwned; onSaved: () 
           <ImageUpload value={d.photoUrl || null} onChange={(url) => setD({ ...d, photoUrl: url ?? '' })} bucket="profile" shape="square" />
         </Field>
         <Field label="Short profile (1–2 lines)" full><input value={d.profile} onChange={(e) => setD({ ...d, profile: e.target.value })} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
-        <Field label="Detailed bio" full><textarea value={d.bio} onChange={(e) => setD({ ...d, bio: e.target.value })} rows={4} className="w-full border rounded-md px-3 py-2 text-sm" /></Field>
+        <Field label="Detailed bio (English)" full><textarea value={d.bio} onChange={(e) => setD({ ...d, bio: e.target.value })} rows={4} className="w-full border rounded-md px-3 py-2 text-sm" placeholder="2-3 sentences on your practice + philosophy. Shown on your public profile." /></Field>
+        {/* Moved from registration 2026-07-21 so signup stays lean. */}
+        <Field label="About — മലയാളം (Malayalam bio, optional)" full>
+          <textarea value={d.aboutMl} onChange={(e) => setD({ ...d, aboutMl: e.target.value })} rows={4} className="w-full border rounded-md px-3 py-2 text-sm" placeholder="നിങ്ങളെക്കുറിച്ച് ഹ്രസ്വവിവരണം — മലയാളിയായ രോഗികൾക്ക് വിശ്വാസമേറും." />
+        </Field>
+        <Field label="BAMS degree certificate URL (optional)">
+          <input type="url" value={d.degreeCertUrl} onChange={(e) => setD({ ...d, degreeCertUrl: e.target.value })} placeholder="https://drive.google.com/…" className="w-full border rounded-md px-3 py-2 text-sm" />
+        </Field>
+        <Field label="Registration certificate URL (optional)">
+          <input type="url" value={d.regCertUrl} onChange={(e) => setD({ ...d, regCertUrl: e.target.value })} placeholder="https://drive.google.com/…" className="w-full border rounded-md px-3 py-2 text-sm" />
+        </Field>
       </div>
 
       <div>
