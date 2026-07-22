@@ -5,6 +5,8 @@ export const runtime     = 'nodejs'
 export const size        = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 export const alt         = 'AyurConnect job'
+// force-dynamic (2026-07-22) — render OG cards on request, not at build.
+export const dynamic     = 'force-dynamic'
 
 // Per-job branded OG card. Mirrors the /articles/[id]/opengraph-image
 // pattern — Next 14 auto-caches these by URL (immutable hash suffix) so

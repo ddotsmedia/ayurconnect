@@ -9,6 +9,11 @@ import type { JobListing } from '../../../lib/types/jobs'
 import type { Metadata } from 'next'
 import { pageMetadata, jobPostingLd, breadcrumbLd, ldGraph } from '../../../lib/seo'
 
+// force-dynamic (2026-07-22): job details are always fresh (status, apply
+// count change often). Page uses nextHeaders() so was already dynamic
+// implicitly; making it explicit stops any accidental cache-key confusion.
+export const dynamic = 'force-dynamic'
+
 async function fetchJob(id: string): Promise<JobListing | null> {
   const cookie = (await nextHeaders()).get('cookie') ?? ''
   try {

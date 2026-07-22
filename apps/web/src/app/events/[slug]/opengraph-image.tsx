@@ -6,6 +6,8 @@ export const runtime     = 'nodejs'
 export const size        = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 export const alt         = 'AyurConnect event'
+// force-dynamic (2026-07-22) so build doesn't fetch API per event slug.
+export const dynamic     = 'force-dynamic'
 
 // Per-event branded OG card. Two data sources: seed events (via getEvent
 // lookup) and DB events (via /event-listings/:id). DB events have their
