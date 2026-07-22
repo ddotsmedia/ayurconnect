@@ -7,6 +7,8 @@ import { pageMetadata } from '../../../../lib/seo'
 import { ASSESSMENTS, ASSESSMENT_SLUGS } from '../_data'
 import { AssessmentClient } from './_client'
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() { return ASSESSMENT_SLUGS.map((slug) => ({ slug })) }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

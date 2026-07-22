@@ -7,6 +7,8 @@ import { breadcrumbLd, ldGraph, pageMetadata } from '../../../../lib/seo'
 import { SUBJECTS, YEAR_LABEL } from '../../_subjects'
 import { NOTES, NOTE_SLUGS } from '../_data'
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() { return NOTE_SLUGS.map((slug) => ({ slug })) }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

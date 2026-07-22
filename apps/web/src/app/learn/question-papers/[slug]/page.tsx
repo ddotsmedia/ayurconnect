@@ -8,6 +8,8 @@ import { SUBJECTS, YEAR_LABEL } from '../../_subjects'
 import { PAPERS, PAPER_SLUGS } from '../_data'
 import { QuestionsClient } from './_client'
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() { return PAPER_SLUGS.map((slug) => ({ slug })) }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

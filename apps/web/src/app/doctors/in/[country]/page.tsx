@@ -30,6 +30,8 @@ const COUNTRY_MAP: Record<string, { code: string; name: string; flag: string }> 
 
 type DoctorBrief = { id: string; slug?: string | null; name: string; specialization?: string | null; district?: string | null; experienceYears?: number | null; homeDistrict?: string | null; college?: string | null }
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
   return Object.keys(COUNTRY_MAP).map((country) => ({ country }))
 }

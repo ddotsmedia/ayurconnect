@@ -7,6 +7,8 @@ import { DoctorCard, type DoctorCardData } from '@ayurconnect/ui'
 import { breadcrumbLd, ldGraph } from '@/lib/seo'
 import { COLLEGES, getCollege } from '../_data'
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
   return COLLEGES.map((c) => ({ slug: c.slug }))
 }

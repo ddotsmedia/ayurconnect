@@ -6,6 +6,8 @@ import { CheckCircle2, ChevronLeft, Clock, IndianRupee, FileText, Sparkles } fro
 import { pageMetadata } from '../../../../lib/seo'
 import { GUIDES, GUIDE_SLUGS } from '../_data'
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() { return GUIDE_SLUGS.map((slug) => ({ slug })) }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

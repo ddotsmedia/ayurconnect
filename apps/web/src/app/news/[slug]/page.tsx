@@ -7,6 +7,8 @@ import { NEWS_ARTICLES, NEWS_SLUGS, getNewsArticle } from '../../../lib/data/new
 import { NewsCard } from '../../../components/news/NewsCard'
 import { CopyShare } from './_share'
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() { return NEWS_SLUGS.map((slug) => ({ slug })) }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

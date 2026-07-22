@@ -6,6 +6,8 @@ import { PRODUCTS, PRODUCT_SLUGS } from '../_data/products'
 import { WaitlistForm } from '../_waitlist-form'
 import { VerificationBadges } from '../../../components/seo/VerificationBadges'
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
   return PRODUCT_SLUGS.map((slug) => ({ slug }))
 }

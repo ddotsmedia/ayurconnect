@@ -15,6 +15,8 @@ import { CITIES, getCity } from '../../_data/cities'
 import { breadcrumbLd, ldGraph, AYURVEDA_KEYWORDS } from '@/lib/seo'
 import { API_INTERNAL as API } from '@/lib/server-fetch'
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
   const params: Array<{ slug: string; city: string }> = []
   for (const c of CONDITIONS) {

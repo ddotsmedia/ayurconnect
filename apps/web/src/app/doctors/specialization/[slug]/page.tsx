@@ -22,6 +22,8 @@ const SPECS: Record<string, { name: string; searchTerm: string; blurb: string }>
   'back-pain':     { name: 'Back Pain / Sciatica',searchTerm: 'back pain',         blurb: 'Kati Basti, Pizhichil, Kizhi for Kati Shoola + Gridhrasi.' },
 }
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
   return Object.keys(SPECS).map((slug) => ({ slug }))
 }

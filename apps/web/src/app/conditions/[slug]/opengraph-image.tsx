@@ -6,6 +6,8 @@ export const alt = 'AyurConnect — Condition'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
+export const dynamic = 'force-dynamic';
+
 export async function generateStaticParams() {
   return CONDITIONS.map((c) => ({ slug: c.slug }))
 }

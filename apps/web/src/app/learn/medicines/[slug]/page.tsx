@@ -6,6 +6,8 @@ import { CATEGORIES, MEDICINES } from '../_data'
 import { CategoryMedicineList } from '../_client'
 import { breadcrumbLd, ldGraph } from '@/lib/seo'
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
   return CATEGORIES.map((c) => ({ slug: c.slug }))
 }

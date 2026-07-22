@@ -26,6 +26,8 @@ const DISTRICTS: Record<string, { name: string; state: string }> = {
   sharjah:            { name: 'Sharjah',            state: 'UAE' },
 }
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
   return Object.keys(DISTRICTS).map((district) => ({ district }))
 }

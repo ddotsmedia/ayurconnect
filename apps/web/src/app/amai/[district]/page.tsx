@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation'
 import { AMAI_DISTRICTS } from '../../_gsc/_amai'
 import { DistrictAmaiPage } from '../../_gsc/DistrictAmaiPage'
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
   return Object.keys(AMAI_DISTRICTS).map((district) => ({ district }))
 }

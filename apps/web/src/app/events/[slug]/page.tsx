@@ -24,6 +24,8 @@ async function fetchDbEvent(id: string): Promise<DbEvent | null> {
   } catch { return null }
 }
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() { return EVENT_SLUGS.map((slug) => ({ slug })) }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

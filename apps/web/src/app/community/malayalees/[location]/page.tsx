@@ -29,6 +29,8 @@ const LOCATIONS: Loc[] = [
 
 const BY_SLUG = new Map(LOCATIONS.map((l) => [l.slug, l]))
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
   return LOCATIONS.map((l) => ({ location: l.slug }))
 }

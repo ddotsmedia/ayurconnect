@@ -6,6 +6,8 @@ import { ChevronLeft, Clock, Play, Tag } from 'lucide-react'
 import { pageMetadata } from '../../../../lib/seo'
 import { WORKSHOPS, WORKSHOP_SLUGS } from '../_data'
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() { return WORKSHOP_SLUGS.map((slug) => ({ slug })) }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

@@ -6,6 +6,8 @@ import { BookOpen, ChevronRight } from 'lucide-react'
 import { breadcrumbLd, ldGraph, clip, pageMetadata, SITE_URL } from '../../../../lib/seo'
 import { ANSWERED_QA } from '../_answered'
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
   return ANSWERED_QA.map((qa) => ({ slug: qa.slug }))
 }

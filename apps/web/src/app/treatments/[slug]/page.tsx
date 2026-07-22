@@ -5,6 +5,8 @@ import { ShieldCheck, Leaf, Clock, IndianRupee, ChevronRight, AlertTriangle } fr
 import { CONDITIONS, CONDITION_SLUGS, type Condition } from '../_data/conditions'
 import { medicalConditionLd, faqLd, breadcrumbLd, ldGraph } from '../../../lib/seo'
 
+export const dynamic = 'force-dynamic';
+
 export function generateStaticParams() {
   return CONDITION_SLUGS.map((slug) => ({ slug }))
 }
