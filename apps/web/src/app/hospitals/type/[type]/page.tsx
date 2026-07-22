@@ -6,6 +6,10 @@ import { Building2, ShieldCheck, MapPin } from 'lucide-react'
 import { API_INTERNAL as API } from '../../../../lib/server-fetch'
 import { pageMetadata } from '../../../../lib/seo'
 
+// force-dynamic (2026-07-22): route fetches API data via generateStaticParams / metadata; static prerender crashed API. Sitemap keeps URLs.
+export const dynamic = 'force-dynamic'
+
+
 import { TYPES, TYPE_SLUGS } from './_slugs'
 
 type Hospital = { id: string; name: string; type: string; district: string; ccimVerified: boolean; ayushCertified: boolean; panchakarma: boolean; nabh: boolean; profile: string | null }

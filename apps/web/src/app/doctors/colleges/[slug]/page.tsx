@@ -7,6 +7,10 @@ import { DoctorCard, type DoctorCardData } from '@ayurconnect/ui'
 import { breadcrumbLd, ldGraph } from '@/lib/seo'
 import { COLLEGES, getCollege } from '../_data'
 
+// force-dynamic (2026-07-22): route fetches API data via generateStaticParams / metadata; static prerender crashed API. Sitemap keeps URLs.
+export const dynamic = 'force-dynamic'
+
+
 export function generateStaticParams() {
   return COLLEGES.map((c) => ({ slug: c.slug }))
 }

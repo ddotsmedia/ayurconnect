@@ -6,6 +6,10 @@ import { ChevronRight, Stethoscope, BookOpen } from 'lucide-react'
 import { API_INTERNAL as API } from '../../../lib/server-fetch'
 import { breadcrumbLd, ldGraph, pageMetadata } from '../../../lib/seo'
 
+// force-dynamic (2026-07-22): route fetches API data via generateStaticParams / metadata; static prerender crashed API. Sitemap keeps URLs.
+export const dynamic = 'force-dynamic'
+
+
 type SpecialtyEntry = { slug: string; name: string; sanskrit?: string; summary: string; treats: string[] }
 
 const SPECIALTIES: SpecialtyEntry[] = [

@@ -6,6 +6,10 @@ import { Building2, ShieldCheck, MapPin, Award, Phone } from 'lucide-react'
 import { API_INTERNAL as API } from '../../../../lib/server-fetch'
 import { pageMetadata } from '../../../../lib/seo'
 
+// force-dynamic (2026-07-22): route fetches API data via generateStaticParams / metadata; static prerender crashed API. Sitemap keeps URLs.
+export const dynamic = 'force-dynamic'
+
+
 import { DISTRICT_SLUGS as KERALA_DISTRICTS } from './_slugs'
 
 function deslug(slug: string): string {
