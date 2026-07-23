@@ -103,6 +103,16 @@ export default {
           { key: 'X-Frame-Options',           value: 'SAMEORIGIN' },
           { key: 'Referrer-Policy',           value: 'strict-origin-when-cross-origin' },
           { key: 'X-DNS-Prefetch-Control',    value: 'on' },
+          // Phase 16 (2026-07-23) — modern browsers ignore X-XSS-Protection
+          // and its legacy filter had known bypasses. Explicitly set 0 per
+          // OWASP recommendation; CSP is the real protection.
+          { key: 'X-XSS-Protection',          value: '0' },
+          // Phase 16 — cross-origin isolation. same-origin/same-site keeps
+          // our windows/resources from being poked at by 3rd-party origins
+          // without breaking embedded razorpay / daily.co iframes (which
+          // load INTO our pages, not the other way around).
+          { key: 'Cross-Origin-Opener-Policy',   value: 'same-origin' },
+          { key: 'Cross-Origin-Resource-Policy', value: 'same-site' },
           {
             key: 'Permissions-Policy',
             value:
@@ -120,7 +130,7 @@ export default {
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://*.daily.co https://www.googletagmanager.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "img-src 'self' data: blob: https: http:",
+              "img-src 'self' data: blob: https:",
               "font-src 'self' data: https://fonts.gstatic.com",
               "connect-src 'self' https: wss:",
               "frame-src https://*.daily.co https://checkout.razorpay.com https://api.razorpay.com",
