@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { CommunityClient } from './_client'
-import { API_INTERNAL as API, logServerFetchError } from '@/lib/server-fetch'
+import { API_INTERNAL as API, logServerFetchError, srvFetch } from '@/lib/server-fetch'
 
 export const metadata: Metadata = {
   title: 'BAMS Study Community — Free Discussion + Doubts',
@@ -12,9 +12,13 @@ export const metadata: Metadata = {
 type Thread = { id: string; title: string; content: string; category: string; subjectSlug: string | null; upvoteCount: number; replyCount: number; createdAt: string; author?: { name: string | null } | null }
 
 async function fetchThreads(): Promise<Thread[]> {
+  // Phase 3 (2026-07-23): srvFetch + 5s timeout + content-type guard.
   try {
-    const r = await fetch(`${API}/study-community/threads?limit=30`, { next: { revalidate: 60 } })
-    if (!r.ok) { logServerFetchError('learn-community', `HTTP ${r.status}`); return [] }
+    const r = await srvFetch(`${API}/study-community/threads?limit=30`, { next: { revalidate: 60 }, timeoutMs: 5000 })
+    if (!r.ok || !r.headers.get('content-type')?.includes('json')) {
+      if (!r.ok) logServerFetchError('learn-community', `HTTP ${r.status}`)
+      return []
+    }
     const d = await r.json() as { items: Thread[] }
     return d.items ?? []
   } catch (err) { logServerFetchError('learn-community', err); return [] }

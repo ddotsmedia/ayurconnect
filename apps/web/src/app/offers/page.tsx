@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Tag, Package, ChevronRight, MapPin, Clock, MessageCircle } from 'lucide-react'
-import { API_INTERNAL as API, logServerFetchError } from '@/lib/server-fetch'
+import { API_INTERNAL as API, logServerFetchError, srvFetch } from '@/lib/server-fetch'
 import { breadcrumbLd, ldGraph } from '@/lib/seo'
 
 export const metadata: Metadata = {
@@ -17,9 +17,13 @@ type Pkg       = { kind: 'package'; id: string; slug: string; title: string; des
 type Offer = Promotion | Pkg
 
 async function fetchOffers(): Promise<Offer[]> {
+  // Phase 3 (2026-07-23): srvFetch + 5s timeout + content-type guard.
   try {
-    const r = await fetch(`${API}/hospitals-public/offers?limit=80`, { next: { revalidate: 300 } })
-    if (!r.ok) { logServerFetchError('offers', `HTTP ${r.status}`); return [] }
+    const r = await srvFetch(`${API}/hospitals-public/offers?limit=80`, { next: { revalidate: 300 }, timeoutMs: 5000 })
+    if (!r.ok || !r.headers.get('content-type')?.includes('json')) {
+      if (!r.ok) logServerFetchError('offers', `HTTP ${r.status}`)
+      return []
+    }
     const d = await r.json() as { items?: Offer[] }
     return d.items ?? []
   } catch (err) { logServerFetchError('offers', err); return [] }
