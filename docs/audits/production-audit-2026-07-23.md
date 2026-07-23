@@ -166,7 +166,59 @@ Kept (5 job landings, all with `page.tsx` on disk):
 ---
 
 
-- **Phase 9** — Doctor/hospital duplicate diagnostic report (no writes)
+## Phase 9 — Doctor/hospital duplicate diagnostic · **Medium** · REPORT ONLY (no writes)
+
+Prod DB queried; **no schema or record changes made**. Audit prompt requires admin review before merging.
+
+### Totals
+- Doctor: 39 rows (38 with `moderationStatus='approved'`)
+- Hospital: 14 rows (all 14 approved)
+
+### Duplicate signal — 1 confirmed hospital pair
+
+| ID | Name | District | Phone | Est. year |
+|---|---|---|---|---|
+| `cmp0saaio000hjzncw0lasccz` | `Vythiri Ayurveda Medical Center` | Hamdan st | +971562635354 | 2008 |
+| `cmpatko7i001gjzd3udxwdpl9` | `VYTHIRI AYURVEDA MEDICAL CENTRE` | Hamdan st | +971562635354 | 2008 |
+
+**Same phone + same district + same establishedYear** → same physical entity. Names differ only by:
+- Case (proper vs ALL CAPS)
+- American "Center" vs British "Centre" spelling
+
+Detection missed by name-only normalization (spelling variant); would catch it via phone-number join.
+
+### Recommendation for admin review (no auto-action per rules)
+
+1. Confirm both rows point to the same real hospital (UAE MOH registration).
+2. Pick the canonical row — probably the properly-cased one (`cmp0saaio000hjzncw0lasccz`).
+3. Reassign any inbound FK data (reviews, packages, inquiries, favourites) from the losing ID to the winning ID.
+4. Soft-delete or mark the loser (`moderationStatus='declined'`) rather than hard-delete — preserves audit trail.
+5. Add `phoneNormalized` computed column to Hospital table (additive migration) for future duplicate detection.
+
+### Clean signals
+- 0 doctor name duplicates (case-normalized)
+- 0 doctor phone duplicates
+- 0 doctor registration-number duplicates
+- 0 hospital name duplicates via strict normalization (missed the Vythiri case above — spelling variant)
+
+### Suggested future duplicate-detection query (non-destructive)
+
+```sql
+-- Hospitals with matching phone but different names/casing
+select
+  h1.id as id1, h1.name as name1,
+  h2.id as id2, h2.name as name2,
+  h1.contact as shared_phone
+from "Hospital" h1
+join "Hospital" h2 on h1.contact = h2.contact and h1.id < h2.id
+where h1.contact is not null and trim(h1.contact) <> '';
+```
+
+Run this quarterly as an admin diagnostic.
+
+---
+
+- **Phase 10** — Verification badge evidence audit (report only)
 - **Phase 10** — Verification badge evidence audit (report only)
 - **Phase 11** — Statistics consistency (homepage says 42 doctors, directory says 39, etc.)
 - **Phase 12** — Formatting utilities (`14 centres` vs `14 centre s`, `1 yrs`, etc.)
