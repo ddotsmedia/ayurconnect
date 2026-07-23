@@ -46,7 +46,7 @@ const SPECIALTIES: SpecialtyEntry[] = [
 
 type DoctorBrief = { id: string; slug?: string | null; name: string; specialization?: string | null; district?: string | null; experienceYears?: number | null }
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export async function generateStaticParams() {
   return SPECIALTIES.map(({ slug }) => ({ specialty: slug }))

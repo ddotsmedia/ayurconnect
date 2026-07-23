@@ -24,7 +24,7 @@ async function fetchDbEvent(id: string): Promise<DbEvent | null> {
   } catch { return null }
 }
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export function generateStaticParams() { return EVENT_SLUGS.map((slug) => ({ slug })) }
 

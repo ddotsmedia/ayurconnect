@@ -5,7 +5,7 @@ import { ChevronRight, MessageCircle, Stethoscope, ArrowLeft } from 'lucide-reac
 import { ML_PAGES, ML_PAGES as ALL, getMlPage } from '../_data'
 import { breadcrumbLd, ldGraph } from '@/lib/seo'
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export function generateStaticParams() {
   return ML_PAGES.map((p) => ({ slug: p.slug }))

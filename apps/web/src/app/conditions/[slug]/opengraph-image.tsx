@@ -6,7 +6,7 @@ export const alt = 'AyurConnect — Condition'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export async function generateStaticParams() {
   return CONDITIONS.map((c) => ({ slug: c.slug }))

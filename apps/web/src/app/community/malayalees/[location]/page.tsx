@@ -29,7 +29,7 @@ const LOCATIONS: Loc[] = [
 
 const BY_SLUG = new Map(LOCATIONS.map((l) => [l.slug, l]))
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export function generateStaticParams() {
   return LOCATIONS.map((l) => ({ location: l.slug }))

@@ -7,7 +7,7 @@ import { API_INTERNAL } from '../../../../lib/server-fetch'
 import { pageMetadata } from '../../../../lib/seo'
 import { SPECIALIZATIONS, LOCATIONS } from '../../seo/_data'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export function generateStaticParams() { return SPECIALIZATIONS.map((s) => ({ slug: s.slug })) }
 

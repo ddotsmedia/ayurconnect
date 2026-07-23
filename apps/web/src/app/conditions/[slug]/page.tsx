@@ -11,7 +11,7 @@ const ML_BY_EN: Record<string, { slug: string; titleMl: string }> = Object.fromE
   ML_PAGES.filter((p) => p.relatedEnSlug).map((p) => [p.relatedEnSlug as string, { slug: p.slug, titleMl: p.titleMl }]),
 )
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export function generateStaticParams() {
   return CONDITIONS.map((c) => ({ slug: c.slug }))

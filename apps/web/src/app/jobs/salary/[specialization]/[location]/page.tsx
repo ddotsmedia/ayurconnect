@@ -6,7 +6,7 @@ import { IndianRupee, Briefcase, ArrowRight } from 'lucide-react'
 import { pageMetadata } from '../../../../../lib/seo'
 import { SPECIALIZATIONS, LOCATIONS, SALARY_BENCHMARKS } from '../../../seo/_data'
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export function generateStaticParams() {
   return SPECIALIZATIONS.flatMap((s) => LOCATIONS.map((l) => ({ specialization: s.slug, location: l.slug })))

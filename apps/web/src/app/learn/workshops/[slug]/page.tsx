@@ -6,7 +6,7 @@ import { ChevronLeft, Clock, Play, Tag } from 'lucide-react'
 import { pageMetadata } from '../../../../lib/seo'
 import { WORKSHOPS, WORKSHOP_SLUGS } from '../_data'
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export function generateStaticParams() { return WORKSHOP_SLUGS.map((slug) => ({ slug })) }
 

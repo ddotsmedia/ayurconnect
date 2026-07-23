@@ -7,7 +7,7 @@ import { pageMetadata } from '../../../../lib/seo'
 import { ASSESSMENTS, ASSESSMENT_SLUGS } from '../_data'
 import { AssessmentClient } from './_client'
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export function generateStaticParams() { return ASSESSMENT_SLUGS.map((slug) => ({ slug })) }
 

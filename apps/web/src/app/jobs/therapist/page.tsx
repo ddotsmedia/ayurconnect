@@ -1,6 +1,12 @@
 import type { Metadata } from 'next'
 import { FilteredJobsList, FilterPageHeader, fetchFilteredJobs } from '../_filtered/FilteredJobsList'
 
+// Phase 4 (2026-07-23): SEO job landing — 5-min cache instead of
+// per-request no-store (fetchFilteredJobs uses no-store for authed
+// callers; page-level revalidate wins for this public route).
+export const revalidate = 300
+
+
 export const metadata: Metadata = {
   title: 'Ayurveda Therapist Jobs — Panchakarma, Abhyanga, Shirodhara',
   description: 'Ayurveda therapist vacancies — Panchakarma, Abhyanga, Shirodhara, Kizhi therapists across Kerala, UAE, Gulf. Certified operators wanted. Apply free.',

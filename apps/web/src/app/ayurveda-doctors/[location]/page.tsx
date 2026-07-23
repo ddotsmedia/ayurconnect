@@ -23,7 +23,7 @@ const slugToLocation = (slug: string): string | null => {
 }
 const locationToSlug = (loc: string) => loc.toLowerCase().replace(/\s+/g, '-')
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export async function generateStaticParams() {
   return ALL_LOCATIONS.map((loc) => ({ location: locationToSlug(loc) }))
