@@ -252,8 +252,79 @@ Additive migration (needs approval): new `VerificationRecord` model with `author
 
 ---
 
-- **Phase 11** — Statistics consistency (homepage says 42 doctors, directory says 39, etc.)
-- **Phase 12** — Formatting utilities (`14 centres` vs `14 centre s`, `1 yrs`, etc.)
+## Phase 11 — Statistics consistency · **Medium** · REPORT ONLY
+
+### Actual DB counts (measured now)
+
+| Metric | DB value | Source |
+|---|---|---|
+| Doctor total | 39 | `select count(*) from "Doctor"` |
+| Doctor verified (`moderationStatus='approved'`) | 38 | |
+| Doctor `registrationNumber` populated | **0** | (was 13 after Phase 5 backfill; appears cleared) |
+| Hospital total | 14 | |
+| Hospital verified | 14 | |
+| Hospital `ayushCertified` | 11 | |
+
+### Hardcoded stat claims in code — do NOT match DB
+
+| File:line | Claim | DB reality |
+|---|---|---|
+| `kerala-guide/page.tsx:107` | "**500+** verified doctors" | 38 |
+| `page.tsx:143` (meta description) | "**145+** herbs, **100+** formulations" | herb count unverified against DB; formulation count unverified |
+| `layout.tsx:35, :50, :56` | "**145+** medicinal herbs" | same as above |
+| `page.tsx:245` (comment) | "155 study resources genuinely stand up" | not measurable |
+| `page.tsx` `getPlatformStats` fallback | `resources: 155, licensing: 10` | fallback constants (only render if API fetch fails; otherwise dynamic count wins) |
+
+### Recommendation (no code change — needs admin/legal call on marketing claims)
+
+**One backend endpoint** `GET /api/stats/summary` returning canonical metrics with definitions:
+```json
+{
+  "doctors": { "total": 39, "verified": 38, "publiclyListed": 38 },
+  "hospitals": { "total": 14, "verified": 14 },
+  "herbs": { "total": <db>, "published": <db> },
+  "formulations": { "total": <db> },
+  "articles": { "total": <db>, "published": <db> },
+  "generatedAt": "..."
+}
+```
+
+**Frontend fetch** via `srvFetch(url, { revalidate: 3600 })` — one hour cache is fine for stats.
+
+**Marketing "500+ verified doctors"** claim at `kerala-guide/page.tsx:107` — the platform actually has 38. Either:
+1. **Correct the copy** (my recommendation — no marketing overstatement risk)
+2. Keep "500+" as an aspirational target with disclaimer
+3. Wait for real 500 doctors before claiming it
+
+Do not auto-change — user's call on marketing tone.
+
+---
+
+## Phase 12 — Formatting utilities · **Low** · SHIPPED
+
+**File:** `apps/web/src/lib/format.ts` (new)
+
+Zero-dependency helper module with 5 exports:
+
+- `pluralize(count, singular, plural?)` — fixes "14 centre s" → "14 centres"
+- `yearsExperience(years)` — fixes "1 yrs experience" → "1 year of experience"; renders "Newly qualified" for 0
+- `formatCity(raw)` — special-case map for Abu Dhabi, Al Dannah, Al Ain, Ras Al Khaimah, all 14 Kerala districts; Title Case fallback
+- `formatQualification(raw)` — recognises 20 acronyms (BAMS, MD, PhD, DHA, MOH, SCFHS, AYUSH, CCIM, KSMC, …) and preserves ALL CAPS; Title Cases everything else
+- `formatPhoneDisplay(raw)` — inserts space after country code for readability
+
+Callers migrate opportunistically — no big-bang refactor. Prefer these over inline JSX ternaries.
+
+**Migration examples for later commits:**
+```tsx
+// Before: {years} yrs experience
+// After:  {yearsExperience(years)}
+
+// Before: {city}
+// After:  {formatCity(city)}
+```
+
+---
+
 - **Phase 13** — `/herbs` + directory performance audit
 - **Phase 14** — Image optimization (raw `<img>` → `next/image` on public hero images)
 - **Phase 15** — React hook dependency warnings
