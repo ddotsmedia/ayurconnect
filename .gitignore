@@ -56,3 +56,15 @@ files/
 ayurconnect-claude-code-prompt.md
 AyurConnect_SEO_Strategy_2026.docx
 AyurConnect_SEO_Strategy_2026.pdf
+
+# Root-level local backups + secret dumps — never commit
+# (See scratch files created during 2026-07-23 audit + prior sessions.)
+/*.sql
+/*.tar.gz
+/api-url.txt
+/cors.txt
+/db-url.txt
+/login.json
+/signup.json
+/fix-quotes.*
+/fix-dynamic.sh

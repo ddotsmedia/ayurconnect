@@ -1,6 +1,12 @@
 import type { Metadata } from 'next'
 import { FilteredJobsList, FilterPageHeader, fetchFilteredJobs } from '../_filtered/FilteredJobsList'
 
+// Phase 4 (2026-07-23): SEO job landing — 5-min cache instead of
+// per-request no-store (fetchFilteredJobs uses no-store for authed
+// callers; page-level revalidate wins for this public route).
+export const revalidate = 300
+
+
 export const metadata: Metadata = {
   title: "Urgent Ayurveda Jobs — Immediate Hiring",
   description: "Ayurveda doctor urgent requirements. Hospitals and clinics hiring immediately. BAMS, MD, Panchakarma roles across India and GCC.",

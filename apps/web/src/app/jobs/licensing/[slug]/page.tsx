@@ -6,6 +6,8 @@ import { CheckCircle2, ChevronLeft, Clock, IndianRupee, FileText, Sparkles } fro
 import { pageMetadata } from '../../../../lib/seo'
 import { GUIDES, GUIDE_SLUGS } from '../_data'
 
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
+
 export function generateStaticParams() { return GUIDE_SLUGS.map((slug) => ({ slug })) }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

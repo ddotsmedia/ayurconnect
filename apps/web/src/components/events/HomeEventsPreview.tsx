@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { CalendarDays, ArrowRight } from 'lucide-react'
-import { API_INTERNAL, logServerFetchError } from '../../lib/server-fetch'
+import { API_INTERNAL, logServerFetchError, srvFetch } from '../../lib/server-fetch'
 
 // Compact single-line events strip on the homepage (task 2026-07-20 rework).
 // Was a full-width card grid with images + share buttons; now a low-height
@@ -14,9 +14,16 @@ type DbEvent = {
 }
 
 async function fetchTopUpcoming(): Promise<DbEvent[]> {
+  // Phase 2 (2026-07-23): 5s timeout via srvFetch + content-type guard.
   try {
-    const r = await fetch(`${API_INTERNAL}/event-listings?upcoming=true&limit=3`, { next: { revalidate: 300 } })
-    if (!r.ok) return []
+    const r = await srvFetch(
+      `${API_INTERNAL}/event-listings?upcoming=true&limit=3`,
+      { next: { revalidate: 300 }, timeoutMs: 5000 },
+    )
+    if (!r.ok || !r.headers.get('content-type')?.includes('json')) {
+      if (!r.ok) logServerFetchError('home:upcoming-events', `HTTP ${r.status}`)
+      return []
+    }
     const j = await r.json() as { items?: DbEvent[] }
     return j.items ?? []
   } catch (e) { logServerFetchError('home:upcoming-events', e); return [] }

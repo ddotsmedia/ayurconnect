@@ -30,6 +30,7 @@ const DISTRICTS: Record<string, { name: string; state: string }> = {
   sharjah:            { name: 'Sharjah',            state: 'UAE' },
 }
 
+
 export function generateStaticParams() {
   return Object.keys(DISTRICTS).map((district) => ({ district }))
 }

@@ -5,6 +5,8 @@ import { ChevronRight, Stethoscope, AlertTriangle, Check, BookOpen, ArrowRight }
 import { CATEGORIES, MEDICINES, type Medicine } from '../../learn/medicines/_data'
 import { breadcrumbLd, ldGraph } from '@/lib/seo'
 
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
+
 export function generateStaticParams() {
   return MEDICINES.map((m) => ({ slug: m.id }))
 }

@@ -6,6 +6,8 @@ import { ChevronLeft, BookOpen, Download } from 'lucide-react'
 import { pageMetadata } from '../../../../lib/seo'
 import { EBOOKS, EBOOK_SLUGS } from '../_data'
 
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
+
 export function generateStaticParams() { return EBOOK_SLUGS.map((slug) => ({ slug })) }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

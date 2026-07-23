@@ -6,6 +6,8 @@ import { BookOpen, ChevronRight } from 'lucide-react'
 import { breadcrumbLd, ldGraph, clip, pageMetadata, SITE_URL } from '../../../../lib/seo'
 import { ANSWERED_QA } from '../_answered'
 
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
+
 export function generateStaticParams() {
   return ANSWERED_QA.map((qa) => ({ slug: qa.slug }))
 }

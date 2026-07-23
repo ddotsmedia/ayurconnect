@@ -17,6 +17,7 @@ const ML_BY_EN: Record<string, { slug: string; titleMl: string }> = Object.fromE
   ML_PAGES.filter((p) => p.relatedEnSlug).map((p) => [p.relatedEnSlug as string, { slug: p.slug, titleMl: p.titleMl }]),
 )
 
+
 export function generateStaticParams() {
   return CONDITIONS.map((c) => ({ slug: c.slug }))
 }

@@ -29,6 +29,7 @@ async function fetchHospitals(district: string): Promise<Hospital[]> {
   } catch { return [] }
 }
 
+
 export function generateStaticParams() { return KERALA_DISTRICTS.map((district) => ({ district })) }
 
 export async function generateMetadata({ params }: { params: Promise<{ district: string }> }): Promise<Metadata> {

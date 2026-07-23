@@ -7,6 +7,8 @@ import { breadcrumbLd, faqLd, ldGraph, pageMetadata } from '../../../lib/seo'
 import { EnquiryForm } from '../_enquiry-form'
 import { HEAL_COUNTRIES, HEAL_COUNTRY_BY_SLUG } from '../_countries'
 
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
+
 export function generateStaticParams() {
   return HEAL_COUNTRIES.map((c) => ({ country: c.slug }))
 }

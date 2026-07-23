@@ -10,6 +10,7 @@ export const contentType = 'image/png'
 // hints, but with dynamic='force-dynamic' set none are pre-generated.
 export const dynamic = 'force-dynamic'
 
+
 export async function generateStaticParams() {
   return CONDITIONS.map((c) => ({ slug: c.slug }))
 }

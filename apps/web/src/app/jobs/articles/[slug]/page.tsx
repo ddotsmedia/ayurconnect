@@ -6,6 +6,8 @@ import { ArrowLeft, BookOpen } from 'lucide-react'
 import { pageMetadata, ldGraph, breadcrumbLd, articleLd } from '../../../../lib/seo'
 import { ARTICLES, ARTICLE_SLUGS } from '../_seed'
 
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
+
 export function generateStaticParams() { return ARTICLE_SLUGS.map((slug) => ({ slug })) }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

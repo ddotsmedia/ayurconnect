@@ -4,6 +4,8 @@ import { GradientHero } from '@ayurconnect/ui'
 import { ChevronRight, User, MapPin, Clock, Briefcase, AlertCircle } from 'lucide-react'
 import { CASE_STUDIES, CASE_STUDY_SLUGS } from '../_data/cases'
 
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
+
 export function generateStaticParams() {
   return CASE_STUDY_SLUGS.map((slug) => ({ slug }))
 }

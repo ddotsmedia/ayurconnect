@@ -478,5 +478,4 @@ export default async function HospitalDetailPage({ params }: { params: Promise<{
 }
 
 // Static path hints for the most-visited hospitals (helps prerender common cases).
-export const dynamic = 'force-dynamic'
 export const revalidate = 3600

@@ -6,6 +6,8 @@ import { PRODUCTS, PRODUCT_SLUGS } from '../_data/products'
 import { WaitlistForm } from '../_waitlist-form'
 import { VerificationBadges } from '../../../components/seo/VerificationBadges'
 
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
+
 export function generateStaticParams() {
   return PRODUCT_SLUGS.map((slug) => ({ slug }))
 }

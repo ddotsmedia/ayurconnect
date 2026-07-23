@@ -1,6 +1,12 @@
 import type { Metadata } from 'next'
 import { FilteredJobsList, FilterPageHeader, fetchFilteredJobs } from '../_filtered/FilteredJobsList'
 
+// Phase 4 (2026-07-23): SEO job landing — 5-min cache instead of
+// per-request no-store (fetchFilteredJobs uses no-store for authed
+// callers; page-level revalidate wins for this public route).
+export const revalidate = 300
+
+
 export const metadata: Metadata = {
   title: "Remote Ayurveda Jobs — Telemedicine & Work from Home",
   description: "Remote Ayurveda doctor jobs. Telemedicine, online consultation, work-from-home BAMS/MD roles. Apply free on AyurConnect.",

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { API_INTERNAL as API, logServerFetchError } from '@/lib/server-fetch'
+import { API_INTERNAL as API, logServerFetchError, srvFetch } from '@/lib/server-fetch'
 
 export const metadata: Metadata = {
   title: 'Leaderboard — AyurConnect Top Contributors',
@@ -10,9 +10,13 @@ export const metadata: Metadata = {
 type LBRow = { userId: string; user?: { name: string | null } | null; totalPoints?: number; monthlyPoints?: number; currentStreak?: number; level?: string; name?: string | null }
 
 async function fetchLB(): Promise<{ allTime: LBRow[]; monthly: LBRow[] }> {
+  // Phase 3 (2026-07-23): srvFetch + 5s timeout + content-type guard.
   try {
-    const res = await fetch(`${API}/streak/leaderboard`, { next: { revalidate: 300 } })
-    if (!res.ok) { logServerFetchError('leaderboard', `HTTP ${res.status}`); return { allTime: [], monthly: [] } }
+    const res = await srvFetch(`${API}/streak/leaderboard`, { next: { revalidate: 300 }, timeoutMs: 5000 })
+    if (!res.ok || !res.headers.get('content-type')?.includes('json')) {
+      if (!res.ok) logServerFetchError('leaderboard', `HTTP ${res.status}`)
+      return { allTime: [], monthly: [] }
+    }
     return await res.json()
   } catch (err) { logServerFetchError('leaderboard', err); return { allTime: [], monthly: [] } }
 }

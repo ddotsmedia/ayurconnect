@@ -6,7 +6,7 @@ import { GradientHero } from '@ayurconnect/ui'
 import { API_INTERNAL } from '../../../../lib/server-fetch'
 import { pageMetadata } from '../../../../lib/seo'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 type Data = {
   employer: { id: string; companyName: string; companyNameMl: string | null; slug: string; companyType: string; description: string; website: string | null; city: string | null; country: string; isVerified: boolean; logo: string | null; banner: string | null; accreditations: string[]; employeeCount: string | null; foundedYear: number | null }

@@ -50,6 +50,7 @@ const SPECIALTIES: SpecialtyEntry[] = [
 
 type DoctorBrief = { id: string; slug?: string | null; name: string; specialization?: string | null; district?: string | null; experienceYears?: number | null }
 
+
 export async function generateStaticParams() {
   return SPECIALTIES.map(({ slug }) => ({ specialty: slug }))
 }

@@ -20,6 +20,7 @@ import { breadcrumbLd, ldGraph, AYURVEDA_KEYWORDS } from '@/lib/seo'
 export const dynamic = 'force-dynamic'
 import { API_INTERNAL as API } from '@/lib/server-fetch'
 
+
 export function generateStaticParams() {
   const params: Array<{ slug: string; city: string }> = []
   for (const c of CONDITIONS) {

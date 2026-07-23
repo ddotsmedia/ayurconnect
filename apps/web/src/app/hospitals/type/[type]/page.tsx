@@ -22,6 +22,7 @@ async function fetchByType(type: string): Promise<Hospital[]> {
   } catch { return [] }
 }
 
+
 export function generateStaticParams() { return TYPE_SLUGS.map((type) => ({ type })) }
 
 export async function generateMetadata({ params }: { params: Promise<{ type: string }> }): Promise<Metadata> {

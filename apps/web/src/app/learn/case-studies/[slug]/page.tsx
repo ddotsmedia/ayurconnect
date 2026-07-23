@@ -7,6 +7,8 @@ import { pageMetadata, breadcrumbLd, ldGraph } from '../../../../lib/seo'
 import { CASES, CASE_SLUGS } from '../_data'
 import { ProgressiveClient } from './_client'
 
+export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
+
 export function generateStaticParams() { return CASE_SLUGS.map((slug) => ({ slug })) }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {

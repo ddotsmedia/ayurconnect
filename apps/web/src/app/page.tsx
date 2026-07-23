@@ -1,11 +1,10 @@
 import Link from 'next/link'
-import { headers as nextHeaders } from 'next/headers'
 import { DoctorCard, LeafPattern, LogoMark, t, type DoctorCardData } from '@ayurconnect/ui'
 import {
   Search, Stethoscope, Building2, Bot, MessageSquare, Leaf,
   ShieldCheck, Sparkles, ArrowRight, ChevronRight, BookOpen, Heart,
 } from 'lucide-react'
-import { API_INTERNAL as API, logServerFetchError } from '../lib/server-fetch'
+import { API_INTERNAL as API, logServerFetchError, srvFetch } from '../lib/server-fetch'
 import { PersonalizedWelcome } from '../components/personalized-welcome'
 import { EarlyAccessBanner } from '../components/early-access-banner'
 import { HomeEventsPreview } from '../components/events/HomeEventsPreview'
@@ -78,11 +77,15 @@ type DoctorWithMeta = DoctorCardData
 
 async function getPlatformStats(): Promise<{ doctors: number; herbs: number; resources: number; licensing: number }> {
   // Best-effort counts. Each request degrades independently — the section
-  // hides itself if all fail.
+  // hides itself if all fail. Phase 2 (2026-07-23): 5s timeout via srvFetch,
+  // content-type guard so a Cloudflare error page doesn't crash JSON.parse.
   async function count(path: string, key: string): Promise<number> {
     try {
-      const r = await fetch(`${API}${path}`, { next: { revalidate: 3600 } })
-      if (!r.ok) return 0
+      const r = await srvFetch(`${API}${path}`, { next: { revalidate: 3600 }, timeoutMs: 5000 })
+      if (!r.ok || !r.headers.get('content-type')?.includes('json')) {
+        if (!r.ok) logServerFetchError('home:platform-stats', `HTTP ${r.status}`, { path })
+        return 0
+      }
       const d = await r.json() as Record<string, unknown>
       // Our API returns { doctors: [...], pagination: { total: N } } —
       // read pagination.total first, then top-level total/count, then
@@ -93,7 +96,7 @@ async function getPlatformStats(): Promise<{ doctors: number; herbs: number; res
            : typeof d.total === 'number' ? d.total
            : typeof d.count === 'number' ? d.count
            : Array.isArray(d[key]) ? (d[key] as unknown[]).length : 0
-    } catch { return 0 }
+    } catch (err) { logServerFetchError('home:platform-stats', err, { path }); return 0 }
   }
   const [doctors, herbs] = await Promise.all([
     count('/doctors?limit=1', 'doctors'),
@@ -105,14 +108,21 @@ async function getPlatformStats(): Promise<{ doctors: number; herbs: number; res
 }
 
 async function getFeaturedDoctors(): Promise<DoctorWithMeta[]> {
-  const cookie = (await nextHeaders()).get('cookie') ?? ''
+  // Phase 2 (2026-07-23):
+  //   - 5s timeout via srvFetch (was unbounded)
+  //   - `revalidate: 300` (was `cache: 'no-store'` → per-user uncached renders)
+  //   - Content-type guard so a Cloudflare error page doesn't crash JSON.parse
+  //   - Cookie forwarding removed — homepage is anonymous by default and
+  //     /doctors public data doesn't need auth; forwarding session cookies
+  //     poisoned the cache with per-user variants.
   try {
-    const res = await fetch(`${API}/doctors?limit=6&verified=true&sort=experience`, {
-      headers: { cookie },
-      cache: 'no-store',
-    })
-    if (!res.ok) {
-      logServerFetchError('getFeaturedDoctors', `HTTP ${res.status}`)
+    const res = await srvFetch(
+      `${API}/doctors?limit=6&verified=true&sort=experience`,
+      { next: { revalidate: 300 }, timeoutMs: 5000 },
+    )
+    if (!res.ok || !res.headers.get('content-type')?.includes('json')) {
+      if (!res.ok) logServerFetchError('getFeaturedDoctors', `HTTP ${res.status}`)
+      else         logServerFetchError('getFeaturedDoctors', 'non-JSON response')
       return []
     }
     const data = (await res.json()) as { doctors: DoctorWithMeta[] }

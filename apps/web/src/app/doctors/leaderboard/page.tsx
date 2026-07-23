@@ -2,7 +2,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { GradientHero } from '@ayurconnect/ui'
 import { Trophy, Star, MessageSquare, UserPlus, Sparkles, ShieldCheck, ArrowRight } from 'lucide-react'
-import { API_INTERNAL as API } from '../../../lib/server-fetch'
+import { API_INTERNAL as API, logServerFetchError, srvFetch } from '../../../lib/server-fetch'
 import { pageMetadata } from '../../../lib/seo'
 
 type DocRef = { id: string; name: string; specialization: string; district: string; photoUrl: string | null; ccimVerified?: boolean; profileBadges?: string[] }
@@ -22,11 +22,17 @@ export const metadata: Metadata = pageMetadata({
 })
 
 async function fetchLeaderboard(): Promise<Leaderboard | null> {
+  // Phase 3 (2026-07-23): srvFetch + 5s timeout + content-type guard.
+  // cache: 'no-store' → revalidate: 300 (leaderboards aren't real-time;
+  // 5-min stale is fine, avoids per-render API pressure).
   try {
-    const r = await fetch(`${API}/doctor-viral/leaderboard`, { cache: 'no-store' })
-    if (!r.ok) return null
+    const r = await srvFetch(`${API}/doctor-viral/leaderboard`, { next: { revalidate: 300 }, timeoutMs: 5000 })
+    if (!r.ok || !r.headers.get('content-type')?.includes('json')) {
+      if (!r.ok) logServerFetchError('doctors-leaderboard', `HTTP ${r.status}`)
+      return null
+    }
     return (await r.json()) as Leaderboard
-  } catch { return null }
+  } catch (err) { logServerFetchError('doctors-leaderboard', err); return null }
 }
 
 export default async function LeaderboardPage() {
