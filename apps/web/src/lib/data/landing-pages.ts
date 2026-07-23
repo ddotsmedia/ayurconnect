@@ -830,7 +830,13 @@ const jobs: LandingSpec[] = [
   },
 ]
 
-export const LANDING_PAGES: LandingSpec[] = [...conditions, ...services, ...jobs]
+// Phase 8 (2026-07-23): commit 5ab05ff deleted the 5 conditions/* + 5 services/*
+// landing-page directories but left this config file untouched. Excluding
+// those 10 entries from LANDING_PAGES so sitemap.ts doesn't emit URLs
+// that would 404. The `conditions` and `services` array definitions above
+// are preserved as ready-to-restore templates — if the pages are ever
+// rebuilt, flip this export back to [...conditions, ...services, ...jobs].
+export const LANDING_PAGES: LandingSpec[] = [...jobs]
 
 export function getLandingByPath(path: string): LandingSpec | null {
   return LANDING_PAGES.find((p) => p.path === path) ?? null

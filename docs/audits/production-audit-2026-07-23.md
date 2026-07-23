@@ -144,11 +144,28 @@ Alternative options (author's call):
 
 ---
 
-## Phases 8-19 — pending
+## Phase 8 — Thin/empty pages + orphan landings · **Medium** · FIXED (orphan URLs)
 
-Each phase adds its section as it lands. Structure preserved for later phases:
+**Orphan landing pages** — commit `5ab05ff` deleted 10 landing-page directories but left `landing-pages.ts` untouched. Sitemap regeneration would emit 10 URLs that all 404:
 
-- **Phase 8** — Thin/empty pages + orphan landing decisions (10 dead sitemap URLs from `5ab05ff` cleanup)
+- `/conditions/{pcos-ayurveda, thyroid-ayurveda, diabetes-ayurveda, skin-disorders, joint-pain}`
+- `/services/{online-consultation, ayurvedic-massage, panchakarma, herbal-medicine, wellness-consultation}`
+
+**Fix (this commit):** `apps/web/src/lib/data/landing-pages.ts` — changed `LANDING_PAGES` export from `[...conditions, ...services, ...jobs]` → `[...jobs]`. The `conditions` and `services` array definitions above the export are preserved as ready-to-restore templates. If the pages are ever rebuilt, flip the export back.
+
+Kept (5 job landings, all with `page.tsx` on disk):
+- `/jobs/therapist-opportunities`, `/jobs/doctor-opportunities`, `/jobs/panchakarma-technician`, `/jobs/healthcare-careers`, `/jobs/work-with-us`
+
+**Thin/empty pages** — audit-only, report:
+- Public pages returning empty arrays gracefully (`/offers`, `/leaderboard`, `/learn/community`) all render meaningful shell content + "no records yet" copy → not thin, indexable OK
+- Directories (`/doctors`, `/hospitals`, `/herbs`, `/events`) have per-record hero content + filter chrome → not thin
+- 15 keyword landing pages built earlier: 10 now unreachable (see above); 5 remain, all with 3-4 section body + FAQ + related links → not thin
+
+**No pages flagged for noindex.** No thin-page surface identified.
+
+---
+
+
 - **Phase 9** — Doctor/hospital duplicate diagnostic report (no writes)
 - **Phase 10** — Verification badge evidence audit (report only)
 - **Phase 11** — Statistics consistency (homepage says 42 doctors, directory says 39, etc.)
