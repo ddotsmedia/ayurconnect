@@ -1,0 +1,193 @@
+# AyurConnect production audit — 2026-07-23
+
+Full 19-phase audit initiated by the user 2026-07-23 following the Cloudflare 504 outage caused by:
+
+1. `server-fetch.ts` falling back to `NEXT_PUBLIC_API_URL` = `https://ayurconnect.com` → server-side SSR fetches recursing through Cloudflare + nginx → back to the same web process.
+2. `5ab05ff` bulk-applying `force-dynamic` to 30+ routes so every render was request-time + API-fetching.
+3. Single-fork PM2 web unable to handle the concurrent-SSR load once Cloudflare retry backlog built up.
+4. `apps/api/dist/` on VPS stale — 4 endpoints (`/streak/leaderboard`, `/doctor-viral/leaderboard`, `/study-community/threads`, `/hospitals-public/offers`) returned 404 despite existing in source.
+
+**Branch:** `fix/full-production-audit-20260723` (off `5ab05ff`)
+**Mode:** Hybrid — phases 1, 2, 3, 4, 6, 16 gated; the rest autopilot; PM2 restart deferred until the last gated commit lands.
+
+## Severity legend
+- **Critical**: production outage-adjacent, ships now
+- **High**: user-facing degradation, ships this audit
+- **Medium**: quality / SEO / consistency, ships this audit
+- **Low**: nice-to-have, documented, may defer
+- **Informational**: audit note, no code change
+
+---
+
+## Phase 1 — Server-fetch safety · **Critical** · FIXED
+
+**File:** `apps/web/src/lib/server-fetch.ts`
+**Commit:** `46522a3`
+
+- **Before:** `API_INTERNAL` fell back to `NEXT_PUBLIC_API_URL` → public HTTPS in prod
+- **After:** hard-defaults to `http://127.0.0.1:4100` only; production warn if `INTERNAL_API_URL` missing; new `srvFetch()` helper with `AbortSignal.timeout` (default 8s)
+- **Risk fixed:** recursive server-fetch through Cloudflare (the root of the multi-hour 504 cascade)
+- **Test:** typecheck clean; VPS build clean; PM2 restart held pending stack
+
+---
+
+## Phase 2 — Homepage runtime · **High** · FIXED
+
+**Files:** `apps/web/src/app/page.tsx`, `apps/web/src/components/events/HomeEventsPreview.tsx`
+**Commit:** `0b43ef2`
+
+- 3 loaders (`getPlatformStats`, `getFeaturedDoctors`, `fetchTopUpcoming`) now use `srvFetch` + 5s timeout + content-type guard
+- `getFeaturedDoctors`: `cache: 'no-store'` → `revalidate: 300`; cookie forwarding removed (was poisoning cache with per-user variants and passing session data through a purely-public loader)
+- Fixes the `[server-fetch] Unexpected token '<'` crashes when Cloudflare returned an HTML error page
+
+---
+
+## Phase 3 — API 404s + loader hardening · **Critical** (A) + **High** (B) · FIXED
+
+**Part A** — VPS-only, no source change: `apps/api/dist/` was stale. `pnpm --filter @ayurconnect/api build && pm2 restart ayurconnect-api` → all 4 endpoints now 200 in 11-65ms.
+
+**Part B — commit `3c91b6f`, 4 files:** `apps/web/src/app/{leaderboard,doctors/leaderboard,learn/community,offers}/page.tsx` — `srvFetch` + timeout + content-type guard (same pattern as Phase 2). Also swaps `cache: 'no-store'` on the doctors leaderboard → `revalidate: 300`.
+
+---
+
+## Phase 4 — Rendering strategy revert · **Critical** · FIXED
+
+**Commit:** `622bf70`, 44 files (38 group A + 6 group C)
+
+**A) `force-dynamic` → `revalidate: 300`** — 38 public SEO/reference routes (`conditions/[slug]`, `events/[slug]`, `hospitals/[id]`, `herbs/[id]`, `doctors/*/[...]`, `hospitals/*/[...]`, `learn/{ask-the-classics,case-studies,ebooks,medicines,notes,question-papers,workshops}/[slug]`, `jobs/{articles,assessments,careers,licensing}/[slug]`, `jobs/{ayurveda-jobs,salary,specialization}/…`, `ml/[slug]`, `medicine/[slug]`, `news/[slug]`, `products/[slug]`, `treatments/[slug]`, `amai/[district]`, `ayurveda/[specialty]`, `ayurveda-doctors/[location]`, `case-studies/[slug]`, `community/malayalees/[location]`, `heal-in-kerala/[country]`)
+
+**B) KEEP `force-dynamic`** — 17 session-dependent routes untouched (admin/*, doctor/dashboard, patient/dashboard, hospital/dashboard/layout, jobs/{alerts,applications,employers/*,profile/*,saved/*,settings/notifications})
+
+**C) Add `revalidate: 300`** — 6 audit-listed SEO job pages (`/jobs/doctor`, `/jobs/freshers`, `/jobs/immediate-hiring`, `/jobs/remote`, `/jobs/therapist`, `/jobs/walk-in`)
+
+**Preserved pre-existing `revalidate` values** in `herbs/[id]` (86400s) and `hospitals/[id]` (3600s).
+
+**Runtime impact:** Cloudflare + Next revalidation cache absorb traffic on 44 public pages. Post-Phase-4 build shows **1111 SSG'd pages** (Phase 1-3 builds had 0).
+
+---
+
+## Phase 5 — Sitemap + robots · **Informational** · CLEAN
+
+**No code change.** Live checks:
+- `/sitemap.xml` — 200, 93ms, `application/xml`, 945 URLs
+- `/robots.txt` — 200, 74ms, `text/plain; charset=utf-8`, 85 directive lines
+- `/sitemap-complete.xml` — 200, 53ms (already exists)
+- `/news-sitemap.xml` — 200, 48ms (already exists)
+- Privacy exclusions: 0 admin, 0 dashboard, 0 sign-in, 0 /api/ URLs ✓
+- Under the 1000+ threshold that would mandate splitting
+
+**Deferred to Phase 8:** 10 URLs in sitemap point to deleted landing pages (`conditions/pcos-ayurveda` etc.) — `landing-pages.ts` still references them but `5ab05ff` deleted the actual page dirs.
+
+---
+
+## Phase 6 — Login route canonical · **Low** · FIXED
+
+**File:** `apps/web/next.config.mjs`
+**Commit:** `f6b776d`
+
+Canonical is already `/sign-in` (only dir on disk, all 14 in-app `<Link>` refs correct). Added 3 permanent 301 redirects for common external-typing aliases:
+
+| From | To |
+|---|---|
+| `/login` | `/sign-in` |
+| `/signin` | `/sign-in` |
+| `/auth/login` | `/sign-in` |
+
+Skipped `/admin-login` (no user signal; admin auth uses role check on `/sign-in`, not a separate URL).
+
+---
+
+## Phase 7 — SEO technical · **Medium** (marketing claims) + **Informational** (canonical host) · REPORT ONLY
+
+### Unsubstantiated marketing claim — "Kerala's #1 Ayurveda Platform"
+
+The audit prompt explicitly says: **"Do not remove copy automatically. Instead, list every occurrence and propose safer alternatives."**
+
+**10 references** across 8 files:
+
+| # | File:line | Context |
+|---|---|---|
+| 1 | `apps/web/src/lib/seo.ts:6` | `SITE_TAGLINE` constant (source of truth) |
+| 2 | `apps/web/src/app/layout.tsx:31` | root metadata `title.default` |
+| 3 | `apps/web/src/app/layout.tsx:49` | OG `title` |
+| 4 | `apps/web/src/app/layout.tsx:115` | Dublin Core `DC.title` |
+| 5 | `apps/web/src/app/manifest.ts:5` | PWA manifest `name` |
+| 6 | `apps/web/src/app/opengraph-image.tsx:6` | root OG image `alt` |
+| 7 | `apps/web/src/app/opensearch.xml/route.ts:24` | OpenSearch `Attribution` |
+| 8 | `apps/web/src/app/doctors/[id]/opengraph-image.tsx:83` | fallback text when doctor has no experience field |
+| 9 | `apps/web/src/app/articles/[id]/page.tsx:74` | comment only — not an active render |
+| 10 | `apps/web/src/app/admin/settings/page.tsx:40` | admin form placeholder |
+
+**Recommended replacement per audit prompt:** `"A comprehensive Kerala-focused Ayurveda platform"`
+
+Alternative options (author's call):
+- `"Kerala's verified Ayurveda doctor directory"`
+- `"Verified Ayurveda doctors from Kerala, worldwide"`
+- `"Kerala Ayurveda — verified doctors, hospitals, jobs"`
+
+**Suggested fix pattern (one commit):** update `SITE_TAGLINE` in `seo.ts`, then find/replace the 7 hardcoded literal instances so all render sites read from the constant. `admin/settings/page.tsx:40` is a placeholder and `articles/[id]/page.tsx:74` is a comment — both stay.
+
+**Not shipped in this audit.** Awaiting your approval on wording.
+
+### Canonical host — **already clean**
+
+- `www.ayurconnect.com` → `https://ayurconnect.com` (301) at `next.config.mjs:36`
+- `SITE_URL = 'https://ayurconnect.com'` (apex, https) in `seo.ts`
+- No `http://` occurrences in canonical construction paths
+
+### Metadata infrastructure — **in good shape**
+
+- `pageMetadata()` helper used site-wide (populates title, description, canonical, hreflang en-IN + x-default, OG type/url/site_name/locale, twitter card+site+title+description+images+alt)
+- `twitter:image:alt` shipped in prior session
+- JSON-LD: `JobPosting`, `Event`, `BreadcrumbList`, `FAQPage`, `Article`, `Physician` schemas wired at relevant routes
+- Root layout `title.template = '%s | AyurConnect'` — some routes emit doubled brand tail (e.g. "PCOS & PCOD Ayurveda Treatment | AyurConnect — … | AyurConnect"). **Low priority cosmetic** — not blocking.
+
+---
+
+## Phases 8-19 — pending
+
+Each phase adds its section as it lands. Structure preserved for later phases:
+
+- **Phase 8** — Thin/empty pages + orphan landing decisions (10 dead sitemap URLs from `5ab05ff` cleanup)
+- **Phase 9** — Doctor/hospital duplicate diagnostic report (no writes)
+- **Phase 10** — Verification badge evidence audit (report only)
+- **Phase 11** — Statistics consistency (homepage says 42 doctors, directory says 39, etc.)
+- **Phase 12** — Formatting utilities (`14 centres` vs `14 centre s`, `1 yrs`, etc.)
+- **Phase 13** — `/herbs` + directory performance audit
+- **Phase 14** — Image optimization (raw `<img>` → `next/image` on public hero images)
+- **Phase 15** — React hook dependency warnings
+- **Phase 16** *(gated)* — Security headers (HSTS present; CSP report-only proposal); CORS; cookies; IP handling
+- **Phase 17** — Healthcare privacy + AI safety audit
+- **Phase 18** — PM2 config diff; health endpoints (web vs API vs DB deep check)
+- **Phase 19** — Final testing + rollback procedure documentation
+
+---
+
+## Deployment state at audit time
+
+| Item | Value |
+|---|---|
+| Branch | `fix/full-production-audit-20260723` |
+| Commits so far | 5 (Phases 1, 2, 3b, 4, 6) — Phase 3a was VPS-only API rebuild |
+| VPS `.next` on disk | Phase 6 build (`BUILD_ID` timestamp 21:12:11 UTC+4) |
+| Web PM2 process | on OLD build (~100min uptime, main branch state) |
+| API PM2 process | on NEW build (Phase 3a restart, ~14min uptime) |
+| Serving status | 200s, sub-second, no incident |
+| PM2 web restart | held pending final approval — activates all 5 web-side phases at once |
+
+## Rollback
+
+```bash
+# On VPS
+cd /opt/ayurconnect
+git checkout main
+# Reset apps/web tree to main state
+git checkout -- apps/web
+# Rebuild + restart
+cd apps/web && rm -rf .next && pnpm run build
+pm2 restart ayurconnect-web
+# API rollback (if Phase 3a caused issues — unlikely, source unchanged)
+cd ../api && rm -rf dist && pnpm run build && pm2 restart ayurconnect-api
+```
+
+The audit branch stays pushed to origin — revert is a checkout, not a delete.
