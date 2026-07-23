@@ -6,6 +6,10 @@ import { MapPin, ChevronRight, Stethoscope } from 'lucide-react'
 import { API_INTERNAL as API } from '../../../../lib/server-fetch'
 import { breadcrumbLd, ldGraph, pageMetadata } from '../../../../lib/seo'
 
+// force-dynamic (2026-07-22): route fetches API data via generateStaticParams / metadata; static prerender crashed API. Sitemap keeps URLs.
+export const dynamic = 'force-dynamic'
+
+
 // Country-level Kerala-trained doctor directory. Data-gated: noindex when
 // <3 doctors. generateStaticParams covers the 15 priority diaspora markets;
 // any other country still renders if someone deep-links, but stays noindex.
@@ -30,7 +34,6 @@ const COUNTRY_MAP: Record<string, { code: string; name: string; flag: string }> 
 
 type DoctorBrief = { id: string; slug?: string | null; name: string; specialization?: string | null; district?: string | null; experienceYears?: number | null; homeDistrict?: string | null; college?: string | null }
 
-export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export function generateStaticParams() {
   return Object.keys(COUNTRY_MAP).map((country) => ({ country }))

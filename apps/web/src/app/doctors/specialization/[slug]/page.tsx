@@ -6,6 +6,10 @@ import { DoctorCard, type DoctorCardData } from '@ayurconnect/ui'
 import { API_INTERNAL as API, logServerFetchError } from '@/lib/server-fetch'
 import { breadcrumbLd, ldGraph, physicianLd } from '@/lib/seo'
 
+// force-dynamic (2026-07-22): route fetches API data via generateStaticParams / metadata; static prerender crashed API. Sitemap keeps URLs.
+export const dynamic = 'force-dynamic'
+
+
 // Kerala-classical specialties + a few common English aliases.
 const SPECS: Record<string, { name: string; searchTerm: string; blurb: string }> = {
   panchakarma:     { name: 'Panchakarma',        searchTerm: 'Panchakarma',        blurb: 'Five classical purification therapies — Vamana, Virechana, Basti, Nasya, Raktamokshana.' },
@@ -22,7 +26,6 @@ const SPECS: Record<string, { name: string; searchTerm: string; blurb: string }>
   'back-pain':     { name: 'Back Pain / Sciatica',searchTerm: 'back pain',         blurb: 'Kati Basti, Pizhichil, Kizhi for Kati Shoola + Gridhrasi.' },
 }
 
-export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export function generateStaticParams() {
   return Object.keys(SPECS).map((slug) => ({ slug }))

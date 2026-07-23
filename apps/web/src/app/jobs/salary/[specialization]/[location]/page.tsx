@@ -6,7 +6,11 @@ import { IndianRupee, Briefcase, ArrowRight } from 'lucide-react'
 import { pageMetadata } from '../../../../../lib/seo'
 import { SPECIALIZATIONS, LOCATIONS, SALARY_BENCHMARKS } from '../../../seo/_data'
 
-export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
+// force-dynamic (2026-07-22): SPECIALIZATIONS × LOCATIONS crossproduct
+// ballooned to hundreds of pages. Content is static-ish (salary data seeds),
+// but build-time render was slow. Dynamic-on-request with sitemap URLs
+// preserved for crawlers.
+export const dynamic = 'force-dynamic'
 
 export function generateStaticParams() {
   return SPECIALIZATIONS.flatMap((s) => LOCATIONS.map((l) => ({ specialization: s.slug, location: l.slug })))

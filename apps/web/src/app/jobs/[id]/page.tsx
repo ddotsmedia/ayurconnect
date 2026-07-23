@@ -7,7 +7,12 @@ import { ApplyTrigger } from './_apply-trigger'
 import { deriveLogoColor, deriveLogoInitials, formatSalary } from '../../../lib/data/jobs'
 import type { JobListing } from '../../../lib/types/jobs'
 import type { Metadata } from 'next'
-import { pageMetadata } from '../../../lib/seo'
+import { pageMetadata, jobPostingLd, breadcrumbLd, ldGraph } from '../../../lib/seo'
+
+// force-dynamic (2026-07-22): job details are always fresh (status, apply
+// count change often). Page uses nextHeaders() so was already dynamic
+// implicitly; making it explicit stops any accidental cache-key confusion.
+export const dynamic = 'force-dynamic'
 
 async function fetchJob(id: string): Promise<JobListing | null> {
   const cookie = (await nextHeaders()).get('cookie') ?? ''
@@ -61,11 +66,35 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
   const color    = job.logoColor    ?? deriveLogoColor(job.id)
   const salary   = job.salaryDisplay ?? job.salary ?? formatSalary(job.salaryMin, job.salaryMax, job.currency)
   const location = job.location ?? job.district ?? (job.remote ? 'Remote' : '')
+
+  // Google Jobs indexing — emit JobPosting JSON-LD alongside breadcrumbs.
+  // jobPostingLd() lives in lib/seo.ts; defaults validThrough to 60 days
+  // after createdAt when not explicitly set.
+  const jsonLd = ldGraph(
+    jobPostingLd({
+      id:           job.id,
+      title:        job.title,
+      description:  job.description ?? '',
+      type:         job.type ?? null,
+      district:     job.district ?? null,
+      country:      typeof (job as unknown as { country?: string }).country === 'string' ? (job as unknown as { country?: string }).country : null,
+      salary:       salary ?? null,
+      createdAt:    job.createdAt ?? job.postedAt ?? undefined,
+      employerName: job.clinic ?? null,
+    }),
+    breadcrumbLd([
+      { name: 'Home', url: '/' },
+      { name: 'Jobs', url: '/jobs' },
+      { name: job.title, url: `/jobs/${job.id}` },
+    ]),
+  )
   const similar  = await fetchSimilar(job)
   const shareUrl  = `https://ayurconnect.com/jobs/${job.id}`
   const shareText = `Check out this Ayurveda job: ${job.title}${job.clinic ? ` at ${job.clinic}` : ''}${location ? ` in ${location}` : ''}. Apply: ${shareUrl}`
 
   return (
+    <>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       <Link href="/jobs" className="inline-flex items-center gap-1 text-sm text-kerala-700 hover:underline mb-6">
         <ArrowLeft className="w-3.5 h-3.5" /> All jobs
@@ -157,5 +186,6 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
         </section>
       )}
     </div>
+    </>
   )
 }

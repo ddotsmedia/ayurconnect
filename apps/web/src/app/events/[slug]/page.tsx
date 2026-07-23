@@ -9,6 +9,11 @@ import { API_INTERNAL } from '../../../lib/server-fetch'
 import { headers as nextHeaders } from 'next/headers'
 import { EventShareBar } from '../../../components/events/EventShareBar'
 
+// force-dynamic (2026-07-22): the DB-events fallback hits /event-listings/:id
+// per slug. Pre-rendering all EVENT_SLUGS × DB events at build was slow.
+// Dynamic-on-request is fine — sitemap.ts still emits every seed slug.
+export const dynamic = 'force-dynamic'
+
 type DbEvent = {
   id: string; title: string; description: string; imageUrl: string; imageAlt: string | null
   eventDate: string; eventEndDate: string | null; location: string | null
@@ -24,7 +29,6 @@ async function fetchDbEvent(id: string): Promise<DbEvent | null> {
   } catch { return null }
 }
 
-export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export function generateStaticParams() { return EVENT_SLUGS.map((slug) => ({ slug })) }
 

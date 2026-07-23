@@ -6,6 +6,10 @@ import { MapPin, ChevronRight, Stethoscope } from 'lucide-react'
 import { API_INTERNAL as API } from '../../../lib/server-fetch'
 import { breadcrumbLd, ldGraph, pageMetadata } from '../../../lib/seo'
 
+// force-dynamic (2026-07-22): route fetches API data via generateStaticParams / metadata; static prerender crashed API. Sitemap keeps URLs.
+export const dynamic = 'force-dynamic'
+
+
 const KERALA_DISTRICTS = [
   'Thiruvananthapuram', 'Kollam', 'Pathanamthitta', 'Alappuzha', 'Kottayam',
   'Idukki', 'Ernakulam', 'Thrissur', 'Palakkad', 'Malappuram',
@@ -23,7 +27,6 @@ const slugToLocation = (slug: string): string | null => {
 }
 const locationToSlug = (loc: string) => loc.toLowerCase().replace(/\s+/g, '-')
 
-export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export async function generateStaticParams() {
   return ALL_LOCATIONS.map((loc) => ({ location: locationToSlug(loc) }))

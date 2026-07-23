@@ -5,8 +5,11 @@ export const runtime = 'nodejs'
 export const alt = 'AyurConnect — Condition'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
+// force-dynamic (2026-07-22): render on request, don't prerender at build.
+// generateStaticParams below is kept so Next knows the surface for sitemap
+// hints, but with dynamic='force-dynamic' set none are pre-generated.
+export const dynamic = 'force-dynamic'
 
-export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export async function generateStaticParams() {
   return CONDITIONS.map((c) => ({ slug: c.slug }))

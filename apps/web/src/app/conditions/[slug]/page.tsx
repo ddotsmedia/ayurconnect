@@ -7,11 +7,16 @@ import { CONDITIONS, getCondition } from '../_data/conditions'
 import { breadcrumbLd, ldGraph, AYURVEDA_KEYWORDS } from '@/lib/seo'
 import { ML_PAGES } from '../../ml/_data'
 
+// force-dynamic (2026-07-22): opts out of build-time prerender. The condition
+// pages fetch API data (city stats, doctor counts) — pre-rendering all
+// {slug} × sitemap combos was hammering the API during build. Render on
+// request instead; sitemap.ts still emits every canonical URL.
+export const dynamic = 'force-dynamic'
+
 const ML_BY_EN: Record<string, { slug: string; titleMl: string }> = Object.fromEntries(
   ML_PAGES.filter((p) => p.relatedEnSlug).map((p) => [p.relatedEnSlug as string, { slug: p.slug, titleMl: p.titleMl }]),
 )
 
-export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export function generateStaticParams() {
   return CONDITIONS.map((c) => ({ slug: c.slug }))

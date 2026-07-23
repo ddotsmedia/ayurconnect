@@ -6,6 +6,10 @@ import { DoctorCard, type DoctorCardData } from '@ayurconnect/ui'
 import { API_INTERNAL as API, logServerFetchError } from '@/lib/server-fetch'
 import { breadcrumbLd, ldGraph, physicianLd } from '@/lib/seo'
 
+// force-dynamic (2026-07-22): route fetches API data via generateStaticParams / metadata; static prerender crashed API. Sitemap keeps URLs.
+export const dynamic = 'force-dynamic'
+
+
 const DISTRICTS: Record<string, { name: string; state: string }> = {
   thiruvananthapuram: { name: 'Thiruvananthapuram', state: 'Kerala' },
   kollam:             { name: 'Kollam',             state: 'Kerala' },
@@ -26,7 +30,6 @@ const DISTRICTS: Record<string, { name: string; state: string }> = {
   sharjah:            { name: 'Sharjah',            state: 'UAE' },
 }
 
-export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export function generateStaticParams() {
   return Object.keys(DISTRICTS).map((district) => ({ district }))

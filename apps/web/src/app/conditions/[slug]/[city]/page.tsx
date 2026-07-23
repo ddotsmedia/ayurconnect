@@ -13,9 +13,13 @@ import { BookOpen, Sprout, AlertTriangle, ChevronRight, ArrowLeft, MapPin, Steth
 import { CONDITIONS, getCondition } from '../../_data/conditions'
 import { CITIES, getCity } from '../../_data/cities'
 import { breadcrumbLd, ldGraph, AYURVEDA_KEYWORDS } from '@/lib/seo'
+
+// force-dynamic (2026-07-22): 30+ conditions × 14+ cities = 400+ page
+// crossproduct. Rendering all at build hammered the API server. Dynamic
+// on-request is fine — sitemap.ts still emits every URL for crawlers.
+export const dynamic = 'force-dynamic'
 import { API_INTERNAL as API } from '@/lib/server-fetch'
 
-export const revalidate = 300 // Phase 4 (2026-07-23): reverted from force-dynamic per audit prompt
 
 export function generateStaticParams() {
   const params: Array<{ slug: string; city: string }> = []
