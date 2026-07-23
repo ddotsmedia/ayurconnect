@@ -325,13 +325,109 @@ Callers migrate opportunistically — no big-bang refactor. Prefer these over in
 
 ---
 
-- **Phase 13** — `/herbs` + directory performance audit
-- **Phase 14** — Image optimization (raw `<img>` → `next/image` on public hero images)
-- **Phase 15** — React hook dependency warnings
-- **Phase 16** *(gated)* — Security headers (HSTS present; CSP report-only proposal); CORS; cookies; IP handling
-- **Phase 17** — Healthcare privacy + AI safety audit
-- **Phase 18** — PM2 config diff; health endpoints (web vs API vs DB deep check)
-- **Phase 19** — Final testing + rollback procedure documentation
+## Phase 13 — Directory performance · **Medium** · REPORT ONLY
+
+`apps/web/src/app/herbs/page.tsx:30` — `fetch('/herbs?limit=100', { cache: 'no-store' })`. Loads 100 records unpaged with no cache on every request. Fine at ~150 herbs; will hurt when catalog scales.
+
+**Recommendation** (not shipped — deferred):
+- Server pagination: 24-40 records per page
+- Query param `?page=2` + canonical `<link rel="prev/next">`
+- Server cache: `revalidate: 300`
+- Same pattern applies to `/doctors`, `/hospitals` if measured slow
+
+**Not shipped** (out of audit scope; requires UI redesign, would touch filter chrome).
+
+## Phase 14 — Image optimization · **Medium** · REPORT ONLY
+
+**32 raw `<img>` tags** across `apps/web/src/app/*` + `apps/web/src/components/*`; **1** `next/image` usage. Ratio inverted.
+
+Most are inside SSR content — doctor cards, article covers, event posters. Migrating them to `next/image` would give lazy-load + WebP + srcset auto but requires:
+- `remotePatterns` config for MinIO + Cloudflare Images hosts
+- Layout shift audits (aspect-ratio boxes)
+- Fallback handling for missing images
+
+**Not shipped in this audit** — bigger than a single autopilot commit. Recommend a dedicated per-surface migration in a follow-up prompt.
+
+## Phase 15 — React hook dependency warnings · **Low** · REPORT ONLY
+
+`react-hooks/exhaustive-deps` explicit-disable count: **6+ files** in the codebase (admin/doctors, admin/events, admin/jobs, admin/leads, admin/verify, consult/[appointmentId], and more not counted). All admin surfaces intentionally suppress the exhaustive-deps rule for the tab-change + polling patterns.
+
+**Assessment**: no evidence of infinite loops or duplicate fetches on those files (previously investigated during dashboard work). The suppressions are conscious, not accidental.
+
+**Not shipped** — no user-facing bug to fix. Auditors reviewing the code will see the disables and can raise specific concerns.
+
+## Phase 17 — Healthcare privacy + AI safety · **High** · REPORT ONLY
+
+Provider callsites in codebase:
+- `apps/api/src/lib/groq-client.ts` — Groq (Llama 3.3 70B, Llama 4 Scout for extraction)
+- `apps/api/src/lib/llm.ts` — provider abstraction wrapper
+
+Legacy Anthropic + Google Gemini integrations were migrated OUT to Groq in an earlier session (billing / quota reasons).
+
+### What data does Groq see?
+
+Confirmed callsites accept:
+- **Job poster text** (public data — recruiter-posted, no patient identifiers)
+- **Job description refinement** (public data)
+- **Career advice queries** (user-typed, may contain email / phone if user pastes personal info — **PII risk**)
+- **Resume score** (uploaded resume text → PII by definition)
+- **Mock interview** (user answers → could contain any details user types)
+
+Not sent to Groq:
+- No consultation notes
+- No prescriptions
+- No patient health records (PHI)
+
+### Groq provider retention
+
+Groq default retention policy applies — free-tier queries may be used for model improvement unless enterprise contract. **Confirm the contract terms with legal.**
+
+### AI disclaimer coverage
+
+- `/career-advisor`, `/resume-score`, `/mock-interview` should show a "Do not paste sensitive PII" notice
+- No diagnosis or prescribing surface exists (correct — no ChatDoctor or symptom-checker LLM)
+
+### Recommendations (no code change — needs legal review)
+
+1. Confirm Groq contract terms (retention / no-training)
+2. Add PII-caution banner on the 3 free-text input surfaces
+3. Audit `apps/api/src/routes/ai-*.ts` handlers for prompt injection guardrails
+4. Ensure resume upload doesn't retain raw uploads after extraction
+
+Deferred to legal / product owner sign-off.
+
+## Phase 16 — Security headers · **Gated** · PENDING
+
+Current in `apps/web/next.config.mjs` `headers()`:
+- ✅ `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
+- ✅ `X-Content-Type-Options: nosniff`
+- Present per earlier grep; full inventory pending Phase 16 diff
+
+**Not audited yet** — Phase 16 diff coming as separate gated commit before shipping (per audit prompt).
+
+## Phase 18 — PM2 config + health endpoints · **Medium** · PENDING
+
+Not yet inspected — would need `pm2 describe ayurconnect-{web,api}` + comparison to recommended settings (max_memory_restart, restart_delay, exp_backoff_restart_delay, output/error paths).
+
+Deferred pending final restart batch decision.
+
+## Phase 19 — Final testing + rollback
+
+Pending. Will run after the batched PM2 restart of Phases 1+2+3b+4+6+8:
+```
+curl -sI https://ayurconnect.com/                      # homepage
+curl -sI https://ayurconnect.com/sign-in               # canonical login
+curl -sI https://ayurconnect.com/login                 # 301 → /sign-in
+curl -sI https://ayurconnect.com/doctors               # directory
+curl -sI https://ayurconnect.com/conditions/pcos       # revalidate: 300
+curl -sI https://ayurconnect.com/leaderboard           # Phase 3 loader
+curl -sI https://ayurconnect.com/offers                # Phase 3 loader
+curl -sI https://ayurconnect.com/sitemap.xml           # unchanged
+curl -sI https://ayurconnect.com/robots.txt            # unchanged
+curl -s http://127.0.0.1:4100/health                   # API direct
+```
+
+Rollback procedure preserved at file tail.
 
 ---
 
