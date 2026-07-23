@@ -218,8 +218,40 @@ Run this quarterly as an admin diagnostic.
 
 ---
 
-- **Phase 10** — Verification badge evidence audit (report only)
-- **Phase 10** — Verification badge evidence audit (report only)
+## Phase 10 — Verification badge evidence audit · **High** · REPORT ONLY (no writes)
+
+### Current schema — single-boolean badges
+
+**Doctor** boolean flags: `ccimVerified` + `moderationStatus`
+**Hospital** boolean flags: `ccimVerified`, `ayushCertified`, `panchakarma`, `nabh` + `moderationStatus`
+
+No dedicated evidence columns on either model:
+- ❌ No `verifiedAt` timestamp
+- ❌ No `verifiedBy` FK to reviewing admin
+- ❌ No `verificationSource` (registration body identifier)
+- ❌ No `expiryDate` (badges never expire)
+- ❌ No `documentReference` (proof URL / MinIO object)
+
+### Live data — badges flying with no evidence
+
+| Model | Total | Public "Verified" badge count | Evidence field present |
+|---|---|---|---|
+| Doctor | 39 | 38 (`ccimVerified=true`) | **0** doctors have `registrationNumber` populated |
+| Hospital | 14 | 14 (`ccimVerified=true`) | zero direct-evidence fields; only booleans |
+| Hospital | 14 | 11 (`ayushCertified=true`) | boolean only |
+| Hospital | 14 | 12 (`panchakarma=true`) | boolean only |
+| Hospital | 14 | 4 (`nabh=true`) | boolean only |
+
+**Concern**: The public directory renders "Verified" badges + "AYUSH certified" + "NABH accredited" chips based purely on booleans an admin toggled. If challenged (regulator, patient complaint, professional council), the platform has **no stored evidence** of when, why, or by whom the badge was granted.
+
+### Recommendation for admin/legal review
+
+Additive migration (needs approval): new `VerificationRecord` model with `authority`, `registrationNumber`, `verifiedAt`, `verifiedBy` (FK), `expiryDate`, `documentUrl`, `notes`, `isCurrent`. Boolean flags stay as computed properties over the presence of a current record. Existing 38 doctor + 14 hospital badges would need admin-review backfill.
+
+**No automatic removal of current badges** (per audit rules).
+
+---
+
 - **Phase 11** — Statistics consistency (homepage says 42 doctors, directory says 39, etc.)
 - **Phase 12** — Formatting utilities (`14 centres` vs `14 centre s`, `1 yrs`, etc.)
 - **Phase 13** — `/herbs` + directory performance audit
