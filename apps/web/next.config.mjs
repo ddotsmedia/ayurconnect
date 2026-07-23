@@ -81,6 +81,12 @@ export default {
       // pizhichil oil is dhanwantharam. 301 to the closest existing entries.
       { source: '/medicine/dasamoolarishtam', destination: '/medicine/dasamoolakashayam',   permanent: true },
       { source: '/medicine/pizhichil-tailam', destination: '/medicine/dhanwantharam-tailam', permanent: true },
+      // Phase 6 (2026-07-23) — canonical login route is /sign-in (Better Auth).
+      // Redirect common aliases so users typing /login or /signin land on the
+      // real page instead of a 404.
+      { source: '/login',      destination: '/sign-in', permanent: true },
+      { source: '/signin',     destination: '/sign-in', permanent: true },
+      { source: '/auth/login', destination: '/sign-in', permanent: true },
     ]
   },
   async headers() {
