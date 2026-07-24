@@ -8,6 +8,7 @@ import { hospitalLd, breadcrumbLd, ldGraph, clip, SITE_URL } from '../../../lib/
 import { mapsDirectionsUrl, mapsLatLngUrl } from '../../../lib/maps'
 import { getServerSession } from '../../../lib/auth'
 import { ReviewForm } from '../../../components/review-form'
+import { WhatsAppMessagePicker } from '../../../components/whatsapp-message-picker'
 import { VerificationBadges } from '../../../components/seo/VerificationBadges'
 import { SocialLinksDisplay } from '../../../components/social-links'
 import { HospitalGallery } from '../../../components/hospital/HospitalGallery'
@@ -391,9 +392,16 @@ export default async function HospitalDetailPage({ params }: { params: Promise<{
               </a>
             )}
             {(h.whatsapp ?? h.contact) && (
-              <a href={`https://wa.me/${(h.whatsapp ?? h.contact ?? '').replace(/[^\d]/g, '')}`} target="_blank" rel="noreferrer" className="mt-2 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#25d366] hover:opacity-90 text-white font-semibold rounded-md text-sm">
-                <MessageCircle className="w-4 h-4" /> WhatsApp
-              </a>
+              <WhatsAppMessagePicker
+                phone={(h.whatsapp ?? h.contact ?? '')}
+                context="hospital"
+                entityName={h.name}
+                className="mt-2 block w-full"
+              >
+                <button type="button" className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#25d366] hover:opacity-90 text-white font-semibold rounded-md text-sm">
+                  <MessageCircle className="w-4 h-4" /> WhatsApp
+                </button>
+              </WhatsAppMessagePicker>
             )}
             <a href={directionsUrl} target="_blank" rel="noreferrer" className="mt-2 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-kerala-600 text-kerala-700 hover:bg-kerala-50 font-semibold rounded-md text-sm">
               <MapPin className="w-4 h-4" /> Directions

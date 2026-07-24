@@ -28,6 +28,7 @@ const NAV: Array<{ href: string; label: string; group?: string }> = [
   { href: '/admin/reviews',   label: 'Reviews',   group: 'moderation' },
   { href: '/admin/leads',     label: 'Leads / Enquiries', group: 'moderation' },
   { href: '/admin/consultation-requests', label: 'Consultation Requests', group: 'moderation' },
+  { href: '/admin/whatsapp-messages', label: 'WhatsApp templates', group: 'config' },
   { href: '/admin/settings',  label: 'Site settings', group: 'config' },
 ]
 

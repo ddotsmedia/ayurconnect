@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { MessageCircle } from 'lucide-react'
+import { WhatsAppMessagePicker } from '../../components/whatsapp-message-picker'
 
 export function InquiryForm({ hospitalId, postTitle, hospitalName }: { hospitalId: string; postTitle: string; hospitalName: string }) {
   const [form, setForm]   = useState({ name: '', phone: '', email: '', message: `I'm interested in: ${postTitle}` })
@@ -20,8 +21,6 @@ export function InquiryForm({ hospitalId, postTitle, hospitalName }: { hospitalI
     setDone(true); setBusy(false)
   }
 
-  const waUrl = `https://wa.me/971509379212?text=${encodeURIComponent(`Hi AyurConnect, I'm interested in "${postTitle}" at ${hospitalName}. Please share details.`)}`
-
   if (done) return <p className="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded p-3">Thanks — the hospital will contact you on the phone number provided.</p>
 
   return (
@@ -33,7 +32,11 @@ export function InquiryForm({ hospitalId, postTitle, hospitalName }: { hospitalI
       {err && <p className="text-xs text-rose-700">{err}</p>}
       <div className="flex flex-wrap gap-2">
         <button disabled={busy} className="px-4 py-1.5 bg-kerala-700 hover:bg-kerala-800 text-white text-sm font-semibold rounded disabled:opacity-50">{busy ? 'Sending…' : 'Send inquiry'}</button>
-        <a href={waUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 px-4 py-1.5 bg-[#25D366] text-white text-sm font-semibold rounded"><MessageCircle className="w-4 h-4" /> WhatsApp</a>
+        <WhatsAppMessagePicker phone="971509379212" context="hospital" entityName={`${postTitle} — ${hospitalName}`}>
+          <button type="button" className="inline-flex items-center gap-1 px-4 py-1.5 bg-[#25D366] text-white text-sm font-semibold rounded">
+            <MessageCircle className="w-4 h-4" /> WhatsApp
+          </button>
+        </WhatsAppMessagePicker>
       </div>
     </form>
   )

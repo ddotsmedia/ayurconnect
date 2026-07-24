@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { Search, X, MessageCircle } from 'lucide-react'
+import { WhatsAppMessagePicker } from '../../../components/whatsapp-message-picker'
 
 type Hospital = {
   id: string
@@ -94,9 +95,11 @@ export function CompareClient({ hospitals }: { hospitals: Hospital[] }) {
                 <td className="px-3 py-2 text-xs uppercase tracking-wider text-gray-500">Inquire</td>
                 {picked.map((h) => (
                   <td key={h.id} className="px-3 py-2">
-                    <a href={`https://wa.me/971509379212?text=${encodeURIComponent(`Hi AyurConnect, I want to inquire about ${h.name}.`)}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#25D366] text-white text-xs font-semibold rounded">
-                      <MessageCircle className="w-3 h-3" /> Inquire
-                    </a>
+                    <WhatsAppMessagePicker phone="971509379212" context="hospital" entityName={h.name}>
+                      <button type="button" className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#25D366] text-white text-xs font-semibold rounded">
+                        <MessageCircle className="w-3 h-3" /> Inquire
+                      </button>
+                    </WhatsAppMessagePicker>
                   </td>
                 ))}
               </tr>

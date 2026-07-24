@@ -2,9 +2,13 @@
 
 import { useState } from 'react'
 import { MessageCircle, Phone, Mail, CheckCircle2, Loader2 } from 'lucide-react'
+import { WhatsAppMessagePicker } from '../whatsapp-message-picker'
+
+// Central AyurConnect WhatsApp — lead-capture flow. The picker still shows
+// doctor-context templates; only the destination number is central.
+const WA_PHONE = '971509379212'
 
 export function BookingCard({ doctorId, doctorName, specialization }: { doctorId: string; doctorName: string; specialization: string }) {
-  const wa = `https://wa.me/971509379212?text=${encodeURIComponent(`Hi AyurConnect, I want to book a consultation with ${doctorName} (${specialization}).`)}`
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState({ name: '', phone: '', concern: '' })
   const [busy, setBusy] = useState(false)
@@ -30,18 +34,21 @@ export function BookingCard({ doctorId, doctorName, specialization }: { doctorId
     } catch (e) { setErr(e instanceof Error ? e.message : String(e)) } finally { setBusy(false) }
   }
 
+  const entityLabel = `${doctorName.replace(/^Dr\.?\s*/, 'Dr. ')} (${specialization})`
+
   return (
     <>
       {/* Desktop sticky card */}
       <div className="bg-white border border-gray-100 rounded-card shadow-cardLg p-5 lg:sticky lg:top-24 self-start">
         <h2 className="font-serif text-xl text-ink">Consult {doctorName.replace(/^Dr\.?\s*/, 'Dr. ')}</h2>
-        <a href={wa} target="_blank" rel="noreferrer" className="mt-4 w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md text-sm">
-          <MessageCircle className="w-4 h-4" /> Book via WhatsApp
-        </a>
+        <WhatsAppMessagePicker phone={WA_PHONE} context="doctor" entityName={entityLabel} className="block mt-4">
+          <button type="button" className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-gold-500 hover:bg-gold-600 text-white font-semibold rounded-md text-sm">
+            <MessageCircle className="w-4 h-4" /> Book via WhatsApp
+          </button>
+        </WhatsAppMessagePicker>
         <button onClick={() => setOpen(!open)} className="mt-2 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-kerala-700 text-kerala-700 hover:bg-kerala-50 font-semibold rounded-md text-sm">
           <Phone className="w-4 h-4" /> Request Callback
         </button>
-        <p className="text-xs text-gray-500 mt-3">Consultation fee: Contact for pricing</p>
 
         {open && !done && (
           <form onSubmit={submit} className="mt-3 space-y-2 text-sm">
@@ -62,9 +69,16 @@ export function BookingCard({ doctorId, doctorName, specialization }: { doctorId
       </div>
 
       {/* Mobile fixed bottom bar */}
-      <a href={wa} target="_blank" rel="noreferrer" className="fixed bottom-16 left-0 right-0 z-40 lg:hidden bg-gold-500 hover:bg-gold-600 text-white font-semibold flex items-center justify-center gap-2 py-3.5 shadow-cardLg">
-        <MessageCircle className="w-5 h-5" /> Book {doctorName.split(' ').slice(0, 2).join(' ')} on WhatsApp
-      </a>
+      <WhatsAppMessagePicker
+        phone={WA_PHONE}
+        context="doctor"
+        entityName={entityLabel}
+        className="fixed bottom-16 left-0 right-0 z-40 lg:hidden block"
+      >
+        <button type="button" className="w-full bg-gold-500 hover:bg-gold-600 text-white font-semibold flex items-center justify-center gap-2 py-3.5 shadow-cardLg">
+          <MessageCircle className="w-5 h-5" /> Book {doctorName.split(' ').slice(0, 2).join(' ')} on WhatsApp
+        </button>
+      </WhatsAppMessagePicker>
 
       {/* keep doctorId stable in DOM for analytics */}
       <span data-doctor-id={doctorId} className="hidden" />

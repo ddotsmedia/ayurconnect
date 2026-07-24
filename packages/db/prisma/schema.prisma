@@ -2603,3 +2603,17 @@ model EventListing {
   @@index([status])
   @@index([status, isPublished, eventDate])
 }
+
+// WhatsApp message templates surfaced by the shared <WhatsAppMessagePicker>.
+// context is a string (not enum) so admins can add new contexts without a
+// migration; app enforces "doctor" | "hospital" today.
+model WhatsAppMessageTemplate {
+  id        String   @id @default(cuid())
+  context   String   // 'doctor' | 'hospital'
+  text      String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([context, sortOrder])
+}
