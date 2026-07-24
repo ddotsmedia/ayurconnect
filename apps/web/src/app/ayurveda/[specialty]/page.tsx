@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { GradientHero } from '@ayurconnect/ui'
 import { ChevronRight, Stethoscope, BookOpen } from 'lucide-react'
 import { API_INTERNAL as API } from '../../../lib/server-fetch'
+import { formatExperience } from '../../../lib/format'
 import { breadcrumbLd, ldGraph, pageMetadata } from '../../../lib/seo'
 
 // force-dynamic (2026-07-22): route fetches API data via generateStaticParams / metadata; static prerender crashed API. Sitemap keeps URLs.
@@ -135,7 +136,7 @@ export default async function SpecialtyPage({ params }: { params: Promise<{ spec
                 <Link href={`/doctors/${d.slug ?? d.id}`} className="block bg-white border border-gray-100 rounded-card p-5 shadow-card hover:shadow-cardLg transition-shadow">
                   <h3 className="font-serif text-lg text-ink">{d.name}</h3>
                   <p className="text-xs text-muted mt-1">
-                    {d.district ?? ''}{d.experienceYears ? ` · ${d.experienceYears} yrs` : ''}
+                    {d.district ?? ''}{d.experienceYears ? ` · ${formatExperience(d.experienceYears)}` : ''}
                   </p>
                   <span className="mt-2 inline-flex items-center text-xs text-kerala-700">View profile <ChevronRight className="w-3 h-3" /></span>
                 </Link>

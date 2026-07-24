@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { GradientHero } from '@ayurconnect/ui'
 import { BookOpen, ChevronRight, Users, ArrowLeft } from 'lucide-react'
 import { API_INTERNAL as API } from '../../../../lib/server-fetch'
+import { formatExperience } from '../../../../lib/format'
 import { breadcrumbLd, ldGraph, pageMetadata } from '../../../../lib/seo'
 
 type Doc = { id: string; slug?: string | null; name: string; specialization?: string | null; district?: string | null; country?: string | null; college?: string | null; batchYear?: number | null; collegeSlug?: string | null; experienceYears?: number | null }
@@ -98,7 +99,7 @@ export default async function CollegeAlumniPage({ params }: { params: Promise<{ 
                   <Link href={`/doctors/${d.slug ?? d.id}`} className="block bg-cream border border-gray-100 rounded p-3 hover:border-kerala-300">
                     <p className="font-semibold text-sm text-ink">{d.name}</p>
                     <p className="text-[11px] text-gray-500">
-                      {d.specialization ?? 'General'}{d.experienceYears ? ` · ${d.experienceYears} yrs` : ''}
+                      {d.specialization ?? 'General'}{d.experienceYears ? ` · ${formatExperience(d.experienceYears)}` : ''}
                       {d.district && ` · ${d.district}`}{d.country && d.country !== 'IN' && ` (${d.country})`}
                     </p>
                   </Link>

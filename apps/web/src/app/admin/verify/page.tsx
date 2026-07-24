@@ -1,4 +1,5 @@
 'use client'
+import { formatExperience } from '../../../lib/format'
 
 // Approval / verification queue — rebuilt for Phase 9.
 //
@@ -289,7 +290,7 @@ function DoctorList({ doctors, loading, busyId, onAct }: { doctors: Doctor[]; lo
                 </div>
                 <div className="text-sm text-gray-700 mt-1">
                   {d.specialization} · {d.district}{d.state && d.state !== d.district ? `, ${d.state}` : ''}{d.country && d.country !== 'IN' ? ` · ${d.country}` : ''}
-                  {d.experienceYears != null && <> · {d.experienceYears} yrs</>}
+                  {d.experienceYears != null && <> · {formatExperience(d.experienceYears)}</>}
                 </div>
                 <div className="text-xs text-gray-500 mt-1 flex flex-wrap gap-2">
                   {d.qualification
